@@ -484,3 +484,8 @@ $RECYCLE.BIN/
 # LIBRAIN — local PDF corpus (gitkeep preserves the directory)
 data/papers/*
 !data/papers/.gitkeep
+
+# LIBRAIN — personal working notes, kept local-only
+12_WEEK_TIMELINE.md
+CV_UPDATE.md
+INDEX.md
