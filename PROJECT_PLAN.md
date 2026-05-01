@@ -1,7 +1,7 @@
 # LIBRAIN — Project Plan
 
 > **Multi-Agent RAG System for Scientific Discovery**
-> Built in .NET 9 with Anthropic Claude, OpenAI Embeddings, and Azure Cosmos DB.
+> Built in .NET 10 with Anthropic Claude, OpenAI Embeddings, and Azure Cosmos DB.
 
 This document is the single source of truth for the LIBRAIN MVP. It defines scope, architecture, technical decisions, and execution phases. Cursor agents and the developer should read this before making any structural decisions.
 
@@ -29,13 +29,14 @@ These choices are **final**. Do not propose alternatives during implementation.
 
 | Layer | Choice | Reason |
 |---|---|---|
-| Runtime | **.NET 9** | Newest LTS-track, native AOT possible, modern minimal APIs |
+| Runtime | **.NET 10** | Newest LTS-track, native AOT possible, modern minimal APIs |
 | Web framework | **ASP.NET Core Minimal APIs** | Less ceremony, easier for portfolio readability |
+| API docs UI | **Scalar.AspNetCore** on top of `Microsoft.AspNetCore.OpenApi` | Native fit with .NET 10's built-in OpenAPI support; modern alternative to Swashbuckle; polished UI for the portfolio demo |
 | LLM (reasoning) | **Anthropic Claude** via `Anthropic.SDK` NuGet | Developer already familiar; high-quality reasoning; cheap with Haiku |
 | LLM (embeddings) | **OpenAI `text-embedding-3-small`** via official SDK | Anthropic doesn't ship embeddings; this model is industry-standard, cheap |
 | Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions, AI-200 syllabus alignment |
 | Vector store | **Azure Cosmos DB for NoSQL** with DiskANN vector index | Native Azure, serverless billing, no separate vector DB to provision |
-| PDF parsing | **UglyToad.PdfPig** | Pure managed, no native deps, works on Apple Silicon |
+| PDF parsing | **PdfPig** | Pure managed, no native deps, works on Apple Silicon. NuGet ID is now `PdfPig` (formerly `UglyToad.PdfPig` — same library, same maintainers, same repo: github.com/UglyToad/PdfPig) |
 | Observability | **Application Insights** + structured logging | Azure native, zero-config, AI-200 aligned |
 | Secrets (dev) | **`dotnet user-secrets`** | No secrets in repo, no extra service |
 | Hosting (later) | **Azure Container Apps** | Serverless containers, scale-to-zero, low cost |
@@ -74,6 +75,8 @@ The original paper describes Reader, Hypothesis, Evaluator, Archivist agents. Th
 ```
 
 The "Archivist" from the paper becomes a **cross-cutting concern** (Application Insights + custom event logging), not a separate agent. This is a deliberate simplification.
+
+`AddApplicationInsightsTelemetry()` registration is **config-gated** in `Program.cs` on `ApplicationInsights:ConnectionString` being non-empty. The 3.x SDK is built on Azure Monitor / OpenTelemetry and throws `InvalidOperationException` at host start when the connection string is missing — the legacy 2.x silent-no-op is gone. The gate lives at the composition root only; agent and service registrations stay unconditional.
 
 ### 3.2 Data Flow
 
@@ -211,7 +214,7 @@ Track baseline hallucination rate (manual review of first 50 hypotheses) and rat
 
 Deliverables:
 - [ ] Solution scaffold (1 Web API project, no premature splitting)
-- [ ] PDF parsing service (UglyToad.PdfPig)
+- [ ] PDF parsing service (PdfPig)
 - [ ] Recursive text chunker with overlap
 - [ ] OpenAI embeddings client wrapper
 - [ ] Cosmos DB client + repository
@@ -255,7 +258,7 @@ Deliverables:
 - [ ] API deployed to Azure Container Apps
 - [ ] README polished with architecture diagram, demo GIF, performance numbers
 - [ ] Loom demo video (3-5 min walkthrough)
-- [ ] Blog post on personal site or Medium: *"Building a Multi-Agent RAG System in .NET 9"*
+- [ ] Blog post on personal site or Medium: *"Building a Multi-Agent RAG System in .NET 10"*
 - [ ] Companion paper updated with implementation results, posted to arXiv as preprint
 - [ ] AI-200 certification exam scheduled and taken
 - [ ] CV updated with final bullets and live links

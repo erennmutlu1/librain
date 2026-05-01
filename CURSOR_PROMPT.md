@@ -62,13 +62,13 @@ Create the initial solution structure as described in §3 and §6 of
 PROJECT_PLAN.md. Specifically:
 
 1. Create a single ASP.NET Core Web API project named "LIBRAIN" using minimal 
-   APIs (.NET 9). 
+   APIs (.NET 10). 
 2. Add NuGet packages: 
    - Anthropic.SDK
    - OpenAI (official)
    - Microsoft.Azure.Cosmos
    - Microsoft.SemanticKernel
-   - UglyToad.PdfPig
+   - PdfPig
    - Microsoft.ApplicationInsights.AspNetCore
 3. Create the folder structure: Agents/, Embeddings/, Storage/, Models/.
 4. Set up Program.cs with: dependency injection scaffold, App Insights wiring, 
@@ -137,7 +137,7 @@ After the initial scaffold is done, you'll have shorter, focused prompts. Exampl
 ```
 We're now on Phase 1, Step 2 from PROJECT_PLAN.md. Implement the PDF parsing 
 and chunking pipeline per §4.1. Start with: a PdfTextExtractor that takes a 
-file path and returns plain text + page metadata, using UglyToad.PdfPig. 
+file path and returns plain text + page metadata, using PdfPig. 
 Then a RecursiveChunker per the spec (512-token target, 1024 max, 15% overlap, 
 paragraph > sentence > hard cut boundary preference). Write unit tests for 
 the chunker (chunker is one of the three components that gets tests per the 

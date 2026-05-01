@@ -1,8 +1,8 @@
 # LIBRAIN
 
-> **A multi-agent RAG system that reads scientific papers and proposes new hypotheses — built in .NET 9.**
+> **A multi-agent RAG system that reads scientific papers and proposes new hypotheses — built in .NET 10.**
 
-![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
 ![Azure](https://img.shields.io/badge/Azure-Cosmos%20DB-0078D4?logo=microsoftazure)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -36,7 +36,7 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 
 ## Why This Project
 
-Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 9** using Microsoft Semantic Kernel patterns and Azure-native services. It's a deliberate counter-example to the "AI = Python only" assumption.
+Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Azure-native services. It's a deliberate counter-example to the "AI = Python only" assumption.
 
 The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design and the simplifications made for the MVP. A revised preprint with implementation results will be posted to arXiv when the MVP is complete.
 
@@ -46,12 +46,13 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 
 | Layer | Technology |
 |---|---|
-| Runtime | .NET 9, ASP.NET Core Minimal APIs |
+| Runtime | .NET 10, ASP.NET Core Minimal APIs |
+| API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
 | LLM (reasoning) | Anthropic Claude (Sonnet for synthesis, Haiku for evaluation) |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
 | Vector store | Azure Cosmos DB for NoSQL, DiskANN vector index |
 | Orchestration | Microsoft Semantic Kernel patterns |
-| PDF parsing | UglyToad.PdfPig |
+| PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
 | Hosting | Azure Container Apps (API), Azure Static Web Apps (frontend) |
 
