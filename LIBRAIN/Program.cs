@@ -1,6 +1,7 @@
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Models;
+using LIBRAIN.Reading;
 using LIBRAIN.Storage;
 using Scalar.AspNetCore;
 
@@ -24,6 +25,7 @@ builder.Services.Configure<CosmosOptions>(
 builder.Services.AddScoped<AnthropicChatClient>();
 builder.Services.AddScoped<OpenAIEmbeddingClient>();
 builder.Services.AddScoped<CosmosPaperRepository>();
+builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<ReaderAgent>();
 builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
