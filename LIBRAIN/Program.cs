@@ -26,6 +26,7 @@ builder.Services.AddScoped<AnthropicChatClient>();
 builder.Services.AddScoped<OpenAIEmbeddingClient>();
 builder.Services.AddScoped<CosmosPaperRepository>();
 builder.Services.AddScoped<PdfTextExtractor>();
+builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
 builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
