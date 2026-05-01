@@ -7,7 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Anthropic.SDK" Version="5.10.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.59.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.75.0" />
+    <!-- Required by Microsoft.Azure.Cosmos build-time guard (AzureCosmosDisableNewtonsoftJsonCheck alternative). -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OpenAI" Version="2.10.0" />
+    <!-- Pin to override vulnerable transitive (1.15.1, GHSA-g94r-2vxg-569j) from App Insights 3.1.0; remove when App Insights ships a patched build. -->
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.14.9" />
   </ItemGroup>
 
 </Project>
