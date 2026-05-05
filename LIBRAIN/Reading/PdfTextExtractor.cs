@@ -1,5 +1,6 @@
 using System.Text;
 using UglyToad.PdfPig;
+using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 
 namespace LIBRAIN.Reading;
 
@@ -18,7 +19,7 @@ public sealed class PdfTextExtractor(ILogger<PdfTextExtractor> logger)
         foreach (var page in document.GetPages())
         {
             var startOffset = builder.Length;
-            var text = page.Text;
+            var text = ContentOrderTextExtractor.GetText(page);
             pages.Add(new ExtractedPage(page.Number, text, startOffset));
             builder.Append(text);
             if (page.Number < document.NumberOfPages)
