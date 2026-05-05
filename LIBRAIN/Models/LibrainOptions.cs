@@ -12,9 +12,8 @@ public sealed record OpenAIOptions
     public string ApiKey { get; init; } = string.Empty;
 }
 
-public sealed record CosmosOptions
+public sealed record QdrantOptions
 {
-    public const string SectionName = "Cosmos";
-    public string Endpoint { get; init; } = string.Empty;
-    public string Key { get; init; } = string.Empty;
+    public const string SectionName = "Qdrant";
+    public string Host { get; init; } = string.Empty;
 }
