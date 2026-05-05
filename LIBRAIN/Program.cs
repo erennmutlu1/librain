@@ -44,7 +44,7 @@ builder.Services.AddSingleton<QdrantClient>(sp =>
     return new QdrantClient(options.Host, qdrantPort);
 });
 
-builder.Services.AddScoped<AnthropicChatClient>();
+builder.Services.AddSingleton<AnthropicChatClient>();
 builder.Services.AddScoped<OpenAIEmbeddingClient>();
 builder.Services.AddScoped<QdrantPaperRepository>();
 builder.Services.AddScoped<PdfTextExtractor>();
