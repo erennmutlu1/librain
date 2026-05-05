@@ -11,7 +11,12 @@ public sealed class OpenAIEmbeddingClient(
 {
     private const string Model = "text-embedding-3-small";
     private const int MaxInputsPerBatch = 100;
-    private const int MaxTokensPerBatch = 250_000;
+    // OpenAI Tier 1 (new accounts) caps text-embedding-3-small at 40K TPM.
+    // 35K per batch + 1.5s gap keeps us safely under both per-request and
+    // rolling-window limits. On higher tiers this is conservative — revisit
+    // when account graduates (auto-detect via 200 OK history? defer to later).
+    private const int MaxTokensPerBatch = 35_000;
+    private const int InterBatchDelayMs = 1500;
     private const int CharsPerToken = 4;
 
     private readonly ILogger<OpenAIEmbeddingClient> _logger = logger;
@@ -30,8 +35,9 @@ public sealed class OpenAIEmbeddingClient(
         var batches = BuildBatches(inputs);
         var sw = Stopwatch.StartNew();
 
-        foreach (var batch in batches)
+        for (int batchIndex = 0; batchIndex < batches.Count; batchIndex++)
         {
+            var batch = batches[batchIndex];
             var slice = new string[batch.Count];
             for (int i = 0; i < batch.Count; i++)
             {
@@ -45,6 +51,11 @@ public sealed class OpenAIEmbeddingClient(
             {
                 results[batch.Start + idx] = embedding.ToFloats().ToArray();
                 idx++;
+            }
+
+            if (batchIndex < batches.Count - 1)
+            {
+                await Task.Delay(InterBatchDelayMs, ct);
             }
         }
 
