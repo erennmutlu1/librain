@@ -50,7 +50,8 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 | API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
 | LLM (reasoning) | Anthropic Claude (Sonnet for synthesis, Haiku for evaluation) |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
-| Vector store | Azure Cosmos DB for NoSQL, DiskANN vector index |
+| Vector store (dev) | Qdrant (local Docker) — zero-cost MVP iteration |
+| Vector store (production target) | Azure Cosmos DB for NoSQL with DiskANN vector index — deferred to Phase 3 deployment |
 | Orchestration | Microsoft Semantic Kernel patterns |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
@@ -68,10 +69,13 @@ git clone https://github.com/erennmutlu1/librain.git
 cd librain
 
 # Configure secrets (one-time)
-dotnet user-secrets set "Anthropic:ApiKey" "sk-ant-..."
-dotnet user-secrets set "OpenAI:ApiKey" "sk-..."
-dotnet user-secrets set "Cosmos:Endpoint" "https://....documents.azure.com:443/"
-dotnet user-secrets set "Cosmos:Key" "..."
+dotnet user-secrets set "Anthropic:ApiKey" "sk-ant-..." --project LIBRAIN
+dotnet user-secrets set "OpenAI:ApiKey" "sk-..." --project LIBRAIN
+dotnet user-secrets set "Qdrant:Host" "localhost" --project LIBRAIN
+
+# Start the dev vector store (Qdrant)
+docker run -d --name librain-qdrant -p 6333:6333 -p 6334:6334 \
+  -v ~/qdrant-data:/qdrant/storage qdrant/qdrant
 
 # Run
 dotnet run --project LIBRAIN

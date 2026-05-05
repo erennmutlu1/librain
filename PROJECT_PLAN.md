@@ -35,19 +35,20 @@ These choices are **final**. Do not propose alternatives during implementation.
 | LLM (reasoning) | **Anthropic Claude** via `Anthropic.SDK` NuGet | Developer already familiar; high-quality reasoning; cheap with Haiku |
 | LLM (embeddings) | **OpenAI `text-embedding-3-small`** via official SDK | Anthropic doesn't ship embeddings; this model is industry-standard, cheap |
 | Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions, AI-200 syllabus alignment |
-| Vector store | **Azure Cosmos DB for NoSQL** with DiskANN vector index | Native Azure, serverless billing, no separate vector DB to provision |
+| Vector store (dev) | **Qdrant** via local Docker | Zero-cost MVP iteration; works on Apple Silicon; no Azure subscription required |
+| Vector store (production target) | **Azure Cosmos DB for NoSQL** with DiskANN vector index | Native Azure, serverless billing, AI-200 alignment. **Deferred to Phase 3 deployment** when an Azure subscription is in place |
 | PDF parsing | **PdfPig** | Pure managed, no native deps, works on Apple Silicon. NuGet ID is now `PdfPig` (formerly `UglyToad.PdfPig` — same library, same maintainers, same repo: github.com/UglyToad/PdfPig) |
 | Observability | **Application Insights** + structured logging | Azure native, zero-config, AI-200 aligned |
 | Secrets (dev) | **`dotnet user-secrets`** | No secrets in repo, no extra service |
 | Hosting (later) | **Azure Container Apps** | Serverless containers, scale-to-zero, low cost |
 
 ### What we are NOT using (and why)
-- **Pinecone, Qdrant, Weaviate** — adds an extra service. Cosmos vector search is enough at this scale.
+- **Pinecone, Weaviate, Qdrant Cloud** — managed vector DB services. Local Qdrant is sufficient for MVP dev; Cosmos is the eventual production target.
 - **LangChain, LlamaIndex** — Python-centric, weakens the .NET-first narrative.
 - **Entity Framework** — overkill for a vector-document store.
 - **MediatR, AutoMapper, FluentValidation** — premature abstraction for a 3-month MVP.
-- **Docker for local dev** — Cosmos emulator is unstable on macOS ARM. Use real Azure.
-- **gRPC, GraphQL** — REST + JSON is sufficient and recruiter-readable.
+- **Cosmos emulator on macOS ARM** — unstable. The original "no Docker for local dev" rule was Cosmos-emulator–specific; Qdrant's ARM image is stable and is the dev vector store.
+- **gRPC, GraphQL** (for the public HTTP API) — REST + JSON is sufficient and recruiter-readable. Internally, the Qdrant client uses gRPC; that's an implementation detail.
 
 ---
 
@@ -78,10 +79,12 @@ The "Archivist" from the paper becomes a **cross-cutting concern** (Application 
 
 `AddApplicationInsightsTelemetry()` registration is **config-gated** in `Program.cs` on `ApplicationInsights:ConnectionString` being non-empty. The 3.x SDK is built on Azure Monitor / OpenTelemetry and throws `InvalidOperationException` at host start when the connection string is missing — the legacy 2.x silent-no-op is gone. The gate lives at the composition root only; agent and service registrations stay unconditional.
 
+**Vector store dev → production swap path.** The vector store is Qdrant (local Docker) during MVP development and the Phase 3 production target is Azure Cosmos DB for NoSQL. Both stores hold the same logical data — chunk content + 1536-dim embedding + metadata — so migration is a one-file rewrite of the repository class, not a redesign. Schema specifics for both stores are in §4.2.
+
 ### 3.2 Data Flow
 
 1. **Ingest**: User drops a PDF in `data/papers/` OR provides an arXiv ID
-2. **Read**: Reader Agent extracts text, chunks it, embeds chunks, persists to Cosmos
+2. **Read**: Reader Agent extracts text, chunks it, embeds chunks, persists to the vector store
 3. **Query**: User submits a research question via API
 4. **Retrieve**: Synthesis Agent vector-searches Cosmos, gets top-K chunks
 5. **Generate**: Synthesis Agent prompts Claude with retrieved context, gets candidate hypotheses
@@ -128,10 +131,41 @@ No authentication for MVP. Add it only if hosted publicly.
 
 Use a recursive splitter: try paragraph splits first, fall back to sentence splits if a paragraph exceeds 1024 tokens, fall back to hard cuts only as last resort.
 
-### 4.2 Cosmos DB Schema
+### 4.2 Vector Store Schema
+
+#### Dev — Qdrant (current)
+
+Collection: `librain_chunks`
+Vector size: **1536** (from `text-embedding-3-small`)
+Distance: **Cosine**
+
+Per-chunk point:
+```json
+{
+  "id": "<UUID v5 derived from (namespace, '{paperId}-{chunkIndex}')>",
+  "vector": [0.012, -0.045, /* ... 1536 floats ... */],
+  "payload": {
+    "paperId": "2503.08979",
+    "chunkIndex": 0,
+    "content": "...",
+    "title": "...",
+    "authors": ["..."],
+    "year": 2025,
+    "section": "Introduction",
+    "pageNumber": 1,
+    "ingestedAt": "2026-05-05T..."
+  }
+}
+```
+
+Deterministic UUID v5 IDs mean re-ingesting the same paper upserts cleanly (no duplicates). Paper listing is implemented by `Scroll` over the chunks collection and in-memory dedupe by `payload.paperId`. Sub-second at MVP scale (~30 papers, ~1500 points). Revisit if listing latency exceeds 500ms.
+
+#### Production target — Azure Cosmos DB for NoSQL (Phase 3)
 
 Single container: `papers`
 Partition key: `/paperId`
+Vector path: `/embedding`. Distance: `cosine`.
+Vector index policy: `quantizedFlat` for ≤10K chunks, `diskANN` if scaling beyond.
 
 ```json
 {
@@ -140,7 +174,7 @@ Partition key: `/paperId`
   "type": "chunk",
   "chunkIndex": 0,
   "content": "...",
-  "embedding": [0.012, -0.045, ...],  // 1536-dim from text-embedding-3-small
+  "embedding": [0.012, -0.045, /* ... 1536 floats ... */],
   "metadata": {
     "title": "...",
     "authors": ["..."],
@@ -152,8 +186,7 @@ Partition key: `/paperId`
 }
 ```
 
-Vector index policy: `quantizedFlat` for ≤10K chunks, `diskANN` if scaling beyond.
-Vector path: `/embedding`. Distance: `cosine`.
+Migration path: chunk content, metadata, and embedding vectors are byte-portable. The Qdrant UUID-v5 id is replaced with the deterministic `chunk-{paperId}-{chunkIndex}` string id; payload becomes the Cosmos `metadata` sub-object plus top-level fields. Re-running ingest after the swap reproduces the same logical chunks.
 
 ### 4.3 Prompt Design
 
