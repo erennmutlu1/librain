@@ -4,9 +4,9 @@
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
-![Azure](https://img.shields.io/badge/Azure-Cosmos%20DB-0078D4?logo=microsoftazure)
+![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-in%20development-yellow)
+![Status](https://img.shields.io/badge/status-Phase%202%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
 
@@ -48,7 +48,7 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 |---|---|
 | Runtime | .NET 10, ASP.NET Core Minimal APIs |
 | API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
-| LLM (reasoning) | Anthropic Claude (Sonnet for synthesis, Haiku for evaluation) |
+| LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
 | Vector store (dev) | Qdrant (local Docker) — zero-cost MVP iteration |
 | Vector store (production target) | Azure Cosmos DB for NoSQL with DiskANN vector index — deferred to Phase 3 deployment |
@@ -60,8 +60,6 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 ---
 
 ## Quick Start
-
-> Setup instructions are filled in as the project progresses. Currently in Phase 1.
 
 ```bash
 # Clone
@@ -81,28 +79,68 @@ docker run -d --name librain-qdrant -p 6333:6333 -p 6334:6334 \
 dotnet run --project LIBRAIN
 ```
 
-Full setup guide: see [`docs/SETUP.md`](docs/SETUP.md) *(coming soon)*
+Once the API is up:
+
+```bash
+# Ingest a paper (drop a PDF in data/papers/ first)
+curl -k -X POST https://localhost:7XXX/api/papers/ingest \
+  -F "file=@data/papers/2005.11401.pdf"
+
+# Run a query
+curl -k -X POST https://localhost:7XXX/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"query":"How does retrieval-augmented generation mitigate hallucination?","topK":5}'
+```
+
+(Replace 7XXX with the port from the dotnet run startup log.)
+
+---
+
+## Example query result
+
+Real output from the Phase 2 smoke test (full capture in [`LIBRAIN/docs/phase2-step6-smoke.md`](LIBRAIN/docs/phase2-step6-smoke.md)):
+
+```jsonc
+{
+  "hypothesis": "Retrieval-augmented generation (RAG) mitigates 
+                 hallucination by combining parametric memory with 
+                 non-parametric memory (a dense vector index)…",
+  "citations": [
+    { "paperId": "2005.11401", "section": "1 Introduction", "pageNumber": 1 },
+    { "paperId": "2005.11401", "section": "4.3 Jeopardy Question Generation", "pageNumber": 6 }
+  ],
+  "synthesisConfidence": 0.92,
+  "evaluation": {
+    "qualityScore": 0.917,
+    "groundednessScore": 0.95,
+    "relevanceScore": 0.95,
+    "completenessScore": 0.85
+  }
+}
+```
+
+All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG paper). The Evaluator deducted 0.15 from completeness for a real gap in the cited evidence rather than rubber-stamping the answer.
 
 ---
 
 ## Roadmap
 
 - [x] Project plan & architecture (May 2026)
-- [ ] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
-- [ ] **Phase 2**: Synthesis & Evaluator agents (June 2026)
-- [ ] **Phase 3**: Frontend, deployment, demo, paper update (July 2026)
+- [x] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
+- [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
+- [ ] **Phase 3**: Frontend, deployment, prompt caching, response streaming, AI-200 alignment
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ---
 
-## Performance (filled as MVP completes)
+## Performance (Phase 2 baseline)
 
-- Papers ingested: *TBD*
-- Total chunks: *TBD*
-- Retrieval latency (p95): *TBD*
-- End-to-end query latency (p95): *TBD*
-- Hallucination rate (pre-evaluator → post-evaluator): *TBD*
+- Papers ingested: 5 (218 chunks total)
+- Retrieval latency (p95): < 200 ms (Qdrant local, top-5)
+- End-to-end query latency (p95): ~13s (sequential synth + eval; Phase 3 will add streaming + prompt caching)
+- Cost per query: ~$0.030 (Sonnet synth + Haiku eval)
+- Tests: 19/19 passing (chunker, citation validation, evaluation scoring)
 
 ---
 
