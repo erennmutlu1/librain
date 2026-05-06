@@ -36,7 +36,7 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 
 ## Why This Project
 
-Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Azure-native services. It's a deliberate counter-example to the "AI = Python only" assumption.
+Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Anthropic's official .NET SDK. It's a deliberate counter-example to the "AI = Python only" assumption.
 
 The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design and the simplifications made for the MVP. A revised preprint with implementation results will be posted to arXiv when the MVP is complete.
 
