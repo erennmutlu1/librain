@@ -22,12 +22,12 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
                         │                │                  │
                         ▼                ▼                  ▼
                    ┌─────────────────────────────────────────┐
-                   │  Azure Cosmos DB  +  Application Insights│
+                   │  Qdrant           +  Application Insights│
                    │  (vector store)      (audit trail)       │
                    └─────────────────────────────────────────┘
 ```
 
-1. **Reader Agent** — Extracts text from arXiv PDFs, chunks it semantically, embeds chunks via OpenAI `text-embedding-3-small`, persists to Cosmos DB with metadata.
+1. **Reader Agent** — Extracts text from arXiv PDFs, chunks it semantically, embeds chunks via OpenAI `text-embedding-3-small`, persists to Qdrant with metadata.
 2. **Synthesis Agent** — On a user query, retrieves top-K chunks via vector search, prompts Anthropic Claude to generate citation-grounded hypotheses connecting concepts across papers.
 3. **Evaluator Agent** — Uses LLM-as-a-Judge with a fixed rubric (plausibility, novelty, clarity) to score and filter hypotheses, reducing hallucinations.
 4. **Audit Trail** — Every step (retrieval, generation, evaluation) is logged to Application Insights with a correlation ID, enabling full reproducibility of any output.
@@ -42,6 +42,14 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 
 ---
 
+## Engineering Challenges
+
+### Cosmos DB cost → Qdrant
+
+The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector index for an Azure-native production story. Cost modeling killed it: provisioned throughput plus storage put even modest demo workloads at a price point unsuitable for an open portfolio project. We pivoted to Qdrant for both dev and production. The repository pattern in `LIBRAIN/Storage/` made the move a single-class replacement (`CosmosPaperRepository` → `QdrantPaperRepository`) with no agent-layer changes.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -50,8 +58,7 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 | API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
 | LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
-| Vector store (dev) | Qdrant (local Docker) — zero-cost MVP iteration |
-| Vector store (production target) | Azure Cosmos DB for NoSQL with DiskANN vector index — deferred to Phase 3 deployment |
+| Vector store | Qdrant 1.17 (local Docker in dev; production hosting Phase 3) |
 | Orchestration | Microsoft Semantic Kernel patterns |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
@@ -151,7 +158,7 @@ librain/
 ├── LIBRAIN/                # ASP.NET Core Web API
 │   ├── Agents/             # Reader, Synthesis, Evaluator
 │   ├── Embeddings/         # OpenAI client wrapper
-│   ├── Storage/            # Cosmos repository
+│   ├── Storage/            # Qdrant repository
 │   ├── Models/             # DTOs, domain types
 │   └── Program.cs
 ├── docs/
