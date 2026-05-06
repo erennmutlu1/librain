@@ -1,5 +1,6 @@
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
+using LIBRAIN.Endpoints;
 using LIBRAIN.Models;
 using LIBRAIN.Reading;
 using LIBRAIN.Storage;
@@ -86,5 +87,7 @@ app.MapGet("/api/papers", async (QdrantPaperRepository repo, CancellationToken c
     var papers = await repo.ListPapersAsync(ct);
     return Results.Ok(papers);
 });
+
+app.MapQueryEndpoints();
 
 app.Run();
