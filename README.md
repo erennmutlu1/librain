@@ -2,7 +2,7 @@
 
 > **A multi-agent RAG system that reads scientific papers and proposes new hypotheses — built in .NET 10.**
 
-![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
 ![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
