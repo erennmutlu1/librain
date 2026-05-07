@@ -487,5 +487,7 @@ data/papers/*
 
 # LIBRAIN — personal working notes, kept local-only
 12_WEEK_TIMELINE.md
+CURSOR_PROMPT.md
 CV_UPDATE.md
 INDEX.md
+.cursorrules
