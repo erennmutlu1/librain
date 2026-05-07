@@ -6,8 +6,7 @@ namespace LIBRAIN.Endpoints;
 public sealed record DiscoverRequest(
     string TopicA,
     string? TopicB,
-    int? TopK,
-    float? NoveltyTarget);
+    int? TopK);
 
 public sealed record SupportingEvidence(
     string PaperId,
@@ -35,9 +34,6 @@ public static class DiscoveryEndpoints
     private const int DefaultTopK = 5;
     private const int MinTopK = 1;
     private const int MaxTopK = 20;
-    private const float DefaultNoveltyTarget = 0.7f;
-    private const float MinNoveltyTarget = 0.0f;
-    private const float MaxNoveltyTarget = 1.0f;
 
     public static void MapDiscoveryEndpoints(this IEndpointRouteBuilder app)
     {
@@ -67,19 +63,10 @@ public static class DiscoveryEndpoints
                 statusCode: StatusCodes.Status400BadRequest);
         }
 
-        var noveltyTarget = req.NoveltyTarget ?? DefaultNoveltyTarget;
-        if (noveltyTarget < MinNoveltyTarget || noveltyTarget > MaxNoveltyTarget)
-        {
-            return Results.Problem(
-                title: "noveltyTarget out of range",
-                detail: $"The 'noveltyTarget' field must be between {MinNoveltyTarget} and {MaxNoveltyTarget}.",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
         var sw = Stopwatch.StartNew();
         try
         {
-            var normalized = req with { TopK = topK, NoveltyTarget = noveltyTarget };
+            var normalized = req with { TopK = topK };
             var response = await agent.DiscoverAsync(normalized, ct);
 
             using var scope = logger.BeginScope(new Dictionary<string, object>
@@ -87,11 +74,10 @@ public static class DiscoveryEndpoints
                 ["correlationId"] = response.CorrelationId,
             });
             logger.LogInformation(
-                "Discovery handled (topicA='{TopicA}', topicB='{TopicB}', topK={TopK}, noveltyTarget={NoveltyTarget:F2}) in {ElapsedMs}ms",
+                "Discovery handled (topicA='{TopicA}', topicB='{TopicB}', topK={TopK}) in {ElapsedMs}ms",
                 req.TopicA,
                 req.TopicB ?? "(none)",
                 topK,
-                noveltyTarget,
                 sw.ElapsedMilliseconds);
 
             return Results.Ok(response);

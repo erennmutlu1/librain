@@ -142,6 +142,8 @@ Citation validation applies the same guardrail as `SynthesisAgent` — every chu
 
 The new `POST /api/discover` request and response shapes are documented under §4.6.
 
+**Empirical update (2026-05-07, Step 2c):** the `noveltyTarget` knob was empirically dropped after the Step 2b₁ validation protocol failed (|Δmean| 0.0184 vs 2σ 0.0668; gate threshold requires Δmean > 2σ). The protocol additionally observed an inverted direction: higher `noveltyTarget` produced *lower* cosine-distance novelty, because high-target prompts elicited domain-vocabulary-rich hypotheses that landed nearer the corpus center. See [LIBRAIN/docs/phase2.5-discovery-smoke.md](LIBRAIN/docs/phase2.5-discovery-smoke.md) for full numbers.
+
 ---
 
 ## 4. Critical Technical Decisions (LOCKED)
@@ -272,7 +274,7 @@ The Discovery prompt mirrors `SynthesisAgent`'s tool-use shape but inverts its g
 - `novel_claim` — the substring of the hypothesis NOT supported by any retrieved chunk. This is the discovery.
 - `reasoning` — the chain that connects supporting evidence to the novel claim.
 
-Permissiveness is tuned by the request's `noveltyTarget` (0.0 = safe, 1.0 = max novelty), wired into the prompt at runtime. Model: **Claude Sonnet 4.6**, temperature **0.2** (matches existing `SynthesisAgent`).
+Permissiveness was originally tuned by a `noveltyTarget` request knob, dropped in Step 2c after empirical validation failed. The prompt now invites extrapolation unconditionally; novelty is measured (not steered) post-hoc by `NoveltyScorer`. Model: **Claude Sonnet 4.6**, temperature **0.2** (matches existing `SynthesisAgent`).
 
 **Discovery evaluation rubric** (LLM-as-a-Judge, separate from Phase 2 Evaluator):
 
@@ -291,8 +293,7 @@ The LLM-judged axes (plausibility, structural coherence) live in the same Discov
 {
   "topicA": "...",
   "topicB": "...",
-  "topK": 5,
-  "noveltyTarget": 0.7
+  "topK": 5
 }
 ```
 

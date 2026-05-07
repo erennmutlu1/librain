@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
 using Anthropic.SDK.Common;
@@ -25,7 +24,7 @@ public sealed class DiscoveryAgent(
     private readonly QdrantPaperRepository _repo = repo;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
 
-    private const string SystemPromptTemplate = """
+    private const string SystemPrompt = """
         You are a discovery agent for a literature-cross-reference system. You are given
         one or two topics and a numbered list of source excerpts retrieved from academic
         papers covering each topic.
@@ -34,11 +33,6 @@ public sealed class DiscoveryAgent(
         BEYOND what the cited sources directly state. Connect ideas across the retrieved
         chunks into a claim that requires inferential extrapolation. The unsupported
         part is the discovery — flagging it explicitly is the contract.
-
-        Calibrate your hypothesis to a target novelty of {{NOVELTY_TARGET}} on a
-        [0.0 = stay close to cited evidence, 1.0 = substantial extrapolation beyond the
-        corpus] scale. Your novel_claim should require approximately this level of
-        inferential distance from the retrieved chunks.
 
         Return:
         - `hypothesis`: a 1–3 sentence claim. Combines evidence-grounded parts with the
@@ -114,7 +108,6 @@ public sealed class DiscoveryAgent(
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
         var topK = req.TopK ?? 5;
-        var noveltyTarget = req.NoveltyTarget ?? 0.7f;
 
         if (topicB is not null && string.Equals(topicA, topicB, StringComparison.Ordinal))
         {
@@ -156,19 +149,16 @@ public sealed class DiscoveryAgent(
         var retrievalElapsedMs = sw.ElapsedMilliseconds;
         var chunkIdList = string.Join(",", dedup.Select(h => $"{h.PaperId}:{h.ChunkIndex}"));
         _logger.LogInformation(
-            "Discovery retrieval: topicA='{TopicA}' topicB='{TopicB}' topK={TopK} noveltyTarget={NoveltyTarget:F2} → {DedupCount} unique chunk(s) [{ChunkIds}] ({ACount}+{BCount} pre-dedup) in {ElapsedMs}ms",
-            topicA, topicB ?? "(none)", topK, noveltyTarget, dedup.Count, chunkIdList, hitsA.Count, hitsB.Count, retrievalElapsedMs);
+            "Discovery retrieval: topicA='{TopicA}' topicB='{TopicB}' topK={TopK} → {DedupCount} unique chunk(s) [{ChunkIds}] ({ACount}+{BCount} pre-dedup) in {ElapsedMs}ms",
+            topicA, topicB ?? "(none)", topK, dedup.Count, chunkIdList, hitsA.Count, hitsB.Count, retrievalElapsedMs);
 
-        var systemPrompt = SystemPromptTemplate.Replace(
-            "{{NOVELTY_TARGET}}",
-            noveltyTarget.ToString("F2", CultureInfo.InvariantCulture));
         var userPrompt = BuildUserPrompt(topicA, topicB, dedup);
 
         sw.Restart();
         var parameters = new MessageParameters
         {
             Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
-            System = new List<SystemMessage> { new SystemMessage(systemPrompt) },
+            System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
             Tools = new List<AnthropicTool> { SubmitDiscoveryTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery" },
             MaxTokens = 1024,
