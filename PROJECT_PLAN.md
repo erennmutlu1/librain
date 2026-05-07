@@ -118,6 +118,30 @@ GET /api/audit/{auditTrailId}
 
 No authentication for MVP. Add it only if hosted publicly.
 
+### 3.4 Discovery Mode (Phase 2.5 extension)
+
+The Phase 2 pipeline (`POST /api/query` → Synthesis → Evaluator) answers questions from retrieved evidence. By design it is grounded and conservative: `SynthesisAgent`'s system prompt forbids any claim not directly supported by a cited source. That is correct behavior for citation-grounded QA, but it cannot demonstrate the *discovery* claim the companion paper makes for LIBRAIN — a grounded synthesis can never propose a connection not already in the corpus.
+
+Discovery Mode is a **separate** endpoint with the opposite job:
+
+- Input: one topic (single-topic extrapolation) or two topics (cross-context bridge), plus a `noveltyTarget` knob.
+- Action: retrieve top-K chunks per topic, then prompt Claude with a prompt that *explicitly invites extrapolation* — no "stay grounded" guardrail.
+- Output: a hypothesis, the chunks that ground its supported parts, and a flagged `novelClaim` field containing the part NOT supported by any retrieved chunk. **The unsupported portion is the discovery, not a hallucination — flagging it explicitly is the contract.**
+
+```
+┌──────────────┐     ┌──────────────────┐     ┌──────────────────────┐
+│ Retrieval    │ ──► │ DiscoveryAgent   │ ──► │ Discovery Evaluator  │
+│ (per topic,  │     │ (Sonnet 4.6,     │     │ (Haiku 4.5 +         │
+│  topK each)  │     │  extrapolation)  │     │  NoveltyScorer)      │
+└──────────────┘     └──────────────────┘     └──────────────────────┘
+```
+
+Discovery Mode runs in parallel with the existing synthesis pipeline, **not as a replacement**. `SynthesisAgent` is not refactored. Premature DRY between the two is rejected: similar shape, different intent (see §6).
+
+Citation validation applies the same guardrail as `SynthesisAgent` — every chunk index in `supportingEvidence` must exist in the retrieved set — but is applied **only** to the supported portion. `novelClaim` is exempt by design.
+
+The new `POST /api/discover` request and response shapes are documented under §4.6.
+
 ---
 
 ## 4. Critical Technical Decisions (LOCKED)
@@ -237,6 +261,61 @@ Three layers:
 
 Track baseline hallucination rate (manual review of first 50 hypotheses) and rate after evaluator filter. This gives the CV bullet "reduced hallucination rate from X% to Y%".
 
+### 4.6 Discovery Prompt & Rubric (Phase 2.5)
+
+**Discovery synthesis prompt** (system message; tool-use, `submit_discovery`):
+
+The Discovery prompt mirrors `SynthesisAgent`'s tool-use shape but inverts its guardrail. It explicitly invites extrapolation: given retrieved excerpts on one or two topics, propose a connection or hypothesis that **need not** be directly stated in any cited chunk. The model returns:
+
+- `hypothesis` — the full claim, including the novel part.
+- `supporting_evidence[]` — chunk references whose `support_type` is `"direct"` (chunk states this part) or `"analogous"` (chunk supports an analogous mechanism).
+- `novel_claim` — the substring of the hypothesis NOT supported by any retrieved chunk. This is the discovery.
+- `reasoning` — the chain that connects supporting evidence to the novel claim.
+
+Permissiveness is tuned by the request's `noveltyTarget` (0.0 = safe, 1.0 = max novelty), wired into the prompt at runtime. Model: **Claude Sonnet 4.6**, temperature **0.2** (matches existing `SynthesisAgent`).
+
+**Discovery evaluation rubric** (LLM-as-a-Judge, separate from Phase 2 Evaluator):
+
+| Axis | Source | Description |
+|---|---|---|
+| Novelty | **Deterministic** (`NoveltyScorer`) | `1 - cosine_similarity(embedding(novelClaim), nearest_existing_chunk_embedding)`. Pure math, no LLM. |
+| Plausibility | LLM (Haiku 4.5, temp 0.0) | Does `novelClaim` follow logically from `supportingEvidence`, even if not stated directly? |
+| StructuralCoherence | LLM (Haiku 4.5, temp 0.0) | Is the hypothesis a well-formed, testable scientific statement? |
+| QualityScore | **Deterministic** (C# arithmetic mean of the three) | Computed in C#, NOT delegated to the LLM. Same halo-effect mitigation as the existing `EvaluationScoring.Aggregate`. |
+
+The LLM-judged axes (plausibility, structural coherence) live in the same Discovery Evaluator call (Haiku 4.5, temp 0.0, forced tool use). Novelty is computed deterministically from embeddings before the LLM sees the hypothesis. The mean is computed in C#. This mirrors §4.3's existing halo-resistance pattern.
+
+`POST /api/discover` request shape:
+
+```json
+{
+  "topicA": "...",
+  "topicB": "...",
+  "topK": 5,
+  "noveltyTarget": 0.7
+}
+```
+
+Response shape:
+
+```json
+{
+  "correlationId": "...",
+  "hypothesis": "...",
+  "supportingEvidence": [
+    { "paperId": "...", "chunkIndex": 0, "section": "...", "pageNumber": 1, "supportType": "direct" }
+  ],
+  "novelClaim": "...",
+  "reasoning": "...",
+  "evaluation": {
+    "noveltyScore": 0.0,
+    "plausibilityScore": 0.0,
+    "structuralCoherenceScore": 0.0,
+    "qualityScore": 0.0
+  }
+}
+```
+
 ---
 
 ## 5. Phases
@@ -280,6 +359,28 @@ Success criteria:
 - 70%+ of generated hypotheses pass citation validation on first try
 - Evaluator drops at least 20% of hypotheses on plausibility/clarity
 - Sub-second p50 latency for retrieval, sub-5-second p50 for full query
+
+### Phase 2.5 — Discovery Mode (extension; non-blocking for MVP)
+
+**Goal**: A separate `/api/discover` endpoint that proposes hypotheses extrapolating beyond the corpus, with novel claims explicitly flagged.
+
+**Status**: Scope extension added 2026-05-07. Does NOT block §7 Definition of Done.
+
+Deliverables:
+- [ ] `DiscoveryAgent` (parallel to `SynthesisAgent`, no shared base class)
+- [ ] `NoveltyScorer` (deterministic; cosine similarity vs. nearest existing chunk embedding)
+- [ ] Discovery Evaluator (Haiku 4.5, plausibility + structural coherence; novelty from `NoveltyScorer`; quality mean in C#)
+- [ ] `POST /api/discover` endpoint (single-topic extrapolation OR cross-context bridge)
+- [ ] DTOs: `DiscoverRequest`, `DiscoverResponse`, `SupportingEvidence`, `DiscoveryEvaluation`
+- [ ] Citation validation on `supportingEvidence` (novelClaim exempt)
+- [ ] Audit-trail logging via correlationId on every retrieve / synthesize / score step
+- [ ] Unit tests for `NoveltyScorer` math (same category as chunker / citation validator / scoring per §6.4)
+- [ ] Smoke artifact in `LIBRAIN/docs/phase2.5-discovery-smoke.md` documenting end-to-end run
+
+Success criteria:
+- A live `/api/discover` call against the existing 218-chunk Qdrant Cloud cluster returns a hypothesis with non-empty `novelClaim`, `supportingEvidence` chunk IDs validated against the retrieved set, and a `qualityScore` in [0, 1].
+- For an in-corpus topic vs. an off-corpus topic pair, `noveltyScore` for the off-corpus run is materially higher than for the in-corpus run (sanity check that the novelty signal is real).
+- Response shape matches the spec in §3.4 / §4.6.
 
 ### Phase 3 — Polish & Showcase (Weeks 9-12, July)
 
@@ -336,6 +437,17 @@ The MVP is **done** when all of these are true:
 
 If any of these is missing, the project is not done — regardless of how much code exists.
 
+### 7.1 Discovery extension (Phase 2.5) — non-blocking
+
+The MVP DoD checklist above is **the** definition of done. Discovery Mode is a Phase 2.5 scope extension and does NOT block any item above. The Discovery extension has its own acceptance criteria, tracked separately so it cannot quietly slip into the MVP gate:
+
+- [ ] `POST /api/discover` returns a hypothesis + flagged `novelClaim` + per-axis evaluation against the live cluster
+- [ ] `NoveltyScorer` unit tests green (deterministic cosine math)
+- [ ] Smoke artifact at `LIBRAIN/docs/phase2.5-discovery-smoke.md` shows in-corpus vs. off-corpus novelty differential
+- [ ] README mentions Discovery Mode under "What It Does" and the roadmap
+
+If Phase 3 deadlines pressure the schedule, Discovery extension is the first thing cut. The MVP ships without it.
+
 ---
 
 ## 8. What Comes After MVP (Out of Scope for July)
@@ -367,4 +479,4 @@ If recruiters ask "what would you do next", these are the answers.
 
 ---
 
-*Last updated: May 1, 2026 — Version 1.0*
+*Last updated: May 7, 2026 — Version 1.1 (Discovery Mode Phase 2.5 extension added)*

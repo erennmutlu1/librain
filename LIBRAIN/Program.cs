@@ -60,6 +60,8 @@ builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
 builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
+builder.Services.AddScoped<DiscoveryAgent>();
+builder.Services.AddScoped<NoveltyScorer>();
 
 var app = builder.Build();
 
@@ -96,5 +98,6 @@ app.MapGet("/api/papers", async (QdrantPaperRepository repo, CancellationToken c
 });
 
 app.MapQueryEndpoints();
+app.MapDiscoveryEndpoints();
 
 app.Run();
