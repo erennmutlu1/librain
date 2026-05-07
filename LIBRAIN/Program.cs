@@ -38,11 +38,18 @@ builder.Services.Configure<OpenAIOptions>(
 builder.Services.Configure<QdrantOptions>(
     builder.Configuration.GetSection(QdrantOptions.SectionName));
 
-const int qdrantPort = 6334; // gRPC port; Qdrant.Client uses gRPC, not REST (6333)
+// Qdrant.Client uses gRPC (port 6334), not REST (6333). Cloud clusters require https + apiKey;
+// local Docker dev uses neither. Empty ApiKey selects local mode automatically.
 builder.Services.AddSingleton<QdrantClient>(sp =>
 {
     var options = sp.GetRequiredService<IOptions<QdrantOptions>>().Value;
-    return new QdrantClient(options.Host, qdrantPort);
+    return string.IsNullOrWhiteSpace(options.ApiKey)
+        ? new QdrantClient(options.Host, options.Port)
+        : new QdrantClient(
+            host: options.Host,
+            port: options.Port,
+            https: options.UseHttps,
+            apiKey: options.ApiKey);
 });
 
 builder.Services.AddSingleton<AnthropicChatClient>();
