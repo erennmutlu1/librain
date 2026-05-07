@@ -129,11 +129,23 @@ Subjectively, the 0.9 claim is more *ambitious* (sweeping, declarative) than the
 
 The knob does not produce a measurable shift in the metric the gate uses. Neither magnitude nor direction matches expectation. Per the gate's decision rule and PROJECT_PLAN.md §3.4 / §4.6 directive, `noveltyTarget` is dropped from the request shape.
 
-**Execution of the DROP** is its own atomic commit (Step 2c), not part of Step 2b₁:
-- Remove `NoveltyTarget` from `DiscoverRequest` ([DiscoveryEndpoints.cs](../Endpoints/DiscoveryEndpoints.cs)).
-- Remove the `noveltyTarget` validation block in `DiscoveryEndpoints.HandleAsync`.
-- Remove the calibration sentence + `{{NOVELTY_TARGET}}` substitution from `DiscoveryAgent.SystemPromptTemplate` ([DiscoveryAgent.cs](../Agents/DiscoveryAgent.cs)).
-- Update PROJECT_PLAN.md §3.4 / §4.6 with a one-line note that the knob was dropped after Step 2b₁'s empirical gate failed.
+**Execution of the DROP** is its own atomic commit (Step 2c, `fb301a1`):
+- Removed `NoveltyTarget` from `DiscoverRequest` ([DiscoveryEndpoints.cs](../Endpoints/DiscoveryEndpoints.cs)).
+- Removed the `noveltyTarget` validation block in `DiscoveryEndpoints.HandleAsync`.
+- Removed the calibration paragraph + `{{NOVELTY_TARGET}}` substitution from `DiscoveryAgent.SystemPrompt` ([DiscoveryAgent.cs](../Agents/DiscoveryAgent.cs)).
+- Updated PROJECT_PLAN.md §3.4 / §4.6 with a one-line note recording the empirical-failure rationale.
+
+### Findings
+
+Three takeaways from the experiment, kept here so future me (and Step 2b₂'s evaluator design) doesn't relitigate them:
+
+1. **Cosine-distance novelty is a measurement surface, not a control surface — under prompt-only steering on this corpus.** The metric works (the in-corpus 0.386 vs off-corpus 0.644 differential from Step 2a is real and well-correlated with human intuition about novelty). What it does *not* respond to is a soft prompt instruction asking the LLM to dial novelty up or down. The LLM responds qualitatively (higher target → bolder tone) but not in the metric's coordinate system.
+
+2. **High-target prompts elicit domain-vocabulary-dense outputs that land closer to the corpus center.** This is the inverted direction we observed. When asked to extrapolate substantially, Claude reaches for *more* domain-specific terminology to sound credible — and that terminology is itself in the retrieved chunks, raising cosine similarity. The relationship between prompted "ambition" and embedding-space distance is not just weak on this configuration; it points the wrong way.
+
+3. **Future work — align embedding-space novelty with conceptual novelty.** Several plausible directions if a controllable knob is wanted later: (a) use a *different* embedding model for novelty than for retrieval, so the novelty space isn't pre-coupled to the corpus; (b) supplement cosine distance with a lexical-diversity component (rare n-grams, technical-vocabulary fraction) that captures the dimension Claude *does* respond to; (c) move steering from prompt to sampling (higher temperature for the novel-claim sentence specifically). Out of scope for the MVP — this is a Phase 3+ research direction, not a Phase 2.5 fix.
+
+These findings make the case for keeping `NoveltyScorer` as **the post-hoc measurement** in the Discovery rubric — exactly what PROJECT_PLAN.md §4.6 already specifies. The metric retains its value as a diagnostic; we just stop pretending we can steer with it.
 
 ## Acceptance criteria (Phase 2.5 ship gate)
 
