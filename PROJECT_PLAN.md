@@ -1,7 +1,7 @@
 # LIBRAIN — Project Plan
 
 > **Multi-Agent RAG System for Scientific Discovery**
-> Built in .NET 10 with Anthropic Claude, OpenAI Embeddings, and Azure Cosmos DB.
+> Built in .NET 10 with Anthropic Claude, OpenAI Embeddings, and Qdrant Cloud (Frankfurt).
 
 This document is the single source of truth for the LIBRAIN MVP. It defines scope, architecture, technical decisions, and execution phases. Cursor agents and the developer should read this before making any structural decisions.
 
@@ -36,18 +36,19 @@ These choices are **final**. Do not propose alternatives during implementation.
 | LLM (embeddings) | **OpenAI `text-embedding-3-small`** via official SDK | Anthropic doesn't ship embeddings; this model is industry-standard, cheap |
 | Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions, AI-200 syllabus alignment |
 | Vector store (dev) | **Qdrant** via local Docker | Zero-cost MVP iteration; works on Apple Silicon; no Azure subscription required |
-| Vector store (production target) | **Azure Cosmos DB for NoSQL** with DiskANN vector index | Native Azure, serverless billing, AI-200 alignment. **Deferred to Phase 3 deployment** when an Azure subscription is in place |
+| Vector store (production hosting) | **Qdrant Cloud free tier** (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) | Same vector engine as local development; 218-chunk corpus well within the 250K-vector free-tier ceiling; auto-selected via `Qdrant:ApiKey` presence in user-secrets. Azure Cosmos DB target was retired post-Phase 2.5 after the local-vs-cloud parity removed the only reason to migrate. |
 | PDF parsing | **PdfPig** | Pure managed, no native deps, works on Apple Silicon. NuGet ID is now `PdfPig` (formerly `UglyToad.PdfPig` — same library, same maintainers, same repo: github.com/UglyToad/PdfPig) |
 | Observability | **Application Insights** + structured logging | Azure native, zero-config, AI-200 aligned |
 | Secrets (dev) | **`dotnet user-secrets`** | No secrets in repo, no extra service |
 | Hosting (later) | **Azure Container Apps** | Serverless containers, scale-to-zero, low cost |
 
 ### What we are NOT using (and why)
-- **Pinecone, Weaviate, Qdrant Cloud** — managed vector DB services. Local Qdrant is sufficient for MVP dev; Cosmos is the eventual production target.
+- **Pinecone, Weaviate** — managed vector DB services. Qdrant Cloud was originally evaluated alongside these; it became the production hosting after Phase 2.5 due to local-cloud parity (same engine, same schema, zero migration). Pinecone and Weaviate remain rejected: no parity advantage over the existing Qdrant deployment.
 - **LangChain, LlamaIndex** — Python-centric, weakens the .NET-first narrative.
 - **Entity Framework** — overkill for a vector-document store.
 - **MediatR, AutoMapper, FluentValidation** — premature abstraction for a 3-month MVP.
 - **Cosmos emulator on macOS ARM** — unstable. The original "no Docker for local dev" rule was Cosmos-emulator–specific; Qdrant's ARM image is stable and is the dev vector store.
+- **Azure Cosmos DB** (production target) — retired post-Phase 2.5. The original macOS-emulator pivot moved development off Cosmos; the Qdrant Cloud free tier then closed the cost gap in production, leaving no remaining reason to migrate back.
 - **gRPC, GraphQL** (for the public HTTP API) — REST + JSON is sufficient and recruiter-readable. Internally, the Qdrant client uses gRPC; that's an implementation detail.
 
 ---
@@ -79,14 +80,14 @@ The "Archivist" from the paper becomes a **cross-cutting concern** (Application 
 
 `AddApplicationInsightsTelemetry()` registration is **config-gated** in `Program.cs` on `ApplicationInsights:ConnectionString` being non-empty. The 3.x SDK is built on Azure Monitor / OpenTelemetry and throws `InvalidOperationException` at host start when the connection string is missing — the legacy 2.x silent-no-op is gone. The gate lives at the composition root only; agent and service registrations stay unconditional.
 
-**Vector store dev → production swap path.** The vector store is Qdrant (local Docker) during MVP development and the Phase 3 production target is Azure Cosmos DB for NoSQL. Both stores hold the same logical data — chunk content + 1536-dim embedding + metadata — so migration is a one-file rewrite of the repository class, not a redesign. Schema specifics for both stores are in §4.2.
+**Vector store dev → production parity.** The vector store is Qdrant in both modes: a local Docker container during development and the Qdrant Cloud free tier (AWS Frankfurt) for production hosting. Both modes hold the same logical data — chunk content + 1536-dim embedding + metadata — and use the same UUIDv5 chunk IDs and cosine distance metric. The single repository class auto-selects between the two based on the presence of `Qdrant:ApiKey` in user-secrets; promotion from dev to production is a configuration change, not a migration. Schema specifics in §4.2.
 
 ### 3.2 Data Flow
 
 1. **Ingest**: User drops a PDF in `data/papers/` OR provides an arXiv ID
 2. **Read**: Reader Agent extracts text, chunks it, embeds chunks, persists to the vector store
 3. **Query**: User submits a research question via API
-4. **Retrieve**: Synthesis Agent vector-searches Cosmos, gets top-K chunks
+4. **Retrieve**: Synthesis Agent vector-searches Qdrant, gets top-K chunks
 5. **Generate**: Synthesis Agent prompts Claude with retrieved context, gets candidate hypotheses
 6. **Evaluate**: Evaluator Agent scores each hypothesis on plausibility, novelty, clarity
 7. **Return**: Final response includes hypotheses + scores + citation chunks + audit trail ID
@@ -186,33 +187,9 @@ Per-chunk point:
 
 Deterministic UUID v5 IDs mean re-ingesting the same paper upserts cleanly (no duplicates). Paper listing is implemented by `Scroll` over the chunks collection and in-memory dedupe by `payload.paperId`. Sub-second at MVP scale (~30 papers, ~1500 points). Revisit if listing latency exceeds 500ms.
 
-#### Production target — Azure Cosmos DB for NoSQL (Phase 3)
+#### Production hosting — Qdrant Cloud (current)
 
-Single container: `papers`
-Partition key: `/paperId`
-Vector path: `/embedding`. Distance: `cosine`.
-Vector index policy: `quantizedFlat` for ≤10K chunks, `diskANN` if scaling beyond.
-
-```json
-{
-  "id": "chunk-{paperId}-{chunkIndex}",
-  "paperId": "2503.08979",
-  "type": "chunk",
-  "chunkIndex": 0,
-  "content": "...",
-  "embedding": [0.012, -0.045, /* ... 1536 floats ... */],
-  "metadata": {
-    "title": "...",
-    "authors": ["..."],
-    "year": 2025,
-    "section": "Introduction",
-    "pageNumber": 1
-  },
-  "ingestedAt": "2026-05-04T..."
-}
-```
-
-Migration path: chunk content, metadata, and embedding vectors are byte-portable. The Qdrant UUID-v5 id is replaced with the deterministic `chunk-{paperId}-{chunkIndex}` string id; payload becomes the Cosmos `metadata` sub-object plus top-level fields. Re-running ingest after the swap reproduces the same logical chunks.
+Production runs on Qdrant Cloud free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk). Same vector engine, same dimension (1536), same distance metric (cosine), same UUIDv5 chunk IDs, same single-repository-class abstraction as local development. The 218-chunk Phase 2 corpus uses well under 1% of the free-tier 250K-vector ceiling. The .NET configuration auto-selects between local and cloud based on the presence of `Qdrant:ApiKey` in user-secrets — promotion from dev to production is a one-line change, not a migration.
 
 ### 4.3 Prompt Design
 
@@ -323,14 +300,14 @@ Response shape:
 
 ### Phase 1 — Reader Agent (Weeks 1-4, May)
 
-**Goal**: Functional ingestion pipeline. Drop a PDF, get vectorized chunks in Cosmos.
+**Goal**: Functional ingestion pipeline. Drop a PDF, get vectorized chunks in Qdrant.
 
 Deliverables:
 - [ ] Solution scaffold (1 Web API project, no premature splitting)
 - [ ] PDF parsing service (PdfPig)
 - [ ] Recursive text chunker with overlap
 - [ ] OpenAI embeddings client wrapper
-- [ ] Cosmos DB client + repository
+- [ ] Qdrant client + repository
 - [ ] `POST /api/papers/ingest` endpoint (PDF upload + arXiv ID flow)
 - [ ] `GET /api/papers` endpoint
 - [ ] Application Insights wired
@@ -338,7 +315,7 @@ Deliverables:
 
 Success criteria:
 - A vector search query returns semantically relevant chunks (manual eyeball)
-- Cosmos shows ~500-1500 chunks across 30 papers
+- Qdrant shows ~500-1500 chunks across 30 papers
 - Application Insights shows ingestion events with timing data
 
 ### Phase 2 — Synthesis & Evaluation (Weeks 5-8, June)
@@ -426,7 +403,7 @@ When using Cursor agent mode (Cmd+I) or chat (Cmd+L), enforce these rules:
 
 The MVP is **done** when all of these are true:
 
-- [ ] 30+ papers ingested in production Cosmos
+- [ ] 30+ papers ingested in Qdrant Cloud
 - [ ] `POST /api/query` returns ≥3 hypotheses with valid citations within 5 seconds (p95)
 - [ ] Evaluator demonstrably filters out plausibility-failing hypotheses (logged metrics)
 - [ ] Application Insights shows full audit trail for any query
@@ -475,7 +452,7 @@ If recruiters ask "what would you do next", these are the answers.
 - Companion paper: `docs/architecture.pdf` (in repo)
 - Microsoft Semantic Kernel docs: https://learn.microsoft.com/semantic-kernel
 - Anthropic API reference: https://docs.claude.com/en/api
-- Cosmos DB vector search: https://learn.microsoft.com/azure/cosmos-db/vector-search
+- Qdrant Cloud documentation: https://qdrant.tech/documentation/cloud/
 - AI-200 study guide: https://learn.microsoft.com/credentials/certifications/ai-200
 
 ---

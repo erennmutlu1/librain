@@ -6,7 +6,7 @@
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
 ![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Phase%202%20shipped-brightgreen)
+![Status](https://img.shields.io/badge/status-Phase%202.5%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
 
