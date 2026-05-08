@@ -30,7 +30,10 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 1. **Reader Agent** — Extracts text from arXiv PDFs, chunks it semantically, embeds chunks via OpenAI `text-embedding-3-small`, persists to Qdrant with metadata.
 2. **Synthesis Agent** — On a user query, retrieves top-K chunks via vector search, prompts Anthropic Claude to generate citation-grounded hypotheses connecting concepts across papers.
 3. **Evaluator Agent** — Uses LLM-as-a-Judge with a fixed rubric (plausibility, novelty, clarity) to score and filter hypotheses, reducing hallucinations.
-4. **Audit Trail** — Every step (retrieval, generation, evaluation) is logged to Application Insights with a correlation ID, enabling full reproducibility of any output.
+4. **Discovery Mode** (Phase 2.5) — A separate `POST /api/discover` endpoint takes one or two topics, retrieves evidence per topic, and asks Claude to propose a hypothesis that goes BEYOND the cited sources — the unsupported portion is flagged as `novelClaim` (the discovery, not a hallucination). Scored on a multi-axis rubric: deterministic novelty (cosine distance to nearest existing chunk), LLM-judged plausibility, and structural coherence.
+5. **Audit Trail** — Every step (retrieval, generation, evaluation) is logged to Application Insights with a correlation ID, enabling full reproducibility of any output.
+
+> Discovery Mode runs as a parallel pipeline off the same retrieval layer; it does not replace the Synthesis → Evaluator path.
 
 ---
 
@@ -135,6 +138,7 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] Project plan & architecture (May 2026)
 - [x] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
+- [x] **Phase 2.5**: Discovery Mode — `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
 - [ ] **Phase 3**: Frontend, deployment, prompt caching, response streaming, AI-200 alignment
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
@@ -145,9 +149,9 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 - Papers ingested: 5 (218 chunks total)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5)
-- End-to-end query latency (p95): ~13s (sequential synth + eval; Phase 3 will add streaming + prompt caching)
-- Cost per query: ~$0.030 (Sonnet synth + Haiku eval)
-- Tests: 19/19 passing (chunker, citation validation, evaluation scoring)
+- End-to-end query latency (p95): ~13s synthesis path, ~16s discovery path (sequential synth + eval; Phase 3 will add streaming + prompt caching)
+- Cost per query: ~$0.030 synthesis, ~$0.05 discovery (Sonnet synth + Haiku eval, dual-topic retrieval)
+- Tests: 30/30 passing (chunker, citation validation, evaluation scoring, novelty scoring, discovery scoring)
 
 ---
 

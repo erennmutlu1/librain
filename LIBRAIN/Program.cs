@@ -61,6 +61,7 @@ builder.Services.AddScoped<ReaderAgent>();
 builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
 builder.Services.AddScoped<DiscoveryAgent>();
+builder.Services.AddScoped<DiscoveryEvaluatorAgent>();
 builder.Services.AddScoped<NoveltyScorer>();
 
 var app = builder.Build();

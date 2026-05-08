@@ -16,13 +16,15 @@ public sealed class DiscoveryAgent(
     AnthropicChatClient claude,
     OpenAIEmbeddingClient embeddings,
     QdrantPaperRepository repo,
-    NoveltyScorer noveltyScorer)
+    NoveltyScorer noveltyScorer,
+    DiscoveryEvaluatorAgent evaluator)
 {
     private readonly ILogger<DiscoveryAgent> _logger = logger;
     private readonly AnthropicChatClient _claude = claude;
     private readonly OpenAIEmbeddingClient _embeddings = embeddings;
     private readonly QdrantPaperRepository _repo = repo;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
+    private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
 
     private const string SystemPrompt = """
         You are a discovery agent for a literature-cross-reference system. You are given
@@ -199,6 +201,7 @@ public sealed class DiscoveryAgent(
 
         var rawEvidence = input["supporting_evidence"]?.AsArray() ?? new JsonArray();
         var validatedEvidence = new List<SupportingEvidence>(rawEvidence.Count);
+        var citedHits = new List<SearchHit>(rawEvidence.Count);
         int dropped = 0;
         foreach (var node in rawEvidence)
         {
@@ -223,6 +226,7 @@ public sealed class DiscoveryAgent(
                 Section: hit.Section,
                 PageNumber: hit.PageNumber,
                 SupportType: supportType));
+            citedHits.Add(hit);
         }
 
         if (dropped > 0)
@@ -244,17 +248,24 @@ public sealed class DiscoveryAgent(
             "Discovery novelty: noveltyScore={NoveltyScore:F4} in {ElapsedMs}ms",
             noveltyScore, noveltyElapsedMs);
 
+        sw.Restart();
+        var (plausibility, structuralCoherence, _) =
+            await _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, ct).ConfigureAwait(false);
+        var evalElapsedMs = sw.ElapsedMilliseconds;
+
+        _logger.LogInformation(
+            "Discovery evaluation total: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} in {ElapsedMs}ms",
+            plausibility, structuralCoherence, evalElapsedMs);
+
+        var evaluation = DiscoveryScoring.Aggregate(noveltyScore, plausibility, structuralCoherence);
+
         return new DiscoverResponse(
             CorrelationId: corrId,
             Hypothesis: hypothesis,
             SupportingEvidence: validatedEvidence,
             NovelClaim: novelClaim,
             Reasoning: reasoning,
-            Evaluation: new DiscoveryEvaluation(
-                NoveltyScore: noveltyScore,
-                PlausibilityScore: 0f,
-                StructuralCoherenceScore: 0f,
-                QualityScore: 0f));
+            Evaluation: evaluation);
     }
 
     private static string BuildUserPrompt(string topicA, string? topicB, IReadOnlyList<SearchHit> chunks)
