@@ -15,16 +15,28 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 ## What It Does
 
 ```
-   ┌──────────┐    ┌──────────┐    ┌────────────┐    ┌────────────┐
-   │ arXiv    │───►│ Reader   │───►│ Synthesis  │───►│ Evaluator  │
-   │ papers   │    │ Agent    │    │ Agent      │    │ Agent      │
-   └──────────┘    └──────────┘    └────────────┘    └────────────┘
-                        │                │                  │
-                        ▼                ▼                  ▼
-                   ┌─────────────────────────────────────────┐
-                   │  Qdrant           +  Application Insights│
-                   │  (vector store)      (audit trail)       │
-                   └─────────────────────────────────────────┘
+  ┌──────────┐    ┌──────────┐    ┌─────────────────────────┐
+  │  arXiv   │───►│  Reader  │───►│        Qdrant           │
+  │  papers  │    │  Agent   │    │     (vector store)      │
+  └──────────┘    └──────────┘    └────┬────────────────┬───┘
+                                       │                │
+                                       ▼                ▼
+                             ┌──────────────┐  ┌──────────────────┐
+  /api/query    ────────────►│  Synthesis   │  │   Discovery      │◄──── /api/discover
+                             │    Agent     │  │     Agent        │
+                             └──────┬───────┘  └────────┬─────────┘
+                                    ▼                   ▼
+                             ┌──────────────┐  ┌──────────────────┐
+                             │  Evaluator   │  │ Discovery Eval.  │
+                             │    Agent     │  │ + NoveltyScorer  │
+                             └──────┬───────┘  └────────┬─────────┘
+                                    │                   │
+                                    └─────────┬─────────┘
+                                              ▼
+                                 ┌─────────────────────────┐
+                                 │  Application Insights   │
+                                 │     (audit trail)       │
+                                 └─────────────────────────┘
 ```
 
 1. **Reader Agent** — Extracts text from arXiv PDFs, chunks it semantically, embeds chunks via OpenAI `text-embedding-3-small`, persists to Qdrant with metadata.
@@ -47,9 +59,11 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 
 ## Engineering Challenges
 
-### Cosmos DB cost → Qdrant
+### Cosmos DB → Qdrant (twice)
 
-The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector index for an Azure-native production story. Cost modeling killed it: provisioned throughput plus storage put even modest demo workloads at a price point unsuitable for an open portfolio project. We pivoted to Qdrant for both dev and production. The repository pattern in `LIBRAIN/Storage/` made the move a single-class replacement (`CosmosPaperRepository` → `QdrantPaperRepository`) with no agent-layer changes.
+The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector index for an Azure-native production story. Phase 1 pivoted away from Cosmos for two reasons: the emulator was unstable on macOS Apple Silicon, and a paid managed service offered no learning advantage over a free local alternative for a prototype. We shipped against Qdrant in local Docker, with all data access confined to a single repository class so the swap remained a one-file change.
+
+Phase 2.5 retired the Cosmos plan entirely. Qdrant Cloud's free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) accommodates the 218-chunk corpus comfortably, runs the same engine as local development, uses the same vector dimension, distance metric, and UUIDv5 IDs, and auto-selects between local and cloud via API key presence in user-secrets. There is no schema migration between dev and production — they're the same engine, the same code path.
 
 ---
 
@@ -61,7 +75,7 @@ The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector ind
 | API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
 | LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
-| Vector store | Qdrant 1.17 (local Docker in dev; production hosting Phase 3) |
+| Vector store | Qdrant 1.17 — local Docker in dev, Qdrant Cloud free tier in production (AWS Frankfurt) |
 | Orchestration | Microsoft Semantic Kernel patterns |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
@@ -139,7 +153,7 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
 - [x] **Phase 2.5**: Discovery Mode — `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
-- [ ] **Phase 3**: Frontend, deployment, prompt caching, response streaming, AI-200 alignment
+- [ ] **Phase 3**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), prompt caching, response streaming, parallelized synth-eval
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
@@ -149,7 +163,7 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 - Papers ingested: 5 (218 chunks total)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5)
-- End-to-end query latency (p95): ~13s synthesis path, ~16s discovery path (sequential synth + eval; Phase 3 will add streaming + prompt caching)
+- End-to-end query latency (p95): ~13s synthesis path, 14–18s discovery path (sequential synth + eval; Phase 3 will add streaming + prompt caching)
 - Cost per query: ~$0.030 synthesis, ~$0.05 discovery (Sonnet synth + Haiku eval, dual-topic retrieval)
 - Tests: 30/30 passing (chunker, citation validation, evaluation scoring, novelty scoring, discovery scoring)
 
@@ -160,14 +174,15 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 ```
 librain/
 ├── LIBRAIN/                # ASP.NET Core Web API
-│   ├── Agents/             # Reader, Synthesis, Evaluator
+│   ├── Agents/             # Reader, Synthesis, Evaluator, Discovery + NoveltyScorer
+│   ├── Endpoints/          # /api/papers, /api/query, /api/discover
 │   ├── Embeddings/         # OpenAI client wrapper
 │   ├── Storage/            # Qdrant repository
 │   ├── Models/             # DTOs, domain types
+│   ├── Reading/            # PDF extraction + chunking
 │   └── Program.cs
 ├── docs/
-│   ├── architecture.pdf    # Original research paper
-│   └── SETUP.md
+│   └── architecture.pdf    # Original research paper
 ├── data/
 │   └── papers/             # Local PDFs for ingestion (gitignored)
 ├── PROJECT_PLAN.md         # Single source of truth for scope
