@@ -239,3 +239,67 @@ End-to-end Discovery pipeline running post-Step-2c (DROP applied; no `noveltyTar
 **Plausibility / structural coherence — identical across pairs (0.42 / 0.68).** Haiku 4.5 at temperature 0.0 returned the same scores for two qualitatively different hypotheses. Both share a structural pattern ("RAG could be applied to X for Y, enabling Z that static models cannot do") and the evaluator likely anchors on that shape. Notable, not blocking — for a single-shot judging it's plausible the underlying scores really are similar; cross-run variance studies (3+ runs per pair, mirroring Step 2b₁'s methodology) would distinguish anchor from accuracy. Future-work item, not a Phase 2.5 ship blocker.
 
 **The off-corpus hypothesis is qualitatively striking.** A genuine cross-domain extrapolation: RAG's hot-swappable index applied to biophysics, anchored against a real chunk of paper `2508.14111` that mentions length-dependent peptide unfolding (Sparks). This is the kind of output the companion paper claims LIBRAIN can produce, and it does — exactly once on a 5-paper corpus, on the first try, with citations that resolve. That's the recruiter-readable demo.
+
+## Cross-Run Consistency (N=5, post-ship study)
+
+Phase 2.5 ship's single-shot smoke surfaced a flag: `plausibility=0.4200` and `structural_coherence=0.6800` came back **identical** for both the in-corpus and off-corpus pairs. Open question — is `DiscoveryEvaluatorAgent` (Haiku 4.5, temperature 0.0) anchoring on a structural pattern that two qualitatively different hypotheses happen to share, or did two different hypotheses coincidentally land at the same scores on a single shot? This study runs each locked pair **N=5 times** and applies a classification gate to the within-pair sample standard deviation: `std < 0.01` → **ANCHOR** (no real evaluation happening); `0.01 ≤ std ≤ 0.05` → **AMBIGUOUS** (small but non-zero variance); `std > 0.05` → **GENUINE SIGNAL** (real content sensitivity). Novelty is *expected* to vary across runs (different `novel_claim` text → different cosine distance) and is reported but not classified on this gate. Reproducible via [`scripts/cross-run-study.sh`](../../scripts/cross-run-study.sh).
+
+**Determinism check (precondition)**: all 5 retrievals per pair returned the **identical** dedup'd chunk-ID list, in the same first-seen order, and matching the Step 2b₂ ship-time IDs exactly:
+
+- in-corpus (10 chunks): `2005.11401:{1,0,2,9,10}` ∪ `{2505.04651:23, 2504.05496:0, 2505.04651:0, 2505.04651:14, 2504.05496:2}`
+- off-corpus (10 chunks): `2005.11401:{1,0,2,9,10}` ∪ `{2508.14111:32, 2505.04651:70, 2508.14111:30, 2508.14111:33, 2508.14111:39}`
+
+10/10 calls returned HTTP 200, 0 contract violations (every run had a non-empty `novel_claim` and at least 1 valid `supportingEvidence` entry).
+
+### Per-run raw scores
+
+**in-corpus pair**
+
+| run | novelty | plausibility | coherence | quality |
+|----:|--------:|-------------:|----------:|--------:|
+| 1 | 0.3924 | 0.4200 | 0.6800 | 0.4975 |
+| 2 | 0.3698 | 0.6800 | 0.7200 | 0.5899 |
+| 3 | 0.4026 | 0.6200 | 0.7100 | 0.5775 |
+| 4 | 0.4304 | 0.4200 | 0.6800 | 0.5101 |
+| 5 | 0.4149 | 0.3500 | 0.7200 | 0.4950 |
+
+**off-corpus pair**
+
+| run | novelty | plausibility | coherence | quality |
+|----:|--------:|-------------:|----------:|--------:|
+| 1 | 0.5191 | 0.6200 | 0.7500 | 0.6297 |
+| 2 | 0.4545 | 0.7200 | 0.7800 | 0.6515 |
+| 3 | 0.4674 | 0.6200 | 0.7100 | 0.5991 |
+| 4 | 0.4614 | 0.4200 | 0.6800 | 0.5205 |
+| 5 | 0.4975 | 0.6800 | 0.7200 | 0.6325 |
+
+### Mean ± std summary
+
+| Pair | Axis | Mean ± std (N=5) | Verdict |
+|---|---|---:|---|
+| in-corpus | novelty | 0.4020 ± 0.0229 | (not classified) |
+| in-corpus | **plausibility** | **0.4980 ± 0.1432** | **GENUINE SIGNAL** |
+| in-corpus | **coherence** | **0.7020 ± 0.0205** | **AMBIGUOUS** |
+| in-corpus | quality | 0.5340 ± 0.0460 | — |
+| off-corpus | novelty | 0.4800 ± 0.0273 | (not classified) |
+| off-corpus | **plausibility** | **0.6120 ± 0.1154** | **GENUINE SIGNAL** |
+| off-corpus | **coherence** | **0.7280 ± 0.0383** | **AMBIGUOUS** |
+| off-corpus | quality | 0.6067 ± 0.0517 | — |
+
+### Interpretation
+
+**Plausibility — flag #1 RESOLVED.** Both pairs land firmly in **GENUINE SIGNAL** territory (std 0.143 and 0.115, both well above the 0.05 threshold). The original 0.42 / 0.42 match was coincidence on a single shot, not anchor. More striking: the off-corpus mean (0.612) is materially higher than the in-corpus mean (0.498) — Haiku consistently rates the cross-domain RAG-protein-folding bridge as more inferentially defensible than the in-domain RAG-discovery extension. A plausible mechanism: cross-domain prompts force the LLM to articulate the inferential bridge explicitly (because the analogy isn't shared context), while in-domain prompts let it gloss with assumed shared vocabulary, and the evaluator notices the missing scaffolding.
+
+**Structural coherence — AMBIGUOUS.** Both pairs land in [0.01, 0.05] (in-corpus 0.021, off-corpus 0.038), close to the ANCHOR threshold. The evaluator does discriminate — three distinct values appear within each pair (0.68, 0.71, 0.72 in-corpus; 0.68, 0.71, 0.72, 0.75, 0.78 off-corpus) — but the band is narrow and centered around 0.70. Reading: structural-coherence judgment is closer to a baseline well-formedness check on this prompt design. Multi-sentence-hypothesis-with-supporting-evidence is the structural floor it's measuring; once that floor is met, finer distinctions are within noise. Larger N (10–20) would tighten the std but is unlikely to flip the classification.
+
+**Novelty preserved.** in-corpus 0.402 ± 0.023, off-corpus 0.480 ± 0.027. Within-pair std is small (≈ 5–7% of the mean) — the deterministic cosine measure is stable across `novel_claim` paraphrases, as expected. Cross-pair differential is 0.078, consistent with the single-shot 0.0846 from the ship smoke (and similarly below the 0.10 single-shot acceptance target — same compression mechanism, no surprise).
+
+**Quality follows.** in-corpus 0.534 ± 0.046, off-corpus 0.607 ± 0.052 — the off-corpus pair scores systematically higher on all three axes, and the arithmetic mean reflects that.
+
+**For the §6 paper writeup** (forward note, prose-level, not actual paper text): treat the rubric axes as having different sensitivity profiles rather than equivalent measures. Plausibility is the discriminating LLM-judged axis; structural-coherence functions more like a well-formedness baseline check; novelty is a stable deterministic measurement that is somewhat decoupled from the LLM-judged axes (each one captures a different dimension of "good discovery"). A surprising result worth foregrounding: the cross-domain hypothesis is judged *more* plausible than the in-domain one — an inversion of what a naive "novelty / plausibility tradeoff" model would predict, possibly because cross-domain prompting forces explicit bridging that the LLM evaluator can grade favorably.
+
+### Cost
+
+- Synthesis (Sonnet 4.6, 10 calls): 115,090 in / 5,693 out → $0.4307
+- Evaluation (Haiku 4.5, 10 calls): 60,943 in / 2,209 out → $0.0576
+- **Total: 183,935 tokens, ≈ $0.4883** (under the $0.50 study budget).
