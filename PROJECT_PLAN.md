@@ -143,7 +143,7 @@ Citation validation applies the same guardrail as `SynthesisAgent` — every chu
 
 The new `POST /api/discover` request and response shapes are documented under §4.6.
 
-**Empirical update (2026-05-07, Step 2c):** the `noveltyTarget` knob was empirically dropped after the Step 2b₁ validation protocol failed (|Δmean| 0.0184 vs 2σ 0.0668; gate threshold requires Δmean > 2σ). The protocol additionally observed an inverted direction: higher `noveltyTarget` produced *lower* cosine-distance novelty, because high-target prompts elicited domain-vocabulary-rich hypotheses that landed nearer the corpus center. See [LIBRAIN/docs/phase2.5-discovery-smoke.md](LIBRAIN/docs/phase2.5-discovery-smoke.md) for full numbers.
+**Empirical update (2026-05-07, Step 2c):** the `noveltyTarget` knob was empirically dropped after the Step 2b₁ validation protocol failed (|Δmean| 0.0184 vs 2σ 0.0668; gate threshold requires Δmean > 2σ). The protocol additionally observed an inverted direction: higher `noveltyTarget` produced *lower* cosine-distance novelty, because high-target prompts elicited domain-vocabulary-rich hypotheses that landed nearer the corpus center. Full numbers are documented in the companion paper (`docs/architecture.pdf` §6.5).
 
 ---
 
@@ -353,7 +353,7 @@ Deliverables:
 - [ ] Citation validation on `supportingEvidence` (novelClaim exempt)
 - [ ] Audit-trail logging via correlationId on every retrieve / synthesize / score step
 - [ ] Unit tests for `NoveltyScorer` math (same category as chunker / citation validator / scoring per §6.4)
-- [ ] Smoke artifact in `LIBRAIN/docs/phase2.5-discovery-smoke.md` documenting end-to-end run
+- [ ] Smoke artifact documenting end-to-end run (results captured in companion paper §5.4)
 
 Success criteria:
 - A live `/api/discover` call against the existing 218-chunk Qdrant Cloud cluster returns a hypothesis with non-empty `novelClaim`, `supportingEvidence` chunk IDs validated against the retrieved set, and a `qualityScore` in [0, 1].
@@ -421,7 +421,7 @@ The MVP DoD checklist above is **the** definition of done. Discovery Mode is a P
 
 - [ ] `POST /api/discover` returns a hypothesis + flagged `novelClaim` + per-axis evaluation against the live cluster
 - [ ] `NoveltyScorer` unit tests green (deterministic cosine math)
-- [ ] Smoke artifact at `LIBRAIN/docs/phase2.5-discovery-smoke.md` shows in-corpus vs. off-corpus novelty differential
+- [ ] Smoke artifact shows in-corpus vs. off-corpus novelty differential (captured in companion paper §5.4)
 - [ ] README mentions Discovery Mode under "What It Does" and the roadmap
 
 If Phase 3 deadlines pressure the schedule, Discovery extension is the first thing cut. The MVP ships without it.
