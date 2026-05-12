@@ -48,6 +48,19 @@ public sealed class DiscoveryAgent(
           are well-covered by the corpus and the hypothesis is mostly grounded, extract
           the most extrapolative sentence as `novel_claim` and explain in `reasoning`
           that novelty is low.
+        - `extrapolation_basis`: an array with ONE entry per sentence in `novel_claim`.
+          Each entry justifies how that sentence relates to the retrieved evidence:
+            * `claim_sentence`: the exact sentence from `novel_claim`.
+            * `basis_type`: "generalization" (extends a retrieved finding to a new
+              case), "analogy" (transfers a mechanism from a related domain), or
+              "pure_speculation" (not derivable from retrieved chunks).
+            * `grounded_in_chunk_id`: "paper_id:chunk_index" of the supporting chunk
+              when basis_type is "generalization" or "analogy"; null when
+              "pure_speculation".
+            * `rationale`: one sentence (max ~240 chars) explaining the link.
+          Speculation is welcomed, but it must be labeled. Do NOT state speculative
+          content as established fact — if a sentence is speculative, mark it
+          "pure_speculation" rather than asserting it as if it were retrieved evidence.
         - `reasoning`: 1–2 sentences connecting the supporting evidence to the novel
           claim.
 
@@ -84,12 +97,38 @@ public sealed class DiscoveryAgent(
               "type": "string",
               "description": "Substring of `hypothesis` not directly supported by any retrieved chunk. MUST be non-empty. If the hypothesis is fully grounded, return the most extrapolative sentence."
             },
+            "extrapolation_basis": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "claim_sentence": { "type": "string", "description": "Exact sentence from `novel_claim`." },
+                  "basis_type": {
+                    "type": "string",
+                    "enum": ["generalization", "analogy", "pure_speculation"],
+                    "description": "How the sentence relates to retrieved evidence. Use 'pure_speculation' for any sentence not derivable from a retrieved chunk."
+                  },
+                  "grounded_in_chunk_id": {
+                    "type": ["string", "null"],
+                    "description": "'paper_id:chunk_index' of the supporting chunk for generalization/analogy. MUST be null when basis_type is 'pure_speculation'."
+                  },
+                  "rationale": {
+                    "type": "string",
+                    "maxLength": 240,
+                    "description": "One-sentence justification of the link (or labeling, for pure_speculation)."
+                  }
+                },
+                "required": ["claim_sentence", "basis_type", "rationale"]
+              },
+              "description": "Per-sentence self-annotation for `novel_claim`. One entry per sentence. Forces explicit labeling of speculation to reduce false-fact framing."
+            },
             "reasoning": {
               "type": "string",
               "description": "1-2 sentences connecting supporting evidence to the novel claim."
             }
           },
-          "required": ["hypothesis", "supporting_evidence", "novel_claim", "reasoning"]
+          "required": ["hypothesis", "supporting_evidence", "novel_claim", "extrapolation_basis", "reasoning"]
         }
         """;
 
@@ -236,9 +275,98 @@ public sealed class DiscoveryAgent(
                 dropped, rawEvidence.Count);
         }
 
+        // Aşama 1 hallucination guard: extrapolation_basis is the per-sentence
+        // self-annotation that forces the model to label speculation explicitly.
+        // Empty array → contract violation (mirrors the novel_claim non-empty check).
+        var rawBasis = input["extrapolation_basis"]?.AsArray();
+        if (rawBasis is null || rawBasis.Count == 0)
+        {
+            _logger.LogError(
+                "Discovery contract violation: empty extrapolation_basis (correlationId={CorrelationId})",
+                corrId);
+            throw new InvalidOperationException(
+                $"Discovery contract violation: empty extrapolation_basis (correlationId={corrId})");
+        }
+
+        var validatedBasis = new List<ExtrapolationBasis>(rawBasis.Count);
+        int basisDropped = 0;
+        int basisNormalized = 0;
+        int pureSpeculationCount = 0;
+        foreach (var node in rawBasis)
+        {
+            if (node is null) { basisDropped++; continue; }
+            var claimSentence = node["claim_sentence"]?.GetValue<string>();
+            var basisType = node["basis_type"]?.GetValue<string>();
+            var rationale = node["rationale"]?.GetValue<string>();
+            var groundedInChunkId = node["grounded_in_chunk_id"]?.GetValue<string?>();
+            if (string.IsNullOrWhiteSpace(claimSentence) ||
+                string.IsNullOrWhiteSpace(basisType) ||
+                string.IsNullOrWhiteSpace(rationale))
+            {
+                basisDropped++;
+                continue;
+            }
+            basisType = basisType.Trim().ToLowerInvariant();
+            if (basisType is not ("generalization" or "analogy" or "pure_speculation"))
+            {
+                basisDropped++;
+                continue;
+            }
+            if (basisType == "pure_speculation")
+            {
+                if (!string.IsNullOrWhiteSpace(groundedInChunkId))
+                {
+                    // Model violated the schema contract; pure_speculation MUST be
+                    // null-grounded. Normalize rather than drop — the speculative
+                    // label is the load-bearing bit.
+                    basisNormalized++;
+                    groundedInChunkId = null;
+                }
+                pureSpeculationCount++;
+            }
+            else
+            {
+                // generalization / analogy require a valid chunk reference. Drop
+                // entries that cite outside the retrieved set or are null.
+                if (string.IsNullOrWhiteSpace(groundedInChunkId))
+                {
+                    basisDropped++;
+                    continue;
+                }
+                var parts = groundedInChunkId.Split(':');
+                if (parts.Length != 2 || !int.TryParse(parts[1], out var basisChunkIndex)
+                    || !seenKeys.Contains((parts[0], basisChunkIndex)))
+                {
+                    basisDropped++;
+                    continue;
+                }
+            }
+            validatedBasis.Add(new ExtrapolationBasis(
+                ClaimSentence: claimSentence,
+                BasisType: basisType,
+                GroundedInChunkId: groundedInChunkId,
+                Rationale: rationale));
+        }
+
+        if (basisDropped > 0 || basisNormalized > 0)
+        {
+            _logger.LogWarning(
+                "Discovery: extrapolation_basis cleanup — dropped {DroppedCount}, normalized {NormalizedCount} entries (of {RequestedCount})",
+                basisDropped, basisNormalized, rawBasis.Count);
+        }
+
+        if (validatedBasis.Count == 0)
+        {
+            _logger.LogError(
+                "Discovery contract violation: extrapolation_basis was non-empty but all entries failed validation (correlationId={CorrelationId})",
+                corrId);
+            throw new InvalidOperationException(
+                $"Discovery contract violation: all extrapolation_basis entries failed validation (correlationId={corrId})");
+        }
+
         _logger.LogInformation(
-            "Discovery synthesis: input={InputTokens} output={OutputTokens} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars} in {ElapsedMs}ms",
-            res.Usage.InputTokens, res.Usage.OutputTokens, validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, synthElapsedMs);
+            "Discovery synthesis: input={InputTokens} output={OutputTokens} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars}; basis={BasisCount} (pureSpec={PureSpec}) in {ElapsedMs}ms",
+            res.Usage.InputTokens, res.Usage.OutputTokens, validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
         sw.Restart();
         var noveltyScore = await _noveltyScorer.ScoreAsync(novelClaim, ct).ConfigureAwait(false);
@@ -264,6 +392,7 @@ public sealed class DiscoveryAgent(
             Hypothesis: hypothesis,
             SupportingEvidence: validatedEvidence,
             NovelClaim: novelClaim,
+            ExtrapolationBasis: validatedBasis,
             Reasoning: reasoning,
             Evaluation: evaluation);
     }

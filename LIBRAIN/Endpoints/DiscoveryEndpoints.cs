@@ -15,6 +15,20 @@ public sealed record SupportingEvidence(
     int? PageNumber,
     string SupportType);
 
+// Per-sentence self-annotation the DiscoveryAgent must produce alongside novel_claim.
+// BasisType is one of: "generalization" (extends retrieved evidence to a new case),
+// "analogy" (transfers a mechanism from a related domain), "pure_speculation" (not
+// derivable from retrieved chunks). When BasisType is "pure_speculation",
+// GroundedInChunkId is null; otherwise it must reference a retrieved chunk
+// (paper_id:chunk_index format). This is the Aşama 1 hallucination-mitigation guard:
+// forcing the model to justify each sentence reduces "specific factual claim as fact"
+// drift in the novelClaim body.
+public sealed record ExtrapolationBasis(
+    string ClaimSentence,
+    string BasisType,
+    string? GroundedInChunkId,
+    string Rationale);
+
 public sealed record DiscoveryEvaluation(
     float NoveltyScore,
     float PlausibilityScore,
@@ -26,6 +40,7 @@ public sealed record DiscoverResponse(
     string Hypothesis,
     IReadOnlyList<SupportingEvidence> SupportingEvidence,
     string NovelClaim,
+    IReadOnlyList<ExtrapolationBasis> ExtrapolationBasis,
     string Reasoning,
     DiscoveryEvaluation Evaluation);
 
