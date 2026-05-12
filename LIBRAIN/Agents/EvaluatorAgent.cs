@@ -112,6 +112,7 @@ public sealed class EvaluatorAgent(
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
 
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
@@ -160,9 +161,10 @@ public sealed class EvaluatorAgent(
             .ToArray() ?? Array.Empty<string>();
 
         _logger.LogInformation(
-            "Evaluated hypothesis (q={QualityScore:F2} g={Groundedness:F2} r={Relevance:F2} c={Completeness:F2}; input={InputTokens} output={OutputTokens} tokens) in {ElapsedMs}ms",
+            "Evaluated hypothesis (q={QualityScore:F2} g={Groundedness:F2} r={Relevance:F2} c={Completeness:F2}; input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             quality, groundedness, relevance, completeness,
             res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             sw.ElapsedMilliseconds);
 
         return new EvaluationResult(

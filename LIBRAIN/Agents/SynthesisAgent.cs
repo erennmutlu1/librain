@@ -85,6 +85,7 @@ public sealed class SynthesisAgent(
             Model = AnthropicModels.Claude46Sonnet,
             Temperature = 0.2m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
 
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
@@ -132,11 +133,13 @@ public sealed class SynthesisAgent(
         }
 
         _logger.LogInformation(
-            "Generated hypothesis ({CitationCount} valid of {RequestedCount} cited; input={InputTokens} output={OutputTokens} tokens) in {ElapsedMs}ms",
+            "Generated hypothesis ({CitationCount} valid of {RequestedCount} cited; input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             validated.Count,
             rawIndices.Length,
             res.Usage.InputTokens,
             res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens,
+            res.Usage.CacheCreationInputTokens,
             sw.ElapsedMilliseconds);
 
         return new SynthesisResult(hypothesis, validated, confidence, unsupported, corrId);

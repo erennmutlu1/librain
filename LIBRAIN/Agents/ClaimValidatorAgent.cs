@@ -120,6 +120,7 @@ public sealed class ClaimValidatorAgent(
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
 
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
@@ -202,10 +203,11 @@ public sealed class ClaimValidatorAgent(
         }
 
         _logger.LogInformation(
-            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} (input={InputTokens} output={OutputTokens} tokens) in {ElapsedMs}ms",
+            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             parsedEntries.Count, groundedCount, extrapolatedCount, riskyCount,
             aggregateRisk,
             res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             sw.ElapsedMilliseconds);
 
         return new ClaimValidationResult(parsedEntries, aggregateRisk);

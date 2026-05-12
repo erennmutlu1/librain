@@ -79,6 +79,7 @@ public sealed class DiscoveryEvaluatorAgent(
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
 
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
@@ -115,9 +116,10 @@ public sealed class DiscoveryEvaluatorAgent(
         var rationale = input["rationale"]?.GetValue<string>() ?? string.Empty;
 
         _logger.LogInformation(
-            "Discovery evaluation: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} (input={InputTokens} output={OutputTokens} tokens) in {ElapsedMs}ms",
+            "Discovery evaluation: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             plausibility, structuralCoherence,
             res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             sw.ElapsedMilliseconds);
 
         _logger.LogDebug(

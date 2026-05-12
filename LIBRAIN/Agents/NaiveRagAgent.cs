@@ -170,6 +170,7 @@ public sealed class NaiveRagAgent(
             Model = AnthropicModels.Claude46Sonnet,
             Temperature = 0.2m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
         var synthElapsedMs = sw.ElapsedMilliseconds;
@@ -203,8 +204,10 @@ public sealed class NaiveRagAgent(
         var (claimed, fabricated) = NaiveRagCitations.Resolve(parsed, seenKeys);
 
         _logger.LogInformation(
-            "Naive-RAG synthesis: input={InputTokens} output={OutputTokens} tokens; claimed={ClaimedCount} resolved={ResolvedCount} fabricated={FabricatedCount} in {ElapsedMs}ms",
-            res.Usage.InputTokens, res.Usage.OutputTokens, claimed.Count, claimed.Count - fabricated, fabricated, synthElapsedMs);
+            "Naive-RAG synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; claimed={ClaimedCount} resolved={ResolvedCount} fabricated={FabricatedCount} in {ElapsedMs}ms",
+            res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            claimed.Count, claimed.Count - fabricated, fabricated, synthElapsedMs);
 
         // Score: treat the whole hypothesis as the speculative claim (no novelClaim fence).
         // Evaluator sees all retrieved chunks regardless of which the model cited — this

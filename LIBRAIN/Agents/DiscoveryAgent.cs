@@ -208,6 +208,7 @@ public sealed class DiscoveryAgent(
             Model = AnthropicModels.Claude46Sonnet,
             Temperature = 0.2m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
         var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
         var synthElapsedMs = sw.ElapsedMilliseconds;
@@ -367,8 +368,10 @@ public sealed class DiscoveryAgent(
         }
 
         _logger.LogInformation(
-            "Discovery synthesis: input={InputTokens} output={OutputTokens} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars}; basis={BasisCount} (pureSpec={PureSpec}) in {ElapsedMs}ms",
-            res.Usage.InputTokens, res.Usage.OutputTokens, validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
+            "Discovery synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars}; basis={BasisCount} (pureSpec={PureSpec}) in {ElapsedMs}ms",
+            res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
         sw.Restart();
         var noveltyScore = await _noveltyScorer.ScoreAsync(novelClaim, ct).ConfigureAwait(false);

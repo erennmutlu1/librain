@@ -58,6 +58,7 @@ public sealed class SingleLlmAgent(
             Model = AnthropicModels.Claude46Sonnet,
             Temperature = 0.2m,
             Stream = false,
+            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
         };
 
         var sw = Stopwatch.StartNew();
@@ -75,8 +76,10 @@ public sealed class SingleLlmAgent(
         }
 
         _logger.LogInformation(
-            "Single-LLM synthesis: input={InputTokens} output={OutputTokens} tokens; hypothesisChars={HypothesisChars} in {ElapsedMs}ms",
-            res.Usage.InputTokens, res.Usage.OutputTokens, hypothesis.Length, synthElapsedMs);
+            "Single-LLM synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; hypothesisChars={HypothesisChars} in {ElapsedMs}ms",
+            res.Usage.InputTokens, res.Usage.OutputTokens,
+            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            hypothesis.Length, synthElapsedMs);
 
         // No novelClaim fence in this baseline → score the full hypothesis as the
         // speculative claim. No retrieval → empty cited-chunk set for the evaluator.
