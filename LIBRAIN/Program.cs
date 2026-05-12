@@ -63,6 +63,8 @@ builder.Services.AddScoped<EvaluatorAgent>();
 builder.Services.AddScoped<DiscoveryAgent>();
 builder.Services.AddScoped<DiscoveryEvaluatorAgent>();
 builder.Services.AddScoped<NoveltyScorer>();
+builder.Services.AddScoped<SingleLlmAgent>();
+builder.Services.AddScoped<NaiveRagAgent>();
 
 var app = builder.Build();
 
@@ -100,5 +102,6 @@ app.MapGet("/api/papers", async (QdrantPaperRepository repo, CancellationToken c
 
 app.MapQueryEndpoints();
 app.MapDiscoveryEndpoints();
+app.MapBaselineEndpoints();
 
 app.Run();
