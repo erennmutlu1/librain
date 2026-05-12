@@ -62,6 +62,7 @@ builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
 builder.Services.AddScoped<DiscoveryAgent>();
 builder.Services.AddScoped<DiscoveryEvaluatorAgent>();
+builder.Services.AddScoped<ClaimValidatorAgent>();
 builder.Services.AddScoped<NoveltyScorer>();
 builder.Services.AddScoped<SingleLlmAgent>();
 builder.Services.AddScoped<NaiveRagAgent>();

@@ -17,7 +17,8 @@ public sealed class DiscoveryAgent(
     OpenAIEmbeddingClient embeddings,
     QdrantPaperRepository repo,
     NoveltyScorer noveltyScorer,
-    DiscoveryEvaluatorAgent evaluator)
+    DiscoveryEvaluatorAgent evaluator,
+    ClaimValidatorAgent claimValidator)
 {
     private readonly ILogger<DiscoveryAgent> _logger = logger;
     private readonly AnthropicChatClient _claude = claude;
@@ -25,6 +26,7 @@ public sealed class DiscoveryAgent(
     private readonly QdrantPaperRepository _repo = repo;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
+    private readonly ClaimValidatorAgent _claimValidator = claimValidator;
 
     private const string SystemPrompt = """
         You are a discovery agent for a literature-cross-reference system. You are given
@@ -275,7 +277,7 @@ public sealed class DiscoveryAgent(
                 dropped, rawEvidence.Count);
         }
 
-        // Aşama 1 hallucination guard: extrapolation_basis is the per-sentence
+        // Stage 1 hallucination guard: extrapolation_basis is the per-sentence
         // self-annotation that forces the model to label speculation explicitly.
         // Empty array → contract violation (mirrors the novel_claim non-empty check).
         var rawBasis = input["extrapolation_basis"]?.AsArray();
@@ -376,6 +378,18 @@ public sealed class DiscoveryAgent(
             "Discovery novelty: noveltyScore={NoveltyScore:F4} in {ElapsedMs}ms",
             noveltyScore, noveltyElapsedMs);
 
+        // Stage 2 hallucination guard: claim-level factuality validation. Sequential
+        // for now; Faz E2 will parallelize this with the Discovery Evaluator since
+        // both depend on the same novel_claim + retrieved chunks and not on each
+        // other's output.
+        sw.Restart();
+        var claimValidation = await _claimValidator.ValidateAsync(novelClaim, dedup, ct).ConfigureAwait(false);
+        var claimValidationElapsedMs = sw.ElapsedMilliseconds;
+
+        _logger.LogInformation(
+            "Discovery claim validation: claims={ClaimCount} aggregateRisk={AggregateRisk:F3} in {ElapsedMs}ms",
+            claimValidation.Claims.Count, claimValidation.AggregateRisk, claimValidationElapsedMs);
+
         sw.Restart();
         var (plausibility, structuralCoherence, _) =
             await _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, ct).ConfigureAwait(false);
@@ -393,6 +407,7 @@ public sealed class DiscoveryAgent(
             SupportingEvidence: validatedEvidence,
             NovelClaim: novelClaim,
             ExtrapolationBasis: validatedBasis,
+            ClaimValidation: claimValidation,
             Reasoning: reasoning,
             Evaluation: evaluation);
     }
