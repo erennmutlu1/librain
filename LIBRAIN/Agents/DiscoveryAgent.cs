@@ -373,34 +373,29 @@ public sealed class DiscoveryAgent(
             res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
+        // Three scoring passes — novelty (deterministic embedding), claim-level
+        // factuality validation (Haiku), and four-axis evaluation (Haiku) — all
+        // depend on the same novel_claim + retrieved chunks and not on each other's
+        // output. Run them concurrently to collapse the scoring stage from three
+        // sequential round-trips into one effective slowest-task round-trip. Each
+        // task keeps its own audit logging; the aggregate timing below covers the
+        // parallel stage as a whole.
         sw.Restart();
-        var noveltyScore = await _noveltyScorer.ScoreAsync(novelClaim, ct).ConfigureAwait(false);
-        var noveltyElapsedMs = sw.ElapsedMilliseconds;
+        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, ct);
+        var claimValidationTask = _claimValidator.ValidateAsync(novelClaim, dedup, ct);
+        var evaluationTask = _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, ct);
+
+        await Task.WhenAll(noveltyTask, claimValidationTask, evaluationTask).ConfigureAwait(false);
+
+        var noveltyScore = noveltyTask.Result;
+        var claimValidation = claimValidationTask.Result;
+        var (plausibility, structuralCoherence, _) = evaluationTask.Result;
+        var scoringElapsedMs = sw.ElapsedMilliseconds;
 
         _logger.LogInformation(
-            "Discovery novelty: noveltyScore={NoveltyScore:F4} in {ElapsedMs}ms",
-            noveltyScore, noveltyElapsedMs);
-
-        // Stage 2 hallucination guard: claim-level factuality validation. Sequential
-        // for now; Faz E2 will parallelize this with the Discovery Evaluator since
-        // both depend on the same novel_claim + retrieved chunks and not on each
-        // other's output.
-        sw.Restart();
-        var claimValidation = await _claimValidator.ValidateAsync(novelClaim, dedup, ct).ConfigureAwait(false);
-        var claimValidationElapsedMs = sw.ElapsedMilliseconds;
-
-        _logger.LogInformation(
-            "Discovery claim validation: claims={ClaimCount} aggregateRisk={AggregateRisk:F3} in {ElapsedMs}ms",
-            claimValidation.Claims.Count, claimValidation.AggregateRisk, claimValidationElapsedMs);
-
-        sw.Restart();
-        var (plausibility, structuralCoherence, _) =
-            await _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, ct).ConfigureAwait(false);
-        var evalElapsedMs = sw.ElapsedMilliseconds;
-
-        _logger.LogInformation(
-            "Discovery evaluation total: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} in {ElapsedMs}ms",
-            plausibility, structuralCoherence, evalElapsedMs);
+            "Discovery scoring (parallel): novelty={NoveltyScore:F4} claims={ClaimCount} aggregateRisk={AggregateRisk:F3} plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} in {ElapsedMs}ms",
+            noveltyScore, claimValidation.Claims.Count, claimValidation.AggregateRisk,
+            plausibility, structuralCoherence, scoringElapsedMs);
 
         var evaluation = DiscoveryScoring.Aggregate(noveltyScore, plausibility, structuralCoherence);
 
