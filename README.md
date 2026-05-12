@@ -6,7 +6,7 @@
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
 ![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Phase%202.5%20shipped-brightgreen)
+![Status](https://img.shields.io/badge/status-Phase%203.A.5%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
 
@@ -26,10 +26,12 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
                              │    Agent     │  │     Agent        │
                              └──────┬───────┘  └────────┬─────────┘
                                     ▼                   ▼
-                             ┌──────────────┐  ┌──────────────────┐
-                             │  Evaluator   │  │ Discovery Eval.  │
-                             │    Agent     │  │ + NoveltyScorer  │
-                             └──────┬───────┘  └────────┬─────────┘
+                             ┌──────────────┐  ┌────────────────────┐
+                             │  Evaluator   │  │ NoveltyScorer +    │
+                             │    Agent     │  │ Discovery Eval. +  │
+                             │              │  │ ClaimValidator     │
+                             │              │  │  (Task.WhenAll)    │
+                             └──────┬───────┘  └────────┬───────────┘
                                     │                   │
                                     └─────────┬─────────┘
                                               ▼
@@ -55,7 +57,7 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 
 Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Anthropic's official .NET SDK. It's a deliberate counter-example to the "AI = Python only" assumption.
 
-The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design and the simplifications made for the MVP. A revised preprint with implementation results will be posted to arXiv when the MVP is complete.
+The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design, the simplifications made for the MVP, and the empirical results from the Phase B baseline experiment and the AFTER-FIX human-evaluation pilot. The paper is currently in revision; an arXiv preprint and a peer-reviewed venue submission are both in preparation.
 
 ---
 
@@ -65,7 +67,15 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 
 The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector index for an Azure-native production story. Phase 1 pivoted away from Cosmos for two reasons: the emulator was unstable on macOS Apple Silicon, and a paid managed service offered no learning advantage over a free local alternative for a prototype. We shipped against Qdrant in local Docker, with all data access confined to a single repository class so the swap remained a one-file change.
 
-Phase 2.5 retired the Cosmos plan entirely. Qdrant Cloud's free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) accommodates the 218-chunk corpus comfortably, runs the same engine as local development, uses the same vector dimension, distance metric, and UUIDv5 IDs, and auto-selects between local and cloud via API key presence in user-secrets. There is no schema migration between dev and production — they're the same engine, the same code path.
+Phase 2.5 retired the Cosmos plan entirely. Qdrant Cloud's free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) accommodates the 218-chunk Phase 1 corpus comfortably and absorbed the Phase B expansion to 610 chunks without operator intervention. It runs the same engine as local development, uses the same vector dimension, distance metric, and UUIDv5 IDs, and auto-selects between local and cloud via API key presence in user-secrets. There is no schema migration between dev and production: they are the same engine on the same code path.
+
+### noveltyTarget knob retirement (Phase 2.5)
+
+An early `noveltyTarget` request parameter was wired into the Discovery Agent's system prompt as a soft calibration instruction on a 0-to-1 scale. Before exposing it to callers, a pre-deployment validation protocol ran three calls at `noveltyTarget = 0.2` and three at `noveltyTarget = 0.9`, retrieval held identical across all six runs. The measured mean novelty differential was 0.0184 against a 2-sigma noise band of 0.0668, and the direction inverted. The knob did not steer model behaviour in the intended way and was retired before reaching production users. The Discovery prompt now invites extrapolation unconditionally and the deterministic NoveltyScorer measures the result. Cosine-distance novelty is treated as a measurement surface, not a control surface.
+
+### ClaimValidator and the AFTER-FIX pilot (Phase 3.A.5)
+
+A single-rater blinded pilot in Phase 3.A flagged 3 of 5 LIBRAIN outputs for factual hallucination inside `novelClaim` text. The flagged content sat in the speculative body of the hypothesis, not in the citations, so the existing citation-validation contract did not catch it by construction. Phase 3.A.5 added a per-sentence `ClaimValidatorAgent` that labels each `novelClaim` sentence `GROUNDED`, `EXTRAPOLATED`, or `RISKY` with a hallucination probability, aggregated halo-resistant via the max rule in C#. The AFTER-FIX rerun under the same blinded protocol moved the flag count from 3 of 5 to 0 of 5, with `novelClaim` novelty rising from 4.00 to 4.40 on the rater's 1-to-5 scale.
 
 ---
 
