@@ -43,7 +43,9 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 2. **Synthesis Agent** — On a user query, retrieves top-K chunks via vector search, prompts Anthropic Claude to generate citation-grounded hypotheses connecting concepts across papers.
 3. **Evaluator Agent** — Uses LLM-as-a-Judge with a fixed rubric (plausibility, novelty, clarity) to score and filter hypotheses, reducing hallucinations.
 4. **Discovery Mode** (Phase 2.5) — A separate `POST /api/discover` endpoint takes one or two topics, retrieves evidence per topic, and asks Claude to propose a hypothesis that goes BEYOND the cited sources — the unsupported portion is flagged as `novelClaim` (the discovery, not a hallucination). Scored on a multi-axis rubric: deterministic novelty (cosine distance to nearest existing chunk), LLM-judged plausibility, and structural coherence. A cross-run consistency study (N=5) validates plausibility as the discriminating axis across hypotheses, while structural coherence functions as a well-formedness baseline.
-5. **Audit Trail** — Every step (retrieval, generation, evaluation) is logged to Application Insights with a correlation ID, enabling full reproducibility of any output.
+5. **Claim-Level Validation** (Phase 3.A.5) — The `extrapolation_basis` schema field plus a secondary `ClaimValidatorAgent` (Haiku 4.5) classify each sentence of `novelClaim` as `GROUNDED`, `EXTRAPOLATED`, or `RISKY` against the retrieved chunks. Addresses the §7.7.3 finding that 3/5 LIBRAIN outputs were rater-flagged for factually-framed speculation inside the `novelClaim` body. The validator runs in parallel with `Discovery Evaluator` (`Task.WhenAll`) so the extra pass costs ~1 Haiku call latency, not three.
+6. **Baseline Agents** (Phase 3.A) — `NaiveRagAgent` (retrieval + structured tool-use without citation contract) and `SingleLlmAgent` (no retrieval, plain text) ship as ablation conditions for the paper §6.6 three-system comparison. Both reuse the same `Discovery Evaluator` and `NoveltyScorer` so cross-system scoring isolates pipeline structure from evaluator implementation.
+7. **Audit Trail** — Every step (retrieval, generation, evaluation, claim validation) is logged to Application Insights with a correlation ID, enabling full reproducibility of any output. Every Anthropic call also records `cacheRead` + `cacheCreate` token counts so prompt-cache effectiveness is observable per request.
 
 > Discovery Mode runs as a parallel pipeline off the same retrieval layer; it does not replace the Synthesis → Evaluator path.
 
@@ -153,19 +155,68 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
 - [x] **Phase 2.5**: Discovery Mode — `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
-- [ ] **Phase 3**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), prompt caching, response streaming, parallelized synth-eval
+- [x] **Phase 3.A**: Three-system baseline (`NaiveRagAgent`, `SingleLlmAgent`), claim-level validation (`extrapolation_basis` + `ClaimValidatorAgent`), prompt caching across all agents, parallelized scoring (`Task.WhenAll`), `LIBRAIN.Experiments` CLI for paper reproduction (May 2026)
+- [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming, two-rater human eval follow-up
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ---
 
-## Performance (Phase 2 baseline)
+## Performance
 
-- Papers ingested: 13 (610 chunks total) — Phase 1 seed corpus (5 papers) plus Phase 2.5 expansion (8 papers across drug discovery, climate forecasting, and computational neuroscience)
-- Retrieval latency (p95): < 200 ms (Qdrant local, top-5)
-- End-to-end query latency (p95): ~13s synthesis path, 14–18s discovery path (sequential synth + eval; Phase 3 will add streaming + prompt caching)
-- Cost per query: ~$0.030 synthesis, ~$0.05 discovery (Sonnet synth + Haiku eval, dual-topic retrieval)
-- Tests: 30/30 passing (chunker, citation validation, evaluation scoring, novelty scoring, discovery scoring)
+- Papers ingested: 13 (610 chunks total) — Phase 1 seed corpus (5 papers) plus Phase 2.5 expansion (8 papers across drug discovery, climate forecasting, and computational neuroscience).
+- Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
+- End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
+- Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
+- Cost per query: ~$0.030 synthesis, ~$0.04 discovery (Sonnet synth + Haiku eval + Haiku claim-validation, cached prefix).
+- Tests: **53/53 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract).
+
+---
+
+## Reproducing Paper Numbers
+
+Every numeric claim in the companion paper is backed by a runnable command + a committed CSV. The reproduction tooling lives in `LIBRAIN.Experiments`; raw responses and aggregates live in `experiments/`.
+
+| Paper artifact | Command (from repo root) | Output |
+|---|---|---|
+| **Table 5** — Phase B 10-pair scores | `dotnet run --project LIBRAIN.Experiments -- phase-b` | `experiments/phase-b/results/{pair-*.json, aggregate.csv}` |
+| **Table 7** — Three-system aggregate means | `dotnet run --project LIBRAIN.Experiments -- baseline` | `experiments/baseline-comparison/results/{librain,naive-rag,single-llm}/*.json` + `aggregate.csv` |
+| **Table 8** — Naive-RAG citation fabrication | (produced by `baseline`) | `experiments/baseline-comparison/results/fabrication-counts.csv` |
+| **Table 9 / §7.7 Panel B** — Per-system human-eval descriptives | `dotnet run --project LIBRAIN.Experiments -- analyze` | `experiments/human-eval-pilot/analysis.csv` |
+| **§7.7.1** — Spearman ρ (rater vs LLM-as-Judge) | (produced by `analyze` once baseline is run) | `experiments/human-eval-pilot/spearman.csv` |
+| **§6.8 Experiment 8** — Hallucination mitigation pilot (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
+| **§6.4** — Cross-run consistency study (Phase 2.5) | `scripts/cross-run-study.sh --runs 5` | stdout (per-axis mean ± std + classification verdict) |
+
+### Prerequisites
+
+- LIBRAIN dev server running locally: `dotnet run --project LIBRAIN`
+- Anthropic + OpenAI + Qdrant Cloud keys configured via `dotnet user-secrets` (see [Quick Start](#quick-start)).
+- 13-paper Phase B corpus ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion).
+
+### Full reproduction sequence + cost estimate (~$1.24)
+
+```bash
+# 1. Discovery on all 10 pre-registered pairs → Table 5 + reused as LIBRAIN baseline column.
+dotnet run --project LIBRAIN.Experiments -- phase-b              # ~$0.30 · ~15 min
+
+# 2. Naive-RAG + Single-LLM on the same 10 pairs → Table 7 + 8.
+dotnet run --project LIBRAIN.Experiments -- baseline             # ~$0.45 · ~20 min
+
+# 3. Crunch everything that's currently on disk → Table 5/7/8/9 + Spearman ρ.
+dotnet run --project LIBRAIN.Experiments -- analyze              # offline · seconds
+
+# 4. Stage the 5 human-eval pairs + new Latin-square unblind key for rater re-scoring.
+dotnet run --project LIBRAIN.Experiments -- hallucination-pilot  # offline · seconds
+#    Rater fills experiments/hallucination-pilot/ratings-template.csv,
+#    then re-runs `analyze` to compute the after-fix table.
+
+# 5. (Optional) Phase 2.5 consistency study, 5 runs × 2 locked pairs.
+scripts/cross-run-study.sh --runs 5                              # ~$0.40 · ~5 min
+```
+
+Anthropic prompt caching (auto-enabled across all agents) means the second pair onward in each run reuses ~80% of the system + tool prefix tokens, so the dollar figures above are upper bounds rather than typical.
+
+The human-eval rater 1 CSV + unblind key are already committed (`experiments/human-eval-pilot/`), so step 3 reproduces paper §7.7 Panel B (`LIBRAIN 4.00/3.40/3-of-5, Naive-RAG 2.40/4.80/0, Single-LLM 2.40/4.60/0`) without any API calls.
 
 ---
 
@@ -173,19 +224,33 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ```
 librain/
-├── LIBRAIN/                # ASP.NET Core Web API
-│   ├── Agents/             # Reader, Synthesis, Evaluator, Discovery + NoveltyScorer
-│   ├── Endpoints/          # /api/papers, /api/query, /api/discover
-│   ├── Embeddings/         # OpenAI client wrapper
-│   ├── Storage/            # Qdrant repository
-│   ├── Models/             # DTOs, domain types
-│   ├── Reading/            # PDF extraction + chunking
+├── LIBRAIN/                     # ASP.NET Core Web API
+│   ├── Agents/                  # Reader, Synthesis, Evaluator, Discovery,
+│   │                            # DiscoveryEvaluator, NoveltyScorer,
+│   │                            # ClaimValidator, NaiveRag, SingleLlm
+│   ├── Endpoints/               # /api/papers, /api/query, /api/discover,
+│   │                            # /api/naive-rag, /api/single-llm
+│   ├── Embeddings/              # OpenAI client wrapper
+│   ├── Storage/                 # Qdrant repository
+│   ├── Models/                  # DTOs, domain types
+│   ├── Reading/                 # PDF extraction + chunking
 │   └── Program.cs
+├── LIBRAIN.Tests/               # 53 xUnit unit tests
+├── LIBRAIN.Experiments/         # .NET CLI: phase-b, baseline,
+│                                # hallucination-pilot, analyze,
+│                                # generate-unblind-key
+├── experiments/                 # Pre-registered topic pairs + raw run outputs
+│   ├── topic-pairs.json
+│   ├── phase-b/results/
+│   ├── baseline-comparison/results/{librain,naive-rag,single-llm}/
+│   ├── human-eval-pilot/        # rater 1 data, rubric, unblind key
+│   └── hallucination-pilot/     # Phase 3.A.5 RQ4 re-scoring artifacts
+├── scripts/
+│   └── cross-run-study.sh       # Phase 2.5 N=5 consistency study
 ├── docs/
-│   └── architecture.pdf    # Original research paper
-├── data/
-│   └── papers/             # Local PDFs for ingestion (gitignored)
-├── PROJECT_PLAN.md         # Single source of truth for scope
+│   └── architecture.pdf         # Companion paper
+├── data/papers/                 # Local PDFs for ingestion (gitignored)
+├── PROJECT_PLAN.md              # Single source of truth for scope
 └── README.md
 ```
 
