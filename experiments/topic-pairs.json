@@ -1,0 +1,77 @@
+{
+  "_description": "Pre-registered topic pairs for the Phase B + baseline + human-eval experiments. Locked from the paper §6.5 (10-pair Phase B), §6.6 (three-system baseline reuses the same 10), and §6.7 (5-pair human evaluation pilot uses ids 01, 02, 06, 09, 10). Do not reorder or rephrase: scoring + Latin-square unblinding rely on the id-to-content mapping being stable.",
+  "_committedBy": "Eren Mutlu",
+  "_committedOn": "2026-05-12",
+  "pairs": [
+    {
+      "id": "pair-01",
+      "topicA": "large language models",
+      "topicB": "drug-target interaction prediction",
+      "category": "drug-discovery",
+      "humanEvalIncluded": true
+    },
+    {
+      "id": "pair-02",
+      "topicA": "retrieval-augmented generation",
+      "topicB": "de novo molecular design",
+      "category": "drug-discovery",
+      "humanEvalIncluded": true
+    },
+    {
+      "id": "pair-03",
+      "topicA": "agentic AI",
+      "topicB": "clinical trial design",
+      "category": "drug-discovery",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-04",
+      "topicA": "deep learning weather forecasting",
+      "topicB": "agricultural yield prediction",
+      "category": "climate-energy",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-05",
+      "topicA": "climate adaptation",
+      "topicB": "language models",
+      "category": "climate-energy",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-06",
+      "topicA": "weather foundation models",
+      "topicB": "renewable energy planning",
+      "category": "climate-energy",
+      "humanEvalIncluded": true
+    },
+    {
+      "id": "pair-07",
+      "topicA": "large language models",
+      "topicB": "human learning curriculum",
+      "category": "neuroscience-learning",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-08",
+      "topicA": "brain inspired architectures",
+      "topicB": "hypothesis generation",
+      "category": "neuroscience-learning",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-09",
+      "topicA": "protein folding",
+      "topicB": "weather forecasting",
+      "category": "cross-domain",
+      "humanEvalIncluded": true
+    },
+    {
+      "id": "pair-10",
+      "topicA": "drug discovery",
+      "topicB": "climate adaptation",
+      "category": "cross-domain",
+      "humanEvalIncluded": true
+    }
+  ]
+}

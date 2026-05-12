@@ -1,0 +1,4 @@
+system,n,novelty_mean,plausibility_mean,hallucination_flag_count,hallucination_flag_rate
+LIBRAIN,5,4.00,3.40,3,0.6000
+Naive-RAG,5,2.40,4.80,0,0.0000
+Single-LLM,5,2.40,4.60,0,0.0000
