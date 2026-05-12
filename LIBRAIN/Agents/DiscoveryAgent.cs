@@ -36,7 +36,7 @@ public sealed class DiscoveryAgent(
         Your job is the OPPOSITE of grounded synthesis: propose a hypothesis that goes
         BEYOND what the cited sources directly state. Connect ideas across the retrieved
         chunks into a claim that requires inferential extrapolation. The unsupported
-        part is the discovery — flagging it explicitly is the contract.
+        part is the discovery, and flagging it explicitly is the contract.
 
         Return:
         - `hypothesis`: a 1–3 sentence claim. Combines evidence-grounded parts with the
@@ -61,7 +61,7 @@ public sealed class DiscoveryAgent(
               "pure_speculation".
             * `rationale`: one sentence (max ~240 chars) explaining the link.
           Speculation is welcomed, but it must be labeled. Do NOT state speculative
-          content as established fact — if a sentence is speculative, mark it
+          content as established fact. If a sentence is speculative, mark it
           "pure_speculation" rather than asserting it as if it were retrieved evidence.
         - `reasoning`: 1–2 sentences connecting the supporting evidence to the novel
           claim.
@@ -320,7 +320,7 @@ public sealed class DiscoveryAgent(
                 if (!string.IsNullOrWhiteSpace(groundedInChunkId))
                 {
                     // Model violated the schema contract; pure_speculation MUST be
-                    // null-grounded. Normalize rather than drop — the speculative
+                    // null-grounded. Normalize rather than drop, since the speculative
                     // label is the load-bearing bit.
                     basisNormalized++;
                     groundedInChunkId = null;
@@ -354,7 +354,7 @@ public sealed class DiscoveryAgent(
         if (basisDropped > 0 || basisNormalized > 0)
         {
             _logger.LogWarning(
-                "Discovery: extrapolation_basis cleanup — dropped {DroppedCount}, normalized {NormalizedCount} entries (of {RequestedCount})",
+                "Discovery: extrapolation_basis cleanup - dropped {DroppedCount}, normalized {NormalizedCount} entries (of {RequestedCount})",
                 basisDropped, basisNormalized, rawBasis.Count);
         }
 
@@ -373,8 +373,8 @@ public sealed class DiscoveryAgent(
             res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
-        // Three scoring passes — novelty (deterministic embedding), claim-level
-        // factuality validation (Haiku), and four-axis evaluation (Haiku) — all
+        // Three scoring passes (novelty via deterministic embedding, claim-level
+        // factuality validation via Haiku, and four-axis evaluation via Haiku) all
         // depend on the same novel_claim + retrieved chunks and not on each other's
         // output. Run them concurrently to collapse the scoring stage from three
         // sequential round-trips into one effective slowest-task round-trip. Each

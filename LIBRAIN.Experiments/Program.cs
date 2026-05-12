@@ -37,14 +37,14 @@ static int UnknownCommand(string command)
 static void PrintHelp()
 {
     Console.Error.WriteLine("""
-        LIBRAIN.Experiments — experiment runners and analyzers for the companion paper.
+        LIBRAIN.Experiments: experiment runners and analyzers for the companion paper.
 
         usage:
           dotnet run --project LIBRAIN.Experiments -- <command> [args]
 
         commands:
-          phase-b               Run /api/discover for all 10 pre-registered topic pairs (paper §6.5 → Table 5).
-          baseline              Run /api/naive-rag and /api/single-llm for the 10 pairs (paper §6.6 → Table 7+8).
+          phase-b               Run /api/discover for all 10 pre-registered topic pairs (produces Table 5).
+          baseline              Run /api/naive-rag and /api/single-llm for the 10 pairs (produces Tables 7 and 8).
           hallucination-pilot   Stage the 5 human-eval pairs for rater re-scoring (stage A5).
           analyze               Aggregate raw results + compute Spearman ρ for human eval (Table 5/7/8/9).
           generate-unblind-key  Produce a blinded unblind-key.csv for human evaluation.

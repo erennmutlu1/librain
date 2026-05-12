@@ -48,7 +48,7 @@ public sealed record NaiveRagResult(
 // Baseline #2: retrieve + single Claude call with structured output, BUT no citation
 // validation contract and no novelClaim fence. Claimed citations are recorded verbatim
 // from the model and resolved against the retrieved set post-hoc to measure fabrication
-// rate — providing the RQ3 comparison data ("does the validation contract reduce
+// rate, providing the comparison data ("does the validation contract reduce
 // hallucination?"). The hypothesis is treated as a single block for evaluation; the model
 // is not asked to separate grounded vs. speculative claims.
 public sealed class NaiveRagAgent(
@@ -125,7 +125,7 @@ public sealed class NaiveRagAgent(
         topicA = topicA.Trim();
         topicB = string.IsNullOrWhiteSpace(topicB) ? null : topicB!.Trim();
 
-        // Retrieval — identical to DiscoveryAgent so the comparison is on pipeline,
+        // Retrieval, identical to DiscoveryAgent so the comparison is on pipeline,
         // not on retrieval differences. Same dedup + ordering.
         var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
         var topicEmbeddings = await _embeddings.GenerateAsync(topicTexts, ct).ConfigureAwait(false);
@@ -210,7 +210,7 @@ public sealed class NaiveRagAgent(
             claimed.Count, claimed.Count - fabricated, fabricated, synthElapsedMs);
 
         // Score: treat the whole hypothesis as the speculative claim (no novelClaim fence).
-        // Evaluator sees all retrieved chunks regardless of which the model cited — this
+        // Evaluator sees all retrieved chunks regardless of which the model cited; this
         // mirrors LIBRAIN's evaluator behavior (judging against retrieved evidence as a
         // whole) and isolates the pipeline-structure difference rather than introducing
         // a second confound.

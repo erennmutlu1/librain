@@ -2,7 +2,7 @@
 
 Detailed reference for the `LIBRAIN.Experiments` CLI and the `experiments/`
 directory layout. Companion to the README "Reproducing Paper Numbers"
-section — that table is the index, this file is the contract.
+section: that table is the index, this file is the contract.
 
 ## Contents
 
@@ -30,7 +30,7 @@ section — that table is the index, this file is the contract.
 | Corpus loaded | 13 papers (610 chunks) ingested into the Qdrant collection. Re-run `POST /api/papers/ingest` for any missing PDF; UUIDv5 chunk IDs make re-ingestion idempotent. |
 | Dev server | `dotnet run --project LIBRAIN`. Note the port (default `5099` http or `7XXX` https) the kestrel banner prints. Pass it via `--url` to every command below. |
 
-The `LIBRAIN.Experiments` CLI is its own console project — running `dotnet
+The `LIBRAIN.Experiments` CLI is its own console project; running `dotnet
 run --project LIBRAIN.Experiments -- <command>` does NOT start the API
 server, it calls into an already-running one. Keep two terminals open.
 
@@ -40,7 +40,7 @@ server, it calls into an already-running one. Keep two terminals open.
 
 ```
 experiments/
-├── topic-pairs.json                  # 10 pre-registered pairs (paper §6.5)
+├── topic-pairs.json                  # 10 pre-registered pairs (Phase B set)
 ├── phase-b/
 │   └── results/
 │       ├── pair-01.json … pair-10.json    # raw /api/discover responses (DiscoverResponse)
@@ -54,12 +54,12 @@ experiments/
 │       ├── aggregate.csv                  # → paper Table 7
 │       └── fabrication-counts.csv         # → paper Table 8
 ├── human-eval-pilot/
-│   ├── rubric.md                          # paper §6.7 verbatim definition
+│   ├── rubric.md                          # hallucination definition + scoring guide
 │   ├── ratings-rater1.csv                 # 15 rater 1 scores (first author)
 │   ├── rater1-rationale.md                # per-output reasoning for the 3 flags
-│   ├── unblind-key.csv                    # Latin-square (committed; reproduces §7.7 Panel B)
-│   ├── analysis.csv                       # → paper Table 9 / §7.7 Panel B
-│   └── spearman.csv                       # → paper §7.7.1 (only after baseline runs)
+│   ├── unblind-key.csv                    # Latin-square (committed; reproduces per-system descriptives)
+│   ├── analysis.csv                       # → paper Table 9 (per-system descriptives)
+│   └── spearman.csv                       # → rater vs LLM-as-Judge Spearman ρ (only after baseline runs)
 └── hallucination-pilot/                   # Phase 3.A.5 RQ4 follow-up scaffolding
     ├── results/{librain-with-fix,naive-rag,single-llm}/pair-*.json
     ├── rubric.md
@@ -86,13 +86,13 @@ Reuses identical retrieval ordering across runs because the dedup loop in
 | Flag | Default | Purpose |
 |---|---|---|
 | `--url <url>` | `http://localhost:5099` | Dev server base URL. |
-| `--topK <int>` | `5` | Top-K vector hits per topic; matches paper §6.5. |
+| `--topK <int>` | `5` | Top-K vector hits per topic; matches the Phase B pre-registered protocol. |
 | `--help` | — | Print short usage and exit. |
 
 **Output**
 
 - One `experiments/phase-b/results/pair-XX.json` per pair (raw
-  `DiscoverResponse` shape — see [Output schemas](#output-schemas)).
+  `DiscoverResponse` shape; see [Output schemas](#output-schemas)).
 - stdout: per-pair line with HTTP code, wall-clock ms, novelty, quality.
 
 **Preconditions**
@@ -117,7 +117,7 @@ LIBRAIN column twice).
 
 **Output**
 
-- `experiments/baseline-comparison/results/librain/pair-*.json` — copied from `experiments/phase-b/results/`.
+- `experiments/baseline-comparison/results/librain/pair-*.json`: copied from `experiments/phase-b/results/`.
 - `experiments/baseline-comparison/results/naive-rag/pair-*.json` (`NaiveRagResult` shape).
 - `experiments/baseline-comparison/results/single-llm/pair-*.json` (`SingleLlmResult` shape).
 
@@ -135,11 +135,11 @@ the four committed CSVs:
 | `experiments/baseline-comparison/results/per-pair.csv` | `pair-*.json` × 3 systems | (intermediate) |
 | `experiments/baseline-comparison/results/aggregate.csv` | per-pair × group-by system | Table 7 |
 | `experiments/baseline-comparison/results/fabrication-counts.csv` | Naive-RAG `claimedCitations` + `fabricatedCitationCount` | Table 8 |
-| `experiments/human-eval-pilot/analysis.csv` | `ratings-rater1.csv` ⋈ `unblind-key.csv` | Table 9 / §7.7 Panel B |
-| `experiments/human-eval-pilot/spearman.csv` | analysis ⋈ baseline `per-pair.csv` | §7.7.1 |
+| `experiments/human-eval-pilot/analysis.csv` | `ratings-rater1.csv` ⋈ `unblind-key.csv` | Table 9 (per-system descriptives) |
+| `experiments/human-eval-pilot/spearman.csv` | analysis ⋈ baseline `per-pair.csv` | Spearman ρ (rater vs LLM-as-Judge) |
 
 Sections silently skip when their source data is absent (e.g. running
-`analyze` before `baseline` skips Table 7/8 and the Spearman block — but
+`analyze` before `baseline` skips Table 7/8 and the Spearman block, but
 still produces Table 9 from the committed rater 1 CSV).
 
 **Spearman ρ** uses an in-house rank-correlation with average-rank tie
@@ -148,7 +148,7 @@ dependency.
 
 ### `hallucination-pilot`
 
-No API calls. Stages the 5 §6.7 human-eval pairs across three conditions
+No API calls. Stages the 5 human-eval pairs across three conditions
 (`librain-with-fix`, `naive-rag`, `single-llm`) for rater re-scoring under
 the Aşama A1 + A2 changes.
 
@@ -167,7 +167,7 @@ the Aşama A1 + A2 changes.
    `experiments/hallucination-pilot/unblind-key.csv`.
 4. Writes `ratings-template.csv` (15 empty `output_id` rows) and copies
    the rubric so the rater works from the same definitions.
-5. Prints the §7.7.3 BEFORE-FIX target (rater 1's existing scores) so the
+5. Prints the BEFORE-FIX target (rater 1's existing scores) so the
    after-fix comparison budget is visible.
 
 Rater workflow afterward: fill `ratings-template.csv`, then re-run
@@ -256,7 +256,7 @@ count of `claimedCitations` entries with `isResolved == false`.
 ### `experiments/baseline-comparison/results/single-llm/pair-XX.json` (`SingleLlmResult`)
 
 Same as Naive-RAG minus `retrievedChunkCount`, `claimedCitations`, and
-`fabricatedCitationCount` — there is no retrieval and no citation
+`fabricatedCitationCount`. There is no retrieval and no citation
 contract by design.
 
 ### `experiments/*/aggregate.csv`
@@ -297,11 +297,11 @@ against).
 |---|---|---|
 | `HALT: pair-XX returned HTTP 401` | API key not in user-secrets, or expired. | `dotnet user-secrets list --project LIBRAIN` and re-set as needed. |
 | `HALT: pair-XX returned HTTP 429` | Anthropic rate limit. | The CLI already sleeps 1s between calls; if still hit, drop topK to 3 or retry the affected pair manually. |
-| `HALT: pair-XX returned HTTP 502` | Discovery pipeline raised an unhandled exception — see `DiscoveryEndpoints.cs` catch block. | Inspect the server log for the exception type; common: Qdrant cluster cold start. |
-| `HALT: pair-XX empty novelClaim` | DiscoveryAgent contract violation — model returned an empty `novel_claim`. | Re-run the pair. If it persists, the topic pair may be over-grounded; tweak phrasing. |
+| `HALT: pair-XX returned HTTP 502` | Discovery pipeline raised an unhandled exception; see `DiscoveryEndpoints.cs` catch block. | Inspect the server log for the exception type; common: Qdrant cluster cold start. |
+| `HALT: pair-XX empty novelClaim` | DiscoveryAgent contract violation; the model returned an empty `novel_claim`. | Re-run the pair. If it persists, the topic pair may be over-grounded; tweak phrasing. |
 | `HALT: no Phase B results under …` (in `baseline`) | Forgot to run `phase-b` first. | Run `phase-b`, then `baseline`. |
 | `(spearman ρ skipped — only N matched rows)` | Baseline runs missing for some pair × system. | Re-run `baseline`; the analyzer fills in once `per-pair.csv` is complete. |
-| `Naive-RAG fabricatedCitationCount > 0` | Model fabricated a citation. Paper §6.6 measured 0/42 under Sonnet 4.6 + structured tool use; non-zero is the falsification case for that finding. | Inspect the offending pair: `cat experiments/baseline-comparison/results/naive-rag/pair-XX.json`. |
+| `Naive-RAG fabricatedCitationCount > 0` | Model fabricated a citation. The companion paper measured 0/42 under Sonnet 4.6 with structured tool use; non-zero is the falsification case for that finding. | Inspect the offending pair: `cat experiments/baseline-comparison/results/naive-rag/pair-XX.json`. |
 | Build fails after schema change | Old test snapshots reference removed property names. | Re-build the solution; the 53-test suite covers helpers, not full responses, so it should keep passing. |
 
 ## Application Insights telemetry

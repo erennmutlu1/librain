@@ -9,11 +9,11 @@ using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
-// Stage 2 of the claim-level hallucination mitigation (RQ4 prototype, paper §7.7.4).
-// After DiscoveryAgent produces novelClaim + extrapolation_basis, this agent runs a
+// Stage 2 of the claim-level hallucination mitigation prototype. After
+// DiscoveryAgent produces novelClaim + extrapolation_basis, this agent runs a
 // secondary Haiku-backed pass that scores each sentence of novel_claim against the
 // retrieved chunks and classifies it as GROUNDED, EXTRAPOLATED, or RISKY using the
-// paper §6.7 hallucination definition. The aggregate risk is C#-computed as the max
+// rubric's hallucination definition. The aggregate risk is C#-computed as the max
 // of per-sentence probabilities to keep the score halo-resistant (mirroring the
 // Phase 2 Evaluator pattern).
 public sealed class ClaimValidatorAgent(

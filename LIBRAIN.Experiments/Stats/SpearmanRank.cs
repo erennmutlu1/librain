@@ -3,7 +3,7 @@ namespace LIBRAIN.Experiments.Stats;
 // Rank-based Spearman correlation with average-rank tie handling. Implemented
 // in-house to keep LIBRAIN.Experiments dependency-free (no MathNet, no SciPy
 // gateway). Used by the AnalyzeCommand for the human-eval pilot's
-// per-axis human-vs-LLM correlation (paper §7.7.1).
+// per-axis rater-vs-LLM-as-Judge correlation.
 public static class SpearmanRank
 {
     public static double Correlation(IReadOnlyList<double> x, IReadOnlyList<double> y)

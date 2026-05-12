@@ -10,8 +10,8 @@ namespace LIBRAIN.Experiments.Commands;
 //   experiments/baseline-comparison/results/per-pair.csv            → joined per-pair data
 //   experiments/baseline-comparison/results/aggregate.csv           → paper Table 7
 //   experiments/baseline-comparison/results/fabrication-counts.csv  → paper Table 8
-//   experiments/human-eval-pilot/analysis.csv                       → paper §7.7 Panel B
-//   experiments/human-eval-pilot/spearman.csv                       → paper §7.7.1 Spearman ρ
+//   experiments/human-eval-pilot/analysis.csv                       → per-system descriptives (Table 9)
+//   experiments/human-eval-pilot/spearman.csv                       → rater-vs-LLM-as-Judge Spearman ρ
 public sealed class AnalyzeCommand
 {
     public int Run(string[] args)
@@ -29,8 +29,8 @@ public sealed class AnalyzeCommand
         WriteSection("Phase B (Table 5)", WritePhaseBTable);
         WriteSection("Three-system baseline (Table 7)", WriteBaselineAggregate);
         WriteSection("Naive-RAG fabrication counts (Table 8)", WriteFabricationCounts);
-        WriteSection("Human evaluation pilot (Table 9 / §7.7 Panel B)", WriteHumanEvalAnalysis);
-        WriteSection("Hallucination mitigation pilot (Phase 3.A.5 → §6.8 / §7.7.4 RQ4)", WriteHallucinationPilotAnalysis);
+        WriteSection("Human evaluation pilot (Table 9, per-system descriptives)", WriteHumanEvalAnalysis);
+        WriteSection("Hallucination mitigation pilot (Phase 3.A.5)", WriteHallucinationPilotAnalysis);
         return 0;
     }
 
@@ -80,7 +80,7 @@ public sealed class AnalyzeCommand
     private static string F4(double v) => v.ToString("F4", CultureInfo.InvariantCulture);
     private static string F2(double v) => v.ToString("F2", CultureInfo.InvariantCulture);
 
-    // ---------- Table 5 — Phase B per-pair ----------
+    // ---------- Table 5: Phase B per-pair ----------
 
     private static void WritePhaseBTable()
     {
@@ -98,7 +98,7 @@ public sealed class AnalyzeCommand
         Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, out_)} ({rows.Count} pairs) → paper Table 5");
     }
 
-    // ---------- Table 7 — Three-system aggregate ----------
+    // ---------- Table 7: Three-system aggregate ----------
 
     private static void WriteBaselineAggregate()
     {
@@ -160,7 +160,7 @@ public sealed class AnalyzeCommand
         }
     }
 
-    // ---------- Table 8 — Naive-RAG fabrication counts ----------
+    // ---------- Table 8: Naive-RAG fabrication counts ----------
 
     private static void WriteFabricationCounts()
     {
@@ -197,7 +197,7 @@ public sealed class AnalyzeCommand
         Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, out_)} (total: {totalFabricated} fabricated / {totalClaimed} claimed = {summaryRate * 100:F1}%) → paper Table 8");
     }
 
-    // ---------- §7.7 Panel B + Spearman ρ ----------
+    // ---------- Table 9 per-system descriptives + Spearman ρ ----------
 
     private static void WriteHumanEvalAnalysis()
     {
@@ -225,7 +225,7 @@ public sealed class AnalyzeCommand
             };
         }).ToList();
 
-        // Per-system descriptives (matches §7.7 Panel B).
+        // Per-system descriptives.
         var descr = joined
             .GroupBy(j => j.System)
             .Select(g => new
@@ -252,7 +252,7 @@ public sealed class AnalyzeCommand
                 d.HallFlagCount.ToString(CultureInfo.InvariantCulture),
                 F4(d.HallFlagRate),
             }));
-        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, analysisOut)} → paper Table 9 / §7.7 Panel B");
+        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, analysisOut)} → paper Table 9 (per-system descriptives)");
         Console.WriteLine($"  {"system",-12} {"n",3} {"novelty_mean",14} {"plaus_mean",12} {"hall_flags",13}");
         foreach (var d in descr)
         {
@@ -264,7 +264,7 @@ public sealed class AnalyzeCommand
         var perPairCsv = Path.Combine(ExperimentPaths.BaselineResults, "per-pair.csv");
         if (!File.Exists(perPairCsv))
         {
-            Console.WriteLine("(spearman ρ skipped — baseline per-pair.csv not yet available)");
+            Console.WriteLine("(spearman ρ skipped: baseline per-pair.csv not yet available)");
             return;
         }
         var llmRows = LoadCsv(perPairCsv);
@@ -285,7 +285,7 @@ public sealed class AnalyzeCommand
 
         if (merged.Count < 3)
         {
-            Console.WriteLine($"(spearman ρ skipped — only {merged.Count} matched rows)");
+            Console.WriteLine($"(spearman ρ skipped: only {merged.Count} matched rows)");
             return;
         }
 
@@ -304,14 +304,14 @@ public sealed class AnalyzeCommand
         WriteCsv(spearmanOut,
             new[] { "axis", "n", "spearman_rho" },
             spearmanRows.Select(s => new[] { s.Axis, s.N.ToString(CultureInfo.InvariantCulture), F4(s.Rho) }));
-        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, spearmanOut)} → paper §7.7.1");
+        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, spearmanOut)} → rater-vs-LLM-as-Judge Spearman ρ");
         foreach (var s in spearmanRows)
         {
             Console.WriteLine($"  {s.Axis,-12} n={s.N,2}  ρ={F4(s.Rho)}");
         }
     }
 
-    // ---------- §6.8 / §7.7.4 RQ4 — hallucination mitigation pilot ----------
+    // ---------- Hallucination mitigation pilot (Phase 3.A.5) ----------
 
     private static void WriteHallucinationPilotAnalysis()
     {
@@ -372,7 +372,7 @@ public sealed class AnalyzeCommand
                 d.HallFlagCount.ToString(CultureInfo.InvariantCulture),
                 F4(d.HallFlagRate),
             }));
-        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, analysisOut)} → paper §6.8 / §7.7.4 RQ4");
+        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, analysisOut)} → hallucination mitigation pilot result");
 
         // Side-by-side BEFORE-FIX (rater 1, pre-A1/A2) vs AFTER-FIX (rater 1 again, post-fix).
         // BEFORE comes from human-eval-pilot/{ratings-rater1.csv, unblind-key.csv}.
@@ -413,7 +413,7 @@ public sealed class AnalyzeCommand
             Console.WriteLine($"  AFTER-FIX  · {d.System,-13} {d.N,3} {d.NoveltyMean,14:F2} {d.PlausibilityMean,12:F2} {d.HallFlagCount,5}/{d.N,-5}");
         }
 
-        // Pass-fail against the §6.8 target gate.
+        // Pass-fail against the pre-registered target gate.
         Console.WriteLine();
         var librainAfter = afterFix.FirstOrDefault(d => d.System.StartsWith("LIBRAIN"));
         if (librainAfter is not null && before is not null && before.TryGetValue("LIBRAIN", out var librainBefore))
@@ -421,7 +421,7 @@ public sealed class AnalyzeCommand
             var hallDelta = (librainBefore.Halls - librainAfter.HallFlagCount);
             var novDelta = (librainAfter.NoveltyMean - librainBefore.Nov);
             var plausDelta = (librainAfter.PlausibilityMean - librainBefore.Plaus);
-            Console.WriteLine("  Target gate (paper §6.8):");
+            Console.WriteLine("  Target gate:");
             Console.WriteLine($"    hall_flags ≤ 1/5  → after = {librainAfter.HallFlagCount}/{librainAfter.N}  ({(librainAfter.HallFlagCount <= 1 ? "PASS" : "FAIL")})");
             Console.WriteLine($"    novelty mean ≥ 3.50  → after = {librainAfter.NoveltyMean:F2}  ({(librainAfter.NoveltyMean >= 3.50 ? "PASS" : "FAIL")})");
             Console.WriteLine($"    plausibility ±0.5    → after = {librainAfter.PlausibilityMean:F2} (Δ={plausDelta:+0.00;-0.00})  ({(Math.Abs(plausDelta) <= 0.5 ? "PASS" : "FAIL")})");

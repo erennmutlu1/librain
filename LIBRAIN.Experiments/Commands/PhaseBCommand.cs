@@ -6,7 +6,7 @@ using LIBRAIN.Experiments.Models;
 
 namespace LIBRAIN.Experiments.Commands;
 
-// Phase B 10-pair Discovery Mode Run (paper §6.5 → Table 5).
+// Phase B 10-pair Discovery Mode run; produces Table 5.
 //
 // Reads the pre-registered 10 topic pairs from experiments/topic-pairs.json
 // and hits POST /api/discover for each pair, writing the raw response to

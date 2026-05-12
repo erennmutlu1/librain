@@ -18,7 +18,7 @@ public sealed class DiscoveryEvaluatorAgent(
 
     private const string SystemPromptText = """
         You are an impartial scientific reviewer evaluating a discovery hypothesis. The
-        hypothesis combines evidence-grounded portions with a flagged novel claim — the
+        hypothesis combines evidence-grounded portions with a flagged novel claim, the
         substring that is NOT directly stated in any supporting source. Your job is to
         score the hypothesis on two independent dimensions, each on a continuous
         0.0–1.0 scale:
@@ -30,7 +30,7 @@ public sealed class DiscoveryEvaluatorAgent(
           careful reviewer. 0.5 = borderline; speculative but not incoherent.
         - structural_coherence: Is the hypothesis a well-formed, testable,
           falsifiable scientific statement? 0.0 = vague, untestable, or
-          ungrammatical. 1.0 = precise, testable, properly-scoped — a scientist
+          ungrammatical. 1.0 = precise, testable, properly-scoped: a scientist
           could design an experiment from this. 0.5 = mostly testable but with one
           loose construct or scoping issue.
 

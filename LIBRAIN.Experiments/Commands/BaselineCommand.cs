@@ -5,10 +5,10 @@ using System.Text.Json.Nodes;
 
 namespace LIBRAIN.Experiments.Commands;
 
-// Three-system baseline run (paper §6.6 → Table 7 + Table 8).
+// Three-system baseline run; produces Tables 7 and 8.
 //
 // Hits /api/naive-rag and /api/single-llm for each of the 10 pre-registered
-// topic pairs. The LIBRAIN column is NOT re-run here — it reuses the Phase B
+// topic pairs. The LIBRAIN column is NOT re-run here; it reuses the Phase B
 // outputs from experiments/phase-b/results/ (same topic pairs, same prompt,
 // same model). After this finishes, AnalyzeCommand aggregates the three
 // systems into Table 7 (aggregate means) and Table 8 (fabrication counts).

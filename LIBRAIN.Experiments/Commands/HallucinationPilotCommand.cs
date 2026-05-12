@@ -1,6 +1,6 @@
 namespace LIBRAIN.Experiments.Commands;
 
-// Hallucination Mitigation Pilot (stage A5 / paper §7.7.4 RQ4 prototype).
+// Hallucination Mitigation Pilot for the claim-level validation prototype.
 //
 // Because the current main branch already includes the stage A1
 // (extrapolation_basis) and stage A2 (ClaimValidator) changes, "LIBRAIN-with-fix"
@@ -14,7 +14,7 @@ namespace LIBRAIN.Experiments.Commands;
 //   4. Re-emits the rubric.md so the rater scores from the same definitions.
 //
 // Cost: ~$0 (no API calls). Comparison "after-fix" data is produced when the
-// rater fills ratings-template.csv. The §7.7.3 "before-fix" data is the
+// rater fills ratings-template.csv. The "before-fix" data is the
 // existing experiments/human-eval-pilot/ratings-rater1.csv.
 public sealed class HallucinationPilotCommand
 {
@@ -105,7 +105,7 @@ public sealed class HallucinationPilotCommand
         Console.WriteLine($"wrote {templatePath}");
         Console.WriteLine();
 
-        // Reuse the human-eval rubric verbatim — same definitions.
+        // Reuse the human-eval rubric verbatim; same definitions.
         var rubricSrc = Path.Combine(ExperimentPaths.HumanEvalDir, "rubric.md");
         var rubricDst = Path.Combine(pilotDir, "rubric.md");
         if (File.Exists(rubricSrc))
@@ -120,7 +120,7 @@ public sealed class HallucinationPilotCommand
         Console.WriteLine();
         Console.WriteLine("Done. Rater workflow:");
         Console.WriteLine($"  1. Open each output in {pilotDir}/results/<system>/pair-XX.json (the hypothesis + novelClaim fields are the rater's input).");
-        Console.WriteLine($"  2. Use {unblindOut} mapping — but do NOT open until after scoring.");
+        Console.WriteLine($"  2. Use {unblindOut} mapping, but do NOT open until after scoring.");
         Console.WriteLine($"  3. Score each output_id in {templatePath} (novelty 1-5, plausibility 1-5, hallucination 0/1) using {rubricDst}.");
         Console.WriteLine("  4. Re-run `dotnet run --project LIBRAIN.Experiments -- analyze` to compute the after-fix table.");
         return 0;
@@ -150,7 +150,7 @@ public sealed class HallucinationPilotCommand
                 prev.halls + int.Parse(row["hallucination"]));
         }
 
-        Console.WriteLine("===== §7.7.3 BEFORE-FIX target (rater 1, pre-extrapolation_basis/ClaimValidator) =====");
+        Console.WriteLine("===== BEFORE-FIX target (rater 1, pre-extrapolation_basis/ClaimValidator) =====");
         Console.WriteLine($"  {"system",-16} {"n",3} {"novelty_mean",14} {"plaus_mean",12} {"hall_flags",11}");
         foreach (var kvp in bySystem.OrderBy(p => p.Key))
         {

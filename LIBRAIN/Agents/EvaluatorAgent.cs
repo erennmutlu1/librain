@@ -38,7 +38,7 @@ public sealed class EvaluatorAgent(
         Always call the `submit_evaluation` tool. Do not respond in plain text.
         """;
 
-    // Schema is raw JSON because Anthropic.SDK.Messaging.Property in 5.10 has no Items field —
+    // Schema is raw JSON because Anthropic.SDK.Messaging.Property in 5.10 has no Items field;
     // see SynthesisAgent for the same constraint. Function's (string, string, JsonNode) ctor
     // accepts a parsed schema directly.
     private const string ToolSchemaJson = """

@@ -31,7 +31,7 @@ public sealed class SynthesisAgent(
         Always call the `submit_hypothesis` tool. Do not respond in plain text.
         """;
 
-    // Schema is raw JSON because Anthropic.SDK.Messaging.Property in 5.10 has no Items field —
+    // Schema is raw JSON because Anthropic.SDK.Messaging.Property in 5.10 has no Items field;
     // it can't express array<integer> via the typed builder. Function's (string, string, JsonNode)
     // ctor accepts a parsed schema directly.
     private const string ToolSchemaJson = """

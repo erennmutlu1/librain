@@ -8,7 +8,7 @@ public enum ClaimFactualityStatus
     // Sentence extrapolates from retrieved evidence; speculative but framed as hypothesis.
     Extrapolated,
     // Sentence states a specific factual claim (mechanism, quantity, named entity,
-    // attribution) not supported by retrieved evidence — the §6.7 hallucination target.
+    // attribution) not supported by retrieved evidence. This is the hallucination target.
     Risky,
 }
 
@@ -50,7 +50,7 @@ public static class ClaimValidationScoring
 
     // Halo-resistant: take the max of per-sentence probabilities in C#, ignoring any
     // aggregate_risk the model returned. A single high-risk sentence should dominate
-    // the aggregate — averaging would let one false-fact claim hide behind benign ones.
+    // the aggregate; averaging would let one false-fact claim hide behind benign ones.
     public static float AggregateRisk(IEnumerable<float> perSentenceProbabilities)
     {
         float maxValue = 0f;
