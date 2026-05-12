@@ -58,7 +58,7 @@ public sealed class BaselineCommand
         Console.WriteLine($"Topic pairs: {pairs.Count}");
         Console.WriteLine();
 
-        using var http = new HttpClient { BaseAddress = new Uri(url), Timeout = TimeSpan.FromMinutes(2) };
+        using var http = new HttpClient { BaseAddress = new Uri(url), Timeout = TimeSpan.FromMinutes(5) };
         foreach (var pair in pairs)
         {
             Console.WriteLine($"=== {pair.Id}: '{pair.TopicA}' × '{pair.TopicB}' ===");

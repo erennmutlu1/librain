@@ -30,6 +30,7 @@ public sealed class AnalyzeCommand
         WriteSection("Three-system baseline (Table 7)", WriteBaselineAggregate);
         WriteSection("Naive-RAG fabrication counts (Table 8)", WriteFabricationCounts);
         WriteSection("Human evaluation pilot (Table 9 / §7.7 Panel B)", WriteHumanEvalAnalysis);
+        WriteSection("Hallucination mitigation pilot (Phase 3.A.5 → §6.8 / §7.7.4 RQ4)", WriteHallucinationPilotAnalysis);
         return 0;
     }
 
@@ -267,11 +268,17 @@ public sealed class AnalyzeCommand
             return;
         }
         var llmRows = LoadCsv(perPairCsv);
+        // unblind-key.csv uses LIBRAIN / Naive-RAG / Single-LLM (rater-facing),
+        // baseline per-pair.csv uses librain / naive-rag / single-llm (filesystem-
+        // facing). Match on a normalized lowercase form so the join works.
+        static string Norm(string s) => s.Replace("-", "").ToLowerInvariant();
         var merged = joined
             .Select(j => new
             {
                 Human = j,
-                Llm = llmRows.FirstOrDefault(l => l["pair_id"] == j.PairId && l["system"] == j.System),
+                Llm = llmRows.FirstOrDefault(l =>
+                    l["pair_id"] == j.PairId &&
+                    Norm(l["system"]) == Norm(j.System)),
             })
             .Where(m => m.Llm is not null)
             .ToList();
@@ -301,6 +308,124 @@ public sealed class AnalyzeCommand
         foreach (var s in spearmanRows)
         {
             Console.WriteLine($"  {s.Axis,-12} n={s.N,2}  ρ={F4(s.Rho)}");
+        }
+    }
+
+    // ---------- §6.8 / §7.7.4 RQ4 — hallucination mitigation pilot ----------
+
+    private static void WriteHallucinationPilotAnalysis()
+    {
+        var pilotDir = ExperimentPaths.HallucinationPilotDir;
+        var ratingsPath = Path.Combine(pilotDir, "ratings-template.csv");
+        var unblindPath = Path.Combine(pilotDir, "unblind-key.csv");
+        if (!File.Exists(ratingsPath) || !File.Exists(unblindPath))
+        {
+            Console.WriteLine("skip: pilot ratings-template.csv or unblind-key.csv not yet produced");
+            return;
+        }
+        var ratings = LoadCsv(ratingsPath);
+        // Only score rows that the rater has filled in (non-empty novelty).
+        var scored = ratings.Where(r => !string.IsNullOrWhiteSpace(r["novelty"])).ToList();
+        if (scored.Count == 0)
+        {
+            Console.WriteLine("skip: pilot ratings-template.csv has no scored rows yet");
+            return;
+        }
+        var unblind = LoadCsv(unblindPath);
+
+        var joined = scored.Select(r =>
+        {
+            var key = unblind.First(u => u["output_id"] == r["output_id"]);
+            return new
+            {
+                OutputId = r["output_id"],
+                System = key["system"],
+                Novelty = int.Parse(r["novelty"]),
+                Plausibility = int.Parse(r["plausibility"]),
+                Hallucination = int.Parse(r["hallucination"]),
+            };
+        }).ToList();
+
+        var afterFix = joined
+            .GroupBy(j => j.System)
+            .Select(g => new
+            {
+                System = g.Key,
+                N = g.Count(),
+                NoveltyMean = g.Average(j => (double)j.Novelty),
+                PlausibilityMean = g.Average(j => (double)j.Plausibility),
+                HallFlagCount = g.Sum(j => j.Hallucination),
+                HallFlagRate = g.Average(j => (double)j.Hallucination),
+            })
+            .OrderBy(d => d.System)
+            .ToList();
+
+        var analysisOut = Path.Combine(pilotDir, "analysis.csv");
+        WriteCsv(analysisOut,
+            new[] { "system", "n", "novelty_mean", "plausibility_mean", "hallucination_flag_count", "hallucination_flag_rate" },
+            afterFix.Select(d => new[]
+            {
+                d.System,
+                d.N.ToString(CultureInfo.InvariantCulture),
+                F2(d.NoveltyMean),
+                F2(d.PlausibilityMean),
+                d.HallFlagCount.ToString(CultureInfo.InvariantCulture),
+                F4(d.HallFlagRate),
+            }));
+        Console.WriteLine($"wrote {Path.GetRelativePath(ExperimentPaths.RepoRoot, analysisOut)} → paper §6.8 / §7.7.4 RQ4");
+
+        // Side-by-side BEFORE-FIX (rater 1, pre-A1/A2) vs AFTER-FIX (rater 1 again, post-fix).
+        // BEFORE comes from human-eval-pilot/{ratings-rater1.csv, unblind-key.csv}.
+        var beforeRatingsPath = Path.Combine(ExperimentPaths.HumanEvalDir, "ratings-rater1.csv");
+        var beforeUnblindPath = Path.Combine(ExperimentPaths.HumanEvalDir, "unblind-key.csv");
+        Dictionary<string, (int N, double Nov, double Plaus, int Halls)>? before = null;
+        if (File.Exists(beforeRatingsPath) && File.Exists(beforeUnblindPath))
+        {
+            var beforeRatings = LoadCsv(beforeRatingsPath);
+            var beforeUnblind = LoadCsv(beforeUnblindPath);
+            before = beforeRatings
+                .Select(r => new
+                {
+                    System = beforeUnblind.First(u => u["output_id"] == r["output_id"])["system"],
+                    Novelty = int.Parse(r["novelty"]),
+                    Plausibility = int.Parse(r["plausibility"]),
+                    Hallucination = int.Parse(r["hallucination"]),
+                })
+                .GroupBy(x => x.System)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (g.Count(), g.Average(x => (double)x.Novelty), g.Average(x => (double)x.Plausibility), g.Sum(x => x.Hallucination)));
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"  {"system (period)",-26} {"n",3} {"novelty_mean",14} {"plaus_mean",12} {"hall_flags",11}");
+        if (before is not null)
+        {
+            foreach (var kvp in before.OrderBy(p => p.Key))
+            {
+                var (n, nov, plaus, halls) = kvp.Value;
+                Console.WriteLine($"  BEFORE-FIX · {kvp.Key,-13} {n,3} {nov,14:F2} {plaus,12:F2} {halls,5}/{n,-5}");
+            }
+            Console.WriteLine();
+        }
+        foreach (var d in afterFix)
+        {
+            Console.WriteLine($"  AFTER-FIX  · {d.System,-13} {d.N,3} {d.NoveltyMean,14:F2} {d.PlausibilityMean,12:F2} {d.HallFlagCount,5}/{d.N,-5}");
+        }
+
+        // Pass-fail against the §6.8 target gate.
+        Console.WriteLine();
+        var librainAfter = afterFix.FirstOrDefault(d => d.System.StartsWith("LIBRAIN"));
+        if (librainAfter is not null && before is not null && before.TryGetValue("LIBRAIN", out var librainBefore))
+        {
+            var hallDelta = (librainBefore.Halls - librainAfter.HallFlagCount);
+            var novDelta = (librainAfter.NoveltyMean - librainBefore.Nov);
+            var plausDelta = (librainAfter.PlausibilityMean - librainBefore.Plaus);
+            Console.WriteLine("  Target gate (paper §6.8):");
+            Console.WriteLine($"    hall_flags ≤ 1/5  → after = {librainAfter.HallFlagCount}/{librainAfter.N}  ({(librainAfter.HallFlagCount <= 1 ? "PASS" : "FAIL")})");
+            Console.WriteLine($"    novelty mean ≥ 3.50  → after = {librainAfter.NoveltyMean:F2}  ({(librainAfter.NoveltyMean >= 3.50 ? "PASS" : "FAIL")})");
+            Console.WriteLine($"    plausibility ±0.5    → after = {librainAfter.PlausibilityMean:F2} (Δ={plausDelta:+0.00;-0.00})  ({(Math.Abs(plausDelta) <= 0.5 ? "PASS" : "FAIL")})");
+            Console.WriteLine($"  Headline: hallucination flag rate {librainBefore.Halls}/{librainBefore.N} → {librainAfter.HallFlagCount}/{librainAfter.N} (Δ={-hallDelta:+0;-0} flags)");
         }
     }
 

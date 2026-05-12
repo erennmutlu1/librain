@@ -19,6 +19,7 @@ public sealed class PhaseBCommand
     {
         string url = "http://localhost:5099";
         int topK = 5;
+        string? fromPairId = null;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -26,23 +27,38 @@ public sealed class PhaseBCommand
             {
                 case "--url":   url = args[++i]; break;
                 case "--topK":  topK = int.Parse(args[++i]); break;
+                case "--from":  fromPairId = args[++i]; break;
                 case "-h": case "--help":
-                    Console.Error.WriteLine("phase-b [--url http://localhost:5099] [--topK 5]");
+                    Console.Error.WriteLine("phase-b [--url http://localhost:5099] [--topK 5] [--from pair-08]");
                     return 0;
                 default: throw new ArgumentException($"unknown flag: {args[i]}");
             }
         }
 
         Directory.CreateDirectory(ExperimentPaths.PhaseBResults);
-        var pairs = LoadTopicPairs();
+        var allPairs = LoadTopicPairs();
+        var pairs = allPairs;
+        if (fromPairId is not null)
+        {
+            var startIdx = -1;
+            for (int i = 0; i < allPairs.Count; i++)
+            {
+                if (allPairs[i].Id == fromPairId) { startIdx = i; break; }
+            }
+            if (startIdx < 0)
+                throw new ArgumentException($"--from pair id '{fromPairId}' not found in topic-pairs.json");
+            pairs = allPairs.Skip(startIdx).ToList();
+        }
         Console.WriteLine($"Base URL : {url}");
         Console.WriteLine($"topK     : {topK}");
         Console.WriteLine($"Output   : {ExperimentPaths.PhaseBResults}");
+        if (fromPairId is not null)
+            Console.WriteLine($"Resuming from: {fromPairId} ({pairs.Count} of {allPairs.Count} pairs)");
         Console.WriteLine();
         Console.WriteLine($"Topic pairs: {pairs.Count}");
         Console.WriteLine();
 
-        using var http = new HttpClient { BaseAddress = new Uri(url), Timeout = TimeSpan.FromMinutes(2) };
+        using var http = new HttpClient { BaseAddress = new Uri(url), Timeout = TimeSpan.FromMinutes(5) };
         foreach (var pair in pairs)
         {
             var outPath = Path.Combine(ExperimentPaths.PhaseBResults, $"{pair.Id}.json");
