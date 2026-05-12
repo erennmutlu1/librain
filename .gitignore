@@ -490,6 +490,7 @@ data/papers/*
 CURSOR_PROMPT.md
 CV_UPDATE.md
 INDEX.md
+CLAUDE.md
 .cursorrules
 
 # LIBRAIN — internal plans and smoke test artifacts (kept local-only)
