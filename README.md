@@ -1,6 +1,6 @@
 # LIBRAIN
 
-> **A multi-agent RAG system that reads scientific papers and proposes new hypotheses — built in .NET 10.**
+> **A multi-agent RAG system that reads scientific papers and proposes new hypotheses, built in .NET 10.**
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
@@ -87,7 +87,7 @@ A single-rater blinded pilot in Phase 3.A flagged 3 of 5 LIBRAIN outputs for fac
 | API docs | Scalar.AspNetCore on top of `Microsoft.AspNetCore.OpenApi` |
 | LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
-| Vector store | Qdrant 1.17 — local Docker in dev, Qdrant Cloud free tier in production (AWS Frankfurt) |
+| Vector store | Qdrant 1.17 (local Docker in dev, Qdrant Cloud free tier in production, AWS Frankfurt) |
 | Orchestration | Microsoft Semantic Kernel patterns |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
@@ -164,7 +164,7 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] Project plan & architecture (May 2026)
 - [x] **Phase 1**: Reader Agent + ingestion pipeline (May 2026)
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
-- [x] **Phase 2.5**: Discovery Mode — `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
+- [x] **Phase 2.5**: Discovery Mode, `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
 - [x] **Phase 3.A**: Three-system baseline (`NaiveRagAgent`, `SingleLlmAgent`), claim-level validation (`extrapolation_basis` + `ClaimValidatorAgent`), prompt caching across all agents, parallelized scoring (`Task.WhenAll`), `LIBRAIN.Experiments` CLI for paper reproduction (May 2026)
 - [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming, two-rater human eval follow-up
 
@@ -174,7 +174,7 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ## Performance
 
-- Papers ingested: 13 (610 chunks total) — Phase 1 seed corpus (5 papers) plus Phase 2.5 expansion (8 papers across drug discovery, climate forecasting, and computational neuroscience).
+- Papers ingested: 13 (610 chunks total). Phase 1 seed corpus (5 papers) plus Phase 2.5 expansion (8 papers across drug discovery, climate forecasting, and computational neuroscience).
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
 - Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
@@ -268,7 +268,7 @@ librain/
 
 ## Author
 
-**Eren Mutlu** — Full-Stack Developer (.NET, Node.js, Microservices)
+**Eren Mutlu**, Full-Stack Developer (.NET, Node.js, Microservices)
 - Website: [erenmutlu.me](https://erenmutlu.me)
 - LinkedIn: [linkedin.com/in/erennmutlu](https://linkedin.com/in/erennmutlu)
 - Email: erennmutlu@outlook.com
@@ -277,7 +277,7 @@ librain/
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+MIT, see [`LICENSE`](LICENSE).
 
 ---
 
