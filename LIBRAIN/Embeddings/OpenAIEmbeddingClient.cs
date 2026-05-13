@@ -13,7 +13,7 @@ public sealed class OpenAIEmbeddingClient(
     private const int MaxInputsPerBatch = 100;
     // OpenAI Tier 1 (new accounts) caps text-embedding-3-small at 40K TPM.
     // 35K per batch + 1.5s gap keeps us safely under both per-request and
-    // rolling-window limits. On higher tiers this is conservative — revisit
+    // rolling-window limits. On higher tiers this is conservative; revisit
     // when account graduates (auto-detect via 200 OK history? defer to later).
     private const int MaxTokensPerBatch = 35_000;
     private const int InterBatchDelayMs = 1500;

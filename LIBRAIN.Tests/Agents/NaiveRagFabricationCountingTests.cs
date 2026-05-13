@@ -61,7 +61,7 @@ public sealed class NaiveRagFabricationCountingTests
     public void Resolve_DuplicateFabricatedCitations_CountedPerOccurrence()
     {
         // Each occurrence is an independent fabrication event; a model that repeats
-        // an invented citation twice gets counted twice. Paper §6.6's "42 claimed
+        // an invented citation twice gets counted twice. Paper Section 6.6's "42 claimed
         // citations" tallies occurrences, not unique pairs.
         var claimed = new[]
         {

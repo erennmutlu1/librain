@@ -9,7 +9,7 @@ namespace LIBRAIN.Agents;
 // in Program.cs: the underlying AnthropicClient owns an internal HttpClient, so a
 // per-request lifetime would spin up a fresh HttpClient per scope and risk socket
 // exhaustion (the classic HttpClient antipattern). The DI container disposes this
-// singleton — and the inner HttpClient — on app shutdown via IDisposable.
+// singleton (and the inner HttpClient) on app shutdown via IDisposable.
 public sealed class AnthropicChatClient : IDisposable
 {
     private readonly ILogger<AnthropicChatClient> _logger;
@@ -23,7 +23,7 @@ public sealed class AnthropicChatClient : IDisposable
         _logger = logger;
         // Anthropic.SDK 5.10's default HttpClient timeout is 100s, which Sonnet 4.6
         // can exceed on Discovery requests now that the tool schema includes
-        // extrapolation_basis (longer structured output → longer wall-clock).
+        // extrapolation_basis (longer structured output, longer wall-clock).
         // Pair-08 hit this during the first Phase B run. 5 min is well above any
         // observed synthesis latency while still bounded enough to surface real
         // hangs.
