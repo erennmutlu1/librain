@@ -1,0 +1,4 @@
+axis,rater_pair,n,observed_agreement,kappa,kappa_status
+hallucination,R1-R2,15,15/15,,NA: zero-variance marker (all-0 across all raters)
+hallucination,R1-R3,15,15/15,,NA: zero-variance marker (all-0 across all raters)
+hallucination,R2-R3,15,15/15,,NA: zero-variance marker (all-0 across all raters)
