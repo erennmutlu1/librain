@@ -495,3 +495,6 @@ CLAUDE.md
 
 # LIBRAIN — internal plans and smoke test artifacts (kept local-only)
 LIBRAIN/docs/
+
+# LIBRAIN — JAIR revision drafts (private; consolidated into a single off-repo pack)
+docs/jair-revision/
