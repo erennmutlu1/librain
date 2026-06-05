@@ -1,8 +1,9 @@
 using System.Diagnostics;
-using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Models;
 using LIBRAIN.Storage;
+using Microsoft.Extensions.Options;
 
 namespace LIBRAIN.Agents;
 
@@ -21,12 +22,14 @@ public sealed class SingleLlmAgent(
     ILogger<SingleLlmAgent> logger,
     AnthropicChatClient claude,
     NoveltyScorer noveltyScorer,
-    DiscoveryEvaluatorAgent evaluator)
+    DiscoveryEvaluatorAgent evaluator,
+    IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<SingleLlmAgent> _logger = logger;
     private readonly AnthropicChatClient _claude = claude;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
+    private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
 
     private const string SystemPrompt = """
         You are a scientific research assistant. Given one or two topics, propose a single
@@ -55,7 +58,7 @@ public sealed class SingleLlmAgent(
             Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
             System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
             MaxTokens = 1024,
-            Model = AnthropicModels.Claude46Sonnet,
+            Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
             PromptCaching = PromptCacheType.AutomaticToolsAndSystem,

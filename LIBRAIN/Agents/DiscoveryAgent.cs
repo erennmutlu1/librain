@@ -2,11 +2,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Models;
 using LIBRAIN.Storage;
+using Microsoft.Extensions.Options;
 using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
@@ -18,7 +19,8 @@ public sealed class DiscoveryAgent(
     QdrantPaperRepository repo,
     NoveltyScorer noveltyScorer,
     DiscoveryEvaluatorAgent evaluator,
-    ClaimValidatorAgent claimValidator)
+    ClaimValidatorAgent claimValidator,
+    IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<DiscoveryAgent> _logger = logger;
     private readonly AnthropicChatClient _claude = claude;
@@ -27,6 +29,7 @@ public sealed class DiscoveryAgent(
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
     private readonly ClaimValidatorAgent _claimValidator = claimValidator;
+    private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
 
     private const string SystemPrompt = """
         You are a discovery agent for a literature-cross-reference system. You are given
@@ -205,7 +208,7 @@ public sealed class DiscoveryAgent(
             Tools = new List<AnthropicTool> { SubmitDiscoveryTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery" },
             MaxTokens = 1024,
-            Model = AnthropicModels.Claude46Sonnet,
+            Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
             PromptCaching = PromptCacheType.AutomaticToolsAndSystem,

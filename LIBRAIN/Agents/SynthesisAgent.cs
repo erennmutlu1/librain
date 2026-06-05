@@ -2,19 +2,22 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
 using Anthropic.SDK.Messaging;
+using LIBRAIN.Models;
 using LIBRAIN.Storage;
+using Microsoft.Extensions.Options;
 using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class SynthesisAgent(
     ILogger<SynthesisAgent> logger,
-    AnthropicChatClient claude)
+    AnthropicChatClient claude,
+    IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<SynthesisAgent> _logger = logger;
     private readonly AnthropicChatClient _claude = claude;
+    private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
 
     private const string SystemPromptText = """
         You are a research synthesis assistant for a literature-review system. You are given
@@ -82,7 +85,7 @@ public sealed class SynthesisAgent(
             Tools = new List<AnthropicTool> { SubmitHypothesisTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
             MaxTokens = 1024,
-            Model = AnthropicModels.Claude46Sonnet,
+            Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
             PromptCaching = PromptCacheType.AutomaticToolsAndSystem,

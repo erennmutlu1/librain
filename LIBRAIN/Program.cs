@@ -37,6 +37,8 @@ builder.Services.Configure<OpenAIOptions>(
     builder.Configuration.GetSection(OpenAIOptions.SectionName));
 builder.Services.Configure<QdrantOptions>(
     builder.Configuration.GetSection(QdrantOptions.SectionName));
+builder.Services.Configure<ModelOptions>(
+    builder.Configuration.GetSection(ModelOptions.SectionName));
 
 // Qdrant.Client uses gRPC (port 6334), not REST (6333). Cloud clusters require https + apiKey;
 // local Docker dev uses neither. Empty ApiKey selects local mode automatically.
