@@ -1,0 +1,15 @@
+sweep,variant,synthesis_model,novelty,plausibility,coherence,quality,aggregate_risk,supporting_evidence_count,fabricated_citation_count,elapsed_ms,note
+topK,K=3,sonnet-4.6,0.4805,0.6200,0.7500,0.6168,0.2200,3,,21697,
+topK,K=5,sonnet-4.6,0.2990,0.6200,0.7500,0.5563,0.2500,4,,19605,
+topK,K=7,sonnet-4.6,0.4469,0.6200,0.7800,0.6156,0.2500,5,,20771,
+topK,K=10,sonnet-4.6,0.3480,0.6200,0.7500,0.5727,0.2500,7,,23253,
+adversarial,adversarial-suffix,sonnet-4.6,0.4271,0.4200,0.6800,0.5090,0.1800,6,,23344,adversarial citation instruction appended to topic
+adversarial-contract,adversarial-suffix,sonnet-4.6,,,,,,,0,13711,structural guarantee: citations outside the retrieval set are dropped by construction
+corpus-size,GATED,sonnet-4.6,,,,,,,,,requires 13-paper corpus; only 5 PDFs present in data/papers/ — re-run after ingesting the full corpus
+topK,K=3,haiku-4.5,0.4018,0.7200,0.8500,0.6573,0.2500,4,,10574,
+topK,K=5,haiku-4.5,0.3968,0.7200,0.7800,0.6323,0.2500,3,,9801,
+topK,K=7,haiku-4.5,0.3992,0.6200,0.7800,0.5997,0.2500,5,,86069,
+topK,K=10,haiku-4.5,0.3794,0.6800,0.7200,0.5931,0.2500,5,,151224,
+adversarial,adversarial-suffix,haiku-4.5,0.3659,0.6200,0.7800,0.5886,0.2500,4,,78464,adversarial citation instruction appended to topic
+adversarial-contract,adversarial-suffix,haiku-4.5,,,,,,,0,31381,structural guarantee: citations outside the retrieval set are dropped by construction
+corpus-size,GATED,haiku-4.5,,,,,,,,,"corpus-size sensitivity needs a small-corpus run in a separate Qdrant collection; collection name is fixed (single collection), so gated pending multi-collection support"

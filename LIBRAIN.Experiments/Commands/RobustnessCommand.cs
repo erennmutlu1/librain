@@ -97,15 +97,15 @@ public sealed class RobustnessCommand
         if (!naiveOk) return 2;
         rows.Add(naiveRow!);
 
-        // R3: corpus size — gated, never fabricated.
+        // R3: corpus size — gated on a second Qdrant collection, never fabricated.
         Console.WriteLine();
-        Console.WriteLine("R3 corpus size: GATED (needs the 13-paper corpus; only 5 PDFs in data/papers/)");
+        Console.WriteLine("R3 corpus size: GATED (needs a second Qdrant collection; the collection name is currently fixed)");
         rows.Add(new RobustnessRow(
             Sweep: "corpus-size", Variant: "GATED", SynthesisModel: modelLabel,
             Novelty: null, Plausibility: null, Coherence: null, Quality: null,
             AggregateRisk: null, SupportingEvidenceCount: null, FabricatedCitationCount: null,
             ElapsedMs: null,
-            Note: "requires 13-paper corpus; only 5 PDFs present in data/papers/ — re-run after ingesting the full corpus"));
+            Note: "corpus-size sensitivity needs a small-corpus run in a separate Qdrant collection; collection name is fixed (single collection), so gated pending multi-collection support"));
 
         WriteCsv(rows);
 
@@ -161,25 +161,51 @@ public sealed class RobustnessCommand
         return (true, row);
     }
 
+    // Upstream Anthropic rate limits surface as 429, or as a 502/503 whose body
+    // mentions RateLimitsExceeded (the pipeline wraps the SDK error). Those are
+    // transient, so back off and retry rather than halting the whole sweep —
+    // important when synthesis runs on Haiku and a single /api/discover fires
+    // three Haiku calls (synthesis + evaluator + claim-validator) in a burst.
+    private const int MaxAttempts = 4;
+    private static readonly int[] BackoffSeconds = { 20, 40, 60 };
+
     private static async Task<(bool Ok, string Body, long ElapsedMs)> PostAsync(
         HttpClient http, string endpoint, string sweep, string variant, string payload, string fileTag)
     {
         var sw = Stopwatch.StartNew();
-        using var content = new StringContent(payload, Encoding.UTF8, "application/json");
-        using var response = await http.PostAsync(endpoint, content);
-        var body = await response.Content.ReadAsStringAsync();
-        sw.Stop();
-
-        if (!response.IsSuccessStatusCode)
+        for (int attempt = 1; attempt <= MaxAttempts; attempt++)
         {
-            Console.Error.WriteLine($"HALT: {sweep}/{variant} {endpoint} returned HTTP {(int)response.StatusCode}");
+            using var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            using var response = await http.PostAsync(endpoint, content);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                sw.Stop();
+                await File.WriteAllTextAsync(
+                    Path.Combine(ExperimentPaths.RobustnessResults, $"{fileTag}.json"), body);
+                return (true, body, sw.ElapsedMilliseconds);
+            }
+
+            var code = (int)response.StatusCode;
+            var rateLimited = code == 429
+                || ((code == 502 || code == 503) && body.Contains("RateLimit", StringComparison.OrdinalIgnoreCase));
+            if (rateLimited && attempt < MaxAttempts)
+            {
+                var wait = BackoffSeconds[attempt - 1];
+                Console.Error.WriteLine($"  rate-limited on {sweep}/{variant} (HTTP {code}); backing off {wait}s (attempt {attempt}/{MaxAttempts})");
+                await Task.Delay(TimeSpan.FromSeconds(wait));
+                continue;
+            }
+
+            sw.Stop();
+            Console.Error.WriteLine($"HALT: {sweep}/{variant} {endpoint} returned HTTP {code}");
             Console.Error.WriteLine(body);
             return (false, body, sw.ElapsedMilliseconds);
         }
 
-        await File.WriteAllTextAsync(
-            Path.Combine(ExperimentPaths.RobustnessResults, $"{fileTag}.json"), body);
-        return (true, body, sw.ElapsedMilliseconds);
+        sw.Stop();
+        return (false, string.Empty, sw.ElapsedMilliseconds);
     }
 
     private static void WriteCsv(IReadOnlyList<RobustnessRow> rows)
