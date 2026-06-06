@@ -56,6 +56,7 @@ builder.Services.AddSingleton<QdrantClient>(sp =>
 
 builder.Services.AddSingleton<AnthropicChatClient>();
 builder.Services.AddScoped<OpenAIEmbeddingClient>();
+builder.Services.AddScoped<LIBRAIN.Generation.OpenAIChatClient>();
 builder.Services.AddScoped<QdrantPaperRepository>();
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
@@ -106,5 +107,6 @@ app.MapGet("/api/papers", async (QdrantPaperRepository repo, CancellationToken c
 app.MapQueryEndpoints();
 app.MapDiscoveryEndpoints();
 app.MapBaselineEndpoints();
+app.MapFabricationProbeEndpoints();
 
 app.Run();

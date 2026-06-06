@@ -74,6 +74,32 @@ public static partial class NaiveRagCitations
         return result;
     }
 
+    // Extract the first balanced JSON object from a model response, tolerating
+    // ```json fences and surrounding prose (GPT structured-mode output). Returns null
+    // if no balanced object is found.
+    public static string? ExtractJsonObject(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        var start = text.IndexOf('{');
+        if (start < 0) return null;
+        int depth = 0;
+        bool inString = false, escape = false;
+        for (int i = start; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (inString)
+            {
+                if (escape) escape = false;
+                else if (c == '\\') escape = true;
+                else if (c == '"') inString = false;
+            }
+            else if (c == '"') inString = true;
+            else if (c == '{') depth++;
+            else if (c == '}' && --depth == 0) return text[start..(i + 1)];
+        }
+        return null;
+    }
+
     // Resolve free-text citations: a cite is fabricated when its paper_id is not in the
     // retrieved set, OR when it names a chunk_index that was not retrieved for that paper.
     // A chunk-less cite resolves on paper_id membership alone.

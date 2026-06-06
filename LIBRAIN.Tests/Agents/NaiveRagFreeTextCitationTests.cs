@@ -40,6 +40,31 @@ public sealed class NaiveRagFreeTextCitationTests
     }
 
     [Fact]
+    public void ExtractJsonObject_StripsFencesAndProse()
+    {
+        var text = "Here you go:\n```json\n{\"hypothesis\": \"h\", \"claimed_citations\": [{\"paper_id\": \"x\", \"chunk_index\": 1}]}\n```\nthanks";
+        var json = NaiveRagCitations.ExtractJsonObject(text);
+
+        Assert.NotNull(json);
+        Assert.StartsWith("{", json);
+        Assert.EndsWith("}", json);
+        Assert.Contains("\"hypothesis\"", json);
+    }
+
+    [Fact]
+    public void ExtractJsonObject_HandlesNestedBracesAndStringBraces()
+    {
+        var text = "{\"a\": {\"b\": 1}, \"note\": \"has } brace\"}";
+        Assert.Equal(text, NaiveRagCitations.ExtractJsonObject(text));
+    }
+
+    [Fact]
+    public void ExtractJsonObject_NoObject_ReturnsNull()
+    {
+        Assert.Null(NaiveRagCitations.ExtractJsonObject("no json here"));
+    }
+
+    [Fact]
     public void ResolveFreeText_CountsUnretrievedPaperAndWrongChunkAsFabricated()
     {
         var retrievedKeys = new HashSet<(string, int)> { ("2005.11401", 0), ("graphcast", 2) };
