@@ -13,6 +13,7 @@ public static class ExperimentPaths
     public static string HumanEvalDir => Path.Combine(ExperimentsRoot, "human-eval-pilot");
     public static string HallucinationPilotDir => Path.Combine(ExperimentsRoot, "hallucination-pilot");
     public static string RobustnessResults => Path.Combine(ExperimentsRoot, "robustness");
+    public static string FabricationDeltaResults => Path.Combine(ExperimentsRoot, "fabrication-delta");
 
     private static string ResolveRepoRoot()
     {

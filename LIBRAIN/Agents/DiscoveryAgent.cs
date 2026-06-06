@@ -410,7 +410,9 @@ public sealed class DiscoveryAgent(
             ExtrapolationBasis: validatedBasis,
             ClaimValidation: claimValidation,
             Reasoning: reasoning,
-            Evaluation: evaluation);
+            Evaluation: evaluation,
+            ClaimedEvidenceCount: rawEvidence.Count,
+            DroppedEvidenceCount: dropped);
     }
 
     private static string BuildUserPrompt(string topicA, string? topicB, IReadOnlyList<SearchHit> chunks)

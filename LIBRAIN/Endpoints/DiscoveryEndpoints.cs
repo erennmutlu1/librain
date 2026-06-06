@@ -43,7 +43,14 @@ public sealed record DiscoverResponse(
     IReadOnlyList<ExtrapolationBasis> ExtrapolationBasis,
     ClaimValidationResult ClaimValidation,
     string Reasoning,
-    DiscoveryEvaluation Evaluation);
+    DiscoveryEvaluation Evaluation,
+    // RQ3 measurement surface: how much work the citation-validation contract did.
+    // ClaimedEvidenceCount = supporting_evidence entries the model emitted;
+    // DroppedEvidenceCount = entries dropped because they did not resolve to the
+    // retrieval set. DroppedEvidenceCount > 0 with SupportingEvidence all-resolved
+    // is the contract catching fabrications that Naive-RAG would have surfaced.
+    int ClaimedEvidenceCount = 0,
+    int DroppedEvidenceCount = 0);
 
 public static class DiscoveryEndpoints
 {

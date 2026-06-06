@@ -19,6 +19,11 @@ public sealed record QdrantOptions
     public int Port { get; init; } = 6334;
     public string? ApiKey { get; init; }
     public bool UseHttps { get; init; }
+
+    // Collection the repository reads/writes. Empty selects the default
+    // ("librain_chunks"). Set to e.g. "librain_chunks_noisy" to run the RQ3
+    // fabrication-delta experiment against the noisy corpus without code changes.
+    public string CollectionName { get; init; } = string.Empty;
 }
 
 public sealed record ModelOptions

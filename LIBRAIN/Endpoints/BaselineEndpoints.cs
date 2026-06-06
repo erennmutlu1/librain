@@ -18,7 +18,8 @@ public sealed record SingleLlmResponse(
 public sealed record NaiveRagRequest(
     string TopicA,
     string? TopicB,
-    int? TopK);
+    int? TopK,
+    string? CitationMode = null);  // "structured" (default) or "free-text" (RQ3 fabrication-delta)
 
 public sealed record NaiveRagResponse(
     Guid CorrelationId,
@@ -131,7 +132,7 @@ public static class BaselineEndpoints
         var sw = Stopwatch.StartNew();
         try
         {
-            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, ct);
+            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, req.CitationMode, ct);
             logger.LogInformation(
                 "Naive-RAG endpoint complete: quality={Quality:F4} fabricated={FabricatedCount} claimed={ClaimedCount} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, result.FabricatedCitationCount, result.ClaimedCitations.Count,

@@ -16,6 +16,7 @@ try
         "phase-b" => await new PhaseBCommand().RunAsync(rest),
         "baseline" => await new BaselineCommand().RunAsync(rest),
         "robustness" => await new RobustnessCommand().RunAsync(rest),
+        "fabrication-delta" => await new FabricationDeltaCommand().RunAsync(rest),
         "hallucination-pilot" => new HallucinationPilotCommand().Run(rest),
         "analyze" => new AnalyzeCommand().Run(rest),
         "generate-unblind-key" => new GenerateUnblindKeyCommand().Run(rest),
@@ -47,6 +48,7 @@ static void PrintHelp()
           phase-b               Run /api/discover for all 10 pre-registered topic pairs (produces Table 5).
           baseline              Run /api/naive-rag and /api/single-llm for the 10 pairs (produces Tables 7 and 8).
           robustness            Run FIX-JAIR.5 sweeps (topK, adversarial; R2/R3 gated) on pair-06.
+          fabrication-delta     RQ3: Naive-RAG (structured/free-text) vs LIBRAIN fabrication sweep.
           hallucination-pilot   Stage the 5 human-eval pairs for rater re-scoring (stage A5).
           analyze               Aggregate raw results + compute Spearman ρ for human eval (Table 5/7/8/9).
           generate-unblind-key  Produce a blinded unblind-key.csv for human evaluation.

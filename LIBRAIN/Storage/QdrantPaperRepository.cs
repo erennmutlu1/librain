@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using LIBRAIN.Models;
+using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
@@ -9,7 +11,7 @@ namespace LIBRAIN.Storage;
 
 public sealed class QdrantPaperRepository
 {
-    private const string CollectionName = "librain_chunks";
+    private const string DefaultCollectionName = "librain_chunks";
     private const ulong VectorSize = 1536;
 
     // LIBRAIN chunk identity namespace (RFC 4122 v5, project-private).
@@ -17,14 +19,19 @@ public sealed class QdrantPaperRepository
 
     private readonly ILogger<QdrantPaperRepository> _logger;
     private readonly QdrantClient _client;
+    private readonly string _collectionName;
     private readonly Lazy<Task> _initialization;
 
     public QdrantPaperRepository(
         ILogger<QdrantPaperRepository> logger,
-        QdrantClient client)
+        QdrantClient client,
+        IOptions<QdrantOptions> options)
     {
         _logger = logger;
         _client = client;
+        _collectionName = string.IsNullOrWhiteSpace(options.Value.CollectionName)
+            ? DefaultCollectionName
+            : options.Value.CollectionName.Trim();
         _initialization = new Lazy<Task>(InitializeAsync);
     }
 
@@ -46,7 +53,7 @@ public sealed class QdrantPaperRepository
 
         // Qdrant has no documented per-upsert point limit; gRPC default message size (~100MB)
         // is the practical bound. ~50 chunks/paper × 1536 floats × 4 bytes ≈ 312KB, well under.
-        await _client.UpsertAsync(CollectionName, points, cancellationToken: ct).ConfigureAwait(false);
+        await _client.UpsertAsync(_collectionName, points, cancellationToken: ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "Persisted {ChunkCount} chunk(s) in {ElapsedMs}ms",
@@ -63,7 +70,7 @@ public sealed class QdrantPaperRepository
 
         var sw = Stopwatch.StartNew();
         var results = await _client.SearchAsync(
-            collectionName: CollectionName,
+            collectionName: _collectionName,
             vector: queryEmbedding,
             limit: (ulong)topK,
             payloadSelector: true,
@@ -101,7 +108,7 @@ public sealed class QdrantPaperRepository
         while (true)
         {
             var page = await _client.ScrollAsync(
-                collectionName: CollectionName,
+                collectionName: _collectionName,
                 limit: pageSize,
                 offset: offset!,
                 payloadSelector: true,
@@ -162,19 +169,19 @@ public sealed class QdrantPaperRepository
 
     private async Task InitializeAsync()
     {
-        if (await _client.CollectionExistsAsync(CollectionName).ConfigureAwait(false))
+        if (await _client.CollectionExistsAsync(_collectionName).ConfigureAwait(false))
         {
             return;
         }
 
         await _client.CreateCollectionAsync(
-            collectionName: CollectionName,
+            collectionName: _collectionName,
             vectorsConfig: new VectorParams { Size = VectorSize, Distance = Distance.Cosine })
             .ConfigureAwait(false);
 
         _logger.LogInformation(
             "Provisioned Qdrant collection '{Collection}' (size={VectorSize}, distance=Cosine)",
-            CollectionName,
+            _collectionName,
             VectorSize);
     }
 

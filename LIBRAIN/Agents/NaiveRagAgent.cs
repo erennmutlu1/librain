@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Anthropic.SDK.Common;
 using Anthropic.SDK.Messaging;
 using LIBRAIN.Embeddings;
@@ -17,7 +18,7 @@ public sealed record ClaimedCitation(string PaperId, int ChunkIndex, bool IsReso
 // Resolves claimed citations against the retrieved-chunk set and counts fabrications.
 // Pulled out of NaiveRagAgent so the RQ3 measurement surface (fabrication count) is
 // testable without spinning up the full agent.
-public static class NaiveRagCitations
+public static partial class NaiveRagCitations
 {
     public static (IReadOnlyList<ClaimedCitation> Resolved, int FabricatedCount) Resolve(
         IEnumerable<(string PaperId, int ChunkIndex)> claimed,
@@ -30,6 +31,66 @@ public static class NaiveRagCitations
             var isResolved = retrievedKeys.Contains((paperId, chunkIndex));
             if (!isResolved) fabricated++;
             resolved.Add(new ClaimedCitation(paperId, chunkIndex, isResolved));
+        }
+        return (resolved, fabricated);
+    }
+
+    // Free-text citation mode (RQ3 fabrication-delta experiment). Extracts inline
+    // bracket citations from hypothesis prose, e.g. "[2005.11401]", "[2005.11401:4]",
+    // or "[graphcast, pangu-weather:2]". A token is treated as a citation candidate
+    // only if it contains a letter or a '.', so arXiv ids (2005.11401) and kebab
+    // stems (graphcast) are captured while bare list markers like "[3]" are ignored.
+    [GeneratedRegex(@"\[([^\[\]]+)\]")]
+    private static partial Regex BracketContents();
+
+    public static IReadOnlyList<(string PaperId, int? ChunkIndex)> ParseFreeTextCitations(string text)
+    {
+        var result = new List<(string, int?)>();
+        if (string.IsNullOrWhiteSpace(text)) return result;
+
+        foreach (Match m in BracketContents().Matches(text))
+        {
+            var inner = m.Groups[1].Value;
+            foreach (var rawToken in inner.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var token = rawToken.Trim();
+                if (token.Length == 0) continue;
+
+                string paperId = token;
+                int? chunkIndex = null;
+                var colon = token.LastIndexOf(':');
+                if (colon > 0 && colon < token.Length - 1
+                    && int.TryParse(token[(colon + 1)..].Trim(), out var idx))
+                {
+                    paperId = token[..colon].Trim();
+                    chunkIndex = idx;
+                }
+
+                // Citation candidate only if it looks like a paper id (has a letter or a dot).
+                if (!paperId.Any(char.IsLetter) && !paperId.Contains('.')) continue;
+                result.Add((paperId, chunkIndex));
+            }
+        }
+        return result;
+    }
+
+    // Resolve free-text citations: a cite is fabricated when its paper_id is not in the
+    // retrieved set, OR when it names a chunk_index that was not retrieved for that paper.
+    // A chunk-less cite resolves on paper_id membership alone.
+    public static (IReadOnlyList<ClaimedCitation> Resolved, int FabricatedCount) ResolveFreeText(
+        IEnumerable<(string PaperId, int? ChunkIndex)> claimed,
+        ISet<(string PaperId, int ChunkIndex)> retrievedKeys,
+        ISet<string> retrievedPaperIds)
+    {
+        var resolved = new List<ClaimedCitation>();
+        int fabricated = 0;
+        foreach (var (paperId, chunkIndex) in claimed)
+        {
+            var isResolved = chunkIndex is int ci
+                ? retrievedKeys.Contains((paperId, ci))
+                : retrievedPaperIds.Contains(paperId);
+            if (!isResolved) fabricated++;
+            resolved.Add(new ClaimedCitation(paperId, chunkIndex ?? -1, isResolved));
         }
         return (resolved, fabricated);
     }
@@ -111,12 +172,47 @@ public sealed class NaiveRagAgent(
             "Submit a hypothesis with claimed supporting citations.",
             JsonNode.Parse(ToolSchemaJson)!);
 
+    // Free-text citation mode (RQ3 fabrication-delta). The model cites inline in prose
+    // rather than via a structured array — the regime where LLMs actually invent cites.
+    private const string FreeTextSystemPrompt = """
+        You are a scientific research assistant. You are given one or two topics and a
+        numbered list of source excerpts retrieved from academic papers. Propose a single
+        hypothesis (1–3 sentences) based on the provided sources. Cite your sources INLINE
+        in the hypothesis text using square brackets with the paper_id, optionally with a
+        chunk index, e.g. "[2005.11401]" or "[2005.11401:4]". Support every claim with a
+        citation.
+
+        Always call the `submit_hypothesis` tool with the hypothesis text (including the
+        inline bracket citations). Do not respond in plain text.
+        """;
+
+    private const string FreeTextToolSchemaJson = """
+        {
+          "type": "object",
+          "properties": {
+            "hypothesis": {
+              "type": "string",
+              "description": "1-3 sentence hypothesis with inline bracket citations like [paper_id] or [paper_id:chunk_index]."
+            }
+          },
+          "required": ["hypothesis"]
+        }
+        """;
+
+    private static readonly AnthropicTool SubmitHypothesisFreeTextTool =
+        new Function(
+            "submit_hypothesis",
+            "Submit a hypothesis with inline bracket citations in the text.",
+            JsonNode.Parse(FreeTextToolSchemaJson)!);
+
     public async Task<NaiveRagResult> RunAsync(
         string topicA,
         string? topicB,
         int topK,
+        string? citationMode = null,
         CancellationToken ct = default)
     {
+        var freeText = string.Equals(citationMode, "free-text", StringComparison.OrdinalIgnoreCase);
         var corrId = Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
@@ -166,8 +262,8 @@ public sealed class NaiveRagAgent(
         var parameters = new MessageParameters
         {
             Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
-            Tools = new List<AnthropicTool> { SubmitHypothesisTool },
+            System = new List<SystemMessage> { new SystemMessage(freeText ? FreeTextSystemPrompt : SystemPrompt) },
+            Tools = new List<AnthropicTool> { freeText ? SubmitHypothesisFreeTextTool : SubmitHypothesisTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
             MaxTokens = 1024,
             Model = _synthesisModel,
@@ -194,20 +290,33 @@ public sealed class NaiveRagAgent(
         // Parse claimed citations and resolve against the retrieved set post-hoc.
         // CRITICAL: unlike LIBRAIN, we do NOT drop unresolved claims; we record them
         // as fabrications. This is the RQ3 measurement surface.
-        var rawCitations = input["claimed_citations"]?.AsArray() ?? new JsonArray();
-        var parsed = new List<(string PaperId, int ChunkIndex)>(rawCitations.Count);
-        foreach (var node in rawCitations)
+        IReadOnlyList<ClaimedCitation> claimed;
+        int fabricated;
+        if (freeText)
         {
-            if (node is null) continue;
-            var paperId = node["paper_id"]?.GetValue<string>();
-            var chunkIndex = node["chunk_index"]?.GetValue<int>();
-            if (paperId is null || chunkIndex is null) continue;
-            parsed.Add((paperId, chunkIndex.Value));
+            // Citations live inline in the hypothesis prose; parse + resolve them.
+            var retrievedPaperIds = new HashSet<string>(dedup.Select(h => h.PaperId));
+            var parsedFree = NaiveRagCitations.ParseFreeTextCitations(hypothesis);
+            (claimed, fabricated) = NaiveRagCitations.ResolveFreeText(parsedFree, seenKeys, retrievedPaperIds);
         }
-        var (claimed, fabricated) = NaiveRagCitations.Resolve(parsed, seenKeys);
+        else
+        {
+            var rawCitations = input["claimed_citations"]?.AsArray() ?? new JsonArray();
+            var parsed = new List<(string PaperId, int ChunkIndex)>(rawCitations.Count);
+            foreach (var node in rawCitations)
+            {
+                if (node is null) continue;
+                var paperId = node["paper_id"]?.GetValue<string>();
+                var chunkIndex = node["chunk_index"]?.GetValue<int>();
+                if (paperId is null || chunkIndex is null) continue;
+                parsed.Add((paperId, chunkIndex.Value));
+            }
+            (claimed, fabricated) = NaiveRagCitations.Resolve(parsed, seenKeys);
+        }
 
         _logger.LogInformation(
-            "Naive-RAG synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; claimed={ClaimedCount} resolved={ResolvedCount} fabricated={FabricatedCount} in {ElapsedMs}ms",
+            "Naive-RAG synthesis ({CitationMode}): input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; claimed={ClaimedCount} resolved={ResolvedCount} fabricated={FabricatedCount} in {ElapsedMs}ms",
+            freeText ? "free-text" : "structured",
             res.Usage.InputTokens, res.Usage.OutputTokens,
             res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             claimed.Count, claimed.Count - fabricated, fabricated, synthElapsedMs);
