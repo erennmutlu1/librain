@@ -14,6 +14,9 @@ public static class ExperimentPaths
     public static string HallucinationPilotDir => Path.Combine(ExperimentsRoot, "hallucination-pilot");
     public static string RobustnessResults => Path.Combine(ExperimentsRoot, "robustness");
     public static string FabricationDeltaResults => Path.Combine(ExperimentsRoot, "fabrication-delta");
+    public static string NoveltyValidationResults => Path.Combine(ExperimentsRoot, "novelty-validation");
+    public static string HumanEvalAgreementDir => Path.Combine(ExperimentsRoot, "human-eval");
+    public static string DiscoveryOpenAiResults => Path.Combine(ExperimentsRoot, "discovery-openai");
 
     private static string ResolveRepoRoot()
     {

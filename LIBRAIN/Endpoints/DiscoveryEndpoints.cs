@@ -6,7 +6,9 @@ namespace LIBRAIN.Endpoints;
 public sealed record DiscoverRequest(
     string TopicA,
     string? TopicB,
-    int? TopK);
+    int? TopK,
+    string? Provider = null,   // "anthropic" (default) | "openai"
+    string? Model = null);     // OpenAI model id when Provider=openai (default gpt-4o)
 
 public sealed record SupportingEvidence(
     string PaperId,
@@ -66,6 +68,7 @@ public static class DiscoveryEndpoints
     private static async Task<IResult> HandleAsync(
         DiscoverRequest req,
         DiscoveryAgent agent,
+        LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -90,7 +93,9 @@ public static class DiscoveryEndpoints
         try
         {
             var normalized = req with { TopK = topK };
-            var response = await agent.DiscoverAsync(normalized, ct);
+            var response = string.Equals(req.Provider, "openai", StringComparison.OrdinalIgnoreCase)
+                ? await openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(req.Model) ? "gpt-4o" : req.Model!, ct)
+                : await agent.DiscoverAsync(normalized, ct);
 
             using var scope = logger.BeginScope(new Dictionary<string, object>
             {

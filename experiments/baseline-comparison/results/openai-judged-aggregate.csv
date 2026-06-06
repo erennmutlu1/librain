@@ -1,0 +1,4 @@
+system,n,novelty_mean,plausibility_mean,coherence_mean,quality_mean
+librain,10,0.3284,0.5900,0.6600,0.5261
+naive-rag,10,0.3084,0.6500,0.7700,0.5761
+single-llm,10,0.3531,0.6900,0.8000,0.6144

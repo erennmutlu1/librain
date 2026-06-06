@@ -1,0 +1,5 @@
+pilot,rater,axis,n,spearman_rho
+human-eval-pilot,rater1,novelty,15,0.1710
+hallucination-pilot,rater2,novelty,15,0.4579
+hallucination-pilot,rater3,novelty,15,0.5338
+POOLED,all,novelty,45,0.4051

@@ -1,0 +1,19 @@
+axis,scope,raters,n,statistic,value,status
+novelty,pairwise,R1-R2,15,krippendorff_ordinal,0.7107,ok
+novelty,pairwise,R1-R2,15,spearman_rho,0.7502,ok
+plausibility,pairwise,R1-R2,15,krippendorff_ordinal,0.4593,ok
+plausibility,pairwise,R1-R2,15,spearman_rho,0.5479,ok
+hallucination,pairwise,R1-R2,15,cohen_kappa,0.0000,ok
+novelty,pairwise,R1-R3,15,krippendorff_ordinal,0.7191,ok
+novelty,pairwise,R1-R3,15,spearman_rho,0.7726,ok
+plausibility,pairwise,R1-R3,15,krippendorff_ordinal,0.4292,ok
+plausibility,pairwise,R1-R3,15,spearman_rho,0.7804,ok
+hallucination,pairwise,R1-R3,15,cohen_kappa,0.0000,ok
+novelty,pairwise,R2-R3,15,krippendorff_ordinal,0.8750,ok
+novelty,pairwise,R2-R3,15,spearman_rho,0.9366,ok
+plausibility,pairwise,R2-R3,15,krippendorff_ordinal,0.6737,ok
+plausibility,pairwise,R2-R3,15,spearman_rho,0.8528,ok
+hallucination,pairwise,R2-R3,15,cohen_kappa,,undefined: zero variance (raters used a single category)
+hallucination,pooled,R1R2R3,15,fleiss_kappa,-0.0714,ok
+novelty,pooled,R1R2R3,15,krippendorff_ordinal,0.7802,ok
+plausibility,pooled,R1R2R3,15,krippendorff_ordinal,0.5402,ok

@@ -1,5 +1,5 @@
 {
-  "_description": "Pre-registered topic pairs for the Phase B + baseline + human-eval experiments. Locked from the paper §6.5 (10-pair Phase B), §6.6 (three-system baseline reuses the same 10), and §6.7 (5-pair human evaluation pilot uses ids 01, 02, 06, 09, 10). Do not reorder or rephrase: scoring + Latin-square unblinding rely on the id-to-content mapping being stable.",
+  "_description": "Pre-registered topic pairs for the Phase B + baseline + human-eval experiments. Locked from the paper \u00a76.5 (10-pair Phase B), \u00a76.6 (three-system baseline reuses the same 10), and \u00a76.7 (5-pair human evaluation pilot uses ids 01, 02, 06, 09, 10). Do not reorder or rephrase: scoring + Latin-square unblinding rely on the id-to-content mapping being stable. | Scale-up: pair-11..30 appended (Task 3, additive; pre-registered pair-01..10 unchanged).",
   "_committedBy": "Eren Mutlu",
   "_committedOn": "2026-05-12",
   "pairs": [
@@ -72,6 +72,146 @@
       "topicB": "climate adaptation",
       "category": "cross-domain",
       "humanEvalIncluded": true
+    },
+    {
+      "id": "pair-11",
+      "topicA": "protein language models",
+      "topicB": "materials property prediction",
+      "category": "bio-materials",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-12",
+      "topicA": "epidemiological forecasting",
+      "topicB": "weather foundation models",
+      "category": "epi-climate",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-13",
+      "topicA": "graph neural networks",
+      "topicB": "drug-target interaction prediction",
+      "category": "graph-drug",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-14",
+      "topicA": "genomic sequence modeling",
+      "topicB": "large language models",
+      "category": "genomics-nlp",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-15",
+      "topicA": "reinforcement learning",
+      "topicB": "de novo molecular design",
+      "category": "rl-drug",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-16",
+      "topicA": "computer vision foundation models",
+      "topicB": "crop yield prediction",
+      "category": "vision-agriculture",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-17",
+      "topicA": "federated learning",
+      "topicB": "clinical trial design",
+      "category": "privacy-clinical",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-18",
+      "topicA": "knowledge graph embeddings",
+      "topicB": "hypothesis generation",
+      "category": "kg-discovery",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-19",
+      "topicA": "speech recognition models",
+      "topicB": "EEG decoding",
+      "category": "audio-neuro",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-20",
+      "topicA": "time-series forecasting",
+      "topicB": "renewable energy planning",
+      "category": "timeseries-energy",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-21",
+      "topicA": "graph neural networks",
+      "topicB": "epidemic spread modeling",
+      "category": "graph-epi",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-22",
+      "topicA": "causal inference",
+      "topicB": "clinical trial design",
+      "category": "causal-clinical",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-23",
+      "topicA": "materials discovery",
+      "topicB": "climate adaptation",
+      "category": "materials-climate",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-24",
+      "topicA": "robotics foundation models",
+      "topicB": "agentic AI",
+      "category": "robotics-agentic",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-25",
+      "topicA": "combinatorial optimization",
+      "topicB": "renewable energy planning",
+      "category": "optimization-energy",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-26",
+      "topicA": "multimodal vision-language models",
+      "topicB": "medical image analysis",
+      "category": "multimodal-clinical",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-27",
+      "topicA": "recommender systems",
+      "topicB": "personalized learning curriculum",
+      "category": "recsys-education",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-28",
+      "topicA": "quantum machine learning",
+      "topicB": "materials property prediction",
+      "category": "quantum-materials",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-29",
+      "topicA": "code generation models",
+      "topicB": "automated scientific workflows",
+      "category": "code-discovery",
+      "humanEvalIncluded": false
+    },
+    {
+      "id": "pair-30",
+      "topicA": "graph neural networks",
+      "topicB": "weather forecasting",
+      "category": "graph-climate",
+      "humanEvalIncluded": false
     }
   ]
 }
