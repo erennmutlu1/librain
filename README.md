@@ -67,7 +67,7 @@ The companion technical paper (`docs/architecture.pdf`) describes the original f
 
 The original plan targeted Azure Cosmos DB for NoSQL with its DiskANN vector index for an Azure-native production story. Phase 1 pivoted away from Cosmos for two reasons: the emulator was unstable on macOS Apple Silicon, and a paid managed service offered no learning advantage over a free local alternative for a prototype. We shipped against Qdrant in local Docker, with all data access confined to a single repository class so the swap remained a one-file change.
 
-Phase 2.5 retired the Cosmos plan entirely. Qdrant Cloud's free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) accommodates the 218-chunk Phase 1 corpus comfortably and absorbed the Phase B expansion to 610 chunks (and later the 1,351-chunk, 24-paper corpus) without operator intervention. It runs the same engine as local development, uses the same vector dimension, distance metric, and UUIDv5 IDs, and auto-selects between local and cloud via API key presence in user-secrets. There is no schema migration between dev and production: they are the same engine on the same code path.
+Phase 2.5 retired the Cosmos plan entirely. Qdrant Cloud's free tier (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) accommodates the 218-chunk Phase 1 corpus comfortably and absorbed the Phase B expansion to 610 chunks (and later the 1,766-chunk, 41-paper corpus) without operator intervention. It runs the same engine as local development, uses the same vector dimension, distance metric, and UUIDv5 IDs, and auto-selects between local and cloud via API key presence in user-secrets. There is no schema migration between dev and production: they are the same engine on the same code path.
 
 ### noveltyTarget knob retirement (Phase 2.5)
 
@@ -166,7 +166,8 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
 - [x] **Phase 2.5**: Discovery Mode, `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
 - [x] **Phase 3.A**: Three-system baseline (`NaiveRagAgent`, `SingleLlmAgent`), claim-level validation (`extrapolation_basis` + `ClaimValidatorAgent`), prompt caching across all agents, parallelized scoring (`Task.WhenAll`), `LIBRAIN.Experiments` CLI for paper reproduction (May 2026)
-- [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over an expanded 24-paper corpus; citation contract holds (zero fabricated citations) across every configuration
+- [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over an expanded 41-paper corpus; citation contract holds (zero fabricated citations) across every configuration
+- [x] **RQ3 measured benefit + cross-family port**: free-text/starved fabrication-delta (Naive-RAG 67 fabricated vs LIBRAIN 0); the full Discovery pipeline ported to OpenAI (`provider=openai`, gpt-4o) with provider routing; corpus scaled to 41 papers / 30 pairs; novelty-metric validation (ρ=0.41) + in-code inter-rater agreement (Cohen/Fleiss/Krippendorff). Anthropic-judged tables unchanged.
 - [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming, two-rater human eval follow-up
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
@@ -175,13 +176,14 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ## Performance
 
-- Papers ingested: 24 (1,351 chunks total). The original 5-paper seed plus a multi-domain expansion spanning RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, and cognition/neuroscience. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
+- Papers ingested: 41 (1,766 chunks total). The original 5-paper seed plus a multi-domain expansion spanning RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, and cognition/neuroscience. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
-- Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration — a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
+- Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration - a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
 - Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
 - Cost per query: ~$0.030 synthesis, ~$0.04 discovery (Sonnet synth + Haiku eval + Haiku claim-validation, cached prefix).
-- Tests: **62/62 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract, synthesis-model resolution, robustness-CSV formatting).
+- RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0** - a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
+- Tests: **81/81 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract, synthesis-model resolution, robustness-CSV + fabrication-CSV formatting, free-text citation parsing, inter-rater agreement Cohen/Fleiss/Krippendorff).
 
 ---
 
@@ -198,13 +200,18 @@ Every numeric claim in the companion paper is backed by a runnable command + a c
 | **Spearman ρ** (rater vs LLM-as-Judge, per axis) | (produced by `analyze` once baseline is run) | `experiments/human-eval-pilot/spearman.csv` |
 | **Experiment 8** Hallucination mitigation pilot (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
 | **§7.10 Robustness** (topK + model-swap + adversarial, on the expanded corpus) | `dotnet run --project LIBRAIN.Experiments -- robustness` (Haiku leg: `--model-label haiku-4.5` after restarting the API with `Models__SynthesisModel` set) | `experiments/robustness/{results.csv, *.json}` |
+| **RQ3 fabrication-delta** (Naive-RAG vs LIBRAIN, cross-family) | `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai --model gpt-4o-mini` | `experiments/fabrication-delta/{results.csv, summary.md}` |
+| **Discovery ranking** (real pipeline on OpenAI, ranked by quality) | `dotnet run --project LIBRAIN.Experiments -- discover-run --provider openai --model gpt-4o` | `experiments/discovery-openai/{ranking.csv, best-examples.md}` |
+| **Novelty validation** (cosine vs human novelty, offline) | `dotnet run --project LIBRAIN.Experiments -- novelty-validation` | `experiments/novelty-validation/{results.csv, summary.md}` |
+| **Inter-rater agreement** (Cohen/Fleiss/Krippendorff, offline) | `dotnet run --project LIBRAIN.Experiments -- human-eval` | `experiments/human-eval/agreement.csv` |
+| **3-system OpenAI-judge** (judge-substitution cross-check) | `dotnet run --project LIBRAIN.Experiments -- score-systems --model gpt-4o-mini` | `experiments/baseline-comparison/results/openai-judged-*.csv` |
 | **Cross-run consistency study** (Phase 2.5, N=5) | `scripts/cross-run-study.sh --runs 5` | stdout (per-axis mean ± std + classification verdict) |
 
 ### Prerequisites
 
 - LIBRAIN dev server running locally: `dotnet run --project LIBRAIN`
 - Anthropic + OpenAI + Qdrant Cloud keys configured via `dotnet user-secrets` (see [Quick Start](#quick-start)).
-- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 24-paper live corpus used for the §7.10 robustness sweep; the committed paper numbers below are tied to the original 13-paper set.
+- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 41-paper live corpus used for the §7.10 robustness sweep; the committed paper numbers below are tied to the original 13-paper set.
 
 ### Full reproduction sequence + cost estimate (~$1.24)
 
@@ -249,10 +256,11 @@ librain/
 │   ├── Models/                  # DTOs, domain types
 │   ├── Reading/                 # PDF extraction + chunking
 │   └── Program.cs
-├── LIBRAIN.Tests/               # 62 xUnit unit tests
+├── LIBRAIN.Tests/               # 81 xUnit unit tests
 ├── LIBRAIN.Experiments/         # .NET CLI: phase-b, baseline, robustness,
-│                                # hallucination-pilot, analyze,
-│                                # generate-unblind-key
+│                                # fabrication-delta, discover-run, score-systems,
+│                                # novelty-validation, human-eval,
+│                                # hallucination-pilot, analyze, generate-unblind-key
 ├── experiments/                 # Pre-registered topic pairs + raw run outputs
 │   ├── topic-pairs.json
 │   ├── phase-b/results/

@@ -1,32 +1,32 @@
 # Best discovery examples (real Discovery pipeline on OpenAI)
 
-## graph neural networks × epidemic spread modeling  (quality 0.6862)
+## time-series forecasting × renewable energy planning  (quality 0.5969)
 
-- novelty 0.3586 · plausibility 0.8000 · coherence 0.9000 · claim-risk 0.2000 · evidence 3 (dropped 0)
+- novelty 0.4907 · plausibility 0.6000 · coherence 0.7000 · claim-risk 0.2000 · evidence 3 (dropped 0)
 
-**novelClaim:** This approach could lead to more accurate forecasts of disease spread by leveraging the complex interactions captured in graph structures.
+**novelClaim:** This integration could also facilitate decentralized energy systems by optimizing real-time pricing and demand response strategies.
 
-## reinforcement learning × de novo molecular design  (quality 0.6397)
+## combinatorial optimization × renewable energy planning  (quality 0.5803)
 
-- novelty 0.4190 · plausibility 0.7000 · coherence 0.8000 · claim-risk 0.2000 · evidence 4 (dropped 0)
+- novelty 0.4410 · plausibility 0.6000 · coherence 0.7000 · claim-risk 0.2000 · evidence 3 (dropped 0)
 
-**novelClaim:** This adaptation could lead to more efficient drug discovery by leveraging the ability of reinforcement learning to handle high-dimensional input spaces and optimize for long-term rewards.
+**novelClaim:** This approach could improve the efficiency and adaptability of renewable energy systems by continuously learning from past data and refining strategies in real-time.
 
-## weather foundation models × renewable energy planning  (quality 0.6214)
+## causal inference × clinical trial design  (quality 0.5394)
 
-- novelty 0.3643 · plausibility 0.7000 · coherence 0.8000 · claim-risk 0.2000 · evidence 4 (dropped 0)
+- novelty 0.5181 · plausibility 0.4000 · coherence 0.7000 · claim-risk 0.2000 · evidence 4 (dropped 0)
 
-**novelClaim:** Weather foundation models, such as Aurora, can be adapted to optimize renewable energy planning by improving the accuracy of weather forecasts, which are crucial for predicting energy generation from renewable sources.
+**novelClaim:** This integration could lead to more efficient and targeted clinical trials, potentially reducing time and cost while improving success rates.
 
-## deep learning weather forecasting × agricultural yield prediction  (quality 0.6028)
+## climate adaptation × language models  (quality 0.4163)
 
-- novelty 0.3084 · plausibility 0.7000 · coherence 0.8000 · claim-risk 0.2000 · evidence 3 (dropped 0)
+- novelty 0.3488 · plausibility 0.3000 · coherence 0.6000 · claim-risk 0.2000 · evidence 4 (dropped 0)
 
-**novelClaim:** Integrating deep learning weather forecasting models like Pangu-Weather with agricultural yield prediction systems could significantly enhance the accuracy of pre-season yield forecasts by providing more precise weather inputs, thus optimizing agricultural planning and resource allocation.
+**novelClaim:** Language models can be used to predict and optimize climate adaptation strategies by learning from historical climate data and simulating potential future scenarios.
 
-## knowledge graph embeddings × hypothesis generation  (quality 0.5905)
+## materials discovery × climate adaptation  (quality 0.4131)
 
-- novelty 0.2714 · plausibility 0.7000 · coherence 0.8000 · claim-risk 0.2000 · evidence 3 (dropped 0)
+- novelty 0.3393 · plausibility 0.3000 · coherence 0.6000 · claim-risk 0.2000 · evidence 4 (dropped 0)
 
-**novelClaim:** Knowledge graph embeddings, when integrated with dynamic knowledge systems, can significantly enhance AI-driven hypothesis generation by enabling real-time updates and contextual adaptability, potentially leading to more innovative and timely scientific discoveries.
+**novelClaim:** Agentic systems used in materials discovery can be adapted to climate adaptation efforts by employing multi-agent frameworks to autonomously generate and refine hypotheses about climate impacts and adaptation strategies, potentially accelerating the development of resilient infrastructure and agricultural practices.
 

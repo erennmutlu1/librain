@@ -1,9 +1,8 @@
 rank,pair,topicA,topicB,novelty,plausibility,coherence,quality,aggregate_risk,evidence,dropped
-1,pair-21,"graph neural networks","epidemic spread modeling",0.3586,0.8000,0.9000,0.6862,0.2000,3,0
-2,pair-15,"reinforcement learning","de novo molecular design",0.4190,0.7000,0.8000,0.6397,0.2000,4,0
-3,pair-06,"weather foundation models","renewable energy planning",0.3643,0.7000,0.8000,0.6214,0.2000,4,0
-4,pair-04,"deep learning weather forecasting","agricultural yield prediction",0.3084,0.7000,0.8000,0.6028,0.2000,3,0
-5,pair-18,"knowledge graph embeddings","hypothesis generation",0.2714,0.7000,0.8000,0.5905,0.2000,3,0
-6,pair-16,"computer vision foundation models","crop yield prediction",0.4339,0.3000,0.6000,0.4446,0.2000,3,0
-7,pair-12,"epidemiological forecasting","weather foundation models",0.4303,0.3000,0.4000,0.3768,0.2000,3,0
-8,pair-28,"quantum machine learning","materials property prediction",0.3592,0.3000,0.4000,0.3531,0.2000,5,0
+1,pair-20,"time-series forecasting","renewable energy planning",0.4907,0.6000,0.7000,0.5969,0.2000,3,0
+2,pair-25,"combinatorial optimization","renewable energy planning",0.4410,0.6000,0.7000,0.5803,0.2000,3,0
+3,pair-22,"causal inference","clinical trial design",0.5181,0.4000,0.7000,0.5394,0.2000,4,0
+4,pair-05,"climate adaptation","language models",0.3488,0.3000,0.6000,0.4163,0.2000,4,0
+5,pair-23,"materials discovery","climate adaptation",0.3393,0.3000,0.6000,0.4131,0.2000,4,0
+6,pair-10,"drug discovery","climate adaptation",0.4482,0.3000,0.4000,0.3827,0.2000,3,0
+7,pair-19,"speech recognition models","EEG decoding",0.3642,0.3000,0.4000,0.3547,0.2000,3,0
