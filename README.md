@@ -166,7 +166,7 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Phase 2**: Synthesis & Evaluator agents + `POST /api/query` (May 2026)
 - [x] **Phase 2.5**: Discovery Mode, `POST /api/discover` with novel-claim flagging + multi-axis evaluation (May 2026)
 - [x] **Phase 3.A**: Three-system baseline (`NaiveRagAgent`, `SingleLlmAgent`), claim-level validation (`extrapolation_basis` + `ClaimValidatorAgent`), prompt caching across all agents, parallelized scoring (`Task.WhenAll`), `LIBRAIN.Experiments` CLI for paper reproduction (May 2026)
-- [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over an expanded 41-paper corpus; citation contract holds (zero fabricated citations) across every configuration
+- [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over a 5-paper weather/energy slice (the PDFs present at run time); citation contract holds (zero fabricated citations) across every configuration
 - [x] **RQ3 measured benefit + cross-family port**: free-text/starved fabrication-delta (Naive-RAG 67 fabricated vs LIBRAIN 0); the full Discovery pipeline ported to OpenAI (`provider=openai`, gpt-4o) with provider routing; corpus scaled to 41 papers / 30 pairs; novelty-metric validation (ρ=0.41) + in-code inter-rater agreement (Cohen/Fleiss/Krippendorff). Anthropic-judged tables unchanged.
 - [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming, two-rater human eval follow-up
 
@@ -179,10 +179,10 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 - Papers ingested: 41 (1,766 chunks total). The original 5-paper seed plus a multi-domain expansion spanning RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, and cognition/neuroscience. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
-- Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration - a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
+- Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration, a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
 - Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
 - Cost per query: ~$0.030 synthesis, ~$0.04 discovery (Sonnet synth + Haiku eval + Haiku claim-validation, cached prefix).
-- RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0** - a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
+- RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0**, a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
 - Tests: **81/81 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract, synthesis-model resolution, robustness-CSV + fabrication-CSV formatting, free-text citation parsing, inter-rater agreement Cohen/Fleiss/Krippendorff).
 
 ---
@@ -211,7 +211,7 @@ Every numeric claim in the companion paper is backed by a runnable command + a c
 
 - LIBRAIN dev server running locally: `dotnet run --project LIBRAIN`
 - Anthropic + OpenAI + Qdrant Cloud keys configured via `dotnet user-secrets` (see [Quick Start](#quick-start)).
-- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 41-paper live corpus used for the §7.10 robustness sweep; the committed paper numbers below are tied to the original 13-paper set.
+- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 41-paper live corpus. The §7.10 robustness sweep ran against a 5-paper weather/energy slice (the only PDFs present at run time, per the committed `experiments/robustness/results.csv`). The committed paper numbers below are tied to the original 13-paper set.
 
 ### Full reproduction sequence + cost estimate (~$1.24)
 

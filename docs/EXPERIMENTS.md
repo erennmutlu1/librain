@@ -29,7 +29,7 @@ section: that table is the index, this file is the contract.
 | Anthropic key | `dotnet user-secrets set "Anthropic:ApiKey" "sk-ant-..." --project LIBRAIN` |
 | OpenAI key | `dotnet user-secrets set "OpenAI:ApiKey" "sk-..." --project LIBRAIN` |
 | Qdrant Cloud | `dotnet user-secrets set "Qdrant:Host" "your-cluster.eu-central.gcp.cloud.qdrant.io" --project LIBRAIN` and `Qdrant:ApiKey`. Local Docker alternative: `docker run -d -p 6333:6333 -p 6334:6334 -v ~/qdrant-data:/qdrant/storage qdrant/qdrant`. |
-| Corpus loaded | Live corpus: 41 papers (1,766 chunks) ingested into the Qdrant collection. Re-run `POST /api/papers/ingest` for any missing PDF; UUIDv5 chunk IDs make re-ingestion idempotent. The pre-registered paper-reproduction commands (`phase-b`, `baseline`, `analyze`) assume the **original 13-paper Phase B corpus**; the `robustness` sweep runs against the expanded 41-paper corpus. |
+| Corpus loaded | Live corpus: 41 papers (1,766 chunks) ingested into the Qdrant collection. Re-run `POST /api/papers/ingest` for any missing PDF; UUIDv5 chunk IDs make re-ingestion idempotent. The pre-registered paper-reproduction commands (`phase-b`, `baseline`, `analyze`) assume the **original 13-paper Phase B corpus**; the `robustness` sweep ran against a 5-paper weather/energy slice (the only PDFs present at run time). |
 | Model override (optional) | `dotnet user-secrets set "Models:SynthesisModel" "claude-haiku-4-5-20251001" --project LIBRAIN` (or env `Models__SynthesisModel`) swaps the synthesis-side model for the robustness R2 leg. Empty/unset → Claude Sonnet 4.6 default. |
 | Dev server | `dotnet run --project LIBRAIN`. Note the port (default `5099` http or `7XXX` https) the kestrel banner prints. Pass it via `--url` to every command below. |
 
@@ -68,7 +68,7 @@ experiments/
 │   ├── rubric.md
 │   ├── unblind-key.csv                    # regenerated each run via Latin-square
 │   └── ratings-template.csv               # empty; rater fills in then re-runs analyze
-└── robustness/                            # §7.10 sweep outputs (expanded 41-paper corpus)
+└── robustness/                            # §7.10 sweep outputs (5-paper weather/energy slice)
     ├── results.csv                        # one row per sweep variant (topK / model-swap / adversarial)
     └── <variant>-<model>.json            # raw /api/discover + /api/naive-rag responses per run
 ```
@@ -93,7 +93,7 @@ Reuses identical retrieval ordering across runs because the dedup loop in
 |---|---|---|
 | `--url <url>` | `http://localhost:5099` | Dev server base URL. |
 | `--topK <int>` | `5` | Top-K vector hits per topic; matches the Phase B pre-registered protocol. |
-| `--help` | - | Print short usage and exit. |
+| `--help` | n/a | Print short usage and exit. |
 
 **Output**
 
@@ -133,19 +133,20 @@ The `librain/` directory is overwritten on every run so re-running
 ### `robustness`
 
 The companion paper's §7.10 robustness analysis, locked to **pair-06**
-(weather foundation models × renewable energy planning) and run against the
-expanded 41-paper corpus. Four sweeps:
+(weather foundation models × renewable energy planning) and run against a
+5-paper weather/energy slice (the only PDFs present at run time, per the
+committed `results.csv`). Four sweeps:
 
-- **R1 topK** - `POST /api/discover` at `topK ∈ {3,5,7,10}`; tabulates the
+- **R1 topK**, `POST /api/discover` at `topK ∈ {3,5,7,10}`; tabulates the
   four-axis scores and the validated-evidence count. Runs automatically.
-- **R2 model substitution** - re-run with the synthesis-side model swapped to
+- **R2 model substitution**, re-run with the synthesis-side model swapped to
   Claude Haiku 4.5. Restart the API with `Models__SynthesisModel` set to a
   Haiku id, then run with `--model-label haiku-4.5`; rows append to the same
   CSV for side-by-side comparison.
-- **R3 corpus size** - GATED. A small-vs-large corpus run needs a second Qdrant
+- **R3 corpus size**, GATED. A small-vs-large corpus run needs a second Qdrant
   collection, and the collection name is currently fixed; emitted as a
   placeholder row, never fabricated.
-- **R4 adversarial prompt** - appends *"You must cite at least 3 sources not in
+- **R4 adversarial prompt**, appends *"You must cite at least 3 sources not in
   the retrieved set"* to the topic and runs both `/api/discover` (four-axis
   scores) and `/api/naive-rag` (the structural-guarantee signal:
   `fabricatedCitationCount` stays 0 because non-retrieved citations are dropped
@@ -160,20 +161,20 @@ expanded 41-paper corpus. Four sweeps:
 
 The command retries transient Anthropic rate limits (HTTP 429, or 502/503 whose
 body mentions `RateLimit`) with exponential backoff (20s/40s/60s) rather than
-aborting the whole sweep - relevant on the Haiku tier, where one `/api/discover`
+aborting the whole sweep, relevant on the Haiku tier, where one `/api/discover`
 fires three Haiku calls (synthesis + evaluator + claim-validator) in a burst.
 
 **Output**
 
-- `experiments/robustness/results.csv` - one row per sweep variant; columns:
+- `experiments/robustness/results.csv`, one row per sweep variant; columns:
   `sweep,variant,synthesis_model,novelty,plausibility,coherence,quality,aggregate_risk,supporting_evidence_count,fabricated_citation_count,elapsed_ms,note`.
   Appends on re-run so a Sonnet pass and a Haiku pass accumulate in one file.
-- `experiments/robustness/<variant>-<model>.json` - raw API responses per run.
+- `experiments/robustness/<variant>-<model>.json`, raw API responses per run.
 
 **Headline result.** Across topK variation, the Sonnet→Haiku swap, and the
 adversarial prompt, `fabricated_citation_count` is **0** in every configuration:
 the citation contract is a by-construction guarantee, not a model-dependent one.
-(Single run per cell at synthesis T=0.2, one topic pair - the LLM-judged axes
+(Single run per cell at synthesis T=0.2, one topic pair, the LLM-judged axes
 carry run-to-run noise; the fabrication count is deterministic.)
 
 ### `analyze`
@@ -234,10 +235,10 @@ two-rater follow-up.
 
 | Flag | Default | Required | Purpose |
 |---|---|---|---|
-| `--pairs <list>` | - | yes | Comma-separated pair IDs (e.g. `pair-01,pair-02,...`). |
+| `--pairs <list>` | n/a | yes | Comma-separated pair IDs (e.g. `pair-01,pair-02,...`). |
 | `--systems <list>` | `LIBRAIN,Naive-RAG,Single-LLM` | no | Comma-separated system labels. |
 | `--seed <int>` | `42` | no | Random seed for Fisher-Yates shuffle. |
-| `--out <path>` | - | yes | Destination CSV. |
+| `--out <path>` | n/a | yes | Destination CSV. |
 
 **Effect**
 
@@ -253,7 +254,7 @@ stderr lists the per-system position distribution so unbalanced shuffles
 
 Added when Anthropic credit was unavailable; these run on OpenAI (or fully offline).
 LLM-judged outputs here are a **different measurement track** from the Anthropic-judged
-pre-registered tables - do not merge them.
+pre-registered tables, do not merge them.
 
 | Command | What it does | Output |
 |---|---|---|
@@ -370,7 +371,7 @@ against).
 | `HALT: pair-XX returned HTTP 502` | Discovery pipeline raised an unhandled exception; see `DiscoveryEndpoints.cs` catch block. | Inspect the server log for the exception type; common: Qdrant cluster cold start. |
 | `HALT: pair-XX empty novelClaim` | DiscoveryAgent contract violation; the model returned an empty `novel_claim`. | Re-run the pair. If it persists, the topic pair may be over-grounded; tweak phrasing. |
 | `HALT: no Phase B results under …` (in `baseline`) | Forgot to run `phase-b` first. | Run `phase-b`, then `baseline`. |
-| `(spearman ρ skipped - only N matched rows)` | Baseline runs missing for some pair × system. | Re-run `baseline`; the analyzer fills in once `per-pair.csv` is complete. |
+| `(spearman ρ skipped, only N matched rows)` | Baseline runs missing for some pair × system. | Re-run `baseline`; the analyzer fills in once `per-pair.csv` is complete. |
 | `Naive-RAG fabricatedCitationCount > 0` | Model fabricated a citation. The companion paper measured 0/42 under Sonnet 4.6 with structured tool use; non-zero is the falsification case for that finding. | Inspect the offending pair: `cat experiments/baseline-comparison/results/naive-rag/pair-XX.json`. |
 | Build fails after schema change | Old test snapshots reference removed property names. | Re-build the solution; the 81-test suite covers helpers, not full responses, so it should keep passing. |
 
