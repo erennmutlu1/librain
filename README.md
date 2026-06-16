@@ -322,4 +322,4 @@ MIT, see [`LICENSE`](LICENSE).
 
 ---
 
-*This is a portfolio project. Issues and discussions welcome; PRs accepted for clearly-scoped improvements.*
+*LIBRAIN is open research software for auditable, citation-grounded hypothesis discovery. Issues, discussions, and clearly-scoped pull requests are welcome.*

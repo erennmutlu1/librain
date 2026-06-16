@@ -11,15 +11,15 @@ This document is the single source of truth for the LIBRAIN MVP. It defines scop
 
 LIBRAIN is a multi-agent system that ingests scientific papers from arXiv, builds a semantically-searchable knowledge base, and generates citation-grounded research hypotheses with self-evaluation. The MVP demonstrates production-grade RAG patterns implemented in .NET, a deliberately under-served area in the AI ecosystem dominated by Python.
 
-**This is a portfolio project optimized for:**
-1. Demonstrating senior-level .NET + AI engineering to international recruiters
-2. Aligning with Microsoft AI-200 (Azure AI Cloud Developer) certification syllabus
-3. Producing a companion preprint that reinforces research/engineering signal
+**Goals:**
+1. Provide reusable, auditable research software for citation-grounded scientific hypothesis discovery.
+2. Demonstrate production-grade RAG patterns implemented in .NET, a deliberately under-served area in the Python-dominated AI ecosystem.
+3. Ship a companion paper documenting the design and empirical evaluation.
 
-**This is NOT:**
-- A research platform competing with Elicit, Consensus, or Scite
-- A general-purpose chatbot
-- A scalability showcase (it runs on serverless, single-region, single-tenant)
+**Scope boundaries:**
+- Not a hosted product competing with Elicit, Consensus, or Scite; it is an open, self-hostable reference implementation.
+- Not a general-purpose chatbot.
+- Not a scalability showcase (it runs single-region, single-tenant by design).
 
 ---
 
@@ -30,8 +30,8 @@ These choices are **final**. Do not propose alternatives during implementation.
 | Layer | Choice | Reason |
 |---|---|---|
 | Runtime | **.NET 10** | Newest LTS-track, native AOT possible, modern minimal APIs |
-| Web framework | **ASP.NET Core Minimal APIs** | Less ceremony, easier for portfolio readability |
-| API docs UI | **Scalar.AspNetCore** on top of `Microsoft.AspNetCore.OpenApi` | Native fit with .NET 10's built-in OpenAPI support; modern alternative to Swashbuckle; polished UI for the portfolio demo |
+| Web framework | **ASP.NET Core Minimal APIs** | Less ceremony, easier to read and maintain |
+| API docs UI | **Scalar.AspNetCore** on top of `Microsoft.AspNetCore.OpenApi` | Native fit with .NET 10's built-in OpenAPI support; modern alternative to Swashbuckle; polished UI for the demo |
 | LLM (reasoning) | **Anthropic Claude** via `Anthropic.SDK` NuGet | Developer already familiar; high-quality reasoning; cheap with Haiku |
 | LLM (embeddings) | **OpenAI `text-embedding-3-small`** via official SDK | Anthropic doesn't ship embeddings; this model is industry-standard, cheap |
 | Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions, AI-200 syllabus alignment |
@@ -238,7 +238,7 @@ Three layers:
 2. **Citation validation**: post-hoc check that all cited IDs are real
 3. **Evaluator filter**: hypotheses scoring <3 on plausibility are dropped from final response
 
-Track baseline hallucination rate (manual review of first 50 hypotheses) and rate after evaluator filter. This gives the CV bullet "reduced hallucination rate from X% to Y%".
+Track baseline hallucination rate (manual review of first 50 hypotheses) and rate after evaluator filter. This yields a concrete before/after result, "reduced hallucination rate from X% to Y%".
 
 ### 4.6 Discovery Prompt & Rubric (Phase 2.5)
 
@@ -362,7 +362,7 @@ Success criteria:
 
 ### Phase 3: Polish & Showcase (Weeks 9-12, July)
 
-**Goal**: Public-ready, recruiter-readable, paper updated.
+**Goal**: Public-ready release and updated paper.
 
 Deliverables:
 - [ ] Minimal Next.js frontend (single page: query input + results display + citations)
@@ -371,14 +371,12 @@ Deliverables:
 - [ ] README polished with architecture diagram, demo GIF, performance numbers
 - [ ] Loom demo video (3-5 min walkthrough)
 - [ ] Blog post on personal site or Medium: *"Building a Multi-Agent RAG System in .NET 10"*
-- [ ] Companion paper updated with implementation results, posted to arXiv as preprint
-- [ ] AI-200 certification exam scheduled and taken
-- [ ] CV updated with final bullets and live links
+- [ ] Companion paper updated with implementation results, posted as a preprint
 
 Success criteria:
-- A recruiter can read the README in 60 seconds and understand the project
+- A new reader can read the README in 60 seconds and understand the project
 - Demo video shows end-to-end query flow with real output
-- arXiv preprint live with link in CV
+- arXiv preprint live
 
 ---
 
