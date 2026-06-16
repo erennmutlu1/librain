@@ -34,11 +34,11 @@ These choices are **final**. Do not propose alternatives during implementation.
 | API docs UI | **Scalar.AspNetCore** on top of `Microsoft.AspNetCore.OpenApi` | Native fit with .NET 10's built-in OpenAPI support; modern alternative to Swashbuckle; polished UI for the demo |
 | LLM (reasoning) | **Anthropic Claude** via `Anthropic.SDK` NuGet | Developer already familiar; high-quality reasoning; cheap with Haiku |
 | LLM (embeddings) | **OpenAI `text-embedding-3-small`** via official SDK | Anthropic doesn't ship embeddings; this model is industry-standard, cheap |
-| Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions, AI-200 syllabus alignment |
+| Orchestration patterns | **Microsoft Semantic Kernel** | Microsoft-blessed agent abstractions |
 | Vector store (dev) | **Qdrant** via local Docker | Zero-cost MVP iteration; works on Apple Silicon; no Azure subscription required |
 | Vector store (production hosting) | **Qdrant Cloud free tier** (AWS Frankfurt; 0.5 vCPU, 1 GB RAM, 4 GB disk) | Same vector engine as local development; 218-chunk corpus well within the 250K-vector free-tier ceiling; auto-selected via `Qdrant:ApiKey` presence in user-secrets. Azure Cosmos DB target was retired post-Phase 2.5 after the local-vs-cloud parity removed the only reason to migrate. |
 | PDF parsing | **PdfPig** | Pure managed, no native deps, works on Apple Silicon. NuGet ID is now `PdfPig` (formerly `UglyToad.PdfPig`; same library, same maintainers, same repo: github.com/UglyToad/PdfPig) |
-| Observability | **Application Insights** + structured logging | Azure native, zero-config, AI-200 aligned |
+| Observability | **Application Insights** + structured logging | Azure native, zero-config |
 | Secrets (dev) | **`dotnet user-secrets`** | No secrets in repo, no extra service |
 | Hosting (later) | **Azure Container Apps** | Serverless containers, scale-to-zero, low cost |
 
@@ -49,7 +49,7 @@ These choices are **final**. Do not propose alternatives during implementation.
 - **MediatR, AutoMapper, FluentValidation**: premature abstraction for a 3-month MVP.
 - **Cosmos emulator on macOS ARM**: unstable. The original "no Docker for local dev" rule was Cosmos-emulator-specific; Qdrant's ARM image is stable and is the dev vector store.
 - **Azure Cosmos DB** (production target): retired post-Phase 2.5. The original macOS-emulator pivot moved development off Cosmos; the Qdrant Cloud free tier then closed the cost gap in production, leaving no remaining reason to migrate back.
-- **gRPC, GraphQL** (for the public HTTP API): REST + JSON is sufficient and recruiter-readable. Internally, the Qdrant client uses gRPC; that's an implementation detail.
+- **gRPC, GraphQL** (for the public HTTP API): REST + JSON is sufficient and easy to read. Internally, the Qdrant client uses gRPC; that's an implementation detail.
 
 ---
 
@@ -409,7 +409,7 @@ The MVP is **done** when all of these are true:
 - [ ] README has: architecture diagram, demo GIF, tech stack, performance numbers, paper link
 - [ ] Blog post published
 - [ ] Repository is clean: no commented-out code, no `TODO`s, README is current
-- [ ] CV updated with real numbers (chunk count, latency, hallucination delta)
+- [ ] README and paper updated with real numbers (chunk count, latency, hallucination delta)
 
 If any of these is missing, the project is not done, regardless of how much code exists.
 
@@ -441,7 +441,7 @@ These are explicitly **deferred**, listed only to prevent scope creep:
 - Auth (OAuth/JWT)
 - CI/CD beyond GitHub Actions for build verification
 
-If recruiters ask "what would you do next", these are the answers.
+These are the natural "what would you do next" extensions.
 
 ---
 
@@ -451,7 +451,6 @@ If recruiters ask "what would you do next", these are the answers.
 - Microsoft Semantic Kernel docs: https://learn.microsoft.com/semantic-kernel
 - Anthropic API reference: https://docs.claude.com/en/api
 - Qdrant Cloud documentation: https://qdrant.tech/documentation/cloud/
-- AI-200 study guide: https://learn.microsoft.com/credentials/certifications/ai-200
 
 ---
 
