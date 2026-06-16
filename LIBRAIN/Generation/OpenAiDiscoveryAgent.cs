@@ -105,8 +105,8 @@ public sealed class OpenAiDiscoveryAgent(
 
         // Generation (OpenAI JSON).
         var (text, _, _) = await _openai.CompleteAsync(DiscoverySystem, BuildSourcesPrompt(topicA, topicB, dedup), model, 0.2f, ct).ConfigureAwait(false);
-        var input = NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js)
-            : throw new InvalidOperationException($"OpenAI discovery returned no JSON object (correlationId={corrId}).");
+        var input = (NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js) : null)
+            ?? throw new InvalidOperationException($"OpenAI discovery returned no JSON object (correlationId={corrId}).");
 
         var hypothesis = input["hypothesis"]?.GetValue<string>()
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId}).");
