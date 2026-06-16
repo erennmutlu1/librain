@@ -1,0 +1,185 @@
+{
+  "batch": 3,
+  "key": [
+    {
+      "output_id": "31",
+      "pair_id": "pair-11",
+      "position": "A",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "32",
+      "pair_id": "pair-11",
+      "position": "B",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "33",
+      "pair_id": "pair-11",
+      "position": "C",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "34",
+      "pair_id": "pair-12",
+      "position": "A",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "35",
+      "pair_id": "pair-12",
+      "position": "B",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "36",
+      "pair_id": "pair-12",
+      "position": "C",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "37",
+      "pair_id": "pair-13",
+      "position": "A",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "38",
+      "pair_id": "pair-13",
+      "position": "B",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "39",
+      "pair_id": "pair-13",
+      "position": "C",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "40",
+      "pair_id": "pair-14",
+      "position": "A",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "41",
+      "pair_id": "pair-14",
+      "position": "B",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "42",
+      "pair_id": "pair-14",
+      "position": "C",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "43",
+      "pair_id": "pair-15",
+      "position": "A",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "44",
+      "pair_id": "pair-15",
+      "position": "B",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "45",
+      "pair_id": "pair-15",
+      "position": "C",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "46",
+      "pair_id": "pair-16",
+      "position": "A",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "47",
+      "pair_id": "pair-16",
+      "position": "B",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "48",
+      "pair_id": "pair-16",
+      "position": "C",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "49",
+      "pair_id": "pair-17",
+      "position": "A",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "50",
+      "pair_id": "pair-17",
+      "position": "B",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "51",
+      "pair_id": "pair-17",
+      "position": "C",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "52",
+      "pair_id": "pair-18",
+      "position": "A",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "53",
+      "pair_id": "pair-18",
+      "position": "B",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "54",
+      "pair_id": "pair-18",
+      "position": "C",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "55",
+      "pair_id": "pair-19",
+      "position": "A",
+      "system": "Single-LLM"
+    },
+    {
+      "output_id": "56",
+      "pair_id": "pair-19",
+      "position": "B",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "57",
+      "pair_id": "pair-19",
+      "position": "C",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "58",
+      "pair_id": "pair-20",
+      "position": "A",
+      "system": "Naive-RAG"
+    },
+    {
+      "output_id": "59",
+      "pair_id": "pair-20",
+      "position": "B",
+      "system": "LIBRAIN-with-fix"
+    },
+    {
+      "output_id": "60",
+      "pair_id": "pair-20",
+      "position": "C",
+      "system": "Single-LLM"
+    }
+  ]
+}

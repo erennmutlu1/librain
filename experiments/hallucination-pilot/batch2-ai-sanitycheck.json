@@ -1,0 +1,35 @@
+{
+  "_provenance": "Claude consolidated expert analysis. NOT human-rater data. Single AI assessment for calibration/sanity-check; correlates with the LLM-as-judge and is a weak proxy for human judgment. Must not be reported as rater scores or written into ratings-rater*.csv.",
+  "batch": 2,
+  "scale": { "novelty": "1-5", "plausibility": "1-5", "hallucination": "0 or 1" },
+  "assessments": [
+    { "output_id": "16", "novelty": 2, "plausibility": 4, "hallucination": 0, "reasoning": "Broad review-abstract synthesis; no sharp novel claim but everything stated is sound." },
+    { "output_id": "17", "novelty": 3, "plausibility": 3, "hallucination": 0, "reasoning": "Real-time autonomous protocol adaptation is sharper; 'without pre-specified interim analyses' is fraught for inferential validity/regulation, lowering plausibility. 'Seven-plus-year' is accurate." },
+    { "output_id": "18", "novelty": 3, "plausibility": 4, "hallucination": 0, "reasoning": "Similar to 17 but explicitly recognizes the pre-specification vs inferential-validity tension; well reasoned." },
+    { "output_id": "19", "novelty": 3, "plausibility": 3, "hallucination": 0, "reasoning": "Concrete integration, but Pangu/GraphCast are ~0.25deg (~25km) global; 'high-resolution, field-scale inputs' overstates their resolution. Borderline on the resolution overclaim." },
+    { "output_id": "20", "novelty": 2, "plausibility": 4, "hallucination": 0, "reasoning": "Expected and testable; flat." },
+    { "output_id": "21", "novelty": 2, "plausibility": 2, "hallucination": 1, "reasoning": "'Already surpassed NWP across all weather variables and time ranges' is a factual overclaim; DL models do not beat NWP on every variable/horizon (precipitation, extremes contested; still NWP-initialized)." },
+    { "output_id": "22", "novelty": 3, "plausibility": 3, "hallucination": 0, "reasoning": "Carbon-footprint paradox is interesting but the trade-off magnitude is quantitatively doubtful (inference carbon is small vs adaptation-policy impact)." },
+    { "output_id": "23", "novelty": 2, "plausibility": 3, "hallucination": 1, "reasoning": "GraphCast is a GNN and Aurora a weather foundation model; calling them 'LLM-based architectures originally developed for NLP' is a category error / architecture mischaracterization." },
+    { "output_id": "24", "novelty": 4, "plausibility": 3, "hallucination": 0, "reasoning": "Strongest bridge: transferring PEFT/LoRA continual fine-tuning to non-stationary climate is specific and non-obvious. 'Self-updating sentinels' is grand and forgetting risk is real, but the core idea is sound." },
+    { "output_id": "25", "novelty": 3, "plausibility": 3, "hallucination": 0, "reasoning": "Consistent with the Centaur/Psych-101 line; in-silico curriculum/power analysis is specific. LLM-as-human-surrogate validity is contested." },
+    { "output_id": "26", "novelty": 2, "plausibility": 3, "hallucination": 0, "reasoning": "Curriculum learning is established; 'will show faster convergence + superior generalization' is stronger than the LLM-pretraining evidence supports (mixed)." },
+    { "output_id": "27", "novelty": 4, "plausibility": 2, "hallucination": 0, "reasoning": "Emergent staged/curriculum-like internal representations + 'generative model of individual learners' is creative and specific, but empirical support is thin and the final step is a large leap." },
+    { "output_id": "28", "novelty": 4, "plausibility": 2, "hallucination": 0, "reasoning": "Very creative (hypothesis generation over decoded neural states; quality scoring over latent embeddings). But decoding cognitive states well enough to ground hypotheses is far beyond current BCI; explicitly speculative so H0." },
+    { "output_id": "29", "novelty": 2, "plausibility": 4, "hallucination": 0, "reasoning": "Broad, hedged, abstract-style; not specific but not implausible." },
+    { "output_id": "30", "novelty": 3, "plausibility": 2, "hallucination": 0, "reasoning": "'Inherently better + more scientifically plausible because relational structure not statistical co-occurrence' is a strong but largely unsupported theoretical claim; hand-wavy." }
+  ],
+  "_sanity_summary": {
+    "note": "AI-only calibration, derived by joining the assessments above with batch2-unblind-key.json. NOT a result, NOT rater data. n=5 per system. The AI judge is the same family as the LLM-as-judge so it compresses LIBRAIN's advantage; real human raters are expected to show a larger novelty gap.",
+    "per_system_means": {
+      "LIBRAIN-with-fix": { "novelty": 3.6, "plausibility": 2.6, "hallucination_flags": "0/5" },
+      "Naive-RAG": { "novelty": 2.2, "plausibility": 3.2, "hallucination_flags": "2/5" },
+      "Single-LLM": { "novelty": 2.6, "plausibility": 3.2, "hallucination_flags": "0/5" }
+    },
+    "hallucination_flagged_outputs": [
+      { "output_id": "21", "system": "Naive-RAG", "issue": "factual overclaim: DL surpassed NWP on all variables and time ranges" },
+      { "output_id": "23", "system": "Naive-RAG", "issue": "architecture mischaracterization: GraphCast/Aurora called LLMs from NLP" }
+    ],
+    "direction_check": "Matches the paper's pattern: LIBRAIN leads novelty, trades plausibility, holds hallucination at 0 after the claim-validation fix. Hypothesis to confirm with humans: the unconstrained Naive-RAG baseline shows grounded-claim factual hallucinations that LIBRAIN avoids."
+  }
+}

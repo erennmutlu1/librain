@@ -1,0 +1,10 @@
+metric,system,batch1,batch2,combined_n30
+novelty,LIBRAIN,4.53,4.4,4.47
+novelty,Naive-RAG,1.6,2.0,1.8
+novelty,Single-LLM,2.13,2.8,2.47
+plausibility,LIBRAIN,3.27,3.73,3.5
+plausibility,Naive-RAG,4.47,3.8,4.13
+plausibility,Single-LLM,4.13,4.2,4.17
+hallucination_flags,LIBRAIN,0/15,0/15,0/30
+hallucination_flags,Naive-RAG,0/15,3/15,3/30
+hallucination_flags,Single-LLM,0/15,0/15,0/30

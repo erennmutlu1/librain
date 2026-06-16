@@ -1,0 +1,16 @@
+output_id,pair_id,position,system
+16,pair-03,A,Naive-RAG
+17,pair-03,B,LIBRAIN-with-fix
+18,pair-03,C,Single-LLM
+19,pair-04,A,LIBRAIN-with-fix
+20,pair-04,B,Single-LLM
+21,pair-04,C,Naive-RAG
+22,pair-05,A,Single-LLM
+23,pair-05,B,Naive-RAG
+24,pair-05,C,LIBRAIN-with-fix
+25,pair-07,A,Naive-RAG
+26,pair-07,B,Single-LLM
+27,pair-07,C,LIBRAIN-with-fix
+28,pair-08,A,LIBRAIN-with-fix
+29,pair-08,B,Naive-RAG
+30,pair-08,C,Single-LLM

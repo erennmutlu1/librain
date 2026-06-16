@@ -1,0 +1,16 @@
+output_id,novelty,plausibility,hallucination,rater_note
+16,2,4,0,A compilation of existing methodologies; academic originality is low.
+17,4,2,0,"Highly innovative, but practical feasibility is very low due to strict FDA/clinical regulation and autonomous-dosing risks."
+18,4,4,0,A strong academic critique focused on how unconstrained autonomy could undermine regulator (FDA/EMA) approval mechanisms.
+19,4,4,0,The thesis that catching extreme weather events with greater lead time reduces agricultural forecast error is valuable.
+20,2,5,0,Almost certainly correct (plausibility 5) but a generic sentence that says nothing new.
+21,2,5,0,"Good situational assessment and full technical accuracy, but barren on producing an academic thesis."
+22,3,4,0,"The paradoxical approach is well constructed philosophically and critically, offering a clear value analysis."
+23,1,2,1,"The basic concepts and taxonomy are entirely wrongly constructed, so this hypothesis is academically invalid."
+24,5,4,0,The self-updating sentinels conceptualization is very successful; the highest-innovation academic hypothesis.
+25,3,4,0,Using LLMs to estimate sample size and power in experimental designs is methodologically meaningful.
+26,3,4,0,A classic projection of cognitive-development theories grounded in Elman (1993) onto LLM training.
+27,4,4,0,The promise of autonomous personalized curricula at mass scale in education science is theoretically consistent and valuable.
+28,5,4,0,Redefines empirically grounded at an epistemological level by shifting from text to latent embeddings; a very visionary thesis topic.
+29,2,4,0,"An entirely generic, noncommittal chain of academic phrases."
+30,4,4,0,A hypothesis with high philosophical and theoretical depth bringing human analogical reasoning closer to neural networks.

@@ -1,0 +1,8 @@
+panel,n_outputs,rater_pair,novelty_spearman,note
+batch1,15,R1-R2,0.805,
+batch1,15,R1-R3,0.8198,
+batch1,15,R2-R3,0.9366,
+batch2,15,R1-R2,1.0,
+batch2,15,R1-R3,0.9429,
+batch2,15,R2-R3,0.9429,
+note,,,,"batch1 uses the AFTER-FIX rater-1 (ratings-template.csv) consistent with the Table 12 pooled means; the two batches are independent rater panels, so agreement is reported within each panel, not pooled by position."

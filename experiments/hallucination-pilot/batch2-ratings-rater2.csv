@@ -1,0 +1,16 @@
+output_id,novelty,plausibility,hallucination,rater_note
+16,2,4,0,"A good synthesis of the existing multimodal patient-data analysis literature, but no scientific breakthrough."
+17,4,4,0,Positioning AI as an autonomous co-investigator is a groundbreaking hypothesis for drug-discovery cycles.
+18,3,4,0,A sound scientific argument examining the balance between autonomy and reproducibility of results.
+19,4,4,0,The hypothesis of global weather models feeding crop models directly as near-real-time input is original and testable.
+20,2,5,0,A shallow linear assumption that better meteorological data yields better predictions.
+21,2,5,0,A summary of the known literature that Pangu and GraphCast surpass NWP models; no new hypothesis.
+22,2,4,0,"The paradox of AI triggering the climate crisis while solving it is a popular, widely covered topic."
+23,1,2,1,Classifying vision/graph-based AI models built for the natural sciences under NLP-origin LLMs is a literature hallucination.
+24,5,4,0,The cross-domain transfer methodology works well. Assimilating non-stationary climate signals without full retraining is a very original idea.
+25,3,4,0,Using models fine-tuned on human cognitive data in simulation is a known research area.
+26,3,4,0,The theory of seeking bidirectional computational principles between artificial and natural systems is not new.
+27,4,4,0,The idea of optimizing representation alignment with hierarchical data structures is original.
+28,5,3,0,A hybrid scientific-discovery engine closing the loop between human cognitive state and autonomous hypothesis generation in real time is extraordinarily innovative.
+29,2,4,0,Contains no testable concrete mechanism or original hypothesis.
+30,3,4,0,The critique that models rely only on statistical co-occurrence is a scientifically valid basis.
