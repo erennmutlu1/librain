@@ -259,7 +259,7 @@ pre-registered tables, do not merge them.
 | Command | What it does | Output |
 |---|---|---|
 | `fabrication-delta --provider openai --model gpt-4o-mini` | RQ3: sweep `{structured,free-text} × {none,aggressive} × {clean,starved}` for Naive-RAG vs the contract; counts fabricated citations (pure C#). Measured delta: **67 vs 0**. | `experiments/fabrication-delta/{results.csv, summary.md}` |
-| `discover-run --provider openai --model gpt-4o [--pairs ...]` | Runs the REAL Discovery pipeline (novelClaim + contract + ClaimValidator + four-axis) on OpenAI across pairs, ranked by quality. Best: GNN×epidemic 0.686. | `experiments/discovery-openai/{ranking.csv, best-examples.md, <pair>.json}` |
+| `discover-run --provider openai --model gpt-4o [--pairs ...]` | Runs the REAL Discovery pipeline (novelClaim + contract + ClaimValidator + four-axis) on OpenAI across pairs, ranked by quality. Best on the gpt-4o grounded-8 run: GNN×epidemic 0.686 (`ranking-gpt4o-grounded8.csv`); best on the default 30-pair `ranking.csv`: time-series×renewable 0.5969. | `experiments/discovery-openai/{ranking.csv, best-examples.md, <pair>.json}` |
 | `score-systems --model gpt-4o-mini` | Re-scores all systems on an OpenAI four-axis judge (judge-substitution; NOT comparable to Haiku Table 7). | `experiments/baseline-comparison/results/openai-judged-*.csv` |
 | `novelty-validation` | Offline: Spearman ρ of cosine novelty vs human novelty (pooled 0.405). | `experiments/novelty-validation/{results.csv, summary.md}` |
 | `human-eval` | Offline: inter-rater agreement (Cohen/Fleiss/Krippendorff) from the rater CSVs, zero-variance-safe. | `experiments/human-eval/agreement.csv` |

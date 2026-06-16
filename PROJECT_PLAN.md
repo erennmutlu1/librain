@@ -221,7 +221,7 @@ Cited excerpts: {excerpts}
 Output strict JSON: { "plausibility": N, "novelty": N, "clarity": N, "reasoning": "..." }
 ```
 
-Both prompts use **temperature 0.3 for synthesis, 0.1 for evaluation**. Lock these in code, do not parametrize until MVP works.
+Both prompts use **temperature 0.2 for synthesis, 0.0 for evaluation** (the shipped values; an earlier draft of this plan said 0.3 / 0.1). Lock these in code, do not parametrize until MVP works.
 
 ### 4.4 Citation Tracking
 
