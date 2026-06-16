@@ -11,7 +11,7 @@ tags:
   - .NET
 authors:
   - name: Eren Mutlu
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0003-1888-4035
     affiliation: 1
 affiliations:
   - name: Independent Researcher

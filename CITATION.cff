@@ -16,6 +16,7 @@ authors:
     given-names: Eren
     email: erennmutlu@outlook.com
     affiliation: Independent Researcher
+    orcid: "https://orcid.org/0009-0003-1888-4035"
 license: MIT
 repository-code: "https://github.com/erennmutlu1/librain"
 version: "1.0.0"
