@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Build and test (no API keys required)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore LIBRAIN.sln
+
+      - name: Build
+        run: dotnet build LIBRAIN.sln --no-restore --nologo
+
+      - name: Test (offline, no Anthropic/OpenAI/Qdrant keys)
+        run: dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj --no-build --nologo

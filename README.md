@@ -6,6 +6,7 @@
 ![Anthropic](https://img.shields.io/badge/Anthropic-Claude-D97757)
 ![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/erennmutlu1/librain/actions/workflows/ci.yml/badge.svg)
 ![Status](https://img.shields.io/badge/status-Phase%203.A.5%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
@@ -92,6 +93,27 @@ A single-rater blinded pilot in Phase 3.A flagged 3 of 5 LIBRAIN outputs for fac
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
 | Hosting | Azure Container Apps (API), Azure Static Web Apps (frontend) |
+
+---
+
+## Verify without API keys
+
+The full ingest, synthesis, and discovery pipeline needs an Anthropic key, an OpenAI key, and a Qdrant instance (see [Quick Start](#quick-start) below). Everything else verifies offline, with no keys and no network:
+
+```bash
+# 1. Install the .NET 10 SDK (free): https://dotnet.microsoft.com
+# 2. Build (no keys needed)
+dotnet build LIBRAIN.sln
+
+# 3. Run the full unit-test suite (81 tests, fully offline, no keys / network / Qdrant)
+dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj
+
+# 4. Reproduce the paper numbers from committed result data (offline)
+dotnet run --project LIBRAIN.Experiments -- analyze       # per-system descriptives + Spearman rho
+dotnet run --project LIBRAIN.Experiments -- human-eval    # inter-rater agreement
+```
+
+The 81 tests cover the load-bearing pure logic (chunking, citation validation, scoring, claim validation, fabrication counting, inter-rater agreement). They instantiate no API clients and make no network calls, so they pass on a clean checkout with only the .NET 10 SDK installed. CI runs the same build and test on every push.
 
 ---
 
@@ -285,6 +307,12 @@ librain/
 - Website: [erenmutlu.me](https://erenmutlu.me)
 - LinkedIn: [linkedin.com/in/erennmutlu](https://linkedin.com/in/erennmutlu)
 - Email: erennmutlu@outlook.com
+
+---
+
+## How to cite
+
+If you use LIBRAIN in your work, please cite it using the metadata in [`CITATION.cff`](CITATION.cff) (GitHub renders a "Cite this repository" button from it), or reference the companion paper ([`docs/architecture.pdf`](docs/architecture.pdf)).
 
 ---
 
