@@ -54,6 +54,21 @@ LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-
 
 ---
 
+## Reuse
+
+LIBRAIN is built to be used and extended, not only read:
+
+- **Run it on your own corpus.** Drop your PDFs into `data/papers/`, ingest, and get citation-grounded synthesis or cross-domain Discovery hypotheses over your own literature. No code changes needed.
+- **Reuse the auditable-RAG components.** The structural citation-validation contract, the `novelClaim` speculation fence, the per-sentence `ClaimValidatorAgent`, the deterministic `RecursiveChunker`, the UUIDv5 chunk-id scheme, and the correlation-ID audit layer are independent pieces you can lift into other .NET RAG systems.
+- **Swap the model without touching code.** Set `Models:SynthesisModel` to run model-substitution studies (for example Sonnet vs Haiku) on the same pipeline.
+- **Benchmark your own RAG variant.** The three-system harness (LIBRAIN, Naive-RAG, Single-LLM) plus the experiment CLI scores any configuration on the same four-axis rubric, so you can drop in a new system and compare on equal footing.
+- **Reuse the evaluation helpers.** The scoring, novelty, fabrication-counting, and inter-rater-agreement functions are pure, dependency-free, and unit-tested, so they work on outputs from other systems.
+- **Reproduce or extend the study.** Committed result data plus the CLI reproduce the companion paper's numbers offline; add topic pairs or a larger corpus to extend it.
+
+See [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) for the full command reference.
+
+---
+
 ## Why This Project
 
 Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Anthropic's official .NET SDK. It's a deliberate counter-example to the "AI = Python only" assumption.
