@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use LIBRAIN in your work, please cite it as below."
+title: "LIBRAIN: A Multi-Agent RAG System for Scientific Discovery"
+abstract: >-
+  LIBRAIN is an open-source, auditable multi-agent retrieval-augmented
+  generation system for scientific hypothesis discovery, built on .NET 10.
+  It ingests arXiv PDFs into a Qdrant vector index and runs three pipelines:
+  citation-grounded synthesis, an extrapolative Discovery Mode that fences
+  speculative content into a labelled novelClaim field, and two ablation
+  baselines. A structural citation-validation contract guarantees zero
+  fabricated chunk references by construction, and every stage emits
+  correlation-ID-keyed audit events.
+type: software
+authors:
+  - family-names: Mutlu
+    given-names: Eren
+    email: erennmutlu@outlook.com
+    affiliation: Independent Researcher
+license: MIT
+repository-code: "https://github.com/erennmutlu1/librain"
+version: "1.0.0"
+date-released: "2026-06-16"
+keywords:
+  - retrieval-augmented generation
+  - multi-agent systems
+  - scientific discovery
+  - hypothesis generation
+  - LLM-as-a-judge
+  - citation grounding
+  - observability
+  - .NET
