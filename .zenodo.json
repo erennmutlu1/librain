@@ -1,0 +1,32 @@
+{
+  "title": "LIBRAIN: A Multi-Agent RAG System for Scientific Discovery",
+  "description": "LIBRAIN is a multi-agent retrieval-augmented generation (RAG) system for scientific discovery, built on .NET 10. It coordinates Reader, Synthesis, Evaluator, and Discovery agents under a cross-cutting, correlation-ID audit layer. A Discovery Mode fences speculative content into a structured novelClaim field, and a citation-validation contract guarantees that every cited chunk resolves to a real retrieved document, giving zero fabricated references by construction. Generated hypotheses are scored on a four-axis rubric (novelty, plausibility, coherence, quality). The repository contains the full implementation, the evaluation harness, and reproducibility material.",
+  "upload_type": "software",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Mutlu, Eren",
+      "affiliation": "Independent Researcher",
+      "orcid": "0009-0003-1888-4035"
+    }
+  ],
+  "keywords": [
+    "retrieval-augmented generation",
+    "multi-agent systems",
+    "scientific discovery",
+    "hypothesis generation",
+    "citation grounding",
+    "LLM-as-a-judge",
+    "RAG",
+    ".NET",
+    "auditability",
+    "vector search"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "10.5281/zenodo.20745782",
+      "resource_type": "publication-preprint"
+    }
+  ]
+}

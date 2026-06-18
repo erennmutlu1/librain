@@ -30,3 +30,17 @@ keywords:
   - citation grounding
   - observability
   - .NET
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20745782
+    description: Companion paper archived on Zenodo.
+preferred-citation:
+  type: article
+  title: "LIBRAIN: A Multi-Agent RAG System for Scientific Discovery"
+  authors:
+    - family-names: Mutlu
+      given-names: Eren
+      orcid: "https://orcid.org/0009-0003-1888-4035"
+  year: 2026
+  doi: 10.5281/zenodo.20745782
+  url: "https://doi.org/10.5281/zenodo.20745782"

@@ -7,6 +7,7 @@
 ![Qdrant](https://img.shields.io/badge/Vector%20Store-Qdrant-DC382D)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/erennmutlu1/librain/actions/workflows/ci.yml/badge.svg)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20745782.svg)](https://doi.org/10.5281/zenodo.20745782)
 ![Status](https://img.shields.io/badge/status-Phase%203.A.5%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
@@ -327,7 +328,24 @@ librain/
 
 ## How to cite
 
-If you use LIBRAIN in your work, please cite it using the metadata in [`CITATION.cff`](CITATION.cff) (GitHub renders a "Cite this repository" button from it), or reference the companion paper ([`docs/architecture.pdf`](docs/architecture.pdf)).
+If you use LIBRAIN in your work, please cite the companion paper, archived on Zenodo with DOI [10.5281/zenodo.20745782](https://doi.org/10.5281/zenodo.20745782):
+
+> Mutlu, E. (2026). LIBRAIN: A Multi-Agent RAG System for Scientific Discovery. Zenodo. https://doi.org/10.5281/zenodo.20745782
+
+BibTeX:
+
+```bibtex
+@misc{mutlu2026librain,
+  author    = {Mutlu, Eren},
+  title     = {{LIBRAIN: A Multi-Agent RAG System for Scientific Discovery}},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.20745782},
+  url       = {https://doi.org/10.5281/zenodo.20745782}
+}
+```
+
+GitHub also renders a "Cite this repository" button from [`CITATION.cff`](CITATION.cff).
 
 ---
 
