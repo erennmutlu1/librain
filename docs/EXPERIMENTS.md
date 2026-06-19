@@ -203,7 +203,7 @@ dependency.
 
 No API calls. Stages the 5 human-eval pairs across three conditions
 (`librain-with-fix`, `naive-rag`, `single-llm`) for rater re-scoring under
-the Aşama A1 + A2 changes.
+the Phase A1 + A2 changes.
 
 **Args**
 

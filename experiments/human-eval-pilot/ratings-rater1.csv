@@ -1,16 +1,16 @@
 output_id,novelty,plausibility,hallucination,rater_note
-01,4,3,1,"EEG verisiyle gerçek zamanlı ilaç hedeflemesi oldukça spekülatif"
-02,2,5,0,"Standart LLM kullanımı"
+01,4,3,1,"Real-time drug targeting from EEG data is quite speculative"
+02,2,5,0,"Standard LLM usage"
 03,2,5,0,
-04,3,4,0,"RAG ile moleküler tasarım orta seviye yenilikçi"
+04,3,4,0,"Molecular design with RAG is moderately novel"
 05,4,4,0,
 06,2,5,0,
-07,2,5,0,"Hava durumu modellerinin enerji planlamasında kullanımı"
+07,2,5,0,"Use of weather models in energy planning"
 08,2,5,0,
 09,3,4,0,
-10,4,3,1,"Hava tahmini algoritmalarının protein katlanmasına transferi deneysel bir iddia"
+10,4,3,1,"Transferring weather-forecasting algorithms to protein folding is an experimental claim"
 11,3,4,0,
 12,2,5,0,
-13,4,4,0,"Çok etmenli sistemlerin çapraz disiplinli başarısı"
-14,5,3,1,"İklim odaklı ilaç keşfi döngüsü oldukça ileri bir fikir"
+13,4,4,0,"Cross-disciplinary success of multi-agent systems"
+14,5,3,1,"A climate-focused drug-discovery loop is quite an advanced idea"
 15,2,5,0,

@@ -94,6 +94,8 @@ An early `noveltyTarget` request parameter was wired into the Discovery Agent's 
 
 A single-rater blinded pilot in Phase 3.A flagged 3 of 5 LIBRAIN outputs for factual hallucination inside `novelClaim` text. The flagged content sat in the speculative body of the hypothesis, not in the citations, so the existing citation-validation contract did not catch it by construction. Phase 3.A.5 added a per-sentence `ClaimValidatorAgent` that labels each `novelClaim` sentence `GROUNDED`, `EXTRAPOLATED`, or `RISKY` with a hallucination probability, aggregated halo-resistant via the max rule in C#. The AFTER-FIX rerun under the same blinded protocol moved the flag count from 3 of 5 to 0 of 5, with `novelClaim` novelty rising from 4.00 to 4.40 on the rater's 1-to-5 scale.
 
+That pilot was then extended to a full replication: two independent blinded three-rater panels covering 30 outputs in total (n=30). Pooled across both panels, LIBRAIN and Single-LLM drew zero rater-flagged hallucinations (0/30 each) against a Naive-RAG baseline that drew three (3/30, all on a single output that described a graph-neural-network weather model as an LLM), and pooled `novelClaim` novelty was LIBRAIN 4.47, Naive-RAG 1.80, Single-LLM 2.47 on the 1-to-5 scale. The per-rater scores and the pooled summary are committed under `experiments/hallucination-pilot/` (`batch2-ratings-rater{1,2,3}.csv`, `batch2-unblind-key.csv`, `combined-n30-per-system.csv`, `combined-n30-interrater.csv`); novelty inter-rater agreement is reported within each panel (Spearman 0.81 to 0.94), not pooled by position, because the panels are independent.
+
 ---
 
 ## Tech Stack
@@ -206,7 +208,8 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Phase 3.A**: Three-system baseline (`NaiveRagAgent`, `SingleLlmAgent`), claim-level validation (`extrapolation_basis` + `ClaimValidatorAgent`), prompt caching across all agents, parallelized scoring (`Task.WhenAll`), `LIBRAIN.Experiments` CLI for paper reproduction (May 2026)
 - [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over a 5-paper weather/energy slice (the PDFs present at run time); citation contract holds (zero fabricated citations) across every configuration
 - [x] **RQ3 measured benefit + cross-family port**: free-text/starved fabrication-delta (Naive-RAG 67 fabricated vs LIBRAIN 0); the full Discovery pipeline ported to OpenAI (`provider=openai`, gpt-4o) with provider routing; corpus scaled to 41 papers / 30 pairs; novelty-metric validation (ρ=0.41) + in-code inter-rater agreement (Cohen/Fleiss/Krippendorff). Anthropic-judged tables unchanged.
-- [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming, two-rater human eval follow-up
+- [x] **Two-panel human eval (n=30)**: a second blinded three-rater panel extends the AFTER-FIX pilot to 30 outputs (LIBRAIN 0/30 vs Naive-RAG 3/30 hallucination flags; pooled novelClaim novelty 4.47 / 1.80 / 2.47), committed under `experiments/hallucination-pilot/combined-n30-*.csv`
+- [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
@@ -274,7 +277,7 @@ scripts/cross-run-study.sh --runs 5                              # ~$0.40 · ~5 
 
 Anthropic prompt caching (auto-enabled across all agents) means the second pair onward in each run reuses ~80% of the system + tool prefix tokens, so the dollar figures above are upper bounds rather than typical.
 
-The human-eval rater 1 CSV and unblind key are already committed (`experiments/human-eval-pilot/`), so step 3 reproduces the companion paper's per-system descriptives (`LIBRAIN 4.00/3.40/3-of-5, Naive-RAG 2.40/4.80/0, Single-LLM 2.40/4.60/0`) without any API calls.
+The human-eval rater 1 CSV and unblind key are already committed (`experiments/human-eval-pilot/`), so step 3 reproduces the companion paper's per-system descriptives (`LIBRAIN 4.00/3.40/3-of-5, Naive-RAG 2.40/4.80/0, Single-LLM 2.40/4.60/0`) without any API calls. The full two-panel n=30 replication is committed as well (all three raters per panel plus `combined-n30-per-system.csv`), so the pooled n=30 descriptives are verifiable offline directly from the raw ratings.
 
 ---
 
@@ -304,7 +307,7 @@ librain/
 │   ├── phase-b/results/
 │   ├── baseline-comparison/results/{librain,naive-rag,single-llm}/
 │   ├── human-eval-pilot/        # rater 1 data, rubric, unblind key
-│   ├── hallucination-pilot/     # Phase 3.A.5 RQ4 re-scoring artifacts
+│   ├── hallucination-pilot/     # Phase 3.A.5 RQ4 re-scoring + two-panel n=30 human eval (batch2 + combined-n30-*.csv)
 │   └── robustness/              # §7.10 topK/model-swap/adversarial sweep outputs
 ├── scripts/
 │   └── cross-run-study.sh       # Phase 2.5 N=5 consistency study
