@@ -42,6 +42,7 @@ public static class QueryEndpoints
         IPaperStore repo,
         SynthesisAgent synth,
         EvaluatorAgent eval,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -93,7 +94,7 @@ public static class QueryEndpoints
                 evaluation.QualityScore,
                 sw.ElapsedMilliseconds);
 
-            return Results.Ok(new QueryResponse(
+            var response = new QueryResponse(
                 CorrelationId: correlationId,
                 Hypothesis: synthesis.Hypothesis,
                 Citations: synthesis.Citations,
@@ -105,7 +106,10 @@ public static class QueryEndpoints
                     CompletenessScore: evaluation.CompletenessScore,
                     Critique: evaluation.Critique,
                     UnsupportedClaims: evaluation.UnsupportedClaims,
-                    MissingEvidence: evaluation.MissingEvidence)));
+                    MissingEvidence: evaluation.MissingEvidence));
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.Query, req.Query.Trim(), evaluation.QualityScore, req, response, CancellationToken.None);
+            return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

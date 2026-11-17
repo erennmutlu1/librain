@@ -73,6 +73,13 @@ builder.Services.AddScoped<LIBRAIN.Generation.OpenAiDiscoveryAgent>();
 // when two first requests each ran it from their own scoped instance.
 builder.Services.AddSingleton<IPaperStore, QdrantPaperRepository>();
 builder.Services.AddScoped<LIBRAIN.Retrieval.TopicRetriever>();
+builder.Services.Configure<LIBRAIN.Runs.RunStoreOptions>(builder.Configuration.GetSection(LIBRAIN.Runs.RunStoreOptions.SectionName));
+builder.Services.AddSingleton<LIBRAIN.Runs.IRunStore>(sp =>
+{
+    var path = sp.GetRequiredService<IOptions<LIBRAIN.Runs.RunStoreOptions>>().Value.DatabasePath;
+    return new LIBRAIN.Runs.SqliteRunStore(Path.IsPathRooted(path) ? path : Path.Combine(builder.Environment.ContentRootPath, path));
+});
+builder.Services.AddSingleton<LIBRAIN.Runs.RunRecorder>();
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
@@ -99,6 +106,7 @@ app.UseHttpsRedirection();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapPaperEndpoints();
+app.MapRunEndpoints();
 app.MapQueryEndpoints();
 app.MapDiscoveryEndpoints();
 app.MapBaselineEndpoints();

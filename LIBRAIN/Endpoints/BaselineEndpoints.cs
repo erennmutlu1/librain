@@ -47,6 +47,7 @@ public static class BaselineEndpoints
     private static async Task<IResult> HandleSingleLlmAsync(
         SingleLlmRequest req,
         SingleLlmAgent agent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -76,13 +77,16 @@ public static class BaselineEndpoints
                 "Single-LLM endpoint complete: quality={Quality:F4} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, sw.ElapsedMilliseconds, result.CorrelationId);
 
-            return Results.Ok(new SingleLlmResponse(
+            var response = new SingleLlmResponse(
                 CorrelationId: result.CorrelationId,
                 Hypothesis: result.Hypothesis,
                 Evaluation: result.Evaluation,
                 TotalElapsedMs: result.TotalElapsedMs,
                 InputTokens: result.InputTokens,
-                OutputTokens: result.OutputTokens));
+                OutputTokens: result.OutputTokens);
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.SingleLlm, LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), result.Evaluation.QualityScore, req, response, CancellationToken.None);
+            return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -99,6 +103,7 @@ public static class BaselineEndpoints
     private static async Task<IResult> HandleNaiveRagAsync(
         NaiveRagRequest req,
         NaiveRagAgent agent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -138,7 +143,7 @@ public static class BaselineEndpoints
                 result.Evaluation.QualityScore, result.FabricatedCitationCount, result.ClaimedCitations.Count,
                 sw.ElapsedMilliseconds, result.CorrelationId);
 
-            return Results.Ok(new NaiveRagResponse(
+            var response = new NaiveRagResponse(
                 CorrelationId: result.CorrelationId,
                 Hypothesis: result.Hypothesis,
                 RetrievedChunkCount: result.RetrievedChunkCount,
@@ -147,7 +152,10 @@ public static class BaselineEndpoints
                 Evaluation: result.Evaluation,
                 TotalElapsedMs: result.TotalElapsedMs,
                 InputTokens: result.InputTokens,
-                OutputTokens: result.OutputTokens));
+                OutputTokens: result.OutputTokens);
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.NaiveRag, LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), result.Evaluation.QualityScore, req, response, CancellationToken.None);
+            return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

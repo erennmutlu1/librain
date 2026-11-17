@@ -11,6 +11,7 @@
     <PackageReference Include="Anthropic.SDK" Version="5.10.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.15" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
     <PackageReference Include="OpenAI" Version="2.10.0" />
     <!-- Pin to override vulnerable transitive (1.15.1, GHSA-g94r-2vxg-569j) from App Insights 3.1.0; remove when App Insights ships a patched build. -->

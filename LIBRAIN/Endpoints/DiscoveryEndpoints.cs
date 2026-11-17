@@ -71,6 +71,7 @@ public static class DiscoveryEndpoints
         DiscoverRequest req,
         DiscoveryAgent agent,
         LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -110,6 +111,10 @@ public static class DiscoveryEndpoints
                 topK,
                 sw.ElapsedMilliseconds);
 
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.Discover,
+                LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), response.Evaluation.QualityScore,
+                normalized, response, CancellationToken.None);
             return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

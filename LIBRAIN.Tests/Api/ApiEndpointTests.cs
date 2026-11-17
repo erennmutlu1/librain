@@ -28,10 +28,21 @@ public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.Dis
     public FakePaperStore Store { get; } = new(DiscoveryPipelineFixtures.HitsA, DiscoveryPipelineFixtures.HitsB);
     public FakeArxivHandler Arxiv { get; } = new();
 
+    // Per-factory throwaway run database, never inside the repo.
+    public string RunsDb { get; } = Path.Combine(Path.GetTempPath(), $"librain-runs-{Guid.NewGuid():N}.db");
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+        foreach (var f in new[] { RunsDb, RunsDb + "-shm", RunsDb + "-wal" }) if (File.Exists(f)) File.Delete(f);
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("OpenAI:ApiKey", "test-not-used");
         builder.UseSetting("Qdrant:Host", "localhost");
+        builder.UseSetting("Runs:DatabasePath", RunsDb);
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<ILlmClient>();

@@ -498,3 +498,8 @@ LIBRAIN/docs/
 
 # LIBRAIN — JAIR revision drafts (private; consolidated into a single off-repo pack)
 docs/jair-revision/
+
+# LIBRAIN run history (SQLite)
+**/data/*.db
+**/data/*.db-shm
+**/data/*.db-wal
