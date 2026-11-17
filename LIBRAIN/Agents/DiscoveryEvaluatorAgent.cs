@@ -75,7 +75,7 @@ public sealed class DiscoveryEvaluatorAgent(
             System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
             Tools = new List<AnthropicTool> { SubmitDiscoveryEvaluationTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery_evaluation" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
@@ -97,11 +97,11 @@ public sealed class DiscoveryEvaluatorAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             "Discovery evaluator tool use block had null input.");
 
-        var rawP = input["plausibility"]?.GetValue<double>();
-        var rawC = input["structural_coherence"]?.GetValue<double>();
+        var rawP = LlmJson.GetDouble(input["plausibility"]);
+        var rawC = LlmJson.GetDouble(input["structural_coherence"]);
 
-        var plausibility = EvaluationScoring.Clamp01(rawP);
-        var structuralCoherence = EvaluationScoring.Clamp01(rawC);
+        var plausibility = EvaluationScoring.RequireScore(rawP, "plausibility");
+        var structuralCoherence = EvaluationScoring.RequireScore(rawC, "structural_coherence");
 
         int clamped = 0;
         if (IsOutOfBand(rawP)) clamped++;
@@ -113,7 +113,7 @@ public sealed class DiscoveryEvaluatorAgent(
                 clamped, rawP, rawC);
         }
 
-        var rationale = input["rationale"]?.GetValue<string>() ?? string.Empty;
+        var rationale = LlmJson.GetString(input["rationale"]) ?? string.Empty;
 
         _logger.LogInformation(
             "Discovery evaluation: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",

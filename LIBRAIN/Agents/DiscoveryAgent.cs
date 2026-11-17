@@ -207,7 +207,7 @@ public sealed class DiscoveryAgent(
             System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
             Tools = new List<AnthropicTool> { SubmitDiscoveryTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
@@ -229,10 +229,10 @@ public sealed class DiscoveryAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             $"Tool use block had null input (correlationId={corrId})");
 
-        var hypothesis = input["hypothesis"]?.GetValue<string>()
+        var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId})");
 
-        var novelClaim = input["novel_claim"]?.GetValue<string>() ?? string.Empty;
+        var novelClaim = LlmJson.GetString(input["novel_claim"]) ?? string.Empty;
         if (string.IsNullOrWhiteSpace(novelClaim))
         {
             _logger.LogError(
@@ -242,139 +242,41 @@ public sealed class DiscoveryAgent(
                 $"Discovery contract violation: empty novel_claim (correlationId={corrId})");
         }
 
-        var reasoning = input["reasoning"]?.GetValue<string>() ?? string.Empty;
+        var reasoning = LlmJson.GetString(input["reasoning"]) ?? string.Empty;
 
-        var rawEvidence = input["supporting_evidence"]?.AsArray() ?? new JsonArray();
-        var validatedEvidence = new List<SupportingEvidence>(rawEvidence.Count);
-        var citedHits = new List<SearchHit>(rawEvidence.Count);
-        int dropped = 0;
-        foreach (var node in rawEvidence)
-        {
-            if (node is null) { dropped++; continue; }
-            var paperId = node["paper_id"]?.GetValue<string>();
-            var chunkIndex = node["chunk_index"]?.GetValue<int>();
-            var supportType = node["support_type"]?.GetValue<string>();
-            if (paperId is null || chunkIndex is null || supportType is null)
-            {
-                dropped++;
-                continue;
-            }
-            if (!seenKeys.Contains((paperId, chunkIndex.Value)))
-            {
-                dropped++;
-                continue;
-            }
-            var hit = dedup.First(h => h.PaperId == paperId && h.ChunkIndex == chunkIndex.Value);
-            validatedEvidence.Add(new SupportingEvidence(
-                PaperId: paperId,
-                ChunkIndex: chunkIndex.Value,
-                Section: hit.Section,
-                PageNumber: hit.PageNumber,
-                SupportType: supportType));
-            citedHits.Add(hit);
-        }
+        var evidenceCheck = DiscoveryContract.ValidateEvidence(LlmJson.GetArray(input["supporting_evidence"]), dedup);
+        var validatedEvidence = evidenceCheck.Evidence;
+        var citedHits = evidenceCheck.CitedHits;
+        var dropped = evidenceCheck.Dropped;
+        var rawEvidenceCount = evidenceCheck.Claimed;
 
         if (dropped > 0)
         {
             _logger.LogWarning(
                 "Discovery: dropped {DroppedCount} invalid supporting_evidence entry(ies) of {RequestedCount}",
-                dropped, rawEvidence.Count);
+                dropped, rawEvidenceCount);
         }
 
         // Stage 1 hallucination guard: extrapolation_basis is the per-sentence
         // self-annotation that forces the model to label speculation explicitly.
-        // Empty array → contract violation (mirrors the novel_claim non-empty check).
-        var rawBasis = input["extrapolation_basis"]?.AsArray();
-        if (rawBasis is null || rawBasis.Count == 0)
-        {
-            _logger.LogError(
-                "Discovery contract violation: empty extrapolation_basis (correlationId={CorrelationId})",
-                corrId);
-            throw new InvalidOperationException(
-                $"Discovery contract violation: empty extrapolation_basis (correlationId={corrId})");
-        }
+        // Empty, or all entries invalid → contract violation (throws).
+        var basisCheck = DiscoveryContract.ValidateBasisOrThrow(
+            LlmJson.GetArray(input["extrapolation_basis"]), seenKeys, corrId);
+        var validatedBasis = basisCheck.Basis;
+        var pureSpeculationCount = basisCheck.PureSpeculation;
 
-        var validatedBasis = new List<ExtrapolationBasis>(rawBasis.Count);
-        int basisDropped = 0;
-        int basisNormalized = 0;
-        int pureSpeculationCount = 0;
-        foreach (var node in rawBasis)
-        {
-            if (node is null) { basisDropped++; continue; }
-            var claimSentence = node["claim_sentence"]?.GetValue<string>();
-            var basisType = node["basis_type"]?.GetValue<string>();
-            var rationale = node["rationale"]?.GetValue<string>();
-            var groundedInChunkId = node["grounded_in_chunk_id"]?.GetValue<string?>();
-            if (string.IsNullOrWhiteSpace(claimSentence) ||
-                string.IsNullOrWhiteSpace(basisType) ||
-                string.IsNullOrWhiteSpace(rationale))
-            {
-                basisDropped++;
-                continue;
-            }
-            basisType = basisType.Trim().ToLowerInvariant();
-            if (basisType is not ("generalization" or "analogy" or "pure_speculation"))
-            {
-                basisDropped++;
-                continue;
-            }
-            if (basisType == "pure_speculation")
-            {
-                if (!string.IsNullOrWhiteSpace(groundedInChunkId))
-                {
-                    // Model violated the schema contract; pure_speculation MUST be
-                    // null-grounded. Normalize rather than drop, since the speculative
-                    // label is the load-bearing bit.
-                    basisNormalized++;
-                    groundedInChunkId = null;
-                }
-                pureSpeculationCount++;
-            }
-            else
-            {
-                // generalization / analogy require a valid chunk reference. Drop
-                // entries that cite outside the retrieved set or are null.
-                if (string.IsNullOrWhiteSpace(groundedInChunkId))
-                {
-                    basisDropped++;
-                    continue;
-                }
-                var parts = groundedInChunkId.Split(':');
-                if (parts.Length != 2 || !int.TryParse(parts[1], out var basisChunkIndex)
-                    || !seenKeys.Contains((parts[0], basisChunkIndex)))
-                {
-                    basisDropped++;
-                    continue;
-                }
-            }
-            validatedBasis.Add(new ExtrapolationBasis(
-                ClaimSentence: claimSentence,
-                BasisType: basisType,
-                GroundedInChunkId: groundedInChunkId,
-                Rationale: rationale));
-        }
-
-        if (basisDropped > 0 || basisNormalized > 0)
+        if (basisCheck.Dropped > 0 || basisCheck.Normalized > 0)
         {
             _logger.LogWarning(
                 "Discovery: extrapolation_basis cleanup - dropped {DroppedCount}, normalized {NormalizedCount} entries (of {RequestedCount})",
-                basisDropped, basisNormalized, rawBasis.Count);
-        }
-
-        if (validatedBasis.Count == 0)
-        {
-            _logger.LogError(
-                "Discovery contract violation: extrapolation_basis was non-empty but all entries failed validation (correlationId={CorrelationId})",
-                corrId);
-            throw new InvalidOperationException(
-                $"Discovery contract violation: all extrapolation_basis entries failed validation (correlationId={corrId})");
+                basisCheck.Dropped, basisCheck.Normalized, basisCheck.Requested);
         }
 
         _logger.LogInformation(
             "Discovery synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars}; basis={BasisCount} (pureSpec={PureSpec}) in {ElapsedMs}ms",
             res.Usage.InputTokens, res.Usage.OutputTokens,
             res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
-            validatedEvidence.Count, rawEvidence.Count, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
+            validatedEvidence.Count, rawEvidenceCount, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
         // Three scoring passes (novelty via deterministic embedding, claim-level
         // factuality validation via Haiku, and four-axis evaluation via Haiku) all
@@ -411,7 +313,7 @@ public sealed class DiscoveryAgent(
             ClaimValidation: claimValidation,
             Reasoning: reasoning,
             Evaluation: evaluation,
-            ClaimedEvidenceCount: rawEvidence.Count,
+            ClaimedEvidenceCount: rawEvidenceCount,
             DroppedEvidenceCount: dropped);
     }
 

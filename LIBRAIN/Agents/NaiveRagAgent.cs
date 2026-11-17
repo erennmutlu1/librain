@@ -43,6 +43,25 @@ public static partial class NaiveRagCitations
     [GeneratedRegex(@"\[([^\[\]]+)\]")]
     private static partial Regex BracketContents();
 
+    // The model sometimes echoes the prompt's own source header format
+    // "[paper_id=X chunk_index=N]". That is a real citation of (X, N), not a paper
+    // literally named "paper_id=X chunk_index=N" (which the old rule counted as fabricated).
+    [GeneratedRegex(@"paper_id\s*=\s*([^\s,\]]+)[\s,]+chunk_index\s*=\s*(\d+)", RegexOptions.IgnoreCase)]
+    private static partial Regex EchoedSourceHeader();
+
+    // Bare numbers, decimals and percentages ("[0.5, 0.7]", "[95%]") are not paper ids,
+    // but new-style arXiv ids (2005.11401) are, so those are excluded from this rule.
+    [GeneratedRegex(@"^[+-]?\d+(\.\d+)?%?$")]
+    private static partial Regex PlainNumber();
+
+    [GeneratedRegex(@"^\d{4}\.\d{4,5}(v\d+)?$")]
+    private static partial Regex ArxivId();
+
+    // "arXiv:2005.11401" → "2005.11401"; "e.g. graphcast" / "see graphcast" → "graphcast".
+    // "see" needs trailing whitespace so a paper id like "seed-model" is left intact.
+    [GeneratedRegex(@"^(arxiv:\s*|(e\.g\.|i\.e\.|cf\.)\s*|see\s+)", RegexOptions.IgnoreCase)]
+    private static partial Regex CitationPrefix();
+
     public static IReadOnlyList<(string PaperId, int? ChunkIndex)> ParseFreeTextCitations(string text)
     {
         var result = new List<(string, int?)>();
@@ -51,10 +70,24 @@ public static partial class NaiveRagCitations
         foreach (Match m in BracketContents().Matches(text))
         {
             var inner = m.Groups[1].Value;
+            foreach (Match echo in EchoedSourceHeader().Matches(inner))
+            {
+                result.Add((echo.Groups[1].Value, int.Parse(echo.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture)));
+            }
+            inner = EchoedSourceHeader().Replace(inner, string.Empty);
+
             foreach (var rawToken in inner.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
                 var token = rawToken.Trim();
+                // Strip repeatedly: "e.g. arXiv:2005.11401" carries two prefixes.
+                string previous;
+                do
+                {
+                    previous = token;
+                    token = CitationPrefix().Replace(token, string.Empty).Trim();
+                } while (token != previous);
                 if (token.Length == 0) continue;
+                if (PlainNumber().IsMatch(token) && !ArxivId().IsMatch(token)) continue;
 
                 string paperId = token;
                 int? chunkIndex = null;
@@ -291,7 +324,7 @@ public sealed class NaiveRagAgent(
             System = new List<SystemMessage> { new SystemMessage(freeText ? FreeTextSystemPrompt : SystemPrompt) },
             Tools = new List<AnthropicTool> { freeText ? SubmitHypothesisFreeTextTool : SubmitHypothesisTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
@@ -310,7 +343,7 @@ public sealed class NaiveRagAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             $"Naive-RAG: tool use block had null input (correlationId={corrId})");
 
-        var hypothesis = input["hypothesis"]?.GetValue<string>()
+        var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Naive-RAG: missing 'hypothesis' (correlationId={corrId})");
 
         // Parse claimed citations and resolve against the retrieved set post-hoc.
@@ -327,13 +360,13 @@ public sealed class NaiveRagAgent(
         }
         else
         {
-            var rawCitations = input["claimed_citations"]?.AsArray() ?? new JsonArray();
+            var rawCitations = LlmJson.GetArray(input["claimed_citations"]) ?? new JsonArray();
             var parsed = new List<(string PaperId, int ChunkIndex)>(rawCitations.Count);
             foreach (var node in rawCitations)
             {
                 if (node is null) continue;
-                var paperId = node["paper_id"]?.GetValue<string>();
-                var chunkIndex = node["chunk_index"]?.GetValue<int>();
+                var paperId = LlmJson.GetString(node["paper_id"]);
+                var chunkIndex = LlmJson.GetInt(node["chunk_index"]);
                 if (paperId is null || chunkIndex is null) continue;
                 parsed.Add((paperId, chunkIndex.Value));
             }

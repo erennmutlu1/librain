@@ -66,8 +66,14 @@ public static class ScoreEndpoints
             return Results.Problem(title: "unsupported provider", detail: "score supports provider='openai'.",
                 statusCode: StatusCodes.Status400BadRequest);
 
-        var corrId = Guid.NewGuid();
+        if (string.IsNullOrWhiteSpace(req.TopicA))
+            return Results.Problem(title: "topicA is required", statusCode: StatusCodes.Status400BadRequest);
         var topK = req.TopK ?? DefaultTopK;
+        if (topK < 1 || topK > 20)
+            return Results.Problem(title: "topK out of range", detail: "The 'topK' field must be between 1 and 20.",
+                statusCode: StatusCodes.Status400BadRequest);
+
+        var corrId = Guid.NewGuid();
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
         var novelClaim = string.IsNullOrWhiteSpace(req.NovelClaim) ? req.Hypothesis : req.NovelClaim!;
@@ -89,10 +95,11 @@ public static class ScoreEndpoints
             foreach (var h in hitsB) if (seen.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
 
             var (text, _, _) = await openai.CompleteAsync(JudgeSystem, BuildJudgePrompt(req.Hypothesis, novelClaim, dedup), req.Model, 0.0f, ct);
+            // No JSON or a missing score is an invalid judge reply (502), not a 0 score.
             var node = NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js) : null;
-            var plausibility = EvaluationScoring.Clamp01(node?["plausibility"]?.GetValue<double>());
-            var coherence = EvaluationScoring.Clamp01(node?["structural_coherence"]?.GetValue<double>());
-            var rationale = node?["rationale"]?.GetValue<string>() ?? string.Empty;
+            var plausibility = EvaluationScoring.RequireScore(LlmJson.GetDouble(node?["plausibility"]), "plausibility");
+            var coherence = EvaluationScoring.RequireScore(LlmJson.GetDouble(node?["structural_coherence"]), "structural_coherence");
+            var rationale = LlmJson.GetString(node?["rationale"]) ?? string.Empty;
 
             var eval = DiscoveryScoring.Aggregate(novelty, plausibility, coherence);
             logger.LogInformation(

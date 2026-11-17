@@ -84,7 +84,7 @@ public sealed class SynthesisAgent(
             System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
             Tools = new List<AnthropicTool> { SubmitHypothesisTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
@@ -104,21 +104,23 @@ public sealed class SynthesisAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             $"Tool use block had null input (correlationId={corrId})");
 
-        var hypothesis = input["hypothesis"]?.GetValue<string>()
+        var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId})");
 
-        var rawIndices = input["citation_indices"]?.AsArray()
-            .Select(n => n!.GetValue<int>()).ToArray()
+        var indexArray = LlmJson.GetArray(input["citation_indices"])
             ?? throw new InvalidOperationException($"Missing 'citation_indices' (correlationId={corrId})");
+        // Non-integer entries map to 0, which SynthesisCitations.Validate already
+        // rejects as out of range (indices are 1-based), so they count as dropped.
+        var rawIndices = indexArray.Select(n => LlmJson.GetInt(n) ?? 0).ToArray();
 
         var validated = SynthesisCitations.Validate(rawIndices, chunks);
 
-        float? confidence = input["confidence"] is JsonNode confNode
-            ? (float)confNode.GetValue<double>()
+        float? confidence = LlmJson.GetDouble(input["confidence"]) is double conf
+            ? (float)conf
             : null;
 
-        var unsupported = input["unsupported_claims"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var unsupported = LlmJson.GetArray(input["unsupported_claims"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 

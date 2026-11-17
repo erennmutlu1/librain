@@ -72,8 +72,12 @@ public static class FabricationProbeEndpoints
                 detail: "fabrication-probe currently supports provider='openai'.",
                 statusCode: StatusCodes.Status400BadRequest);
 
-        var corrId = Guid.NewGuid();
         var topK = req.TopK ?? DefaultTopK;
+        if (topK < 1 || topK > 20)
+            return Results.Problem(title: "topK out of range", detail: "The 'topK' field must be between 1 and 20.",
+                statusCode: StatusCodes.Status400BadRequest);
+
+        var corrId = Guid.NewGuid();
         var freeText = string.Equals(req.CitationMode, "free-text", StringComparison.OrdinalIgnoreCase);
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
@@ -115,12 +119,12 @@ public static class FabricationProbeEndpoints
             {
                 var json = NaiveRagCitations.ExtractJsonObject(text);
                 var node = json is null ? null : JsonNode.Parse(json);
-                hypothesis = node?["hypothesis"]?.GetValue<string>() ?? text;
+                hypothesis = LlmJson.GetString(node?["hypothesis"]) ?? text;
                 var parsed = new List<(string, int)>();
-                foreach (var c in node?["claimed_citations"]?.AsArray() ?? new JsonArray())
+                foreach (var c in LlmJson.GetArray(node?["claimed_citations"]) ?? new JsonArray())
                 {
-                    var pid = c?["paper_id"]?.GetValue<string>();
-                    var ci = c?["chunk_index"]?.GetValue<int>();
+                    var pid = LlmJson.GetString(c?["paper_id"]);
+                    var ci = LlmJson.GetInt(c?["chunk_index"]);
                     if (pid is not null && ci is not null) parsed.Add((pid, ci.Value));
                 }
                 var (res, fab) = NaiveRagCitations.Resolve(parsed, seenKeys);

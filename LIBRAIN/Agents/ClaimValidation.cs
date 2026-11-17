@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace LIBRAIN.Agents;
 
 // Per-sentence factuality verdict produced by ClaimValidatorAgent.
@@ -21,7 +23,19 @@ public sealed record ClaimValidationEntry(
 
 public sealed record ClaimValidationResult(
     IReadOnlyList<ClaimValidationEntry> Claims,
-    float AggregateRisk);
+    float AggregateRisk,
+    // True when the validator returned no usable per-sentence verdict for a non-empty
+    // novel_claim. AggregateRisk is then 1.0 (fail closed): an unvalidated claim must
+    // never read as "no risk". Exclude flagged results when computing statistics.
+    bool ValidationFailed = false);
+
+public sealed record ClaimValidationParseStats(
+    int Requested,
+    int Dropped,
+    int FilteredChunkRefs,
+    int Grounded,
+    int Extrapolated,
+    int Risky);
 
 // Pure parsing + scoring helpers for ClaimValidatorAgent. Extracted so the load-bearing
 // math (max-aggregate, probability clamping, status parsing) is testable without the
@@ -46,6 +60,76 @@ public static class ClaimValidationScoring
     {
         if (raw is null || double.IsNaN(raw.Value)) return 0f;
         return Math.Clamp((float)raw.Value, 0f, 1f);
+    }
+
+    // A missing probability falls back to the rubric band for the returned status
+    // (GROUNDED ~0, EXTRAPOLATED 0.1-0.3, RISKY 0.6-1.0) instead of 0, so a RISKY
+    // verdict without a number can no longer disappear from the max-aggregate.
+    public static float ClampProbability(double? raw, ClaimFactualityStatus status)
+    {
+        if (raw is null || double.IsNaN(raw.Value))
+        {
+            return status switch
+            {
+                ClaimFactualityStatus.Risky => 0.6f,
+                ClaimFactualityStatus.Extrapolated => 0.2f,
+                _ => 0f,
+            };
+        }
+        return ClampProbability(raw);
+    }
+
+    public static ClaimValidationResult Failed() =>
+        new(Array.Empty<ClaimValidationEntry>(), 1f, ValidationFailed: true);
+
+    // Shared by the Anthropic (ClaimValidatorAgent) and OpenAI (OpenAiDiscoveryAgent)
+    // paths so both apply exactly the same parsing, defaults and fail-closed rule.
+    public static (ClaimValidationResult Result, ClaimValidationParseStats Stats) BuildResult(
+        JsonArray? rawClaims,
+        ISet<string> retrievedKeys)
+    {
+        var claims = rawClaims ?? new JsonArray();
+        var entries = new List<ClaimValidationEntry>(claims.Count);
+        var probabilities = new List<float>(claims.Count);
+        int dropped = 0, filteredChunkRefs = 0, grounded = 0, extrapolated = 0, risky = 0;
+
+        foreach (var node in claims)
+        {
+            var sentence = LlmJson.GetString(node?["sentence"]);
+            var rationale = LlmJson.GetString(node?["rationale"]);
+            if (string.IsNullOrWhiteSpace(sentence) || string.IsNullOrWhiteSpace(rationale))
+            {
+                dropped++;
+                continue;
+            }
+
+            var status = ParseStatus(LlmJson.GetString(node?["factuality_status"]));
+            var probability = ClampProbability(LlmJson.GetDouble(node?["factual_hallucination_probability"]), status);
+
+            var claimedChunkIds = new List<string>();
+            foreach (var chunkNode in LlmJson.GetArray(node?["supporting_chunks"]) ?? new JsonArray())
+            {
+                var chunkId = LlmJson.GetString(chunkNode);
+                if (!string.IsNullOrWhiteSpace(chunkId)) claimedChunkIds.Add(chunkId);
+            }
+            var validChunks = FilterSupportingChunks(claimedChunkIds, retrievedKeys);
+            filteredChunkRefs += claimedChunkIds.Count - validChunks.Count;
+
+            entries.Add(new ClaimValidationEntry(sentence, status, validChunks, probability, rationale));
+            probabilities.Add(probability);
+            switch (status)
+            {
+                case ClaimFactualityStatus.Grounded: grounded++; break;
+                case ClaimFactualityStatus.Extrapolated: extrapolated++; break;
+                case ClaimFactualityStatus.Risky: risky++; break;
+            }
+        }
+
+        var stats = new ClaimValidationParseStats(claims.Count, dropped, filteredChunkRefs, grounded, extrapolated, risky);
+        var result = entries.Count == 0
+            ? Failed()
+            : new ClaimValidationResult(entries, AggregateRisk(probabilities));
+        return (result, stats);
     }
 
     // Halo-resistant: take the max of per-sentence probabilities in C#, ignoring any

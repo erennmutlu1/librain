@@ -116,7 +116,7 @@ public sealed class ClaimValidatorAgent(
             System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
             Tools = new List<AnthropicTool> { SubmitClaimValidationTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_claim_validation" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
@@ -138,79 +138,34 @@ public sealed class ClaimValidatorAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             "Claim validator tool use block had null input.");
 
-        var rawClaims = input["claims"]?.AsArray() ?? new JsonArray();
         var retrievedKeys = new HashSet<string>(
             retrievedChunks.Select(c => $"{c.PaperId}:{c.ChunkIndex}"));
+        var (result, stats) = ClaimValidationScoring.BuildResult(
+            LlmJson.GetArray(input["claims"]), retrievedKeys);
 
-        var parsedEntries = new List<ClaimValidationEntry>(rawClaims.Count);
-        var probabilities = new List<float>(rawClaims.Count);
-        int dropped = 0;
-        int filteredChunkRefs = 0;
-        int riskyCount = 0;
-        int extrapolatedCount = 0;
-        int groundedCount = 0;
-
-        foreach (var node in rawClaims)
-        {
-            if (node is null) { dropped++; continue; }
-            var sentence = node["sentence"]?.GetValue<string>();
-            var rationale = node["rationale"]?.GetValue<string>();
-            if (string.IsNullOrWhiteSpace(sentence) || string.IsNullOrWhiteSpace(rationale))
-            {
-                dropped++;
-                continue;
-            }
-
-            var rawStatus = node["factuality_status"]?.GetValue<string>();
-            var status = ClaimValidationScoring.ParseStatus(rawStatus);
-
-            var rawProb = node["factual_hallucination_probability"]?.GetValue<double?>();
-            var probability = ClaimValidationScoring.ClampProbability(rawProb);
-
-            var rawChunks = node["supporting_chunks"]?.AsArray() ?? new JsonArray();
-            var claimedChunkIds = new List<string>(rawChunks.Count);
-            foreach (var chunkNode in rawChunks)
-            {
-                var chunkId = chunkNode?.GetValue<string>();
-                if (!string.IsNullOrWhiteSpace(chunkId)) claimedChunkIds.Add(chunkId);
-            }
-            var validChunks = ClaimValidationScoring.FilterSupportingChunks(claimedChunkIds, retrievedKeys);
-            filteredChunkRefs += claimedChunkIds.Count - validChunks.Count;
-
-            parsedEntries.Add(new ClaimValidationEntry(
-                Sentence: sentence,
-                Status: status,
-                SupportingChunks: validChunks,
-                FactualHallucinationProbability: probability,
-                Rationale: rationale));
-            probabilities.Add(probability);
-
-            switch (status)
-            {
-                case ClaimFactualityStatus.Grounded: groundedCount++; break;
-                case ClaimFactualityStatus.Extrapolated: extrapolatedCount++; break;
-                case ClaimFactualityStatus.Risky: riskyCount++; break;
-            }
-        }
-
-        var aggregateRisk = ClaimValidationScoring.AggregateRisk(probabilities);
-
-        if (dropped > 0 || filteredChunkRefs > 0)
+        if (stats.Dropped > 0 || stats.FilteredChunkRefs > 0)
         {
             _logger.LogWarning(
                 "Claim validator: dropped {DroppedCount} invalid claim entry(ies) of {RequestedCount}; filtered {FilteredChunks} out-of-set supporting chunk reference(s)",
-                dropped, rawClaims.Count, filteredChunkRefs);
+                stats.Dropped, stats.Requested, stats.FilteredChunkRefs);
+        }
+
+        if (result.ValidationFailed)
+        {
+            _logger.LogError(
+                "Claim validator returned no usable claim entries ({RequestedCount} requested); marking validation failed with aggregateRisk=1.0 (fail closed)",
+                stats.Requested);
         }
 
         _logger.LogInformation(
-            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
-            parsedEntries.Count, groundedCount, extrapolatedCount, riskyCount,
-            aggregateRisk,
+            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} validationFailed={ValidationFailed} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
+            result.Claims.Count, stats.Grounded, stats.Extrapolated, stats.Risky,
+            result.AggregateRisk, result.ValidationFailed,
             res.Usage.InputTokens, res.Usage.OutputTokens,
             res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
             sw.ElapsedMilliseconds);
 
-        return new ClaimValidationResult(parsedEntries, aggregateRisk);
+        return result;
     }
 
     private static string BuildUserPrompt(string novelClaim, IReadOnlyList<SearchHit> retrievedChunks)

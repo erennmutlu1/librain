@@ -108,7 +108,7 @@ public sealed class EvaluatorAgent(
             System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
             Tools = new List<AnthropicTool> { SubmitEvaluationTool },
             ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_evaluation" },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = AnthropicModels.Claude45Haiku,
             Temperature = 0.0m,
             Stream = false,
@@ -128,13 +128,13 @@ public sealed class EvaluatorAgent(
         var input = toolUse.Input ?? throw new InvalidOperationException(
             $"Tool use block had null input (correlationId={corrId})");
 
-        var rawG = input["groundedness_score"]?.GetValue<double>();
-        var rawR = input["relevance_score"]?.GetValue<double>();
-        var rawC = input["completeness_score"]?.GetValue<double>();
+        var rawG = LlmJson.GetDouble(input["groundedness_score"]);
+        var rawR = LlmJson.GetDouble(input["relevance_score"]);
+        var rawC = LlmJson.GetDouble(input["completeness_score"]);
 
-        var groundedness = EvaluationScoring.Clamp01(rawG);
-        var relevance = EvaluationScoring.Clamp01(rawR);
-        var completeness = EvaluationScoring.Clamp01(rawC);
+        var groundedness = EvaluationScoring.RequireScore(rawG, "groundedness_score");
+        var relevance = EvaluationScoring.RequireScore(rawR, "relevance_score");
+        var completeness = EvaluationScoring.RequireScore(rawC, "completeness_score");
         var quality = EvaluationScoring.Aggregate(groundedness, relevance, completeness);
 
         int clampedCount = 0;
@@ -148,15 +148,15 @@ public sealed class EvaluatorAgent(
                 clampedCount);
         }
 
-        var critique = input["critique"]?.GetValue<string>() ?? string.Empty;
+        var critique = LlmJson.GetString(input["critique"]) ?? string.Empty;
 
-        var unsupported = input["unsupported_claims"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var unsupported = LlmJson.GetArray(input["unsupported_claims"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 
-        var missing = input["missing_evidence"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var missing = LlmJson.GetArray(input["missing_evidence"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 
@@ -212,6 +212,19 @@ public static class EvaluationScoring
         if (v < 0.0) return 0f;
         if (v > 1.0) return 1f;
         return (float)v;
+    }
+
+    // A judge score that is missing or non-numeric is an invalid response, not a
+    // score of 0. Recording it as 0 used to look like a real worst score and pulled
+    // aggregates down silently; failing loudly lets the caller retry or drop the run.
+    public static float RequireScore(double? raw, string field)
+    {
+        if (raw is not double v || double.IsNaN(v))
+        {
+            throw new InvalidOperationException(
+                $"Judge response is missing a numeric '{field}' score; refusing to record it as 0.");
+        }
+        return Clamp01(v);
     }
 
     public static float Aggregate(float groundedness, float relevance, float completeness)

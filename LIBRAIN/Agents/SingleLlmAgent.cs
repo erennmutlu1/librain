@@ -57,7 +57,7 @@ public sealed class SingleLlmAgent(
         {
             Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
             System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
-            MaxTokens = 1024,
+            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
             Model = _synthesisModel,
             Temperature = 0.2m,
             Stream = false,
