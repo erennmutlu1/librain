@@ -34,7 +34,9 @@ public sealed class PaperEndpointTests
         Assert.Contains("retrieval-augmented generation", string.Join(" ", chunks.Select(c => c.Content)), StringComparison.OrdinalIgnoreCase);
 
         var papers = await http.GetFromJsonAsync<JsonElement>("/api/papers", Ct);
-        Assert.Contains(papers.EnumerateArray(), p => p.GetProperty("paperId").GetString() == "2005.11401");
+        var listed = papers.EnumerateArray().Single(p => p.GetProperty("paperId").GetString() == "2005.11401");
+        Assert.Equal(2020, listed.GetProperty("year").GetInt32());
+        Assert.Equal("Patrick Lewis", listed.GetProperty("authors")[0].GetString());
     }
 
     [Theory]

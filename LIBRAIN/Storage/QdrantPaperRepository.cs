@@ -129,7 +129,7 @@ public sealed class QdrantPaperRepository : IPaperStore
         await _initialization.Value.ConfigureAwait(false);
 
         var sw = Stopwatch.StartNew();
-        var byPaperId = new Dictionary<string, (string? Title, int Count, DateTime? Earliest)>();
+        var byPaperId = new Dictionary<string, (string? Title, int Count, DateTime? Earliest, IReadOnlyList<string>? Authors, int? Year)>();
 
         PointId? offset = null;
         const uint pageSize = 256;
@@ -151,6 +151,12 @@ public sealed class QdrantPaperRepository : IPaperStore
                 }
                 var paperId = idVal.StringValue;
                 var title = point.Payload.TryGetValue("title", out var t) ? t.StringValue : null;
+                IReadOnlyList<string>? authors = point.Payload.TryGetValue("authors", out var au) && au.ListValue is { } list
+                    ? list.Values.Select(v => v.StringValue).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()
+                    : null;
+                int? year = point.Payload.TryGetValue("year", out var y) && y.KindCase == Value.KindOneofCase.IntegerValue
+                    ? (int)y.IntegerValue
+                    : null;
                 DateTime? ingestedAt = null;
                 if (point.Payload.TryGetValue("ingestedAt", out var ia)
                     && DateTime.TryParse(
@@ -168,11 +174,12 @@ public sealed class QdrantPaperRepository : IPaperStore
                         && (existing.Earliest is null || ingestedAt < existing.Earliest)
                             ? ingestedAt
                             : existing.Earliest;
-                    byPaperId[paperId] = (existing.Title ?? title, existing.Count + 1, earliest);
+                    byPaperId[paperId] = (existing.Title ?? title, existing.Count + 1, earliest,
+                        existing.Authors ?? authors, existing.Year ?? year);
                 }
                 else
                 {
-                    byPaperId[paperId] = (title, 1, ingestedAt);
+                    byPaperId[paperId] = (title, 1, ingestedAt, authors, year);
                 }
             }
 
@@ -184,7 +191,8 @@ public sealed class QdrantPaperRepository : IPaperStore
         }
 
         var summaries = byPaperId
-            .Select(kv => new PaperSummary(kv.Key, kv.Value.Title, kv.Value.Count, kv.Value.Earliest))
+            .Select(kv => new PaperSummary(kv.Key, kv.Value.Title, kv.Value.Count, kv.Value.Earliest, kv.Value.Authors, kv.Value.Year))
+            .OrderBy(p => p.PaperId, StringComparer.Ordinal)
             .ToList();
 
         _logger.LogInformation(

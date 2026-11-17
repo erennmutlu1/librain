@@ -17,7 +17,7 @@ public sealed class QdrantReingestTests
     private static ChunkRecord Chunk(string paperId, int index) => new(
         paperId, index, $"chunk {index}",
         Enumerable.Range(0, 1536).Select(i => (float)Math.Sin(i + index)).ToArray(),
-        "Test paper", null, null, null, null, DateTime.UtcNow);
+        "Test paper", new[] { "A. Author", "B. Author" }, 2020, null, null, DateTime.UtcNow);
 
     [Fact]
     public async Task Reingest_WithFewerChunks_RemovesStaleTail()
@@ -41,6 +41,9 @@ public sealed class QdrantReingestTests
             var papers = await store.ListPapersAsync(ct);
             Assert.Equal(3, papers.Single(p => p.PaperId == "paper-x").ChunkCount);
             Assert.Equal(2, papers.Single(p => p.PaperId == "other-paper").ChunkCount); // untouched
+            var x = papers.Single(p => p.PaperId == "paper-x");
+            Assert.Equal(new[] { "A. Author", "B. Author" }, x.Authors);
+            Assert.Equal(2020, x.Year);
         }
         finally
         {

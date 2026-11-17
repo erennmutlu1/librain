@@ -69,7 +69,7 @@ public sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList
     public Task<IReadOnlyList<PaperSummary>> ListPapersAsync(CancellationToken ct = default) =>
         Task.FromResult<IReadOnlyList<PaperSummary>>(Persisted
             .GroupBy(c => c.PaperId)
-            .Select(g => new PaperSummary(g.Key, g.First().Title, g.Count(), g.Min(c => c.IngestedAt)))
+            .Select(g => new PaperSummary(g.Key, g.First().Title, g.Count(), g.Min(c => c.IngestedAt), g.First().Authors, g.First().Year))
             .ToArray());
 
     public Task<int> DeletePaperAsync(string paperId, CancellationToken ct = default)
