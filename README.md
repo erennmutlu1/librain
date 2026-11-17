@@ -72,7 +72,7 @@ See [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) for the full command reference.
 
 ## Why This Project
 
-Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Anthropic's official .NET SDK. It's a deliberate counter-example to the "AI = Python only" assumption.
+Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10**: plain C# agents wired through ASP.NET Core dependency injection, with no agent framework, calling Claude through the community `Anthropic.SDK` .NET client. It's a deliberate counter-example to the "AI = Python only" assumption.
 
 The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design, the simplifications made for the MVP, and the empirical results from the Phase B baseline experiment and the AFTER-FIX human-evaluation pilot. The paper is currently in revision; an arXiv preprint and a peer-reviewed venue submission are both in preparation.
 
@@ -107,7 +107,7 @@ That pilot was then extended to a full replication: two independent blinded thre
 | LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
 | Vector store | Qdrant 1.17 (local Docker in dev, Qdrant Cloud free tier in production, AWS Frankfurt) |
-| Orchestration | Microsoft Semantic Kernel patterns |
+| Orchestration | Plain C# agents + ASP.NET Core DI (no agent framework) |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
 | Hosting | Azure Container Apps (API), Azure Static Web Apps (frontend) |
