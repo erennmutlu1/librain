@@ -67,6 +67,52 @@ public static class DiscoveryEndpoints
         app.MapPost("/api/discover", HandleAsync);
     }
 
+    // Routes to the Anthropic pipeline (default) or the OpenAI cross-family port.
+    internal static Task<DiscoverResponse> RunAsync(
+        DiscoverRequest normalized, DiscoveryAgent agent, LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
+        Action<LIBRAIN.Pipelines.PipelineProgress>? progress, CancellationToken ct)
+    {
+        if (string.Equals(normalized.Provider, "openai", StringComparison.OrdinalIgnoreCase))
+        {
+            progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Generating, "Running the OpenAI port of the Discovery pipeline"));
+            return openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(normalized.Model) ? "gpt-4o" : normalized.Model!, ct);
+        }
+        return agent.DiscoverAsync(normalized, ct, progress);
+    }
+
+    internal const int MaxTopicChars = 500;
+
+    internal static IResult? Validate(DiscoverRequest req, out int topK)
+    {
+        topK = req.TopK ?? DefaultTopK;
+        if (string.IsNullOrWhiteSpace(req.TopicA))
+            return Results.Problem(title: "topicA is required",
+                detail: "The 'topicA' field must be a non-empty string.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.TopicA.Length > MaxTopicChars || req.TopicB?.Length > MaxTopicChars)
+            return Results.Problem(title: "topic too long",
+                detail: $"Topics must be at most {MaxTopicChars} characters.", statusCode: StatusCodes.Status400BadRequest);
+        if (!string.IsNullOrWhiteSpace(req.TopicB)
+            && string.Equals(req.TopicA.Trim(), req.TopicB.Trim(), StringComparison.Ordinal))
+            return Results.Problem(title: "topicA and topicB must differ",
+                detail: "If topicB is supplied it must differ from topicA after trimming.", statusCode: StatusCodes.Status400BadRequest);
+        if (topK < MinTopK || topK > MaxTopK)
+            return Results.Problem(title: "topK out of range",
+                detail: $"The 'topK' field must be between {MinTopK} and {MaxTopK}.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.Provider is not null && !req.Provider.Equals("anthropic", StringComparison.OrdinalIgnoreCase)
+            && !req.Provider.Equals("openai", StringComparison.OrdinalIgnoreCase))
+            return Results.Problem(title: "unknown provider",
+                detail: "provider must be 'anthropic' (default) or 'openai'.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.Model is not null && !AllowedOpenAiModels.Contains(req.Model))
+            return Results.Problem(title: "model not allowed",
+                detail: $"model must be one of: {string.Join(", ", AllowedOpenAiModels)}.", statusCode: StatusCodes.Status400BadRequest);
+        return null;
+    }
+
+    // Callers could previously pick ANY OpenAI model id (and its price). Restrict to the
+    // models the cross-family experiments actually use.
+    internal static readonly IReadOnlySet<string> AllowedOpenAiModels =
+        new HashSet<string>(StringComparer.Ordinal) { "gpt-4o", "gpt-4o-mini" };
+
     private static async Task<IResult> HandleAsync(
         DiscoverRequest req,
         DiscoveryAgent agent,
@@ -75,30 +121,13 @@ public static class DiscoveryEndpoints
         ILogger<Program> logger,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(req.TopicA))
-        {
-            return Results.Problem(
-                title: "topicA is required",
-                detail: "The 'topicA' field must be a non-empty string.",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        var topK = req.TopK ?? DefaultTopK;
-        if (topK < MinTopK || topK > MaxTopK)
-        {
-            return Results.Problem(
-                title: "topK out of range",
-                detail: $"The 'topK' field must be between {MinTopK} and {MaxTopK}.",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+        if (Validate(req, out var topK) is { } invalid) return invalid;
 
         var sw = Stopwatch.StartNew();
         try
         {
             var normalized = req with { TopK = topK };
-            var response = string.Equals(req.Provider, "openai", StringComparison.OrdinalIgnoreCase)
-                ? await openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(req.Model) ? "gpt-4o" : req.Model!, ct)
-                : await agent.DiscoverAsync(normalized, ct);
+            var response = await RunAsync(normalized, agent, openaiAgent, progress: null, ct);
 
             using var scope = logger.BeginScope(new Dictionary<string, object>
             {

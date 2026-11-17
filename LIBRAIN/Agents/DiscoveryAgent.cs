@@ -137,7 +137,8 @@ public sealed class DiscoveryAgent(
     private static readonly LlmTool SubmitDiscoveryTool =
         LlmTool.FromJsonSchema("submit_discovery", "Submit a discovery hypothesis with supporting evidence and a flagged novel claim.", ToolSchemaJson);
 
-    public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, CancellationToken ct = default)
+    public async Task<DiscoverResponse> DiscoverAsync(
+        DiscoverRequest req, CancellationToken ct = default, Action<LIBRAIN.Pipelines.PipelineProgress>? progress = null)
     {
         var corrId = Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
@@ -158,6 +159,7 @@ public sealed class DiscoveryAgent(
 
         var sw = Stopwatch.StartNew();
 
+        progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Retrieving, topicB is null ? "Searching the corpus" : "Searching the corpus for both topics"));
         var retrieval = await _retriever.RetrieveAsync(topicA, topicB, topK, ct).ConfigureAwait(false);
         var hitsA = retrieval.HitsA;
         var hitsB = retrieval.HitsB;
@@ -176,7 +178,10 @@ public sealed class DiscoveryAgent(
             "Discovery retrieval: topicA='{TopicA}' topicB='{TopicB}' topK={TopK} → {DedupCount} unique chunk(s) [{ChunkIds}] ({ACount}+{BCount} pre-dedup) in {ElapsedMs}ms",
             topicA, topicB ?? "(none)", topK, dedup.Count, chunkIdList, hitsA.Count, hitsB.Count, retrievalElapsedMs);
 
+        progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Retrieved, $"Found {dedup.Count} distinct passages", dedup.Count));
+
         var userPrompt = BuildUserPrompt(topicA, topicB, dedup);
+        progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Generating, "Asking Claude for a hypothesis that goes beyond the sources"));
 
         sw.Restart();
         var request = new LlmRequest(
@@ -246,6 +251,9 @@ public sealed class DiscoveryAgent(
         // task keeps its own audit logging; the aggregate timing below covers the
         // parallel stage as a whole.
         sw.Restart();
+        progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Validated,
+            $"Citation contract kept {validatedEvidence.Count} of {rawEvidenceCount} cited sources", validatedEvidence.Count));
+        progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Scoring, "Scoring novelty, plausibility and per-sentence claim risk"));
         using var scoringCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, scoringCts.Token);
         var claimValidationTask = _claimValidator.ValidateAsync(novelClaim, dedup, scoringCts.Token);

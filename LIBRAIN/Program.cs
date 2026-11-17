@@ -80,6 +80,17 @@ builder.Services.AddSingleton<LIBRAIN.Runs.IRunStore>(sp =>
     return new LIBRAIN.Runs.SqliteRunStore(Path.IsPathRooted(path) ? path : Path.Combine(builder.Environment.ContentRootPath, path));
 });
 builder.Services.AddSingleton<LIBRAIN.Runs.RunRecorder>();
+builder.Services.AddScoped<LIBRAIN.Pipelines.QueryPipeline>();
+
+// CORS for the web UI. Configure Cors:AllowedOrigins for a deployed frontend; in
+// Development the Vite dev server and preview ports are allowed by default.
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
+{
+    allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"];
+}
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
@@ -102,11 +113,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapPaperEndpoints();
 app.MapRunEndpoints();
+app.MapStreamingEndpoints();
+app.MapCompareEndpoints();
 app.MapQueryEndpoints();
 app.MapDiscoveryEndpoints();
 app.MapBaselineEndpoints();

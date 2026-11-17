@@ -23,7 +23,26 @@ public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.Dis
     public FakeLlmClient Llm { get; } = new FakeLlmClient()
         .OnTool("submit_discovery", DiscoveryPipelineFixtures.Discovery)
         .OnTool("submit_claim_validation", DiscoveryPipelineFixtures.Claims)
-        .OnTool("submit_discovery_evaluation", DiscoveryPipelineFixtures.Judge);
+        .OnTool("submit_discovery_evaluation", DiscoveryPipelineFixtures.Judge)
+        // Synthesis (/api/query) and Naive-RAG share the tool name "submit_hypothesis";
+        // each reads only its own fields from this reply. Naive-RAG claims one retrieved
+        // chunk and one that was never retrieved (a fabrication it must surface).
+        .OnTool("submit_hypothesis", """
+            {
+              "hypothesis": "Graph message passing explains GraphCast's skill at medium-range forecasting [1][2].",
+              "citation_indices": [1, 2, 9],
+              "confidence": 0.8,
+              "unsupported_claims": [],
+              "claimed_citations": [
+                {"paper_id": "graphcast", "chunk_index": 1},
+                {"paper_id": "pangu-weather", "chunk_index": 4}
+              ]
+            }
+            """)
+        .OnTool("submit_evaluation", """
+            {"groundedness_score": 0.9, "relevance_score": 0.85, "completeness_score": 0.6,
+             "critique": "Grounded in both cited passages.", "unsupported_claims": [], "missing_evidence": ["No error metrics cited."]}
+            """);
 
     public FakePaperStore Store { get; } = new(DiscoveryPipelineFixtures.HitsA, DiscoveryPipelineFixtures.HitsB);
     public FakeArxivHandler Arxiv { get; } = new();
