@@ -21,7 +21,11 @@ public sealed partial class RecursiveChunker(ILogger<RecursiveChunker> logger)
 
     public IReadOnlyList<Chunk> Chunk(string fullText, IReadOnlyList<ExtractedPage>? pages = null)
     {
-        if (string.IsNullOrEmpty(fullText))
+        // Whitespace-only text (e.g. a scanned PDF with no text layer) used to become one
+        // blank chunk with an embedding. Only the whole-document case is guarded: skipping
+        // blank chunks mid-document would renumber chunk indices that committed experiment
+        // results reference as paper_id:chunk_index.
+        if (string.IsNullOrWhiteSpace(fullText))
         {
             return Array.Empty<Chunk>();
         }

@@ -20,6 +20,10 @@ namespace LIBRAIN.Tests.Api;
 // ambiguous here because LIBRAIN.Experiments has one too.
 public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.DiscoveryAgent>
 {
+    // Extra configuration, e.g. new LibrainApiFactory { Settings = { ["Security:ApiKey"] = "x" } }.
+    // (A property, not a constructor parameter: xUnit fixtures need one public constructor.)
+    public Dictionary<string, string> Settings { get; init; } = new();
+
     public FakeLlmClient Llm { get; } = new FakeLlmClient()
         .OnTool("submit_discovery", DiscoveryPipelineFixtures.Discovery)
         .OnTool("submit_claim_validation", DiscoveryPipelineFixtures.Claims)
@@ -62,6 +66,7 @@ public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.Dis
         builder.UseSetting("OpenAI:ApiKey", "test-not-used");
         builder.UseSetting("Qdrant:Host", "localhost");
         builder.UseSetting("Runs:DatabasePath", RunsDb);
+        foreach (var (key, value) in Settings) builder.UseSetting(key, value);
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<ILlmClient>();

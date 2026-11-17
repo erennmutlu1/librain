@@ -47,8 +47,10 @@ public static class BaselineEndpoints
 
     public static void MapBaselineEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/single-llm", HandleSingleLlmAsync);
-        app.MapPost("/api/naive-rag", HandleNaiveRagAsync);
+        app.MapPost("/api/single-llm", HandleSingleLlmAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
+        app.MapPost("/api/naive-rag", HandleNaiveRagAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleSingleLlmAsync(

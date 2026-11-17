@@ -29,7 +29,7 @@ public static class StreamingEndpoints
                 r => recorder.TryRecordAsync(r.CorrelationId, RunKinds.Query, req.Query.Trim(), r.Evaluation.QualityScore,
                     normalized, r, CancellationToken.None),
                 "query", logger, ct));
-        });
+        }).RequireRateLimiting(Guards.PaidPolicy);
 
         app.MapPost("/api/discover/stream", (DiscoverRequest req, DiscoveryAgent agent, OpenAiDiscoveryAgent openai,
             RunRecorder recorder, ILogger<Program> logger, CancellationToken ct) =>
@@ -41,7 +41,7 @@ public static class StreamingEndpoints
                 r => recorder.TryRecordAsync(r.CorrelationId, RunKinds.Discover, RunRecorder.TopicTitle(req.TopicA, req.TopicB),
                     r.Evaluation.QualityScore, normalized, r, CancellationToken.None),
                 "discovery", logger, ct));
-        });
+        }).RequireRateLimiting(Guards.PaidPolicy);
     }
 
     internal static async IAsyncEnumerable<SseItem<object>> Run<T>(

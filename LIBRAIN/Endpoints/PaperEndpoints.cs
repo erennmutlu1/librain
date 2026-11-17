@@ -19,8 +19,8 @@ public static partial class PaperEndpoints
         app.MapGet("/api/papers", async (IPaperStore store, CancellationToken ct) =>
             Results.Ok(await store.ListPapersAsync(ct)));
 
-        app.MapPost("/api/papers/ingest", IngestUploadAsync).DisableAntiforgery();
-        app.MapPost("/api/papers/arxiv", IngestArxivAsync);
+        app.MapPost("/api/papers/ingest", IngestUploadAsync).DisableAntiforgery().RequireRateLimiting(Guards.PaidPolicy);
+        app.MapPost("/api/papers/arxiv", IngestArxivAsync).RequireRateLimiting(Guards.PaidPolicy);
         app.MapDelete("/api/papers/{paperId}", DeleteAsync);
     }
 

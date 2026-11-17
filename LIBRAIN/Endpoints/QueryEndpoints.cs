@@ -34,7 +34,8 @@ public static class QueryEndpoints
 
     public static void MapQueryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/query", HandleAsync);
+        app.MapPost("/api/query", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

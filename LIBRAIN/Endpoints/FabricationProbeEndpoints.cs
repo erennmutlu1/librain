@@ -55,7 +55,8 @@ public static class FabricationProbeEndpoints
 
     public static void MapFabricationProbeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/fabrication-probe", HandleAsync);
+        app.MapPost("/api/fabrication-probe", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

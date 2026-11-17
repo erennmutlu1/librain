@@ -64,7 +64,8 @@ public static class DiscoveryEndpoints
 
     public static void MapDiscoveryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/discover", HandleAsync);
+        app.MapPost("/api/discover", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     // Routes to the Anthropic pipeline (default) or the OpenAI cross-family port.

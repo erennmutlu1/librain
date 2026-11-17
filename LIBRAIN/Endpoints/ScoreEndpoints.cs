@@ -49,7 +49,8 @@ public static class ScoreEndpoints
 
     public static void MapScoreEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/score", HandleAsync);
+        app.MapPost("/api/score", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

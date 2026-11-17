@@ -203,6 +203,8 @@ Interactive reference at `/scalar` when running in Development. Errors are `appl
 
 Configuration: `Cors:AllowedOrigins` (Development allows the Vite dev server), `Runs:DatabasePath` (default `data/runs.db`), `Anthropic:MaxConcurrentRequests` (default 4). The app refuses to start without `OpenAI:ApiKey` (embeddings) and `Qdrant:Host`.
 
+**Before exposing the API publicly**, set `Security:ApiKey` (every `/api` call must then send it as `X-Api-Key`) and `RateLimiting:PaidRequestsPerHour` (per-client hourly cap on every endpoint that calls an LLM or the embedding API; requests over it get `429` and are never sent to a model). Both are off by default for local use.
+
 ---
 
 ## Example query result

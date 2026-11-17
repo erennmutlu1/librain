@@ -89,6 +89,7 @@ if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
 {
     allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"];
 }
+builder.Services.AddLibrainGuards(builder.Configuration);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddScoped<PdfTextExtractor>();
@@ -114,6 +115,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseApiKeyGuard();
+app.UseRateLimiter();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 

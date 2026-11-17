@@ -28,7 +28,8 @@ public static class CompareEndpoints
 {
     public static void MapCompareEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/compare", HandleAsync);
+        app.MapPost("/api/compare", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleAsync(
