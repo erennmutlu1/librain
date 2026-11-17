@@ -33,10 +33,20 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<AnthropicOptions>(
     builder.Configuration.GetSection(AnthropicOptions.SectionName));
-builder.Services.Configure<OpenAIOptions>(
-    builder.Configuration.GetSection(OpenAIOptions.SectionName));
-builder.Services.Configure<QdrantOptions>(
-    builder.Configuration.GetSection(QdrantOptions.SectionName));
+// Fail fast with an actionable message instead of a 502 on the first request.
+// Anthropic:ApiKey is deliberately not required here: the OpenAI-only experiments
+// (fabrication-delta, provider=openai) run without it; AnthropicChatClient reports
+// a missing key when it is first used.
+builder.Services.AddOptions<OpenAIOptions>()
+    .Bind(builder.Configuration.GetSection(OpenAIOptions.SectionName))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey),
+        "OpenAI:ApiKey is not configured (needed for embeddings). Set it with: dotnet user-secrets set \"OpenAI:ApiKey\" \"sk-...\" --project LIBRAIN")
+    .ValidateOnStart();
+builder.Services.AddOptions<QdrantOptions>()
+    .Bind(builder.Configuration.GetSection(QdrantOptions.SectionName))
+    .Validate(o => !string.IsNullOrWhiteSpace(o.Host),
+        "Qdrant:Host is not configured. For local Docker use: dotnet user-secrets set \"Qdrant:Host\" \"localhost\" --project LIBRAIN")
+    .ValidateOnStart();
 builder.Services.Configure<ModelOptions>(
     builder.Configuration.GetSection(ModelOptions.SectionName));
 

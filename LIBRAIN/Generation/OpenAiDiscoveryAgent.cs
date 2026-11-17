@@ -119,10 +119,11 @@ public sealed class OpenAiDiscoveryAgent(
         var validatedBasis = basisCheck.Basis;
 
         // Parallel scoring (same as the Anthropic path), all on OpenAI/embeddings.
-        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, ct);
-        var evalTask = EvaluateAsync(hypothesis, novelClaim, citedHits, model, ct);
-        var claimsTask = ValidateClaimsAsync(novelClaim, dedup, model, ct);
-        await Task.WhenAll(noveltyTask, evalTask, claimsTask).ConfigureAwait(false);
+        using var scoringCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, scoringCts.Token);
+        var evalTask = EvaluateAsync(hypothesis, novelClaim, citedHits, model, scoringCts.Token);
+        var claimsTask = ValidateClaimsAsync(novelClaim, dedup, model, scoringCts.Token);
+        await ParallelScoring.WhenAllCancelOnFault(scoringCts, noveltyTask, evalTask, claimsTask).ConfigureAwait(false);
 
         var (plausibility, coherence) = evalTask.Result;
         var evaluation = DiscoveryScoring.Aggregate(noveltyTask.Result, plausibility, coherence);

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace LIBRAIN.Tests.Pipeline;
 
 // Fakes for the three external dependencies. Nothing here touches the network.
-internal sealed class FakeLlmClient : ILlmClient
+public sealed class FakeLlmClient : ILlmClient
 {
     private readonly Dictionary<string, Func<LlmRequest, JsonNode>> _toolReplies = new();
     public ConcurrentQueue<(LlmRequest Request, string? Tool)> Calls { get; } = new();
@@ -41,14 +41,14 @@ internal sealed class FakeLlmClient : ILlmClient
     }
 }
 
-internal sealed class FakeEmbeddings : IEmbeddingClient
+public sealed class FakeEmbeddings : IEmbeddingClient
 {
     public Task<IReadOnlyList<float[]>> GenerateAsync(IReadOnlyList<string> inputs, CancellationToken ct = default) =>
         Task.FromResult<IReadOnlyList<float[]>>(inputs.Select((_, i) => new[] { (float)i }).ToArray());
 }
 
 // Vector 0 = topic A, vector 1 = topic B; any other query (novelty) gets the nearest chunk.
-internal sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList<SearchHit> hitsB, float nearestSimilarity = 0.6f) : IPaperStore
+public sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList<SearchHit> hitsB, float nearestSimilarity = 0.6f) : IPaperStore
 {
     public Task PersistAsync(IReadOnlyList<ChunkRecord> chunks, CancellationToken ct = default) => Task.CompletedTask;
 
@@ -62,21 +62,21 @@ internal sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyLi
         Task.FromResult<IReadOnlyList<PaperSummary>>(Array.Empty<PaperSummary>());
 }
 
-public sealed class DiscoveryPipelineTests
+public static class DiscoveryPipelineFixtures
 {
-    private static readonly SearchHit[] HitsA =
+    public static readonly SearchHit[] HitsA =
     {
         new("graphcast", 1, "GraphCast forecasts weather with graph neural networks.", 0.91f, "Intro", 1),
         new("graphcast", 2, "Message passing over a multi-mesh.", 0.85f, "Method", 3),
     };
 
-    private static readonly SearchHit[] HitsB =
+    public static readonly SearchHit[] HitsB =
     {
         new("graphcast", 2, "Message passing over a multi-mesh.", 0.80f, "Method", 3), // duplicate across topics
         new("alphafold", 7, "Structure prediction from sequence.", 0.88f, null, 5),
     };
 
-    private const string Discovery = """
+    public const string Discovery = """
         {
           "hypothesis": "Mesh-based message passing could transfer to protein contact graphs.",
           "novel_claim": "Multi-mesh message passing may improve long-range contact prediction. It could reduce error.",
@@ -93,7 +93,7 @@ public sealed class DiscoveryPipelineTests
         }
         """;
 
-    private const string Claims = """
+    public const string Claims = """
         {
           "claims": [
             {"sentence": "Multi-mesh message passing may improve long-range contact prediction.", "factuality_status": "EXTRAPOLATED", "factual_hallucination_probability": 0.2, "supporting_chunks": [], "rationale": "hedged"},
@@ -103,7 +103,16 @@ public sealed class DiscoveryPipelineTests
         }
         """;
 
-    private const string Judge = """{"plausibility": 0.7, "structural_coherence": 0.9, "rationale": "coherent"}""";
+    public const string Judge = """{"plausibility": 0.7, "structural_coherence": 0.9, "rationale": "coherent"}""";
+}
+
+public sealed class DiscoveryPipelineTests
+{
+    private static readonly SearchHit[] HitsA = DiscoveryPipelineFixtures.HitsA;
+    private static readonly SearchHit[] HitsB = DiscoveryPipelineFixtures.HitsB;
+    private const string Discovery = DiscoveryPipelineFixtures.Discovery;
+    private const string Claims = DiscoveryPipelineFixtures.Claims;
+    private const string Judge = DiscoveryPipelineFixtures.Judge;
 
     private static DiscoveryAgent BuildAgent(FakeLlmClient llm, ModelOptions? models = null)
     {

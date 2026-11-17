@@ -4,6 +4,11 @@ public sealed record AnthropicOptions
 {
     public const string SectionName = "Anthropic";
     public string ApiKey { get; init; } = string.Empty;
+
+    // Cap on simultaneous Claude requests from this process. A Discovery run makes up
+    // to three at once; the cap keeps several concurrent users (or an experiment batch)
+    // from bursting into rate-limit errors.
+    public int MaxConcurrentRequests { get; init; } = 4;
 }
 
 public sealed record OpenAIOptions

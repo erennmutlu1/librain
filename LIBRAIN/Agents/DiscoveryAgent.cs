@@ -246,11 +246,12 @@ public sealed class DiscoveryAgent(
         // task keeps its own audit logging; the aggregate timing below covers the
         // parallel stage as a whole.
         sw.Restart();
-        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, ct);
-        var claimValidationTask = _claimValidator.ValidateAsync(novelClaim, dedup, ct);
-        var evaluationTask = _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, ct);
+        using var scoringCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, scoringCts.Token);
+        var claimValidationTask = _claimValidator.ValidateAsync(novelClaim, dedup, scoringCts.Token);
+        var evaluationTask = _evaluator.EvaluateAsync(hypothesis, novelClaim, citedHits, scoringCts.Token);
 
-        await Task.WhenAll(noveltyTask, claimValidationTask, evaluationTask).ConfigureAwait(false);
+        await ParallelScoring.WhenAllCancelOnFault(scoringCts, noveltyTask, claimValidationTask, evaluationTask).ConfigureAwait(false);
 
         var noveltyScore = noveltyTask.Result;
         var claimValidation = claimValidationTask.Result;

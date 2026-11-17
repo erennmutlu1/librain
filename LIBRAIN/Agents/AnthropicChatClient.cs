@@ -28,12 +28,16 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
     private readonly ILogger<AnthropicChatClient> _logger;
     private readonly AnthropicClient _client;
     private readonly HttpClient _httpClient;
+    private readonly SemaphoreSlim _concurrency;
+    private readonly bool _hasApiKey;
 
     public AnthropicChatClient(
         ILogger<AnthropicChatClient> logger,
         IOptions<AnthropicOptions> options)
     {
         _logger = logger;
+        _hasApiKey = !string.IsNullOrWhiteSpace(options.Value.ApiKey);
+        _concurrency = new SemaphoreSlim(Math.Max(1, options.Value.MaxConcurrentRequests));
         // Anthropic.SDK 5.10's default HttpClient timeout is 100s, which Sonnet 4.6
         // can exceed on Discovery requests now that the tool schema includes
         // extrapolation_basis (longer structured output, longer wall-clock).
@@ -138,7 +142,15 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
         MessageParameters parameters,
         CancellationToken ct)
     {
+        if (!_hasApiKey)
+        {
+            // Not validated at startup: the OpenAI-only experiments run without it.
+            throw new InvalidOperationException(
+                "Anthropic:ApiKey is not configured. Set it with: dotnet user-secrets set \"Anthropic:ApiKey\" \"sk-ant-...\" --project LIBRAIN");
+        }
+
         MessageResponse response;
+        await _concurrency.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             response = await _client.Messages.GetClaudeMessageAsync(parameters, ct).ConfigureAwait(false);
@@ -151,6 +163,10 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
                 parameters.Model,
                 ex.GetType().Name);
             throw;
+        }
+        finally
+        {
+            _concurrency.Release();
         }
 
         // A reply cut off at max_tokens is partial: a truncated tool_use input used to
@@ -172,6 +188,7 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
     {
         _client.Dispose();
         _httpClient.Dispose();
+        _concurrency.Dispose();
         GC.SuppressFinalize(this);
     }
 }
