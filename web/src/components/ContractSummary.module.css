@@ -1,0 +1,40 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s2);
+}
+
+.title {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+.text {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.kept,
+.dropped {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.kept {
+  background: var(--grounded);
+}
+
+.dropped {
+  border: 1.5px solid var(--danger);
+  background:
+    linear-gradient(45deg, transparent 44%, var(--danger) 44%, var(--danger) 56%, transparent 56%),
+    var(--danger-wash);
+}

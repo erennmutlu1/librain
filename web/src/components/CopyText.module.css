@@ -1,0 +1,41 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  max-width: 100%;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.button:hover {
+  color: var(--accent);
+  background: var(--accent-wash);
+}

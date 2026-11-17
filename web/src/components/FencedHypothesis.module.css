@@ -1,0 +1,7 @@
+.fence {
+  color: var(--ink-2);
+  font-style: italic;
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 0.35em;
+  margin-left: 0.1em;
+}
