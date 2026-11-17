@@ -9,6 +9,14 @@ jobs:
   build-test:
     name: Build and test (no API keys required)
     runs-on: ubuntu-latest
+    # Disposable Qdrant for the opt-in integration test (synthetic vectors, no API calls).
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.17.1
+        ports:
+          - 6334:6334
+    env:
+      LIBRAIN_QDRANT_TEST_HOST: localhost
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,3 +34,13 @@ jobs:
 
       - name: Test (offline, no Anthropic/OpenAI/Qdrant keys)
         run: dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj --no-build --nologo
+
+  docker:
+    name: Build API image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t librain-api:ci .
