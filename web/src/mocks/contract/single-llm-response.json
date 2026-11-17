@@ -1,5 +1,5 @@
 {
-  "correlationId": "309aabe6-b4fe-4a98-acdf-45d236ff0fc9",
+  "correlationId": "541a719d-702d-4b4f-b7c0-3d7616f747b3",
   "hypothesis": "A plain-text hypothesis.",
   "evaluation": {
     "noveltyScore": 0.39999998,
@@ -7,7 +7,7 @@
     "structuralCoherenceScore": 0.9,
     "qualityScore": 0.6666666
   },
-  "totalElapsedMs": 1,
+  "totalElapsedMs": 0,
   "inputTokens": 100,
   "outputTokens": 20
 }

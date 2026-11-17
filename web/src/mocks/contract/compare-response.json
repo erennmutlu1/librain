@@ -1,11 +1,11 @@
 {
-  "correlationId": "d48cbcbc-13f0-4de2-bf55-d8dee92ed17d",
+  "correlationId": "a9fadc21-e0ac-4891-bfd7-deac0437fed7",
   "topicA": "weather forecasting",
   "topicB": "protein folding",
   "topK": 2,
   "librain": {
     "result": {
-      "correlationId": "eb182548-b521-4a86-a1c4-1e9e38c4c0d5",
+      "correlationId": "53b1ea8a-ba1e-4824-824d-cf4799656232",
       "hypothesis": "Mesh-based message passing could transfer to protein contact graphs.",
       "supportingEvidence": [
         {
@@ -70,11 +70,12 @@
       "claimedEvidenceCount": 3,
       "droppedEvidenceCount": 1
     },
-    "error": null
+    "error": null,
+    "correlationId": "53b1ea8a-ba1e-4824-824d-cf4799656232"
   },
   "naiveRag": {
     "result": {
-      "correlationId": "7a6b79bd-0089-462e-b2cb-81ed482c7bf1",
+      "correlationId": "f948fd7f-ef6a-4153-9715-214e2d7d6a3b",
       "hypothesis": "Graph message passing explains GraphCast\u0027s skill at medium-range forecasting [1][2].",
       "retrievedChunkCount": 3,
       "claimedCitations": [
@@ -100,11 +101,12 @@
       "inputTokens": 100,
       "outputTokens": 50
     },
-    "error": null
+    "error": null,
+    "correlationId": "f948fd7f-ef6a-4153-9715-214e2d7d6a3b"
   },
   "singleLlm": {
     "result": {
-      "correlationId": "41257436-dd68-46ce-99ce-705a1303a5da",
+      "correlationId": "1e05f9a5-35b3-491d-8a5e-cbecd55547c3",
       "hypothesis": "A plain-text hypothesis.",
       "evaluation": {
         "noveltyScore": 0.39999998,
@@ -116,7 +118,8 @@
       "inputTokens": 100,
       "outputTokens": 20
     },
-    "error": null
+    "error": null,
+    "correlationId": "1e05f9a5-35b3-491d-8a5e-cbecd55547c3"
   },
-  "totalElapsedMs": 3
+  "totalElapsedMs": 2
 }
