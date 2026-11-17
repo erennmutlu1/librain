@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+.git/
+.claude/
+web/
+experiments/
+paper/
+docs/
+data/
+scripts/
+LIBRAIN.Tests/
+LIBRAIN.Experiments/
+.env

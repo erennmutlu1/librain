@@ -155,6 +155,13 @@ docker run -d --name librain-qdrant -p 6333:6333 -p 6334:6334 \
 dotnet run --project LIBRAIN
 ```
 
+### Or run everything with Docker
+
+```bash
+cp .env.example .env          # add OPENAI_API_KEY (and ANTHROPIC_API_KEY); .env is gitignored
+docker compose up --build     # Qdrant + API; API on http://localhost:5080
+```
+
 Once the API is up:
 
 ```bash
