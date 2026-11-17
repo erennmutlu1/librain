@@ -47,10 +47,18 @@ public sealed class FakeEmbeddings : IEmbeddingClient
         Task.FromResult<IReadOnlyList<float[]>>(inputs.Select((_, i) => new[] { (float)i }).ToArray());
 }
 
-// Vector 0 = topic A, vector 1 = topic B; any other query (novelty) gets the nearest chunk.
+// Vector 0 = topic A, vector 1 = topic B; any other query (novelty) gets the nearest
+// chunk. Also records persisted chunks and supports deletion, so ingest and delete
+// endpoints can be exercised.
 public sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList<SearchHit> hitsB, float nearestSimilarity = 0.6f) : IPaperStore
 {
-    public Task PersistAsync(IReadOnlyList<ChunkRecord> chunks, CancellationToken ct = default) => Task.CompletedTask;
+    public ConcurrentQueue<ChunkRecord> Persisted { get; } = new();
+
+    public Task PersistAsync(IReadOnlyList<ChunkRecord> chunks, CancellationToken ct = default)
+    {
+        foreach (var c in chunks) Persisted.Enqueue(c);
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<SearchHit>> VectorSearchAsync(float[] queryEmbedding, int topK, CancellationToken ct = default)
     {
@@ -59,7 +67,19 @@ public sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList
     }
 
     public Task<IReadOnlyList<PaperSummary>> ListPapersAsync(CancellationToken ct = default) =>
-        Task.FromResult<IReadOnlyList<PaperSummary>>(Array.Empty<PaperSummary>());
+        Task.FromResult<IReadOnlyList<PaperSummary>>(Persisted
+            .GroupBy(c => c.PaperId)
+            .Select(g => new PaperSummary(g.Key, g.First().Title, g.Count(), g.Min(c => c.IngestedAt)))
+            .ToArray());
+
+    public Task<int> DeletePaperAsync(string paperId, CancellationToken ct = default)
+    {
+        var kept = Persisted.Where(c => c.PaperId != paperId).ToArray();
+        var removed = Persisted.Count - kept.Length;
+        Persisted.Clear();
+        foreach (var c in kept) Persisted.Enqueue(c);
+        return Task.FromResult(removed);
+    }
 }
 
 public static class DiscoveryPipelineFixtures

@@ -48,7 +48,7 @@ public static class DiscoveryContract
                 dropped++;
                 continue;
             }
-            evidence.Add(new SupportingEvidence(paperId, chunkIndex.Value, hit.Section, hit.PageNumber, supportType));
+            evidence.Add(new SupportingEvidence(paperId, chunkIndex.Value, hit.Section, hit.PageNumber, supportType, hit.Content));
             citedHits.Add(hit);
         }
         return new EvidenceValidation(evidence, citedHits, entries.Count, dropped);

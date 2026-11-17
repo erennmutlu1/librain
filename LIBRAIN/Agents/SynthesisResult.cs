@@ -5,7 +5,9 @@ public sealed record SynthesisCitation(
     string PaperId,
     int ChunkIndex,
     string? Section,
-    int? PageNumber);
+    int? PageNumber,
+    // The cited passage, so a reader (or the UI) can check the claim against its source.
+    string? Content = null);
 
 public sealed record SynthesisResult(
     string Hypothesis,

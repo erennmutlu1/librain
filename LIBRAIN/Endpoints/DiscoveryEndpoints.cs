@@ -15,7 +15,9 @@ public sealed record SupportingEvidence(
     int ChunkIndex,
     string? Section,
     int? PageNumber,
-    string SupportType);
+    string SupportType,
+    // The cited passage. Optional so results saved before it existed still deserialize.
+    string? Content = null);
 
 // Per-sentence self-annotation the DiscoveryAgent must produce alongside novel_claim.
 // BasisType is one of: "generalization" (extends retrieved evidence to a new case),

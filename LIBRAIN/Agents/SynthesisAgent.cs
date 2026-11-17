@@ -175,7 +175,8 @@ public static class SynthesisCitations
                 PaperId: hit.PaperId,
                 ChunkIndex: hit.ChunkIndex,
                 Section: hit.Section,
-                PageNumber: hit.PageNumber));
+                PageNumber: hit.PageNumber,
+                Content: hit.Content));
         }
         return result;
     }

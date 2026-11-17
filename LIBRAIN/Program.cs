@@ -76,6 +76,7 @@ builder.Services.AddScoped<LIBRAIN.Retrieval.TopicRetriever>();
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
+builder.Services.AddHttpClient<LIBRAIN.Ingestion.ArxivClient>(LIBRAIN.Ingestion.ArxivClient.Configure);
 builder.Services.AddScoped<SynthesisAgent>();
 builder.Services.AddScoped<EvaluatorAgent>();
 builder.Services.AddScoped<DiscoveryAgent>();
@@ -97,28 +98,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
-app.MapPost("/api/papers/ingest", async (IFormFile file, ReaderAgent reader, CancellationToken ct) =>
-{
-    if (file is null || file.Length == 0)
-    {
-        return Results.BadRequest(new { error = "file is required" });
-    }
-    var paperId = Path.GetFileNameWithoutExtension(file.FileName);
-    if (string.IsNullOrWhiteSpace(paperId))
-    {
-        return Results.BadRequest(new { error = "filename must include a non-empty stem" });
-    }
-    using var stream = file.OpenReadStream();
-    var result = await reader.IngestAsync(stream, paperId, ct);
-    return Results.Ok(result);
-}).DisableAntiforgery();
-
-app.MapGet("/api/papers", async (IPaperStore repo, CancellationToken ct) =>
-{
-    var papers = await repo.ListPapersAsync(ct);
-    return Results.Ok(papers);
-});
-
+app.MapPaperEndpoints();
 app.MapQueryEndpoints();
 app.MapDiscoveryEndpoints();
 app.MapBaselineEndpoints();

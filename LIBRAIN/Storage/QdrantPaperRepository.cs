@@ -110,6 +110,20 @@ public sealed class QdrantPaperRepository : IPaperStore
         return hits;
     }
 
+    public async Task<int> DeletePaperAsync(string paperId, CancellationToken ct = default)
+    {
+        await _initialization.Value.ConfigureAwait(false);
+
+        var byPaper = new Filter();
+        byPaper.Must.Add(Conditions.MatchKeyword("paperId", paperId));
+        var count = await _client.CountAsync(_collectionName, byPaper, exact: true, cancellationToken: ct).ConfigureAwait(false);
+        if (count == 0) return 0;
+
+        await _client.DeleteAsync(_collectionName, byPaper, cancellationToken: ct).ConfigureAwait(false);
+        _logger.LogInformation("Deleted paper {PaperId} ({ChunkCount} chunks)", paperId, count);
+        return (int)count;
+    }
+
     public async Task<IReadOnlyList<PaperSummary>> ListPapersAsync(CancellationToken ct = default)
     {
         await _initialization.Value.ConfigureAwait(false);

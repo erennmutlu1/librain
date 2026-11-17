@@ -4,6 +4,7 @@ using System.Text.Json;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Llm;
 using LIBRAIN.Storage;
+using LIBRAIN.Tests.Fixtures;
 using LIBRAIN.Tests.Pipeline;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -24,6 +25,9 @@ public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.Dis
         .OnTool("submit_claim_validation", DiscoveryPipelineFixtures.Claims)
         .OnTool("submit_discovery_evaluation", DiscoveryPipelineFixtures.Judge);
 
+    public FakePaperStore Store { get; } = new(DiscoveryPipelineFixtures.HitsA, DiscoveryPipelineFixtures.HitsB);
+    public FakeArxivHandler Arxiv { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("OpenAI:ApiKey", "test-not-used");
@@ -35,7 +39,8 @@ public sealed class LibrainApiFactory : WebApplicationFactory<LIBRAIN.Agents.Dis
             services.RemoveAll<IPaperStore>();
             services.AddSingleton<ILlmClient>(Llm);
             services.AddSingleton<IEmbeddingClient, FakeEmbeddings>();
-            services.AddSingleton<IPaperStore>(new FakePaperStore(DiscoveryPipelineFixtures.HitsA, DiscoveryPipelineFixtures.HitsB));
+            services.AddSingleton<IPaperStore>(Store);
+            services.AddHttpClient<LIBRAIN.Ingestion.ArxivClient>().ConfigurePrimaryHttpMessageHandler(() => Arxiv);
         });
     }
 }
