@@ -81,9 +81,9 @@ public sealed class OpenAiDiscoveryAgent(
         {"claims": [{"sentence":"...","factuality_status":"GROUNDED","supporting_chunks":["paper:0"],"factual_hallucination_probability":0.0,"rationale":"..."}], "aggregate_risk": 0.0}
         """;
 
-    public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, string model, CancellationToken ct = default)
+    public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, string model, CancellationToken ct = default, Guid? correlationId = null)
     {
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
         var topK = req.TopK ?? 5;

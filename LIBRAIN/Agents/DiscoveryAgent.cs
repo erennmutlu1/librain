@@ -138,9 +138,10 @@ public sealed class DiscoveryAgent(
         LlmTool.FromJsonSchema("submit_discovery", "Submit a discovery hypothesis with supporting evidence and a flagged novel claim.", ToolSchemaJson);
 
     public async Task<DiscoverResponse> DiscoverAsync(
-        DiscoverRequest req, CancellationToken ct = default, Action<LIBRAIN.Pipelines.PipelineProgress>? progress = null)
+        DiscoverRequest req, CancellationToken ct = default, Action<LIBRAIN.Pipelines.PipelineProgress>? progress = null,
+        Guid? correlationId = null)
     {
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
             ["correlationId"] = corrId,

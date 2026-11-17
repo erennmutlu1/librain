@@ -79,9 +79,10 @@ public static class BaselineEndpoints
         }
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
-            var result = await agent.RunAsync(req.TopicA, req.TopicB, ct);
+            var result = await agent.RunAsync(req.TopicA, req.TopicB, ct, correlationId);
             logger.LogInformation(
                 "Single-LLM endpoint complete: quality={Quality:F4} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, sw.ElapsedMilliseconds, result.CorrelationId);
@@ -99,7 +100,8 @@ public static class BaselineEndpoints
             return Results.Problem(
                 title: "Single-LLM baseline failed",
                 detail: $"The single-LLM baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 
@@ -138,9 +140,10 @@ public static class BaselineEndpoints
         }
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
-            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, req.CitationMode, ct);
+            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, req.CitationMode, ct, correlationId);
             logger.LogInformation(
                 "Naive-RAG endpoint complete: quality={Quality:F4} fabricated={FabricatedCount} claimed={ClaimedCount} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, result.FabricatedCitationCount, result.ClaimedCitations.Count,
@@ -159,7 +162,8 @@ public static class BaselineEndpoints
             return Results.Problem(
                 title: "Naive-RAG baseline failed",
                 detail: $"The naive-RAG baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 }

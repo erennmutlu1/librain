@@ -8,7 +8,7 @@ namespace LIBRAIN.Endpoints;
 public sealed record CompareRequest(string TopicA, string? TopicB, int? TopK);
 
 // Result of one system; exactly one of Result / Error is set.
-public sealed record CompareOutcome<T>(T? Result, string? Error) where T : class;
+public sealed record CompareOutcome<T>(T? Result, string? Error, Guid? CorrelationId = null) where T : class;
 
 public sealed record CompareResponse(
     Guid CorrelationId,
@@ -46,9 +46,10 @@ public static class CompareEndpoints
         if (DiscoveryEndpoints.Validate(discoverReq, out var topK) is { } invalid) return invalid;
 
         var sw = Stopwatch.StartNew();
-        var librainTask = Capture("LIBRAIN", () => DiscoveryEndpoints.RunAsync(discoverReq with { TopK = topK }, librain, openai, null, ct), logger);
-        var naiveTask = Capture("Naive-RAG", async () => BaselineEndpoints.ToResponse(await naiveRag.RunAsync(req.TopicA, req.TopicB, topK, null, ct)), logger);
-        var singleTask = Capture("Single-LLM", async () => BaselineEndpoints.ToResponse(await singleLlm.RunAsync(req.TopicA, req.TopicB, ct)), logger);
+        Guid librainId = Guid.NewGuid(), naiveId = Guid.NewGuid(), singleId = Guid.NewGuid();
+        var librainTask = Capture("LIBRAIN", librainId, () => DiscoveryEndpoints.RunAsync(discoverReq with { TopK = topK }, librain, openai, null, ct, librainId), logger);
+        var naiveTask = Capture("Naive-RAG", naiveId, async () => BaselineEndpoints.ToResponse(await naiveRag.RunAsync(req.TopicA, req.TopicB, topK, null, ct, naiveId)), logger);
+        var singleTask = Capture("Single-LLM", singleId, async () => BaselineEndpoints.ToResponse(await singleLlm.RunAsync(req.TopicA, req.TopicB, ct, singleId)), logger);
         await Task.WhenAll(librainTask, naiveTask, singleTask);
         ct.ThrowIfCancellationRequested();
 
@@ -68,16 +69,16 @@ public static class CompareEndpoints
         return Results.Ok(response);
     }
 
-    private static async Task<CompareOutcome<T>> Capture<T>(string system, Func<Task<T>> run, ILogger logger) where T : class
+    private static async Task<CompareOutcome<T>> Capture<T>(string system, Guid correlationId, Func<Task<T>> run, ILogger logger) where T : class
     {
         try
         {
-            return new CompareOutcome<T>(await run(), null);
+            return new CompareOutcome<T>(await run(), null, correlationId);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogError(ex, "Compare: {System} failed ({ExceptionType})", system, ex.GetType().Name);
-            return new CompareOutcome<T>(null, $"{system} failed: {ex.GetType().Name}");
+            return new CompareOutcome<T>(null, $"{system} failed: {ex.GetType().Name}", correlationId);
         }
     }
 }

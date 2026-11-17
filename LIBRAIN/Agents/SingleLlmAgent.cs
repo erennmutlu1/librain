@@ -41,9 +41,10 @@ public sealed class SingleLlmAgent(
     public async Task<SingleLlmResult> RunAsync(
         string topicA,
         string? topicB,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        Guid? correlationId = null)
     {
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
             ["correlationId"] = corrId,

@@ -64,6 +64,7 @@ public sealed class StreamingCompareCorsTests
             new { topicA = "weather forecasting", topicB = "protein folding", topK = 2 }, Ct));
 
         Assert.Equal("error", events.Last().Type);
+        Assert.NotEqual(Guid.Empty, events.Last().Data.GetProperty("correlationId").GetGuid());
         Assert.DoesNotContain(events, e => e.Type == "result");
     }
 
@@ -125,6 +126,7 @@ public sealed class StreamingCompareCorsTests
         var body = await res.Content.ReadFromJsonAsync<JsonElement>(Ct);
         Assert.Equal(JsonValueKind.Null, body.GetProperty("librain").GetProperty("result").ValueKind);
         Assert.Contains("LIBRAIN failed", body.GetProperty("librain").GetProperty("error").GetString());
+        Assert.NotEqual(Guid.Empty, body.GetProperty("librain").GetProperty("correlationId").GetGuid());
         Assert.Equal(JsonValueKind.Object, body.GetProperty("naiveRag").GetProperty("result").ValueKind);
     }
 

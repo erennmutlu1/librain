@@ -260,10 +260,11 @@ public sealed class NaiveRagAgent(
         string? topicB,
         int topK,
         string? citationMode = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        Guid? correlationId = null)
     {
         var freeText = string.Equals(citationMode, "free-text", StringComparison.OrdinalIgnoreCase);
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
             ["correlationId"] = corrId,

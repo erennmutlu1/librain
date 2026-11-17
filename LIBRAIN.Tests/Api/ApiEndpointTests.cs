@@ -156,5 +156,8 @@ public sealed class ApiFailureTests
 
         Assert.Equal(HttpStatusCode.BadGateway, res.StatusCode);
         Assert.Equal("application/problem+json", res.Content.Headers.ContentType?.MediaType);
+        // The failed run is traceable in the server logs by this id.
+        var problem = await res.Content.ReadFromJsonAsync<JsonElement>(TestContext.Current.CancellationToken);
+        Assert.NotEqual(Guid.Empty, problem.GetProperty("correlationId").GetGuid());
     }
 }

@@ -7,7 +7,7 @@ using LIBRAIN.Runs;
 
 namespace LIBRAIN.Endpoints;
 
-public sealed record StreamError(string Title, string Detail);
+public sealed record StreamError(string Title, string Detail, Guid? CorrelationId = null);
 
 // Server-sent-event variants of the long-running endpoints. The body is the same as
 // the non-streaming endpoint; the response is a text/event-stream of:
@@ -36,11 +36,12 @@ public static class StreamingEndpoints
         {
             if (DiscoveryEndpoints.Validate(req, out var topK) is { } invalid) return invalid;
             var normalized = req with { TopK = topK };
+            var correlationId = Guid.NewGuid();
             return TypedResults.ServerSentEvents(Run(
-                progress => DiscoveryEndpoints.RunAsync(normalized, agent, openai, progress, ct),
+                progress => DiscoveryEndpoints.RunAsync(normalized, agent, openai, progress, ct, correlationId),
                 r => recorder.TryRecordAsync(r.CorrelationId, RunKinds.Discover, RunRecorder.TopicTitle(req.TopicA, req.TopicB),
                     r.Evaluation.QualityScore, normalized, r, CancellationToken.None),
-                "discovery", logger, ct));
+                "discovery", logger, ct, correlationId));
         }).RequireRateLimiting(Guards.PaidPolicy);
     }
 
@@ -49,7 +50,8 @@ public static class StreamingEndpoints
         Func<T, Task> onSuccess,
         string name,
         ILogger logger,
-        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct,
+        Guid? correlationId = null)
         where T : notnull
     {
         var events = Channel.CreateUnbounded<SseItem<object>>(new UnboundedChannelOptions { SingleReader = true });
@@ -74,7 +76,7 @@ public static class StreamingEndpoints
             {
                 logger.LogError(ex, "Streaming {Pipeline} pipeline failed ({ExceptionType})", name, ex.GetType().Name);
                 events.Writer.TryWrite(new SseItem<object>(
-                    new StreamError("Upstream API error", $"The {name} pipeline failed: {ex.GetType().Name}"), "error"));
+                    new StreamError("Upstream API error", $"The {name} pipeline failed: {ex.GetType().Name}", correlationId), "error"));
             }
             finally
             {

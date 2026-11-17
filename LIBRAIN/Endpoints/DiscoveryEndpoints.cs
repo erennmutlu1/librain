@@ -71,14 +71,14 @@ public static class DiscoveryEndpoints
     // Routes to the Anthropic pipeline (default) or the OpenAI cross-family port.
     internal static Task<DiscoverResponse> RunAsync(
         DiscoverRequest normalized, DiscoveryAgent agent, LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
-        Action<LIBRAIN.Pipelines.PipelineProgress>? progress, CancellationToken ct)
+        Action<LIBRAIN.Pipelines.PipelineProgress>? progress, CancellationToken ct, Guid? correlationId = null)
     {
         if (string.Equals(normalized.Provider, "openai", StringComparison.OrdinalIgnoreCase))
         {
             progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Generating, "Running the OpenAI port of the Discovery pipeline"));
-            return openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(normalized.Model) ? "gpt-4o" : normalized.Model!, ct);
+            return openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(normalized.Model) ? "gpt-4o" : normalized.Model!, ct, correlationId);
         }
-        return agent.DiscoverAsync(normalized, ct, progress);
+        return agent.DiscoverAsync(normalized, ct, progress, correlationId);
     }
 
     internal const int MaxTopicChars = 500;
@@ -125,10 +125,11 @@ public static class DiscoveryEndpoints
         if (Validate(req, out var topK) is { } invalid) return invalid;
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
             var normalized = req with { TopK = topK };
-            var response = await RunAsync(normalized, agent, openaiAgent, progress: null, ct);
+            var response = await RunAsync(normalized, agent, openaiAgent, progress: null, ct, correlationId);
 
             using var scope = logger.BeginScope(new Dictionary<string, object>
             {
@@ -156,7 +157,8 @@ public static class DiscoveryEndpoints
             return Results.Problem(
                 title: "Upstream API error",
                 detail: $"The discovery pipeline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 }
