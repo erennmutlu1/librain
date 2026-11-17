@@ -55,6 +55,20 @@ public sealed class QdrantPaperRepository
         // is the practical bound. ~50 chunks/paper × 1536 floats × 4 bytes ≈ 312KB, well under.
         await _client.UpsertAsync(_collectionName, points, cancellationToken: ct).ConfigureAwait(false);
 
+        // Re-ingest hygiene. Chunk ids are deterministic (paperId + chunkIndex), so
+        // the upsert above overwrites chunks 0..n-1, but if the new version of a
+        // paper has fewer chunks the old tail used to stay in the index and keep
+        // showing up in retrieval. Delete it. Runs after the upsert, so a failure
+        // here can never leave a paper with fewer chunks than it should have.
+        foreach (var paper in chunks.GroupBy(c => c.PaperId))
+        {
+            var firstStaleIndex = paper.Max(c => c.ChunkIndex) + 1;
+            var staleTail = new Filter();
+            staleTail.Must.Add(Conditions.MatchKeyword("paperId", paper.Key));
+            staleTail.Must.Add(Conditions.Range("chunkIndex", new Qdrant.Client.Grpc.Range { Gte = firstStaleIndex }));
+            await _client.DeleteAsync(_collectionName, staleTail, cancellationToken: ct).ConfigureAwait(false);
+        }
+
         _logger.LogInformation(
             "Persisted {ChunkCount} chunk(s) in {ElapsedMs}ms",
             points.Length,
