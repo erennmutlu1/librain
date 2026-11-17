@@ -1,0 +1,66 @@
+{
+  "correlationId": "e16e3795-349d-4e6c-9e73-4e5a3c852a50",
+  "hypothesis": "Mesh-based message passing could transfer to protein contact graphs.",
+  "supportingEvidence": [
+    {
+      "paperId": "graphcast",
+      "chunkIndex": 2,
+      "section": "Method",
+      "pageNumber": 3,
+      "supportType": "direct",
+      "content": "Message passing over a multi-mesh."
+    },
+    {
+      "paperId": "alphafold",
+      "chunkIndex": 7,
+      "section": null,
+      "pageNumber": 5,
+      "supportType": "analogy",
+      "content": "Structure prediction from sequence."
+    }
+  ],
+  "novelClaim": "Multi-mesh message passing may improve long-range contact prediction. It could reduce error.",
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Multi-mesh message passing may improve long-range contact prediction.",
+      "basisType": "analogy",
+      "groundedInChunkId": "graphcast:2",
+      "rationale": "mechanism transfer"
+    },
+    {
+      "claimSentence": "It could reduce error.",
+      "basisType": "pure_speculation",
+      "groundedInChunkId": null,
+      "rationale": "untested"
+    }
+  ],
+  "claimValidation": {
+    "claims": [
+      {
+        "sentence": "Multi-mesh message passing may improve long-range contact prediction.",
+        "status": 1,
+        "supportingChunks": [],
+        "factualHallucinationProbability": 0.2,
+        "rationale": "hedged"
+      },
+      {
+        "sentence": "It could reduce error.",
+        "status": 1,
+        "supportingChunks": [],
+        "factualHallucinationProbability": 0.15,
+        "rationale": "hedged"
+      }
+    ],
+    "aggregateRisk": 0.2,
+    "validationFailed": false
+  },
+  "reasoning": "Both are graph problems.",
+  "evaluation": {
+    "noveltyScore": 0.39999998,
+    "plausibilityScore": 0.7,
+    "structuralCoherenceScore": 0.9,
+    "qualityScore": 0.6666666
+  },
+  "claimedEvidenceCount": 3,
+  "droppedEvidenceCount": 1
+}

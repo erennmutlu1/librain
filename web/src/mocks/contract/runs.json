@@ -1,0 +1,37 @@
+[
+  {
+    "id": "d48cbcbc-13f0-4de2-bf55-d8dee92ed17d",
+    "kind": "compare",
+    "title": "weather forecasting \u00D7 protein folding",
+    "createdAt": "2026-11-17T23:43:59.997266Z",
+    "quality": 0.6666666
+  },
+  {
+    "id": "309aabe6-b4fe-4a98-acdf-45d236ff0fc9",
+    "kind": "single-llm",
+    "title": "weather forecasting \u00D7 protein folding",
+    "createdAt": "2026-11-17T23:43:59.982861Z",
+    "quality": 0.6666666
+  },
+  {
+    "id": "331076b5-e46b-492d-8d7e-4027a746f2ea",
+    "kind": "naive-rag",
+    "title": "weather forecasting \u00D7 protein folding",
+    "createdAt": "2026-11-17T23:43:59.964465Z",
+    "quality": 0.6666666
+  },
+  {
+    "id": "e16e3795-349d-4e6c-9e73-4e5a3c852a50",
+    "kind": "discover",
+    "title": "weather forecasting \u00D7 protein folding",
+    "createdAt": "2026-11-17T23:43:59.920922Z",
+    "quality": 0.6666666
+  },
+  {
+    "id": "b99e81ae-bcaa-4d89-82ae-feb64e91e1af",
+    "kind": "query",
+    "title": "Why does GraphCast forecast well?",
+    "createdAt": "2026-11-17T23:43:59.772497Z",
+    "quality": 0.7833333
+  }
+]
