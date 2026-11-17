@@ -1,6 +1,7 @@
-# Local stack: Qdrant + the LIBRAIN API.
+# Local stack: Qdrant + the LIBRAIN API + the web UI.
 #   cp .env.example .env    # then put your keys in .env (gitignored)
 #   docker compose up --build
+# UI:  http://localhost:5180 (nginx; forwards /api to the API, so no CORS needed)
 # API: http://localhost:5080 (5000 is often taken by macOS AirPlay Receiver).
 # Data persists in the qdrant-data volume; `docker compose down -v` deletes it.
 services:
@@ -26,6 +27,13 @@ services:
       OpenAI__ApiKey: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in .env (needed for embeddings)}
       # Optional: only the OpenAI-only experiments run without it.
       Anthropic__ApiKey: ${ANTHROPIC_API_KEY:-}
+
+  web:
+    build: ./web
+    depends_on:
+      - api
+    ports:
+      - "5180:80"
 
 volumes:
   qdrant-data:

@@ -164,7 +164,7 @@ dotnet run --project LIBRAIN
 
 ```bash
 cp .env.example .env          # add OPENAI_API_KEY (and ANTHROPIC_API_KEY); .env is gitignored
-docker compose up --build     # Qdrant + API; API on http://localhost:5080
+docker compose up --build     # Qdrant + API + web UI; UI on http://localhost:5180, API on http://localhost:5080
 ```
 
 Once the API is up:
