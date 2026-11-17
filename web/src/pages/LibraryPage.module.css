@@ -1,0 +1,283 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .layout {
+    grid-template-columns: minmax(17rem, 21rem) minmax(0, 1fr);
+    gap: var(--s7);
+  }
+
+  .upload {
+    position: sticky;
+    top: var(--s5);
+  }
+}
+
+.panelTitle {
+  font-size: var(--fs-md);
+  font-weight: 650;
+}
+
+/* ---------- Upload ---------- */
+
+.upload {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+
+.dropzone {
+  display: grid;
+  justify-items: start;
+  gap: var(--s2);
+  padding: var(--s5) var(--s4);
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.dropzone:hover,
+.dropzone[data-dragging] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+.dropzone:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.dropzone[data-disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropTitle {
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.dropHint {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.problem {
+  font-size: var(--fs-sm);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.warn {
+  font-size: var(--fs-xs);
+  color: var(--warning-ink);
+}
+
+.progress {
+  display: grid;
+  gap: var(--s2);
+  font-size: var(--fs-sm);
+}
+
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.progressTrack {
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.progressTrack > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 160ms linear;
+}
+
+.progressTrack[data-indeterminate] > span {
+  width: 35%;
+  animation: indeterminate 1.3s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+  from {
+    left: -35%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.doneBody {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.uploadActions {
+  display: flex;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.arxiv {
+  display: grid;
+  gap: var(--s2);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+}
+
+.arxivRow {
+  display: flex;
+  gap: var(--s2);
+}
+
+/* ---------- List ---------- */
+
+.listSection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  min-width: 0;
+}
+
+.listHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.filter {
+  width: min(100%, 18rem);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.table thead th {
+  text-align: left;
+  font-weight: 650;
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  width: 100%;
+  padding: var(--s2) var(--s2) var(--s2) 0;
+  border: 0;
+  background: transparent;
+  font-weight: 650;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.sortButton:hover {
+  color: var(--ink);
+}
+
+.sortMark {
+  font-size: 0.6rem;
+  color: var(--accent);
+  width: 0.8em;
+}
+
+.table tbody td {
+  padding: var(--s3) var(--s2) var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.title {
+  display: block;
+  font-family: var(--font-text);
+  font-size: var(--fs-md);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.id {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.idOnly {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.numCol {
+  width: 6.5rem;
+}
+
+.chunkBar {
+  display: block;
+  margin-top: 0.3rem;
+  height: 3px;
+  width: 4.5rem;
+  background: var(--track);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.chunkBar > span {
+  display: block;
+  height: 100%;
+  background: var(--ink-3);
+}
+
+.dateCol {
+  width: 8rem;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.footnote {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+@media (max-width: 34rem) {
+  .dateCol {
+    display: none;
+  }
+
+  .numCol {
+    width: 5rem;
+  }
+}

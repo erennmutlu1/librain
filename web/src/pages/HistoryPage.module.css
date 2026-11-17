@@ -1,0 +1,110 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.toolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.list {
+  display: grid;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) auto auto;
+  grid-template-areas: 'kind label meta quality';
+  align-items: baseline;
+  gap: var(--s2) var(--s4);
+  padding: var(--s4) var(--s2);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.row:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.row:hover .label {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.kind {
+  grid-area: kind;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.kind::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 0.45em;
+  border-radius: 2px;
+  background: var(--ink-3);
+}
+
+.kind[data-kind='discover']::before {
+  background: var(--accent);
+}
+
+.kind[data-kind='compare']::before {
+  background: var(--sys-naive);
+}
+
+.label {
+  grid-area: label;
+  font-family: var(--font-text);
+  font-size: var(--fs-lg);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  grid-area: meta;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.quality {
+  grid-area: quality;
+  display: grid;
+  justify-items: end;
+  font-weight: 650;
+  min-width: 3.5rem;
+}
+
+.qualityLabel {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+@media (max-width: 40rem) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'kind quality'
+      'label quality'
+      'meta quality';
+    row-gap: var(--s1);
+  }
+}
