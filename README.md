@@ -123,7 +123,7 @@ The full ingest, synthesis, and discovery pipeline needs an Anthropic key, an Op
 # 2. Build (no keys needed)
 dotnet build LIBRAIN.sln
 
-# 3. Run the full unit-test suite (81 tests, fully offline, no keys / network / Qdrant)
+# 3. Run the test suite (230 tests, fully offline, no keys / network / Qdrant)
 dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj
 
 # 4. Reproduce the paper numbers from committed result data (offline)
@@ -131,7 +131,12 @@ dotnet run --project LIBRAIN.Experiments -- analyze       # per-system descripti
 dotnet run --project LIBRAIN.Experiments -- human-eval    # inter-rater agreement
 ```
 
-The 81 tests cover the load-bearing pure logic (chunking, citation validation, scoring, claim validation, fabrication counting, inter-rater agreement). They instantiate no API clients and make no network calls, so they pass on a clean checkout with only the .NET 10 SDK installed. CI runs the same build and test on every push.
+The tests make no paid API calls and need no keys:
+
+- **Pure logic**: chunking, citation validation, scoring, claim validation, fabrication counting, inter-rater agreement.
+- **Replays of the committed results**: all 30 Discovery outputs in `experiments/discovery-openai/` are run through the current pipeline with the model's recorded outputs and must reproduce the committed quality, novelty and risk scores; all 40 RQ3 free-text answers must parse to the committed citation counts.
+- **The whole HTTP API, in memory**: every endpoint (including progress streaming, compare and run history) against fake LLM, embedding and vector-store implementations, with real arXiv metadata captured from export.arxiv.org as fixtures.
+- **Qdrant integration** (opt-in): `LIBRAIN_QDRANT_TEST_HOST=localhost dotnet test` against `docker compose up qdrant`. CI runs it against a Qdrant service container.
 
 ---
 
@@ -176,6 +181,27 @@ curl -k -X POST https://localhost:7XXX/api/query \
 ```
 
 (Replace 7XXX with the port from the dotnet run startup log.)
+
+---
+
+## HTTP API
+
+Interactive reference at `/scalar` when running in Development. Errors are `application/problem+json`.
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/papers` | Ingested papers (id, title, authors, year, chunk count) |
+| `POST /api/papers/ingest` | Ingest an uploaded PDF (multipart field `file`; the file name becomes the paper id) |
+| `POST /api/papers/arxiv` | Ingest by arXiv id (`{"arxivId": "2005.11401"}`); title, authors and year come from the arXiv API |
+| `DELETE /api/papers/{paperId}` | Remove a paper and all its chunks |
+| `POST /api/query` | Citation-grounded answer + evaluator scores; every citation carries the cited passage |
+| `POST /api/discover` | Discovery Mode hypothesis, `novelClaim`, per-sentence claim validation, scores |
+| `POST /api/naive-rag`, `POST /api/single-llm` | The paper's two baseline systems |
+| `POST /api/compare` | LIBRAIN, Naive-RAG and Single-LLM on one topic pair, concurrently |
+| `POST /api/query/stream`, `POST /api/discover/stream` | Same as above as server-sent events: `progress` events, then one `result` (or `error`) |
+| `GET /api/runs`, `GET /api/runs/{id}`, `DELETE /api/runs/{id}` | Saved runs (SQLite). The id is the response's `correlationId`, so this is also the audit lookup |
+
+Configuration: `Cors:AllowedOrigins` (Development allows the Vite dev server), `Runs:DatabasePath` (default `data/runs.db`), `Anthropic:MaxConcurrentRequests` (default 4). The app refuses to start without `OpenAI:ApiKey` (embeddings) and `Qdrant:Host`.
 
 ---
 
