@@ -31,7 +31,12 @@ public static class LlmJson
         switch (value.GetValueKind())
         {
             case JsonValueKind.Number:
-                return value.TryGetValue<double>(out var d) && double.IsFinite(d) ? d : null;
+                // Nodes parsed from text convert to double directly; nodes built in code
+                // (e.g. JsonValue<int>) only convert to their own CLR type, so fall back
+                // to the number's JSON text.
+                if (value.TryGetValue<double>(out var d) && double.IsFinite(d)) return d;
+                return double.TryParse(value.ToJsonString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var raw)
+                    && double.IsFinite(raw) ? raw : null;
             case JsonValueKind.String:
                 return double.TryParse(value.GetValue<string>(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
                     && double.IsFinite(parsed) ? parsed : null;

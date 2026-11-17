@@ -35,6 +35,16 @@ public sealed class LlmJsonTests
     }
 
     [Fact]
+    public void GetInt_And_GetDouble_WorkOnNodesBuiltInCode()
+    {
+        var node = new JsonObject { ["i"] = 7, ["d"] = 0.25, ["l"] = 3L };
+        Assert.Equal(7, LlmJson.GetInt(node["i"]));
+        Assert.Equal(0.25, LlmJson.GetDouble(node["d"]));
+        Assert.Equal(3, LlmJson.GetInt(node["l"]));
+        Assert.Equal(7.0, LlmJson.GetDouble(node["i"]));
+    }
+
+    [Fact]
     public void GetDouble_AcceptsNumericString()
     {
         var node = JsonNode.Parse("""{"p": "0.8"}""")!;
