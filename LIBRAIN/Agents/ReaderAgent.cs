@@ -9,14 +9,14 @@ public sealed class ReaderAgent(
     ILogger<ReaderAgent> logger,
     PdfTextExtractor extractor,
     RecursiveChunker chunker,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repository)
+    IEmbeddingClient embeddings,
+    IPaperStore repository)
 {
     private readonly ILogger<ReaderAgent> _logger = logger;
     private readonly PdfTextExtractor _extractor = extractor;
     private readonly RecursiveChunker _chunker = chunker;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repository = repository;
+    private readonly IEmbeddingClient _embeddings = embeddings;
+    private readonly IPaperStore _repository = repository;
 
     public async Task<IngestResult> IngestAsync(
         Stream pdfStream,

@@ -1,31 +1,28 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Messaging;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Llm;
 using LIBRAIN.Models;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 using Microsoft.Extensions.Options;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class DiscoveryAgent(
     ILogger<DiscoveryAgent> logger,
-    AnthropicChatClient claude,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repo,
+    ILlmClient llm,
+    TopicRetriever retriever,
     NoveltyScorer noveltyScorer,
     DiscoveryEvaluatorAgent evaluator,
     ClaimValidatorAgent claimValidator,
     IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<DiscoveryAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repo = repo;
+    private readonly ILlmClient _llm = llm;
+    private readonly TopicRetriever _retriever = retriever;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
     private readonly ClaimValidatorAgent _claimValidator = claimValidator;
@@ -137,11 +134,8 @@ public sealed class DiscoveryAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitDiscoveryTool =
-        new Function(
-            "submit_discovery",
-            "Submit a discovery hypothesis with supporting evidence and a flagged novel claim.",
-            JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitDiscoveryTool =
+        LlmTool.FromJsonSchema("submit_discovery", "Submit a discovery hypothesis with supporting evidence and a flagged novel claim.", ToolSchemaJson);
 
     public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, CancellationToken ct = default)
     {
@@ -164,27 +158,11 @@ public sealed class DiscoveryAgent(
 
         var sw = Stopwatch.StartNew();
 
-        var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-        var topicEmbeddings = await _embeddings.GenerateAsync(topicTexts, ct).ConfigureAwait(false);
-
-        var hitsA = await _repo.VectorSearchAsync(topicEmbeddings[0], topK, ct).ConfigureAwait(false);
-        var hitsB = topicB is null
-            ? Array.Empty<SearchHit>()
-            : await _repo.VectorSearchAsync(topicEmbeddings[1], topK, ct).ConfigureAwait(false);
-
-        // First-seen dedup: iterate hitsA then hitsB, preserving insertion order. The
-        // validation protocol's determinism check relies on this stable union ordering
-        // across runs sharing the same (topicA, topicB, topK).
-        var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-        var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-        foreach (var hit in hitsA)
-        {
-            if (seenKeys.Add((hit.PaperId, hit.ChunkIndex))) dedup.Add(hit);
-        }
-        foreach (var hit in hitsB)
-        {
-            if (seenKeys.Add((hit.PaperId, hit.ChunkIndex))) dedup.Add(hit);
-        }
+        var retrieval = await _retriever.RetrieveAsync(topicA, topicB, topK, ct).ConfigureAwait(false);
+        var hitsA = retrieval.HitsA;
+        var hitsB = retrieval.HitsB;
+        var seenKeys = retrieval.Keys;
+        var dedup = retrieval.Union;
 
         if (dedup.Count == 0)
         {
@@ -201,33 +179,15 @@ public sealed class DiscoveryAgent(
         var userPrompt = BuildUserPrompt(topicA, topicB, dedup);
 
         sw.Restart();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
-            Tools = new List<AnthropicTool> { SubmitDiscoveryTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery" },
-            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
-            Model = _synthesisModel,
-            Temperature = 0.2m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var request = new LlmRequest(
+            Model: _synthesisModel,
+            SystemPrompt: SystemPrompt,
+            UserPrompt: userPrompt,
+            Temperature: 0.2m);
+        var res = await _llm.CallToolAsync(request, SubmitDiscoveryTool, ct).ConfigureAwait(false);
         var synthElapsedMs = sw.ElapsedMilliseconds;
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogError(
-                "Discovery: forced tool call did not fire (stopReason={StopReason})",
-                res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block (correlationId={corrId}, stopReason={res.StopReason})");
-        }
-
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Tool use block had null input (correlationId={corrId})");
+        var input = res.Input;
 
         var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId})");
@@ -275,7 +235,7 @@ public sealed class DiscoveryAgent(
         _logger.LogInformation(
             "Discovery synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; evidence={EvidenceCount}/{RequestedCount}; novelClaimChars={NovelClaimChars}; basis={BasisCount} (pureSpec={PureSpec}) in {ElapsedMs}ms",
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             validatedEvidence.Count, rawEvidenceCount, novelClaim.Length, validatedBasis.Count, pureSpeculationCount, synthElapsedMs);
 
         // Three scoring passes (novelty via deterministic embedding, claim-level

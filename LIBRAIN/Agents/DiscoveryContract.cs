@@ -58,7 +58,7 @@ public static class DiscoveryContract
     // entry fails validation, is a contract violation and throws.
     public static BasisValidation ValidateBasisOrThrow(
         JsonArray? rawBasis,
-        ISet<(string PaperId, int ChunkIndex)> retrievedKeys,
+        IReadOnlySet<(string PaperId, int ChunkIndex)> retrievedKeys,
         Guid correlationId)
     {
         if (rawBasis is null || rawBasis.Count == 0)

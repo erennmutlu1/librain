@@ -1,20 +1,17 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Storage;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class EvaluatorAgent(
     ILogger<EvaluatorAgent> logger,
-    AnthropicChatClient claude)
+    ILlmClient llm)
 {
     private readonly ILogger<EvaluatorAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
 
     private const string SystemPromptText = """
         You are an evaluator for a research-synthesis system. You will be given a user
@@ -56,8 +53,8 @@ public sealed class EvaluatorAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitEvaluationTool =
-        new Function("submit_evaluation", "Submit a multi-dimensional evaluation of a hypothesis.", JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitEvaluationTool =
+        LlmTool.FromJsonSchema("submit_evaluation", "Submit a multi-dimensional evaluation of a hypothesis.", ToolSchemaJson);
 
     public async Task<EvaluationResult> EvaluateAsync(
         string query,
@@ -102,31 +99,15 @@ public sealed class EvaluatorAgent(
         }
 
         var sw = Stopwatch.StartNew();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(query, hypothesis, chunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitEvaluationTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_evaluation" },
-            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
-            Model = AnthropicModels.Claude45Haiku,
-            Temperature = 0.0m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: ModelSelection.JudgeModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(query, hypothesis, chunks),
+            Temperature: 0.0m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitEvaluationTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogWarning("Forced tool call did not fire (stopReason={StopReason})", res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block (correlationId={corrId}, stopReason={res.StopReason})");
-        }
-
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Tool use block had null input (correlationId={corrId})");
+        var input = res.Input;
 
         var rawG = LlmJson.GetDouble(input["groundedness_score"]);
         var rawR = LlmJson.GetDouble(input["relevance_score"]);
@@ -164,7 +145,7 @@ public sealed class EvaluatorAgent(
             "Evaluated hypothesis (q={QualityScore:F2} g={Groundedness:F2} r={Relevance:F2} c={Completeness:F2}; input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             quality, groundedness, relevance, completeness,
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
         return new EvaluationResult(

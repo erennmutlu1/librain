@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 
 namespace LIBRAIN.Generation;
@@ -18,14 +19,12 @@ namespace LIBRAIN.Generation;
 public sealed class OpenAiDiscoveryAgent(
     ILogger<OpenAiDiscoveryAgent> logger,
     OpenAIChatClient openai,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repo,
+    TopicRetriever retriever,
     NoveltyScorer noveltyScorer)
 {
     private readonly ILogger<OpenAiDiscoveryAgent> _logger = logger;
     private readonly OpenAIChatClient _openai = openai;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repo = repo;
+    private readonly TopicRetriever _retriever = retriever;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
 
     // Same Discovery contract as DiscoveryAgent.SystemPrompt; tail asks for JSON
@@ -92,14 +91,9 @@ public sealed class OpenAiDiscoveryAgent(
             throw new ArgumentException("topicA and topicB must differ.", nameof(req));
 
         // Retrieval — identical to DiscoveryAgent (first-seen dedup union).
-        var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-        var emb = await _embeddings.GenerateAsync(topicTexts, ct).ConfigureAwait(false);
-        var hitsA = await _repo.VectorSearchAsync(emb[0], topK, ct).ConfigureAwait(false);
-        var hitsB = topicB is null ? Array.Empty<SearchHit>() : await _repo.VectorSearchAsync(emb[1], topK, ct).ConfigureAwait(false);
-        var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-        var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-        foreach (var h in hitsA) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
-        foreach (var h in hitsB) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
+        var retrieval = await _retriever.RetrieveAsync(topicA, topicB, topK, ct).ConfigureAwait(false);
+        var seenKeys = retrieval.Keys;
+        var dedup = retrieval.Union;
         if (dedup.Count == 0)
             throw new InvalidOperationException($"No sources retrieved (correlationId={corrId}).");
 

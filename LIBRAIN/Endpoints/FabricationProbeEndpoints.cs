@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Generation;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 
 namespace LIBRAIN.Endpoints;
@@ -59,8 +60,7 @@ public static class FabricationProbeEndpoints
 
     private static async Task<IResult> HandleAsync(
         FabricationProbeRequest req,
-        OpenAIEmbeddingClient embeddings,
-        QdrantPaperRepository repo,
+        TopicRetriever retriever,
         OpenAIChatClient openai,
         ILogger<Program> logger,
         CancellationToken ct)
@@ -86,17 +86,9 @@ public static class FabricationProbeEndpoints
         try
         {
             // Retrieval (identical to the agents): embed topics, search, dedup.
-            var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-            var topicEmbeddings = await embeddings.GenerateAsync(topicTexts, ct);
-            var hitsA = await repo.VectorSearchAsync(topicEmbeddings[0], topK, ct);
-            var hitsB = topicB is null
-                ? Array.Empty<SearchHit>()
-                : await repo.VectorSearchAsync(topicEmbeddings[1], topK, ct);
-
-            var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-            var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-            foreach (var h in hitsA) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
-            foreach (var h in hitsB) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
+            var retrieval = await retriever.RetrieveAsync(topicA, topicB, topK, ct);
+            var seenKeys = retrieval.Keys;
+            var dedup = retrieval.Union;
             if (dedup.Count == 0)
                 return Results.Problem(title: "no sources retrieved", statusCode: StatusCodes.Status400BadRequest);
 

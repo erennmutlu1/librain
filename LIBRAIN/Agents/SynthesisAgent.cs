@@ -1,22 +1,20 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Models;
 using LIBRAIN.Storage;
 using Microsoft.Extensions.Options;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class SynthesisAgent(
     ILogger<SynthesisAgent> logger,
-    AnthropicChatClient claude,
+    ILlmClient llm,
     IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<SynthesisAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
     private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
 
     private const string SystemPromptText = """
@@ -50,8 +48,8 @@ public sealed class SynthesisAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitHypothesisTool =
-        new Function("submit_hypothesis", "Submit a citation-grounded hypothesis.", JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitHypothesisTool =
+        LlmTool.FromJsonSchema("submit_hypothesis", "Submit a citation-grounded hypothesis.", ToolSchemaJson);
 
     public async Task<SynthesisResult> SynthesizeAsync(
         string query,
@@ -78,31 +76,15 @@ public sealed class SynthesisAgent(
         }
 
         var sw = Stopwatch.StartNew();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(query, chunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitHypothesisTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
-            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
-            Model = _synthesisModel,
-            Temperature = 0.2m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: _synthesisModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(query, chunks),
+            Temperature: 0.2m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitHypothesisTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogWarning("Forced tool call did not fire (stopReason={StopReason})", res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block (correlationId={corrId}, stopReason={res.StopReason})");
-        }
-
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Tool use block had null input (correlationId={corrId})");
+        var input = res.Input;
 
         var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId})");
@@ -143,8 +125,8 @@ public sealed class SynthesisAgent(
             rawIndices.Length,
             res.Usage.InputTokens,
             res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens,
-            res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens,
+            res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
         return new SynthesisResult(hypothesis, validated, confidence, unsupported, corrId);

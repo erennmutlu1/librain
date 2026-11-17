@@ -38,8 +38,8 @@ public static class QueryEndpoints
 
     private static async Task<IResult> HandleAsync(
         QueryRequest req,
-        OpenAIEmbeddingClient embeddings,
-        QdrantPaperRepository repo,
+        IEmbeddingClient embeddings,
+        IPaperStore repo,
         SynthesisAgent synth,
         EvaluatorAgent eval,
         ILogger<Program> logger,

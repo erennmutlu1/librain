@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Generation;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 
 namespace LIBRAIN.Endpoints;
@@ -53,8 +54,7 @@ public static class ScoreEndpoints
 
     private static async Task<IResult> HandleAsync(
         ScoreRequest req,
-        OpenAIEmbeddingClient embeddings,
-        QdrantPaperRepository repo,
+        TopicRetriever retriever,
         NoveltyScorer noveltyScorer,
         OpenAIChatClient openai,
         ILogger<Program> logger,
@@ -85,14 +85,7 @@ public static class ScoreEndpoints
             var novelty = await noveltyScorer.ScoreAsync(novelClaim, ct);
 
             // Retrieve evidence context for the judge.
-            var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-            var emb = await embeddings.GenerateAsync(topicTexts, ct);
-            var hitsA = await repo.VectorSearchAsync(emb[0], topK, ct);
-            var hitsB = topicB is null ? Array.Empty<SearchHit>() : await repo.VectorSearchAsync(emb[1], topK, ct);
-            var seen = new HashSet<(string, int)>();
-            var dedup = new List<SearchHit>();
-            foreach (var h in hitsA) if (seen.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
-            foreach (var h in hitsB) if (seen.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
+            var dedup = (await retriever.RetrieveAsync(topicA, topicB, topK, ct)).Union;
 
             var (text, _, _) = await openai.CompleteAsync(JudgeSystem, BuildJudgePrompt(req.Hypothesis, novelClaim, dedup), req.Model, 0.0f, ct);
             // No JSON or a missing score is an invalid judge reply (502), not a 0 score.

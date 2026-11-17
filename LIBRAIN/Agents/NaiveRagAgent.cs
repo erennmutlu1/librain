@@ -2,14 +2,13 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Messaging;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Llm;
 using LIBRAIN.Models;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 using Microsoft.Extensions.Options;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
@@ -22,7 +21,7 @@ public static partial class NaiveRagCitations
 {
     public static (IReadOnlyList<ClaimedCitation> Resolved, int FabricatedCount) Resolve(
         IEnumerable<(string PaperId, int ChunkIndex)> claimed,
-        ISet<(string PaperId, int ChunkIndex)> retrievedKeys)
+        IReadOnlySet<(string PaperId, int ChunkIndex)> retrievedKeys)
     {
         var resolved = new List<ClaimedCitation>();
         int fabricated = 0;
@@ -138,7 +137,7 @@ public static partial class NaiveRagCitations
     // A chunk-less cite resolves on paper_id membership alone.
     public static (IReadOnlyList<ClaimedCitation> Resolved, int FabricatedCount) ResolveFreeText(
         IEnumerable<(string PaperId, int? ChunkIndex)> claimed,
-        ISet<(string PaperId, int ChunkIndex)> retrievedKeys,
+        IReadOnlySet<(string PaperId, int ChunkIndex)> retrievedKeys,
         ISet<string> retrievedPaperIds)
     {
         var resolved = new List<ClaimedCitation>();
@@ -174,17 +173,15 @@ public sealed record NaiveRagResult(
 // is not asked to separate grounded vs. speculative claims.
 public sealed class NaiveRagAgent(
     ILogger<NaiveRagAgent> logger,
-    AnthropicChatClient claude,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repo,
+    ILlmClient llm,
+    TopicRetriever retriever,
     NoveltyScorer noveltyScorer,
     DiscoveryEvaluatorAgent evaluator,
     IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<NaiveRagAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repo = repo;
+    private readonly ILlmClient _llm = llm;
+    private readonly TopicRetriever _retriever = retriever;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
     private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
@@ -225,11 +222,8 @@ public sealed class NaiveRagAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitHypothesisTool =
-        new Function(
-            "submit_hypothesis",
-            "Submit a hypothesis with claimed supporting citations.",
-            JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitHypothesisTool =
+        LlmTool.FromJsonSchema("submit_hypothesis", "Submit a hypothesis with claimed supporting citations.", ToolSchemaJson);
 
     // Free-text citation mode (RQ3 fabrication-delta). The model cites inline in prose
     // rather than via a structured array — the regime where LLMs actually invent cites.
@@ -258,11 +252,8 @@ public sealed class NaiveRagAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitHypothesisFreeTextTool =
-        new Function(
-            "submit_hypothesis",
-            "Submit a hypothesis with inline bracket citations in the text.",
-            JsonNode.Parse(FreeTextToolSchemaJson)!);
+    private static readonly LlmTool SubmitHypothesisFreeTextTool =
+        LlmTool.FromJsonSchema("submit_hypothesis", "Submit a hypothesis with inline bracket citations in the text.", FreeTextToolSchemaJson);
 
     public async Task<NaiveRagResult> RunAsync(
         string topicA,
@@ -285,24 +276,9 @@ public sealed class NaiveRagAgent(
 
         // Retrieval, identical to DiscoveryAgent so the comparison is on pipeline,
         // not on retrieval differences. Same dedup + ordering.
-        var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-        var topicEmbeddings = await _embeddings.GenerateAsync(topicTexts, ct).ConfigureAwait(false);
-
-        var hitsA = await _repo.VectorSearchAsync(topicEmbeddings[0], topK, ct).ConfigureAwait(false);
-        var hitsB = topicB is null
-            ? Array.Empty<SearchHit>()
-            : await _repo.VectorSearchAsync(topicEmbeddings[1], topK, ct).ConfigureAwait(false);
-
-        var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-        var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-        foreach (var hit in hitsA)
-        {
-            if (seenKeys.Add((hit.PaperId, hit.ChunkIndex))) dedup.Add(hit);
-        }
-        foreach (var hit in hitsB)
-        {
-            if (seenKeys.Add((hit.PaperId, hit.ChunkIndex))) dedup.Add(hit);
-        }
+        var retrieval = await _retriever.RetrieveAsync(topicA, topicB, topK, ct).ConfigureAwait(false);
+        var seenKeys = retrieval.Keys;
+        var dedup = retrieval.Union;
 
         if (dedup.Count == 0)
         {
@@ -318,30 +294,15 @@ public sealed class NaiveRagAgent(
         var userPrompt = BuildUserPrompt(topicA, topicB, dedup);
 
         var sw = Stopwatch.StartNew();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
-            System = new List<SystemMessage> { new SystemMessage(freeText ? FreeTextSystemPrompt : SystemPrompt) },
-            Tools = new List<AnthropicTool> { freeText ? SubmitHypothesisFreeTextTool : SubmitHypothesisTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
-            MaxTokens = AnthropicChatClient.DefaultMaxTokens,
-            Model = _synthesisModel,
-            Temperature = 0.2m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var request = new LlmRequest(
+            Model: _synthesisModel,
+            SystemPrompt: freeText ? FreeTextSystemPrompt : SystemPrompt,
+            UserPrompt: userPrompt,
+            Temperature: 0.2m);
+        var res = await _llm.CallToolAsync(request, freeText ? SubmitHypothesisFreeTextTool : SubmitHypothesisTool, ct).ConfigureAwait(false);
         var synthElapsedMs = sw.ElapsedMilliseconds;
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            throw new InvalidOperationException(
-                $"Naive-RAG: forced tool call did not fire (correlationId={corrId}, stopReason={res.StopReason})");
-        }
-
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Naive-RAG: tool use block had null input (correlationId={corrId})");
+        var input = res.Input;
 
         var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Naive-RAG: missing 'hypothesis' (correlationId={corrId})");
@@ -377,7 +338,7 @@ public sealed class NaiveRagAgent(
             "Naive-RAG synthesis ({CitationMode}): input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; claimed={ClaimedCount} resolved={ResolvedCount} fabricated={FabricatedCount} in {ElapsedMs}ms",
             freeText ? "free-text" : "structured",
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             claimed.Count, claimed.Count - fabricated, fabricated, synthElapsedMs);
 
         // Score: treat the whole hypothesis as the speculative claim (no novelClaim fence).

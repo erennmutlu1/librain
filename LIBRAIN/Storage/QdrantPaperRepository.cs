@@ -9,7 +9,7 @@ using Qdrant.Client.Grpc;
 
 namespace LIBRAIN.Storage;
 
-public sealed class QdrantPaperRepository
+public sealed class QdrantPaperRepository : IPaperStore
 {
     private const string DefaultCollectionName = "librain_chunks";
     private const ulong VectorSize = 1536;

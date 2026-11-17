@@ -19,5 +19,8 @@ public sealed class SingleLlmNoRetrievalTests
 
         Assert.DoesNotContain(typeof(QdrantPaperRepository), paramTypes);
         Assert.DoesNotContain(typeof(OpenAIEmbeddingClient), paramTypes);
+        Assert.DoesNotContain(typeof(IPaperStore), paramTypes);
+        Assert.DoesNotContain(typeof(IEmbeddingClient), paramTypes);
+        Assert.DoesNotContain(typeof(LIBRAIN.Retrieval.TopicRetriever), paramTypes);
     }
 }

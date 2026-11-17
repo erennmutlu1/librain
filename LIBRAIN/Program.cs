@@ -55,10 +55,14 @@ builder.Services.AddSingleton<QdrantClient>(sp =>
 });
 
 builder.Services.AddSingleton<AnthropicChatClient>();
-builder.Services.AddScoped<OpenAIEmbeddingClient>();
+builder.Services.AddSingleton<LIBRAIN.Llm.ILlmClient>(sp => sp.GetRequiredService<AnthropicChatClient>());
+builder.Services.AddScoped<IEmbeddingClient, OpenAIEmbeddingClient>();
 builder.Services.AddScoped<LIBRAIN.Generation.OpenAIChatClient>();
 builder.Services.AddScoped<LIBRAIN.Generation.OpenAiDiscoveryAgent>();
-builder.Services.AddScoped<QdrantPaperRepository>();
+// Singleton: stateless apart from its one-time collection setup, which used to race
+// when two first requests each ran it from their own scoped instance.
+builder.Services.AddSingleton<IPaperStore, QdrantPaperRepository>();
+builder.Services.AddScoped<LIBRAIN.Retrieval.TopicRetriever>();
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
@@ -99,7 +103,7 @@ app.MapPost("/api/papers/ingest", async (IFormFile file, ReaderAgent reader, Can
     return Results.Ok(result);
 }).DisableAntiforgery();
 
-app.MapGet("/api/papers", async (QdrantPaperRepository repo, CancellationToken ct) =>
+app.MapGet("/api/papers", async (IPaperStore repo, CancellationToken ct) =>
 {
     var papers = await repo.ListPapersAsync(ct);
     return Results.Ok(papers);
