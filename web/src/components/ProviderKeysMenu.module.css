@@ -62,3 +62,21 @@
   font-weight: 600;
   color: var(--ink);
 }
+
+/*
+ * Save, Clear and the save message: pinned to the bottom of the scrolling panel
+ * while the form is in view, so on a phone they never hide below the fold or
+ * behind the keyboard. The panel's bottom padding is pulled in so nothing shows
+ * underneath them.
+ */
+.actions {
+  position: sticky;
+  bottom: calc(-1 * var(--s5));
+  z-index: 1;
+  display: grid;
+  gap: var(--s2);
+  margin-inline: calc(-1 * var(--s5));
+  padding: var(--s3) var(--s5) var(--s5);
+  border-top: 1px solid var(--rule);
+  background: var(--surface-raised);
+}

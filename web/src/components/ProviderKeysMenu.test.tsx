@@ -101,4 +101,25 @@ describe('ProviderKeysMenu cost', () => {
     const firstField = within(panel).getByLabelText('Anthropic API key');
     expect(cost.compareDocumentPosition(firstField) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
+
+  it('on a touch screen, focuses the panel rather than a field, so no keyboard covers the price', async () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ matches: query === '(pointer: coarse)', media: query }) as MediaQueryList) as typeof window.matchMedia;
+    try {
+      const { panel } = await openPanel();
+      expect(panel).toHaveFocus();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
+  it('keeps Save tied to the form, although it sits outside it to stay pinned', async () => {
+    const { user, panel } = await openPanel();
+    const save = within(panel).getByRole('button', { name: 'Save keys' }) as HTMLButtonElement;
+    // The form owner makes Save the form's default button, so Enter in a field still saves (checked in Chrome).
+    expect(save.form).toBe(within(panel).getByLabelText('Anthropic API key').closest('form'));
+    await user.type(within(panel).getByLabelText('Anthropic API key'), 'sk-ant-test');
+    await user.click(save);
+    expect(within(panel).getByRole('status')).toHaveTextContent(/saved/i);
+  });
 });

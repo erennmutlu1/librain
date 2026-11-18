@@ -229,8 +229,23 @@ export function ProviderKeysMenu() {
 
   useEffect(() => {
     if (!open) return;
-    // Start where something is missing.
-    (anthropicInput.current?.value && !openaiInput.current?.value ? openaiInput : anthropicInput).current?.focus();
+    // Touch screens: focusing a field would raise the keyboard over the price
+    // before it is read, so focus goes to the panel itself. Elsewhere, start
+    // where something is missing.
+    if (window.matchMedia?.('(pointer: coarse)').matches) panel.current?.focus();
+    else (anthropicInput.current?.value && !openaiInput.current?.value ? openaiInput : anthropicInput).current?.focus();
+    // Keep the panel inside what is visible, which a phone's keyboard shrinks:
+    // its bottom, with the Save button, would otherwise sit behind the keyboard.
+    const view = window.visualViewport;
+    const fit = () => {
+      const el = panel.current;
+      if (!el || !view) return;
+      const visibleBottom = view.offsetTop + view.height;
+      el.style.setProperty('--panel-max', `${Math.max(200, Math.floor(visibleBottom - el.getBoundingClientRect().top - 12))}px`);
+    };
+    fit();
+    view?.addEventListener('resize', fit);
+    view?.addEventListener('scroll', fit);
     const close = () => {
       setOpen(false);
       setGoLive(false);
@@ -251,6 +266,8 @@ export function ProviderKeysMenu() {
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer);
+      view?.removeEventListener('resize', fit);
+      view?.removeEventListener('scroll', fit);
       // A check still running is for a panel no longer shown.
       checking.current?.abort();
       checking.current = null;
@@ -355,7 +372,7 @@ export function ProviderKeysMenu() {
       </button>
 
       {open ? (
-        <div ref={panel} id={`${uid}-panel`} className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${uid}-title`}>
+        <div ref={panel} id={`${uid}-panel`} className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${uid}-title`} tabIndex={-1}>
           <h2 id={`${uid}-title`} className={styles.title}>
             {t.title}
           </h2>
@@ -367,7 +384,7 @@ export function ProviderKeysMenu() {
             </p>
           ) : null}
           <p className={styles.intro}>{t.intro}</p>
-          <form className={styles.form} onSubmit={save}>
+          <form id={`${uid}-form`} className={styles.form} onSubmit={save}>
             <KeyField
               provider="anthropic"
               id={`${uid}-anthropic`}
@@ -403,8 +420,11 @@ export function ProviderKeysMenu() {
             <span id={`${uid}-remember`} className="field-hint">
               {t.rememberHint}
             </span>
+          </form>
+          {/* Outside the form so it can stay pinned to the panel's bottom edge however far the panel is scrolled: Save and its answer are always in view on a phone. */}
+          <div className={own.actions}>
             <div className="cluster">
-              <button type="submit" className="btn btn-primary btn-sm">
+              <button type="submit" form={`${uid}-form`} className="btn btn-primary btn-sm">
                 {goLive ? t.saveLive : t.save}
               </button>
               <button type="button" className="btn btn-sm" onClick={clear} disabled={!anthropic && !openai && !hasAny}>
@@ -414,7 +434,7 @@ export function ProviderKeysMenu() {
             <p className={styles.saved} role="status">
               {saved}
             </p>
-          </form>
+          </div>
           {demo?.checkKeys ? (
             <div className={styles.keyCheck}>
               <button

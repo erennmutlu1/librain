@@ -150,10 +150,17 @@
   position: static;
 }
 
+/* --panel-max is set from the visible viewport (a phone keyboard shrinks it); dvh is the fallback. */
 .publicRoot .panel {
   width: min(24rem, calc(100vw - 2 * var(--gutter)));
-  max-height: calc(100vh - 8rem);
+  max-height: var(--panel-max, calc(100dvh - 8rem));
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Focus lands on the panel itself on touch screens; its fields keep their own rings. */
+.publicRoot .panel:focus {
+  outline: none;
 }
 
 .intro {
