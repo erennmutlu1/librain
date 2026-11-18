@@ -154,8 +154,16 @@ describe('baseline normalisers', () => {
 describe('normalizePapers', () => {
   it('drops malformed rows and keeps nullable fields as null', () => {
     expect(normalizePapers([{ paperId: 'a', chunkCount: 3 }, { title: 'no id' }])).toEqual([
-      { paperId: 'a', title: null, chunkCount: 3, firstIngestedAt: null },
+      { paperId: 'a', title: null, chunkCount: 3, firstIngestedAt: null, authors: null, year: null },
     ]);
+  });
+
+  it('keeps authors and year when present, dropping empty names', () => {
+    expect(normalizePapers([{ paperId: 'b', chunkCount: 1, authors: ['Lewis', '', 'Perez'], year: 2020 }])[0]).toMatchObject({
+      authors: ['Lewis', 'Perez'],
+      year: 2020,
+    });
+    expect(normalizePapers([{ paperId: 'c', chunkCount: 1, authors: [], year: 'n/a' }])[0]).toMatchObject({ authors: null, year: null });
   });
 
   it('rejects a non-array', () => {

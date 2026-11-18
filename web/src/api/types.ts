@@ -4,17 +4,23 @@
  *
  *   PaperSummary            LIBRAIN/Storage/PaperSummary.cs
  *   IngestResult            LIBRAIN/Agents/IngestResult.cs
+ *   ArxivIngestRequest      LIBRAIN/Endpoints/PaperEndpoints.cs
  *   QueryRequest/Response   LIBRAIN/Endpoints/QueryEndpoints.cs
  *   SynthesisCitation       LIBRAIN/Agents/SynthesisResult.cs
  *   Discover*               LIBRAIN/Endpoints/DiscoveryEndpoints.cs
  *   ClaimValidation*        LIBRAIN/Agents/ClaimValidation.cs
  *   NaiveRag*, SingleLlm*   LIBRAIN/Endpoints/BaselineEndpoints.cs
  *   ClaimedCitation         LIBRAIN/Agents/NaiveRagAgent.cs
+ *   Compare*                LIBRAIN/Endpoints/CompareEndpoints.cs
+ *   PipelineProgress        LIBRAIN/Pipelines/PipelineProgress.cs
+ *   StreamError             LIBRAIN/Endpoints/StreamingEndpoints.cs
+ *   RunSummary, RunRecord   LIBRAIN/Runs/RunStore.cs
  *
- * These are the *normalised* shapes the UI renders. Wire payloads go through
- * `normalize.ts`, which fills defaults for fields that older recorded runs
- * lack and converts the ClaimFactualityStatus enum (serialised as a number
- * because the API has no JsonStringEnumConverter) into a string union.
+ * Every shape is pinned by the captured snapshots in src/mocks/contract/ and
+ * the contract tests that parse them. These are the *normalised* shapes the UI
+ * renders: wire payloads go through `normalize.ts`, which fills defaults for
+ * fields that older recorded runs lack and converts the ClaimFactualityStatus
+ * enum (serialised as a number) into a string union.
  */
 
 export type Guid = string;
@@ -30,12 +36,16 @@ export interface PaperSummary {
   chunkCount: number;
   /** ISO timestamp, or null when no chunk carried an ingest time. */
   firstIngestedAt: string | null;
+  /** From the arXiv API for arXiv ingests; null for most uploaded PDFs. */
+  authors: string[] | null;
+  year: number | null;
 }
 
 export interface IngestResult {
   paperId: string;
   chunkCount: number;
   correlationId: Guid;
+  title: string | null;
 }
 
 // ---------- /api/query ----------
@@ -52,7 +62,7 @@ export interface SynthesisCitation {
   chunkIndex: number;
   section: string | null;
   pageNumber: number | null;
-  /** Not returned by the API yet. Rendered as an excerpt when present. */
+  /** The cited passage text. */
   content?: string | null;
 }
 
@@ -79,13 +89,20 @@ export interface QueryResponse {
 
 export type Provider = 'anthropic' | 'openai';
 
+/** The only models /api/discover accepts with provider "openai". */
+export const OPENAI_MODELS = ['gpt-4o', 'gpt-4o-mini'] as const;
+export type OpenAiModel = (typeof OPENAI_MODELS)[number];
+
+export const MAX_TOPIC_CHARS = 500;
+export const MAX_QUERY_CHARS = 2000;
+
 export interface DiscoverRequest {
   topicA: string;
   topicB?: string;
   topK?: number;
   provider?: Provider;
-  /** OpenAI model id; only used when provider is "openai" (API default gpt-4o). */
-  model?: string;
+  /** Only used when provider is "openai" (API default gpt-4o). */
+  model?: OpenAiModel;
 }
 
 export interface SupportingEvidence {
@@ -93,8 +110,10 @@ export interface SupportingEvidence {
   chunkIndex: number;
   section: string | null;
   pageNumber: number | null;
-  /** "direct" or "analogous" in recorded runs. */
+  /** "direct", "analogous" or "analogy" in recorded runs. */
   supportType: string;
+  /** The passage text. */
+  content?: string | null;
 }
 
 /** "generalization" | "analogy" | "pure_speculation" per the Discovery prompt. */
@@ -122,10 +141,7 @@ export interface ClaimValidationEntry {
 export interface ClaimValidationResult {
   claims: ClaimValidationEntry[];
   aggregateRisk: number;
-  /**
-   * Being added on the backend: true when the validator produced nothing
-   * usable. aggregateRisk is then 1.0. Absent on older payloads.
-   */
+  /** True when the validator produced nothing usable (aggregateRisk is then 1.0). */
   validationFailed?: boolean;
 }
 
@@ -195,17 +211,72 @@ export interface SingleLlmResponse {
   outputTokens?: number;
 }
 
-// ---------- UI composite (not an endpoint) ----------
+// ---------- /api/compare ----------
 
-/** One topic pair run through all three systems on the Compare screen. */
 export interface CompareRequest {
   topicA: string;
   topicB?: string;
   topK?: number;
-  /** Applies to LIBRAIN only; the baselines always use the API's default model. */
-  provider?: Provider;
-  citationMode?: CitationMode;
 }
+
+/** One system's outcome: exactly one of result / error is set. */
+export interface CompareOutcome<T> {
+  result: T | null;
+  error: string | null;
+  /** Present on every outcome, so a failed system can be looked up in the logs. */
+  correlationId: Guid | null;
+}
+
+export interface CompareResponse {
+  correlationId: Guid;
+  topicA: string;
+  topicB: string | null;
+  topK: number;
+  librain: CompareOutcome<DiscoverResponse>;
+  naiveRag: CompareOutcome<NaiveRagResponse>;
+  singleLlm: CompareOutcome<SingleLlmResponse>;
+  /** Undefined for recordings assembled from separate experiment outputs. */
+  totalElapsedMs?: number;
+}
+
+// ---------- Streaming ----------
+
+/** One `event: progress` from /api/query/stream or /api/discover/stream. */
+export interface ProgressEvent {
+  stage: string;
+  message: string;
+  count: number | null;
+}
+
+export type ProgressListener = (event: ProgressEvent) => void;
+
+// ---------- /api/runs ----------
+
+export const RUN_KINDS = ['query', 'discover', 'compare', 'naive-rag', 'single-llm'] as const;
+export type RunKind = (typeof RUN_KINDS)[number];
+
+export interface RunSummary {
+  /** Equals the response's correlationId. */
+  id: Guid;
+  kind: RunKind;
+  title: string;
+  createdAt: string;
+  quality: number | null;
+}
+
+interface RunDetailBase extends RunSummary {
+  /** True when the run was answered from fixtures (mock mode) rather than the API. */
+  mock?: boolean;
+}
+
+export type QueryRun = RunDetailBase & { kind: 'query'; request: QueryRequest; response: QueryResponse };
+export type DiscoverRun = RunDetailBase & { kind: 'discover'; request: DiscoverRequest; response: DiscoverResponse };
+export type CompareRun = RunDetailBase & { kind: 'compare'; request: CompareRequest; response: CompareResponse };
+export type NaiveRagRun = RunDetailBase & { kind: 'naive-rag'; request: NaiveRagRequest; response: NaiveRagResponse };
+export type SingleLlmRun = RunDetailBase & { kind: 'single-llm'; request: SingleLlmRequest; response: SingleLlmResponse };
+
+/** A saved run with its request and response, as GET /api/runs/{id} returns it. */
+export type RunDetail = QueryRun | DiscoverRun | CompareRun | NaiveRagRun | SingleLlmRun;
 
 // ---------- Mock catalogue (mock mode only) ----------
 
@@ -215,7 +286,7 @@ export interface MockScenario<Req> {
   request: Req;
   /** Repo path of the recorded output this scenario serves. */
   source: string;
-  /** Present when the fixture was altered or reconstructed; says how. */
+  /** Present when the recording is assembled or replayed with synthetic timing; says how. */
   note?: string;
 }
 
@@ -248,10 +319,21 @@ export interface LibrainApi {
   /** Recorded runs and match info; only the mock client provides it. */
   readonly mock?: MockCatalog;
   health(signal?: AbortSignal): Promise<HealthResponse>;
+
   listPapers(signal?: AbortSignal): Promise<PaperSummary[]>;
   ingestPaper(file: File, options?: IngestOptions): Promise<IngestResult>;
+  ingestArxiv(arxivId: string, signal?: AbortSignal): Promise<IngestResult>;
+  deletePaper(paperId: string, signal?: AbortSignal): Promise<void>;
+
   query(request: QueryRequest, signal?: AbortSignal): Promise<QueryResponse>;
+  queryStream(request: QueryRequest, onProgress: ProgressListener, signal?: AbortSignal): Promise<QueryResponse>;
   discover(request: DiscoverRequest, signal?: AbortSignal): Promise<DiscoverResponse>;
+  discoverStream(request: DiscoverRequest, onProgress: ProgressListener, signal?: AbortSignal): Promise<DiscoverResponse>;
   naiveRag(request: NaiveRagRequest, signal?: AbortSignal): Promise<NaiveRagResponse>;
   singleLlm(request: SingleLlmRequest, signal?: AbortSignal): Promise<SingleLlmResponse>;
+  compare(request: CompareRequest, signal?: AbortSignal): Promise<CompareResponse>;
+
+  listRuns(filter?: { kind?: RunKind; limit?: number }, signal?: AbortSignal): Promise<RunSummary[]>;
+  getRun(id: string, signal?: AbortSignal): Promise<RunDetail>;
+  deleteRun(id: string, signal?: AbortSignal): Promise<void>;
 }

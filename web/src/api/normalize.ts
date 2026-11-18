@@ -1,5 +1,17 @@
 import { ApiError } from './errors';
 import type {
+  CompareOutcome,
+  CompareRequest,
+  CompareResponse,
+  DiscoverRequest,
+  NaiveRagRequest,
+  ProgressEvent,
+  Provider,
+  QueryRequest,
+  RunDetail,
+  RunKind,
+  RunSummary,
+  SingleLlmRequest,
   ClaimStatus,
   ClaimValidationEntry,
   ClaimValidationResult,
@@ -100,11 +112,15 @@ export function normalizeHealth(raw: unknown): HealthResponse {
 
 export function normalizePaper(raw: unknown): PaperSummary | null {
   if (!isRecord(raw) || typeof raw.paperId !== 'string') return null;
+  const authors = Array.isArray(raw.authors) ? strArr(raw.authors).filter((a) => a.trim() !== '') : null;
+  const year = numOrNull(raw.year);
   return {
     paperId: raw.paperId,
     title: strOrNull(raw.title),
     chunkCount: num(raw.chunkCount),
     firstIngestedAt: strOrNull(raw.firstIngestedAt),
+    authors: authors && authors.length > 0 ? authors : null,
+    year: year !== null && Number.isInteger(year) ? year : null,
   };
 }
 
@@ -117,7 +133,12 @@ export function normalizePapers(raw: unknown): PaperSummary[] {
 
 export function normalizeIngest(raw: unknown): IngestResult {
   const r = requireRecord(raw, 'the ingest result');
-  return { paperId: str(r.paperId), chunkCount: num(r.chunkCount), correlationId: str(r.correlationId) };
+  return {
+    paperId: str(r.paperId),
+    chunkCount: num(r.chunkCount),
+    correlationId: str(r.correlationId),
+    title: strOrNull(r.title),
+  };
 }
 
 function normalizeSynthesisCitation(raw: unknown): SynthesisCitation | null {
@@ -173,13 +194,15 @@ export function normalizeDiscoveryEvaluation(raw: unknown): DiscoveryEvaluation 
 
 function normalizeEvidence(raw: unknown): SupportingEvidence | null {
   if (!isRecord(raw) || typeof raw.paperId !== 'string') return null;
-  return {
+  const evidence: SupportingEvidence = {
     paperId: raw.paperId,
     chunkIndex: num(raw.chunkIndex),
     section: strOrNull(raw.section),
     pageNumber: numOrNull(raw.pageNumber),
     supportType: str(raw.supportType, 'direct'),
   };
+  if (typeof raw.content === 'string' && raw.content.trim() !== '') evidence.content = raw.content;
+  return evidence;
 }
 
 function normalizeBasis(raw: unknown): ExtrapolationBasis | null {
@@ -289,4 +312,153 @@ export function normalizeSingleLlm(raw: unknown): SingleLlmResponse {
     } satisfies SingleLlmResponse,
     r,
   );
+}
+
+// ---------- /api/compare ----------
+
+function normalizeOutcome<T>(raw: unknown, normalize: (value: unknown) => T): CompareOutcome<T> {
+  const r = isRecord(raw) ? raw : {};
+  let result: T | null = null;
+  let error = strOrNull(r.error);
+  // `{ ok, value }` is how the first UI pass stored outcomes locally.
+  const value = r.result !== undefined ? r.result : r.ok === true ? r.value : undefined;
+  if (value !== null && value !== undefined) {
+    try {
+      result = normalize(value);
+    } catch {
+      error = error ?? 'The result could not be read.';
+    }
+  }
+  if (result === null && error === null) error = 'No result was returned.';
+  return { result, error, correlationId: strOrNull(r.correlationId) ?? (result as { correlationId?: string } | null)?.correlationId ?? null };
+}
+
+export function normalizeCompareResponse(raw: unknown): CompareResponse {
+  const r = requireRecord(raw, 'the compare response');
+  const response: CompareResponse = {
+    correlationId: str(r.correlationId),
+    topicA: str(r.topicA),
+    topicB: strOrNull(r.topicB),
+    topK: num(r.topK, 5),
+    librain: normalizeOutcome(r.librain, normalizeDiscoverResponse),
+    naiveRag: normalizeOutcome(r.naiveRag, normalizeNaiveRag),
+    singleLlm: normalizeOutcome(r.singleLlm, normalizeSingleLlm),
+  };
+  const elapsed = optNum(r.totalElapsedMs);
+  if (elapsed !== undefined) response.totalElapsedMs = elapsed;
+  return response;
+}
+
+// ---------- Streaming ----------
+
+export function normalizeProgress(raw: unknown): ProgressEvent {
+  const r = isRecord(raw) ? raw : {};
+  return { stage: str(r.stage, 'working'), message: str(r.message), count: numOrNull(r.count) };
+}
+
+// ---------- /api/runs ----------
+
+const KIND_ALIASES: Record<string, RunKind> = {
+  query: 'query',
+  ask: 'query',
+  discover: 'discover',
+  compare: 'compare',
+  'naive-rag': 'naive-rag',
+  'single-llm': 'single-llm',
+};
+
+export function parseRunKind(raw: unknown): RunKind | null {
+  return typeof raw === 'string' ? (KIND_ALIASES[raw.trim().toLowerCase()] ?? null) : null;
+}
+
+export function normalizeRunSummary(raw: unknown): RunSummary | null {
+  if (!isRecord(raw) || typeof raw.id !== 'string') return null;
+  const kind = parseRunKind(raw.kind);
+  if (!kind) return null;
+  return {
+    id: raw.id,
+    kind,
+    title: str(raw.title, str(raw.label)),
+    createdAt: str(raw.createdAt),
+    quality: numOrNull(raw.quality),
+  };
+}
+
+export function normalizeRunSummaries(raw: unknown): RunSummary[] {
+  if (!Array.isArray(raw)) {
+    throw new ApiError({ kind: 'parse', title: 'Unexpected response', detail: 'Expected a list of runs.' });
+  }
+  return raw.map(normalizeRunSummary).filter((r): r is RunSummary => r !== null);
+}
+
+function optStr(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== '' ? value : undefined;
+}
+
+function optInt(value: unknown): number | undefined {
+  const n = numOrNull(value);
+  return n === null ? undefined : n;
+}
+
+function compact<T extends object>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as T;
+}
+
+function topicsRequest(r: Rec): { topicA: string; topicB?: string; topK?: number } {
+  return compact({ topicA: str(r.topicA), topicB: optStr(r.topicB), topK: optInt(r.topK) });
+}
+
+function normalizeProvider(value: unknown): Provider | undefined {
+  return value === 'openai' || value === 'anthropic' ? value : undefined;
+}
+
+export function normalizeQueryRequest(raw: unknown): QueryRequest {
+  const r = isRecord(raw) ? raw : {};
+  return compact({ query: str(r.query), topK: optInt(r.topK) });
+}
+
+export function normalizeDiscoverRequest(raw: unknown): DiscoverRequest {
+  const r = isRecord(raw) ? raw : {};
+  const model = r.model === 'gpt-4o' || r.model === 'gpt-4o-mini' ? r.model : undefined;
+  return compact({ ...topicsRequest(r), provider: normalizeProvider(r.provider), model });
+}
+
+export function normalizeCompareRequest(raw: unknown): CompareRequest {
+  return topicsRequest(isRecord(raw) ? raw : {});
+}
+
+export function normalizeNaiveRagRequest(raw: unknown): NaiveRagRequest {
+  const r = isRecord(raw) ? raw : {};
+  const mode = r.citationMode === 'free-text' || r.citationMode === 'structured' ? r.citationMode : undefined;
+  return compact({ ...topicsRequest(r), citationMode: mode });
+}
+
+export function normalizeSingleLlmRequest(raw: unknown): SingleLlmRequest {
+  const r = isRecord(raw) ? raw : {};
+  return compact({ topicA: str(r.topicA), topicB: optStr(r.topicB) });
+}
+
+/**
+ * A saved run with request and response (GET /api/runs/{id}, or a record from
+ * the browser store). Accepts `response` or the first UI pass's `result`, and
+ * the old "ask" kind, so locally stored runs keep rendering.
+ */
+export function normalizeRunDetail(raw: unknown): RunDetail {
+  const r = requireRecord(raw, 'the run');
+  const summary = normalizeRunSummary(r);
+  if (!summary) throw new ApiError({ kind: 'parse', title: 'Unexpected response', detail: 'The run has no id or an unknown kind.' });
+  const body = r.response !== undefined ? r.response : r.result;
+  const base = r.mock === true ? { ...summary, mock: true } : summary;
+  switch (summary.kind) {
+    case 'query':
+      return { ...base, kind: 'query', request: normalizeQueryRequest(r.request), response: normalizeQueryResponse(body) };
+    case 'discover':
+      return { ...base, kind: 'discover', request: normalizeDiscoverRequest(r.request), response: normalizeDiscoverResponse(body) };
+    case 'compare':
+      return { ...base, kind: 'compare', request: normalizeCompareRequest(r.request), response: normalizeCompareResponse(body) };
+    case 'naive-rag':
+      return { ...base, kind: 'naive-rag', request: normalizeNaiveRagRequest(r.request), response: normalizeNaiveRag(body) };
+    case 'single-llm':
+      return { ...base, kind: 'single-llm', request: normalizeSingleLlmRequest(r.request), response: normalizeSingleLlm(body) };
+  }
 }
