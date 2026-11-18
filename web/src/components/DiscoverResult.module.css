@@ -1,3 +1,11 @@
+/*
+ * A Discover result reads top to bottom as an audit: the topic pair, the
+ * hypothesis (the hero card, the only raised panel with the brand trace),
+ * the scorecard, the novel claim checked sentence by sentence, then the
+ * evidence and the generator's own basis. Text that is the product (the
+ * hypothesis, the claim, passages) stays in the reading serif.
+ */
+
 .root {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -8,17 +16,25 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s3);
-  padding-bottom: var(--s4);
-  border-bottom: 1px solid var(--rule);
 }
 
 .title {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-2xl);
-  line-height: 1.15;
-  font-variation-settings: 'opsz' 48;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: clamp(var(--fs-xl), 3.6vw, var(--fs-3xl));
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+  max-width: 36ch;
+}
+
+.titleTopic:first-child {
+  display: block;
+}
+
+.titleCross {
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .meta {
@@ -29,9 +45,12 @@
 }
 
 .sectionTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
   font-size: var(--fs-sm);
   font-weight: 650;
-  color: var(--ink-2);
+  color: var(--ink);
   margin-bottom: var(--s3);
 }
 
@@ -40,6 +59,47 @@
   color: var(--ink-3);
   margin: calc(var(--s2) * -1) 0 var(--s3);
 }
+
+/* ---------- The hypothesis: hero card ---------- */
+
+.hypothesis {
+  position: relative;
+  padding: var(--s5) var(--s5) var(--s4);
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+/* The brand trace along the card's top edge. */
+.hypothesis::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--grad-brand, var(--accent));
+}
+
+.hypothesis .sectionTitle {
+  color: var(--ink-2);
+}
+
+@media (max-width: 30rem) {
+  .hypothesis {
+    padding: var(--s4) var(--s4) var(--s3);
+  }
+}
+
+.lead {
+  font-family: var(--font-text);
+  font-size: clamp(var(--fs-lg), 2.2vw, var(--fs-xl));
+  line-height: 1.6;
+  max-width: 64ch;
+  color: var(--ink);
+  font-variation-settings: 'opsz' 20;
+}
+
+/* ---------- Baseline results (BaselineResult) ---------- */
 
 .top {
   display: grid;
@@ -52,14 +112,6 @@
   .top {
     grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
   }
-}
-
-.lead {
-  font-family: var(--font-text);
-  font-size: var(--fs-lg);
-  line-height: 1.65;
-  max-width: 66ch;
-  font-variation-settings: 'opsz' 18;
 }
 
 .scores {
@@ -75,20 +127,71 @@
   margin-bottom: 0;
 }
 
-.claim {
-  padding-top: var(--s5);
+/* ---------- Scorecard strip ---------- */
+
+.scorecard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+  margin-top: calc(var(--s7) * -1 + var(--s4));
+  padding: var(--s4) var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+
+.cardCell {
+  padding-top: var(--s4);
   border-top: 1px solid var(--rule);
 }
+
+@media (min-width: 56rem) {
+  .scorecard {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s6);
+  }
+
+  .cardCell {
+    padding-top: 0;
+    border-top: 0;
+    padding-left: var(--s5);
+    border-left: 1px solid var(--rule);
+  }
+}
+
+.cardScores {
+  min-width: 0;
+}
+
+/* ---------- Novel claim ---------- */
+
+.claim {
+  padding-top: var(--s6);
+  border-top: 1px solid var(--rule);
+}
+
+.claim > .sectionTitle {
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--s4);
+}
+
+/* ---------- Evidence and basis ---------- */
 
 .lower {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s6);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--rule);
 }
 
 @media (min-width: 52rem) {
   .lower {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s7);
   }
 }
 
@@ -96,24 +199,28 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
-  padding-left: 1.25rem;
+  padding-left: 1.5rem;
+  counter-reset: basis;
 }
 
 .basisItem {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s1);
+  padding-left: var(--s1);
 }
 
 .basisItem::marker {
   color: var(--ink-3);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .basisSentence {
   font-family: var(--font-text);
   font-size: var(--fs-md);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .basisMeta {
@@ -125,40 +232,27 @@
   color: var(--ink-2);
 }
 
+.basisMeta code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
 .basisRationale {
   font-size: var(--fs-sm);
   color: var(--ink-2);
+  line-height: 1.5;
 }
 
-.reasoning .prose {
+/* ---------- Reasoning ---------- */
+
+.reasoning {
+  padding-top: var(--s6);
+  border-top: 1px solid var(--rule);
+}
+
+.reasoning :global(.prose) {
   color: var(--ink-2);
   font-size: var(--fs-md);
-}
-
-/* ---------- Scorecard strip ---------- */
-
-.scorecard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s5);
-  padding: var(--s4) var(--s5);
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-md);
-}
-
-@media (min-width: 56rem) {
-  .scorecard {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--s6);
-  }
-
-  .cardCell {
-    padding-left: var(--s5);
-    border-left: 1px solid var(--rule);
-  }
-}
-
-.cardScores {
-  min-width: 0;
 }

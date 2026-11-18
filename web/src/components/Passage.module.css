@@ -5,15 +5,17 @@
   min-width: 0;
 }
 
+/* A quoted passage: the reading serif, a hairline rule to its left, calm ink. */
 .quote {
   margin: 0;
   padding-left: var(--s3);
   border-left: 2px solid var(--rule-strong);
   font-family: var(--font-text);
   font-size: var(--fs-sm);
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--ink-2);
   overflow-wrap: anywhere;
+  max-width: 70ch;
 }
 
 .root[data-compact] .quote {
@@ -29,9 +31,11 @@
 }
 
 .toggle {
+  min-height: 2rem;
   border: 0;
   background: none;
   padding: var(--s1) 0;
+  margin-left: var(--s3);
   font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--accent);
@@ -40,4 +44,5 @@
 
 .toggle:hover {
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }

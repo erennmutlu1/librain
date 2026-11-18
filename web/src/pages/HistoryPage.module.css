@@ -41,19 +41,24 @@
 
 .row {
   display: grid;
-  grid-template-columns: 6rem minmax(0, 1fr) auto auto;
+  grid-template-columns: 7rem minmax(0, 1fr) auto auto;
   grid-template-areas: 'kind label meta quality';
   align-items: baseline;
   gap: var(--s2) var(--s4);
-  padding: var(--s4) var(--s2);
+  padding: var(--s4) var(--s3);
   border-bottom: 1px solid var(--rule);
   color: var(--ink);
   text-decoration: none;
+  transition: background-color 120ms ease;
 }
 
 .row:hover {
   background: var(--surface);
   color: var(--ink);
+}
+
+.row:focus-visible {
+  outline-offset: -2px;
 }
 
 .row:hover .label {
@@ -74,8 +79,8 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin-right: 0.45em;
-  border-radius: 2px;
+  margin-right: 0.5em;
+  border-radius: 50%;
   background: var(--ink-3);
 }
 
@@ -83,15 +88,16 @@
   background: var(--accent);
 }
 
+/* Compare ran all three systems: their three hues in one dot. */
 .kind[data-kind='compare']::before {
-  background: var(--sys-naive);
+  background: conic-gradient(var(--sys-librain) 0 33%, var(--sys-naive) 0 66%, var(--sys-single) 0);
 }
 
 .label {
   grid-area: label;
-  font-family: var(--font-text);
-  font-size: var(--fs-lg);
-  line-height: 1.35;
+  font-weight: 600;
+  font-size: var(--fs-md);
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
@@ -109,11 +115,15 @@
   grid-area: quality;
   display: grid;
   justify-items: end;
-  font-weight: 650;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: var(--fs-lg);
+  line-height: 1.1;
   min-width: 3.5rem;
 }
 
 .qualityLabel {
+  font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 500;
   color: var(--ink-3);

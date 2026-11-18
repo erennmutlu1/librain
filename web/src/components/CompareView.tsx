@@ -24,7 +24,7 @@ export function SystemsExplainer() {
   return (
     <dl className={styles.explainer}>
       {(Object.keys(SYSTEMS) as SystemKey[]).map((key) => (
-        <div key={key} className={styles.explainerItem}>
+        <div key={key} className={styles.explainerItem} data-system={key}>
           <dt>
             <SystemKeySwatch system={key} />
             {SYSTEMS[key].name}
@@ -54,7 +54,7 @@ function ScoreCell({ system, state, value, best }: { system: SystemKey; state: S
   if (typeof value !== 'number') return <td className={`${styles.cell} muted`}>Not scored</td>;
   return (
     <td className={styles.cell}>
-      <span className={styles.cellInner}>
+      <span className={styles.cellInner} data-system={system}>
         <span className={`${styles.cellValue} num`} data-best={best || undefined}>
           {formatScore(value)}
           {best ? <span className="visually-hidden"> (highest)</span> : null}

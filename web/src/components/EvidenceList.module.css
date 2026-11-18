@@ -1,3 +1,5 @@
+/* Supporting evidence: chunk key (mono, the citation itself), support type, paper, where, then the passage. */
+
 .list {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -7,32 +9,45 @@
 .item {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.15rem;
-  padding: var(--s3) 0;
+  gap: var(--s1);
+  padding: var(--s4) 0;
   border-bottom: 1px solid var(--rule);
   min-width: 0;
 }
 
 .top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s2);
+  margin-bottom: var(--s1);
 }
 
 .key {
+  padding: 0.1em 0.45em;
+  border-radius: var(--r-sm);
+  background: var(--bg-deep, var(--surface-sunken));
+  border: 1px solid var(--rule);
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   overflow-wrap: anywhere;
+}
+
+.top :global(.tag) {
+  text-transform: none;
 }
 
 .title {
   font-size: var(--fs-sm);
+  font-weight: 550;
   color: var(--ink);
+  line-height: 1.4;
 }
 
 .where {
   font-size: var(--fs-xs);
   color: var(--ink-3);
   overflow-wrap: anywhere;
+  margin-bottom: var(--s1);
 }

@@ -2,10 +2,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--s1);
+  min-height: 2rem;
   font-size: var(--fs-sm);
   font-weight: 600;
   text-decoration: none;
-  margin-bottom: var(--s5);
+  margin-bottom: var(--s4);
+}
+
+.back:hover {
+  text-decoration: underline;
 }
 
 .header {
@@ -14,7 +19,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--s3);
-  margin-bottom: var(--s5);
+  margin-bottom: var(--s6);
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
 }
 
 .meta {
@@ -44,9 +53,10 @@
 }
 
 .compareTitle {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-2xl);
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: clamp(var(--fs-xl), 3.4vw, var(--fs-2xl));
+  letter-spacing: -0.02em;
   line-height: 1.15;
   overflow-wrap: anywhere;
 }

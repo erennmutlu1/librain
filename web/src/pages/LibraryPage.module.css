@@ -18,8 +18,10 @@
 }
 
 .panelTitle {
-  font-size: var(--fs-md);
-  font-weight: 650;
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* ---------- Upload ---------- */
@@ -28,9 +30,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
-  padding: var(--s4);
-  background: var(--surface);
-  border: 1px solid var(--rule);
+  padding: var(--s5);
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--rule-glow, var(--rule));
   border-radius: var(--r-md);
 }
 
@@ -41,7 +43,7 @@
   padding: var(--s5) var(--s4);
   border: 1.5px dashed var(--rule-strong);
   border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
   color: var(--ink-2);
   cursor: pointer;
 }
@@ -199,22 +201,29 @@
   padding: 0;
 }
 
+.table tbody tr:not(.confirmRow):hover > td {
+  background: var(--surface);
+}
+
 .sortButton {
   display: inline-flex;
   align-items: center;
   gap: var(--s1);
   width: 100%;
+  min-height: 2.5rem;
   padding: var(--s2) var(--s2) var(--s2) 0;
   border: 0;
   background: transparent;
   font-weight: 650;
-  font-size: var(--fs-sm);
-  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
   cursor: pointer;
   text-align: inherit;
 }
 
-.sortButton:hover {
+.sortButton:hover,
+th[aria-sort='ascending'] .sortButton,
+th[aria-sort='descending'] .sortButton {
   color: var(--ink);
 }
 
@@ -228,6 +237,15 @@
   padding: var(--s3) var(--s2) var(--s3) 0;
   border-bottom: 1px solid var(--rule);
   vertical-align: top;
+  transition: background-color 120ms ease;
+}
+
+.table tbody td:first-child {
+  padding-left: var(--s2);
+}
+
+.table thead th:first-child .sortButton {
+  padding-left: var(--s2);
 }
 
 .title {
@@ -240,7 +258,7 @@
 
 .id {
   display: block;
-  margin-top: 0.15rem;
+  margin-top: 0.2rem;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--ink-3);
@@ -250,6 +268,7 @@
 .idOnly {
   font-family: var(--font-mono);
   font-size: 0.85rem;
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 
@@ -270,7 +289,8 @@
 .chunkBar > span {
   display: block;
   height: 100%;
-  background: var(--ink-3);
+  background: var(--accent);
+  opacity: 0.75;
 }
 
 .dateCol {
@@ -320,7 +340,7 @@
 .rowAction[aria-expanded='true'] {
   color: var(--danger);
   border-color: var(--rule);
-  background: var(--surface);
+  background: var(--surface-raised, var(--surface));
 }
 
 .narrowMeta {

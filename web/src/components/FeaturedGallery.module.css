@@ -18,12 +18,11 @@
 }
 
 .galleryTitle {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-2xl);
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: clamp(var(--fs-xl), 3vw, var(--fs-2xl));
   line-height: 1.15;
-  letter-spacing: -0.005em;
-  font-variation-settings: 'opsz' 48;
+  letter-spacing: -0.02em;
 }
 
 .lede {
@@ -75,14 +74,16 @@
   flex-direction: column;
   gap: var(--s3);
   min-width: 0;
-  padding: var(--s4) var(--s5) var(--s3);
+  padding: var(--s5) var(--s5) var(--s3);
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
+  transition: border-color 140ms ease, background-color 140ms ease;
 }
 
 .card:hover {
-  border-color: var(--rule-strong);
+  border-color: var(--rule-glow, var(--rule-strong));
+  background: var(--surface-raised, var(--surface));
 }
 
 .placeholder {
@@ -90,11 +91,11 @@
 }
 
 .title {
-  font-family: var(--font-text);
-  font-weight: 500;
+  font-family: var(--font-ui);
+  font-weight: 600;
   font-size: var(--fs-lg);
-  line-height: 1.28;
-  font-variation-settings: 'opsz' 24;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
 
@@ -110,8 +111,8 @@
 .card:hover .link {
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 0.2em;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.22em;
 }
 
 /* Stretch the link over the card, and draw its focus ring around the card. */
@@ -137,16 +138,17 @@
 }
 
 .topic + .topic {
-  margin-top: 0.15em;
+  margin-top: 0.1em;
+  color: var(--ink-2);
 }
 
 /* Out of flow, so topic B starts on topic A's left edge. */
 .cross {
   position: absolute;
-  left: -0.95em;
-  top: -0.02em;
+  left: -1em;
+  top: 0;
   font-family: var(--font-ui);
-  font-size: 1.05em;
+  font-size: 1em;
   font-weight: 500;
   color: var(--accent);
 }
@@ -170,7 +172,7 @@
   padding: 0.1em 0.5em;
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
   font-size: var(--fs-xs);
   line-height: 1.5;
   color: var(--ink-2);
@@ -206,11 +208,16 @@
   font-size: var(--fs-xs);
   color: var(--ink-2);
   overflow-wrap: anywhere;
+  font-family: var(--font-mono);
 }
 
 .bridgesLabel {
   font-weight: 650;
   color: var(--ink);
+}
+
+.bridges .bridgesLabel {
+  font-family: var(--font-ui);
 }
 
 .footer {

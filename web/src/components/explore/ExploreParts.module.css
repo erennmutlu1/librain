@@ -1,8 +1,10 @@
 /*
- * Explore's shared pieces. They reuse the Featured gallery's language: serif
- * topic pairs with the "×" hung in the margin, quiet chips, a provenance
- * footer. Category identity is an icon on a tile of the category hue plus the
- * name; the rating is the one loud element (serif numeral and stars).
+ * Explore's shared pieces. They reuse the Featured gallery's language: topic
+ * pairs with the "×" hung in the margin, quiet chips, a provenance footer.
+ * Category identity is an icon on a tile of the category hue plus the name.
+ * The rating is the one loud element: a display numeral and stars, and at
+ * its large size (the discovery of the day, a detail page) the numeral is
+ * set in the brand gradient, as the page's key number.
  */
 
 /* ---------- Category ---------- */
@@ -25,8 +27,8 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: var(--r-sm);
-  background: color-mix(in srgb, var(--cat) 20%, var(--surface));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat) 55%, transparent);
+  background: color-mix(in srgb, var(--cat) 22%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat) 60%, transparent);
   color: var(--ink);
 }
 
@@ -36,9 +38,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
-  padding: 0.1em 0.5em;
+  padding: 0.1em 0.55em;
   border-radius: 999px;
   background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
   color: var(--ink);
   font-size: var(--fs-xs);
   font-weight: 650;
@@ -60,21 +63,22 @@
 }
 
 .ratingNumber {
-  font-family: var(--font-text);
+  font-family: var(--font-display, var(--font-ui));
   font-weight: 600;
   font-size: var(--fs-lg);
   line-height: 1;
+  letter-spacing: -0.02em;
   color: var(--ink);
   font-variant-numeric: tabular-nums lining-nums;
-  font-variation-settings: 'opsz' 24;
 }
 
 .ratingOutOf {
   font-family: var(--font-ui);
-  font-size: 0.62em;
+  font-size: 0.6em;
   font-weight: 550;
   color: var(--ink-3);
   letter-spacing: 0;
+  -webkit-text-fill-color: var(--ink-3);
 }
 
 .stars {
@@ -109,10 +113,26 @@
 }
 
 .rating[data-size='lg'] .ratingNumber {
-  font-size: clamp(2.5rem, 7vw, 3.5rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  font-variation-settings: 'opsz' 72;
+  font-size: clamp(2.75rem, 7vw, 3.75rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  background: var(--grad-brand, none);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .rating[data-size='lg'] .ratingNumber {
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+@media (forced-colors: active) {
+  .rating[data-size='lg'] .ratingNumber {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
 }
 
 .rating[data-size='lg'] .stars {
@@ -129,7 +149,7 @@
   padding: 0.1em 0.5em;
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
   font-size: var(--fs-xs);
   line-height: 1.5;
   color: var(--ink-2);
@@ -168,12 +188,16 @@
   margin-top: 0.15em;
 }
 
+.topic + .topic {
+  color: var(--ink-2);
+}
+
 .cross {
   position: absolute;
-  left: -0.95em;
-  top: -0.02em;
+  left: -1em;
+  top: 0;
   font-family: var(--font-ui);
-  font-size: 1.05em;
+  font-size: 1em;
   font-weight: 500;
   color: var(--accent);
 }
@@ -203,7 +227,7 @@
 
 .bookmarkIcon:hover {
   border-color: var(--rule-strong);
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
 }
 
 /* ---------- Card ---------- */
@@ -217,13 +241,15 @@
   padding: var(--s4) var(--s5) var(--s3);
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--cat);
-  border-radius: var(--r-md);
+  border-top: 2px solid var(--cat);
+  border-radius: var(--r-sm) var(--r-sm) var(--r-md) var(--r-md);
+  transition: border-color 140ms ease, background-color 140ms ease;
 }
 
 .card:hover {
-  border-color: var(--rule-strong);
+  border-color: var(--rule-glow, var(--rule-strong));
   border-top-color: var(--cat);
+  background: var(--surface-raised, var(--surface));
 }
 
 .cardMeta {
@@ -235,11 +261,11 @@
 }
 
 .cardTitle {
-  font-family: var(--font-text);
-  font-weight: 500;
+  font-family: var(--font-ui);
+  font-weight: 600;
   font-size: var(--fs-lg);
-  line-height: 1.28;
-  font-variation-settings: 'opsz' 24;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
   padding-left: 1rem;
 }
@@ -256,8 +282,8 @@
 .card:hover .cardLink {
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 0.2em;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.22em;
 }
 
 .cardLink::after {
@@ -390,27 +416,53 @@
 }
 
 .tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: var(--s1) 0;
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink-2);
   text-decoration: none;
-  border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  border-radius: 1px;
+  background: transparent;
 }
 
 .tab:hover {
   color: var(--ink);
-  border-bottom-color: var(--rule-strong);
 }
 
-.tabActive {
+.tab:hover::after {
+  background: var(--rule-strong);
+}
+
+.tab > svg {
+  color: var(--ink-3);
+}
+
+/* The active state carries the brand gradient. */
+.tabActive,
+.tabActive:hover {
   color: var(--ink);
-  border-bottom-color: var(--accent);
+}
+
+.tabActive::after,
+.tabActive:hover::after {
+  background: var(--grad-brand, var(--accent));
+}
+
+.tabActive > svg {
+  color: var(--accent);
 }
 
 .surprise {
@@ -456,7 +508,7 @@
   border: 1px solid var(--rule);
   border-left: 3px solid var(--accent);
   border-radius: var(--r-sm);
-  background: var(--surface);
+  background: var(--surface-raised, var(--surface));
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }
@@ -466,10 +518,10 @@
 }
 
 .formula {
-  font-family: var(--font-text);
-  font-size: var(--fs-md);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
@@ -518,11 +570,11 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-text);
-  font-weight: 500;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
   font-size: var(--fs-xl);
   line-height: 1.2;
-  font-variation-settings: 'opsz' 36;
+  letter-spacing: -0.02em;
 }
 
 .sectionNote {

@@ -88,7 +88,7 @@ export default function AskPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header ${styles.hero}`}>
         <h1 className="page-title">Ask</h1>
         <p className="page-lede">
           Ask a question about the library. LIBRAIN answers only from the passages it retrieves, cites them by number,

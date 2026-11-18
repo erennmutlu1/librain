@@ -5,8 +5,8 @@
   max-height: 70vh;
   display: flex;
   flex-direction: column;
-  background: var(--surface);
-  border-top: 1px solid var(--rule);
+  background: var(--surface-raised, var(--surface));
+  border-top: 1px solid var(--rule-glow, var(--rule));
   border-radius: var(--r-md) var(--r-md) 0 0;
   box-shadow: var(--shadow-panel);
   animation: rise 180ms ease-out;
@@ -18,7 +18,7 @@
     width: min(26rem, 92vw);
     max-height: none;
     border-top: 0;
-    border-left: 1px solid var(--rule);
+    border-left: 1px solid var(--rule-glow, var(--rule));
     border-radius: 0;
     animation-name: slide;
   }
@@ -60,8 +60,9 @@
 
 .title {
   flex: 1;
+  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-md);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .title:focus {
@@ -86,7 +87,7 @@
 }
 
 .close:hover {
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
   color: var(--ink);
 }
 

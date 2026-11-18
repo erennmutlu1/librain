@@ -22,11 +22,35 @@
   display: grid;
   align-content: start;
   gap: var(--s1);
-  padding: var(--s4);
+  padding: var(--s4) var(--s4) var(--s4) var(--s5);
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   min-width: 0;
+}
+
+/* The average rating is the page's key number: raised, in the brand gradient. */
+.tile[data-key] {
+  background: var(--surface-raised, var(--surface));
+  border-color: var(--rule-glow, var(--rule));
+}
+
+.tile[data-key] .tileValue {
+  background: var(--grad-brand, none);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tile[data-key] .tileUnit {
+  -webkit-text-fill-color: var(--ink-3);
+}
+
+@media (forced-colors: active) {
+  .tile[data-key] .tileValue {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
 }
 
 .tileLabel {
@@ -36,12 +60,13 @@
 }
 
 .tileValue {
-  font-family: var(--font-text);
+  font-family: var(--font-display, var(--font-ui));
   font-size: clamp(var(--fs-2xl), 4vw, var(--fs-3xl));
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.05;
+  letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums lining-nums;
-  font-variation-settings: 'opsz' 72;
+  justify-self: start;
 }
 
 .tileUnit {
@@ -99,10 +124,11 @@
 
 .rateValue {
   grid-area: value;
-  font-family: var(--font-text);
+  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-xl);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .rateOf {
@@ -140,6 +166,7 @@
   max-width: 44rem;
   margin-top: var(--s2);
   padding: var(--s3) var(--s4);
+  border: 1px solid var(--rule);
   border-left: 3px solid var(--success);
   background: var(--surface);
   border-radius: var(--r-sm);
@@ -169,9 +196,10 @@
 }
 
 .costTotal {
-  font-family: var(--font-text);
+  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-2xl);
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   color: var(--ink);
   margin-right: var(--s1);
 }
@@ -198,6 +226,7 @@
 .droppedArea {
   font-family: var(--font-text);
   font-size: var(--fs-lg);
+  font-style: italic;
   color: var(--ink);
 }
 

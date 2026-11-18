@@ -1,13 +1,21 @@
+/*
+ * The novel claim inside the full hypothesis: italic, a step in from a thin
+ * accent bar. Calm on purpose; the sentence-by-sentence verdicts below are
+ * where colour carries meaning.
+ */
+
 .fence {
   color: var(--ink-2);
   font-style: italic;
-  border-left: 2px solid var(--rule-strong);
-  padding-left: 0.35em;
-  margin-left: 0.1em;
+  border-left: 2px solid var(--accent);
+  padding-left: 0.4em;
+  margin-left: 0.15em;
 }
 
 .key {
-  margin-top: var(--s3);
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
   font-size: var(--fs-xs);
   color: var(--ink-3);
   display: flex;
@@ -18,6 +26,6 @@
 .swatch {
   flex: none;
   width: 2px;
-  height: 1em;
-  background: var(--rule-strong);
+  height: 1.1em;
+  background: var(--accent);
 }

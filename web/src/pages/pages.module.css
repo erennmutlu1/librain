@@ -1,13 +1,82 @@
-/* Layout shared by the run screens: a query bar on top, the result below. */
+/*
+ * Shared by the run screens (Discover, Ask, Compare) and the page heroes.
+ *
+ * The one brand motif on a page is the "signal trace": a hairline in the
+ * brand gradient that ends in a lit node, the way the logo's "ai" loop ends.
+ * It sits under the page hero and nowhere else on the page, so the gradient
+ * stays a signal rather than a decoration. In light mode the node has no glow
+ * (--glow-accent is none there).
+ */
+
+/* ---------- Page hero ---------- */
+
+.hero {
+  --trace-len: min(100%, 18rem);
+  position: relative;
+  padding-bottom: var(--s5);
+}
+
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* The trace. */
+.hero::before {
+  left: 0;
+  width: var(--trace-len);
+  height: 1px;
+  background: var(--grad-brand, var(--accent));
+}
+
+/* Its lit end: the last colour stop of the same gradient, at node size. */
+.hero::after {
+  left: var(--trace-len);
+  width: 7px;
+  height: 7px;
+  margin: 0 0 -3px -4px;
+  border-radius: 50%;
+  background: var(--grad-brand, var(--accent));
+  background-size: 60rem 100%;
+  background-position: 100% 0;
+  box-shadow: var(--glow-accent, none);
+}
+
+/* ---------- Instrument panel (the query form) ---------- */
 
 .queryBar {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
-  padding: var(--s4);
-  background: var(--surface);
-  border: 1px solid var(--rule);
+  padding: var(--s5);
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--rule-glow, var(--rule));
   border-radius: var(--r-md);
+  isolation: isolate;
+}
+
+/* Faint circuit traces in the panel's top corner: static, no blur, no motion. */
+.queryBar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--circuit-pattern, none);
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(200deg, #000 0%, transparent 45%);
+  mask-image: linear-gradient(200deg, #000 0%, transparent 45%);
+  pointer-events: none;
+}
+
+@media (max-width: 30rem) {
+  .queryBar {
+    padding: var(--s4);
+  }
 }
 
 .fields {
@@ -29,6 +98,112 @@
   }
 }
 
+/*
+ * Two topics joined by a bridge: Topic A ─(×)─ Topic B, then the passage
+ * count. The bridge is the product in one glyph (two fields crossed), so it
+ * is the only ornament the panel carries. Stacked on phones, the bridge turns
+ * vertical between the two fields.
+ */
+.bridgeFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+}
+
+.bridge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 1.75rem;
+  color: var(--ink-2);
+}
+
+.bridge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--rule-strong);
+}
+
+.bridgeNode {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+  background: var(--surface-raised, var(--surface));
+  font-size: var(--fs-md);
+  line-height: 1;
+}
+
+.countField {
+  margin-top: var(--s3);
+  max-width: 10rem;
+}
+
+@media (min-width: 44rem) {
+  .bridgeFields {
+    grid-template-columns: minmax(0, 1fr) 2.75rem minmax(0, 1fr);
+    column-gap: 0;
+    row-gap: var(--s3);
+  }
+
+  .bridge {
+    align-self: start;
+    height: 2.5rem;
+    margin-top: calc(var(--fs-sm) * 1.5 + var(--s1));
+  }
+
+  .bridge::before {
+    top: 50%;
+    bottom: auto;
+    left: -2px;
+    right: -2px;
+    width: auto;
+    height: 1px;
+  }
+
+  .countField {
+    grid-column: 1 / -1;
+    margin-top: 0;
+    max-width: 12rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .bridgeFields {
+    grid-template-columns: minmax(0, 1fr) 2.75rem minmax(0, 1fr) 9rem;
+    column-gap: 0;
+  }
+
+  .countField {
+    grid-column: auto;
+    margin-left: var(--s4);
+    max-width: none;
+  }
+}
+
+/* The bridge lights up once both topics are filled. */
+.bridgeFields[data-paired] .bridge::before {
+  background: var(--grad-brand, var(--accent));
+}
+
+.bridgeFields[data-paired] .bridgeNode {
+  border-color: transparent;
+  color: var(--ink);
+  background:
+    linear-gradient(var(--surface-raised, var(--surface)), var(--surface-raised, var(--surface))) padding-box,
+    var(--grad-brand, var(--accent)) border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--glow-accent, none);
+}
+
 .wide {
   grid-column: 1 / -1;
 }
@@ -39,6 +214,12 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--s3) var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+}
+
+.actions :global(.btn-primary) {
+  min-width: 8.5rem;
 }
 
 .options {
@@ -59,7 +240,7 @@
 }
 
 .result {
-  margin-top: var(--s6);
+  margin-top: var(--s7);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s5);
@@ -69,6 +250,7 @@
   font-family: var(--font-ui);
   font-size: var(--fs-xs);
   color: var(--ink-3);
+  max-width: 48ch;
 }
 
 .explainer {
@@ -83,10 +265,11 @@
 }
 
 .runTitle {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-2xl);
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: clamp(var(--fs-xl), 3.4vw, var(--fs-2xl));
   line-height: 1.15;
+  letter-spacing: -0.015em;
   overflow-wrap: anywhere;
 }
 

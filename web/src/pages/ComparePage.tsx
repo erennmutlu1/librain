@@ -4,6 +4,7 @@ import { MAX_TOPIC_CHARS, type CompareRequest, type CompareResponse, type MockSc
 import { CompareView, SystemsExplainer } from '../components/CompareView';
 import { MockProvenance, RecordedRuns } from '../components/FormBits';
 import { CopyText } from '../components/CopyText';
+import { PairTitle } from '../components/DiscoverResult';
 import { EmptyState, ErrorNotice, RunningState } from '../components/States';
 import { useRecordRun } from '../history/context';
 import { ALL_LOADING, compareStates } from '../lib/compare';
@@ -89,7 +90,7 @@ export default function ComparePage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header ${styles.hero}`}>
         <h1 className="page-title">Compare</h1>
         <p className="page-lede">
           Run one topic pair through LIBRAIN and the two baselines from the companion paper. All three are scored by the
@@ -102,20 +103,23 @@ export default function ComparePage() {
       </section>
 
       <form className={styles.queryBar} onSubmit={submit} noValidate>
-        <div className={`${styles.fields} ${styles.fieldsTopics}`}>
+        <div className={styles.bridgeFields} data-paired={(form.topicA.trim() !== '' && form.topicB.trim() !== '') || undefined}>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-a`}>
               Topic A
             </label>
             <input id={`${uid}-a`} className="input" value={form.topicA} maxLength={MAX_TOPIC_CHARS} onChange={(e) => set('topicA', e.target.value)} placeholder="e.g. drug discovery" autoComplete="off" />
           </div>
+          <span className={styles.bridge} aria-hidden="true">
+            <span className={styles.bridgeNode}>×</span>
+          </span>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-b`}>
               Topic B <span className="muted">(optional)</span>
             </label>
             <input id={`${uid}-b`} className="input" value={form.topicB} maxLength={MAX_TOPIC_CHARS} onChange={(e) => set('topicB', e.target.value)} placeholder="e.g. climate adaptation" autoComplete="off" />
           </div>
-          <div className="field">
+          <div className={`field ${styles.countField}`}>
             <label className="field-label" htmlFor={`${uid}-k`}>
               Passages per topic
             </label>
@@ -162,7 +166,9 @@ export default function ComparePage() {
           <>
             {api.mock ? <MockProvenance match={api.mock.matchCompare(state.data.request)} /> : null}
             <div className={styles.runMeta}>
-              <h2 className={styles.runTitle}>{topicLabel(state.data.result.topicA, state.data.result.topicB)}</h2>
+              <h2 className={styles.runTitle}>
+                <PairTitle label={topicLabel(state.data.result.topicA, state.data.result.topicB)} />
+              </h2>
               <div className="cluster">
                 <span className="tag">top {state.data.result.topK} per topic</span>
                 {state.data.result.totalElapsedMs !== undefined ? (

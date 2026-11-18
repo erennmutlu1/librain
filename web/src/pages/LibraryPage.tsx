@@ -8,6 +8,7 @@ import { displayTitle, usePapers } from '../lib/papers';
 import { useSessionState } from '../lib/sessionStore';
 import { usePublicDemo } from '../public/context';
 import { UploadPanel } from './UploadPanel';
+import pageStyles from './pages.module.css';
 import styles from './LibraryPage.module.css';
 
 type SortKey = 'paper' | 'authors' | 'year' | 'chunkCount' | 'firstIngestedAt';
@@ -168,7 +169,7 @@ export default function LibraryPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header ${pageStyles.hero}`}>
         <h1 className="page-title">Library</h1>
         <p className="page-lede">
           {papers

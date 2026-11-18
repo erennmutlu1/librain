@@ -11,7 +11,7 @@ import {
 } from '../api/types';
 import { DiscoverResult } from '../components/DiscoverResult';
 import { FeaturedGallery } from '../components/FeaturedGallery';
-import { MockProvenance, RecordedRuns, Segmented } from '../components/FormBits';
+import { MockProvenance, Segmented } from '../components/FormBits';
 import { ProgressStepper } from '../components/ProgressStepper';
 import { ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
@@ -20,6 +20,7 @@ import { usePublicDemo } from '../public/context';
 import { useSessionState } from '../lib/sessionStore';
 import { DISCOVER_STAGES } from '../lib/stages';
 import { useRequest, type RequestFn } from '../lib/useRequest';
+import { RecordedIndex } from './RecordedIndex';
 import styles from './pages.module.css';
 
 interface DiscoverForm {
@@ -113,7 +114,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header ${styles.hero}`}>
         <h1 className="page-title">Discover</h1>
         <p className="page-lede">
           Give LIBRAIN one or two topics. It retrieves evidence for each, proposes a hypothesis that goes beyond the
@@ -122,7 +123,7 @@ export default function DiscoverPage() {
       </header>
 
       <form className={styles.queryBar} onSubmit={submit} aria-describedby={formError ? `${uid}-err` : undefined} noValidate>
-        <div className={`${styles.fields} ${styles.fieldsTopics}`}>
+        <div className={styles.bridgeFields} data-paired={(form.topicA.trim() !== '' && form.topicB.trim() !== '') || undefined}>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-a`}>
               Topic A
@@ -139,6 +140,9 @@ export default function DiscoverPage() {
               autoComplete="off"
             />
           </div>
+          <span className={styles.bridge} aria-hidden="true">
+            <span className={styles.bridgeNode}>×</span>
+          </span>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-b`}>
               Topic B <span className="muted">(optional)</span>
@@ -153,7 +157,7 @@ export default function DiscoverPage() {
               autoComplete="off"
             />
           </div>
-          <div className="field">
+          <div className={`field ${styles.countField}`}>
             <label className="field-label" htmlFor={`${uid}-k`}>
               Passages per topic
             </label>
@@ -214,7 +218,7 @@ export default function DiscoverPage() {
             {formError}
           </p>
         ) : null}
-        <RecordedRuns scenarios={api.mock?.discover} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
+        <RecordedIndex scenarios={api.mock?.discover} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 
       <div className={styles.result}>

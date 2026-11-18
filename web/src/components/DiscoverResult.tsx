@@ -17,6 +17,18 @@ interface Props {
   result: DiscoverResponse;
 }
 
+/** "topic a × topic b" with the × set apart; the heading's text is unchanged. */
+export function PairTitle({ label }: { label: string }) {
+  const at = label.indexOf(' × ');
+  if (at < 0) return <>{label}</>;
+  return (
+    <>
+      <span className={styles.titleTopic}>{label.slice(0, at)}</span> <span className={styles.titleCross}>×</span>{' '}
+      <span className={styles.titleTopic}>{label.slice(at + 3)}</span>
+    </>
+  );
+}
+
 /** A Discover result, with paper titles from the library list (loaded on first use). */
 export function DiscoverResult({ request, result }: Props) {
   const papers = usePaperIndex();
@@ -33,7 +45,7 @@ export function DiscoverResultView({ request, result, papers }: Props & { papers
     <article className={styles.root} aria-labelledby={`${uid}-title`}>
       <header className={styles.header}>
         <h2 id={`${uid}-title`} className={styles.title}>
-          {topicLabel(request.topicA, request.topicB)}
+          <PairTitle label={topicLabel(request.topicA, request.topicB)} />
         </h2>
         <div className={styles.meta}>
           <span className="tag">{provider === 'openai' ? `OpenAI${request.model ? ` ${request.model}` : ''}` : 'Anthropic'}</span>
@@ -42,7 +54,7 @@ export function DiscoverResultView({ request, result, papers }: Props & { papers
         </div>
       </header>
 
-      <section aria-labelledby={`${uid}-hyp`}>
+      <section className={styles.hypothesis} aria-labelledby={`${uid}-hyp`}>
         <h3 id={`${uid}-hyp`} className={styles.sectionTitle}>
           Hypothesis
         </h3>

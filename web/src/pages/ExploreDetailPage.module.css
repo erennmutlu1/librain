@@ -22,6 +22,12 @@
 
 /* ---------- Header ---------- */
 
+/*
+ * The case for one idea, in reading order: the topic pair and its rating
+ * (the key number, in the brand gradient), the idea in one line, why it is
+ * promising, the evidence quoted, how the generator reasoned, what is still
+ * unproven (the sentence verdicts), and related ideas.
+ */
 .header {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -38,8 +44,13 @@
 }
 
 .runId {
-  font-size: var(--fs-xs);
-  color: var(--ink-3);
+  padding: 0.05em 0.45em;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+  background: var(--bg-deep, var(--surface-sunken));
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
 
@@ -60,6 +71,15 @@
   }
 }
 
+@media (max-width: 51.99rem) {
+  .headRating {
+    padding: var(--s4);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+  }
+}
+
 .headMain {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -69,14 +89,14 @@
 }
 
 .title {
-  font-family: var(--font-text);
-  font-weight: 500;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
   font-size: clamp(var(--fs-xl), 3.6vw, var(--fs-3xl));
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  font-variation-settings: 'opsz' 72;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   overflow-wrap: anywhere;
   padding-left: 1.1rem;
+  text-wrap: balance;
 }
 
 .provenance {
@@ -112,22 +132,31 @@
 .oneLine {
   display: grid;
   gap: var(--s2);
-  padding-left: var(--s4);
+  padding: var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--rule);
   border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm) var(--r-md) var(--r-md) var(--r-sm);
 }
 
 .oneLineTitle {
   font-size: var(--fs-sm);
   font-weight: 650;
-  color: var(--ink-2);
+  color: var(--accent);
 }
 
 .oneLineText {
   font-family: var(--font-text);
   font-size: clamp(var(--fs-lg), 2.4vw, var(--fs-xl));
-  line-height: 1.45;
+  line-height: 1.5;
   max-width: 60ch;
   font-variation-settings: 'opsz' 24;
+}
+
+@media (max-width: 30rem) {
+  .oneLine {
+    padding: var(--s4);
+  }
 }
 
 /* ---------- Why it's promising ---------- */
@@ -176,7 +205,8 @@
 }
 
 .point[data-tone='neutral'] .pointMark {
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
+  box-shadow: inset 0 0 0 1px var(--rule);
 }
 
 .dash {
@@ -200,13 +230,17 @@
 
 .passages {
   display: grid;
-  gap: var(--s5);
+  gap: var(--s3);
 }
 
 .passage {
   display: grid;
   gap: var(--s2);
   min-width: 0;
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
 }
 
 .passageSource {
@@ -221,6 +255,10 @@
   font-size: var(--fs-xs);
   color: var(--ink-3);
   overflow-wrap: anywhere;
+}
+
+.passageWhere code {
+  color: var(--ink-2);
 }
 
 /* ---------- Generator's reasoning ---------- */
@@ -283,8 +321,9 @@
   padding: var(--s3) var(--s4);
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-left: 3px solid var(--cat);
+  border-left: 2px solid var(--cat);
   border-radius: var(--r-sm);
+  transition: border-color 140ms ease, background-color 140ms ease;
 }
 
 .relatedItem > :first-child {
@@ -292,8 +331,9 @@
 }
 
 .relatedItem:hover {
-  border-color: var(--rule-strong);
+  border-color: var(--rule-glow, var(--rule-strong));
   border-left-color: var(--cat);
+  background: var(--surface-raised, var(--surface));
 }
 
 @media (min-width: 40rem) {
@@ -314,8 +354,10 @@
 }
 
 .relatedLink {
-  font-family: var(--font-text);
+  font-family: var(--font-ui);
+  font-weight: 600;
   font-size: var(--fs-md);
+  line-height: 1.35;
   color: var(--ink);
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -340,6 +382,7 @@
 .relatedItem:hover .relatedLink {
   text-decoration: underline;
   text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent);
   text-underline-offset: 0.2em;
 }
 

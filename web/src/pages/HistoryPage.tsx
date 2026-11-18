@@ -11,6 +11,7 @@ import { downloadText } from '../lib/download';
 import { formatDateTime, formatRelative, formatScore } from '../lib/format';
 import { PUBLIC_HISTORY_LIMIT } from '../public/browserHistory';
 import { usePublicDemo } from '../public/context';
+import pageStyles from './pages.module.css';
 import styles from './HistoryPage.module.css';
 
 type Filter = 'all' | RunKind;
@@ -60,7 +61,7 @@ export default function HistoryPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header ${pageStyles.hero}`}>
         <h1 className="page-title">History</h1>
         <p className="page-lede">
           {demo

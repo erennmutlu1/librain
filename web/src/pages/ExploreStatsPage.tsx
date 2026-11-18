@@ -47,7 +47,7 @@ function StatsBody({ data }: { data: ExploreData }) {
           <span className={styles.tileValue}>{t.runs}</span>
           <span className={styles.tileNote}>in {cats.length} categories</span>
         </li>
-        <li className={styles.tile}>
+        <li className={styles.tile} data-key>
           <span className={styles.tileLabel}>Average rating</span>
           <span className={styles.tileValue}>
             {formatRating(avg)}

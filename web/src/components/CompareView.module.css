@@ -1,7 +1,13 @@
+/*
+ * Three systems side by side. Each system keeps its own hue (--sys-*) on its
+ * swatch, its score bars and the top edge of its column, and its name is
+ * always written next to the hue. LIBRAIN's column is the raised one: it is
+ * the system the screen is about.
+ */
 .root {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s7);
+  gap: var(--s6);
 }
 
 [data-system='librain'] {
@@ -31,23 +37,34 @@
 
 .explainer {
   display: grid;
-  gap: var(--s4);
+  gap: var(--s3);
 }
 
 @media (min-width: 52rem) {
   .explainer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--s5);
+    gap: var(--s4);
   }
 }
 
+.explainerItem {
+  padding: var(--s3) var(--s4) var(--s4);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--sys, var(--rule-strong));
+  border-radius: var(--r-sm) var(--r-sm) var(--r-md) var(--r-md);
+  background: var(--surface);
+}
+
 .explainerItem dt {
-  font-weight: 650;
-  font-size: var(--fs-sm);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: var(--fs-md);
 }
 
 .explainerItem dd {
-  margin: var(--s1) 0 0;
+  margin: var(--s2) 0 0;
   font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.5;
@@ -57,6 +74,25 @@
 
 .tableWrap {
   width: 100%;
+  padding: var(--s4) var(--s5) var(--s2);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+
+@media (max-width: 30rem) {
+  .tableWrap {
+    padding: var(--s3) var(--s2) var(--s1);
+  }
+
+  .cell {
+    font-size: var(--fs-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .cellValue {
+    font-size: var(--fs-sm);
+  }
 }
 
 .table {
@@ -73,9 +109,10 @@
 .sysHead {
   text-align: left;
   font-weight: 650;
-  padding: 0 var(--s2) var(--s2);
+  padding: 0 var(--s2) var(--s3);
   border-bottom: 1px solid var(--rule-strong);
   vertical-align: bottom;
+  overflow-wrap: anywhere;
 }
 
 .axis {
@@ -113,15 +150,33 @@
   font-weight: 500;
 }
 
+.cellValue {
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-md);
+  letter-spacing: -0.01em;
+}
+
+/* The unique best value per row: heavier, ink, and a small marker before it. */
 .cellValue[data-best] {
-  font-weight: 750;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cellValue[data-best]::before {
+  content: '▲';
+  content: '▲' / '';
+  display: inline-block;
+  margin-right: 0.3em;
+  font-size: 0.6em;
+  vertical-align: 0.2em;
+  color: var(--sys);
 }
 
 .bar {
   position: relative;
   display: block;
-  height: 6px;
-  border-radius: 3px;
+  height: 4px;
+  border-radius: 2px;
   background: var(--track);
   overflow: hidden;
 }
@@ -180,14 +235,23 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
   align-content: start;
-  padding-top: var(--s3);
-  border-top: 3px solid var(--sys);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--sys);
+  border-radius: var(--r-sm) var(--r-sm) var(--r-md) var(--r-md);
   min-width: 0;
 }
 
+.column[data-system='librain'] {
+  background: var(--surface-raised, var(--surface));
+}
+
 .columnTitle {
-  font-size: var(--fs-md);
-  font-weight: 650;
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   display: flex;
   align-items: center;
 }
@@ -195,7 +259,7 @@
 .hypothesis {
   font-family: var(--font-text);
   font-size: var(--fs-md);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .block {
@@ -248,7 +312,7 @@
   padding: var(--s2) var(--s3);
   border-radius: var(--r-sm);
   border: 1px solid var(--rule);
-  background: var(--surface);
+  background: var(--bg-deep, var(--surface-sunken));
 }
 
 .cite[data-fabricated] {

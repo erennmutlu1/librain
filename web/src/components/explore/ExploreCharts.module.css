@@ -17,8 +17,10 @@
 }
 
 .captionTitle {
-  font-weight: 650;
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
   font-size: var(--fs-md);
+  letter-spacing: -0.01em;
 }
 
 .captionText {
@@ -131,7 +133,7 @@
   gap: 2px;
   width: 220px;
   padding: var(--s2) var(--s3);
-  background: var(--surface);
+  background: var(--surface-raised, var(--surface));
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-sm);
   box-shadow: var(--shadow-panel);
@@ -157,8 +159,8 @@
 
 .tooltipTopic {
   color: var(--ink);
-  font-family: var(--font-text);
   font-size: var(--fs-sm);
+  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -189,9 +191,10 @@
 }
 
 .legendItem[aria-pressed='true'] {
-  border-color: var(--ink);
+  border-color: var(--accent);
   color: var(--ink);
-  background: var(--surface-sunken);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .legendDot {

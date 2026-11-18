@@ -13,11 +13,11 @@
 }
 
 .question {
-  font-family: var(--font-text);
-  font-weight: 500;
-  font-size: var(--fs-2xl);
+  font-family: var(--font-display, var(--font-ui));
+  font-weight: 600;
+  font-size: clamp(var(--fs-xl), 3.2vw, var(--fs-2xl));
   line-height: 1.2;
-  font-variation-settings: 'opsz' 48;
+  letter-spacing: -0.02em;
   max-width: 40ch;
   overflow-wrap: anywhere;
 }
@@ -52,7 +52,7 @@
 .sectionTitle {
   font-size: var(--fs-sm);
   font-weight: 650;
-  color: var(--ink-2);
+  color: var(--ink);
   margin-bottom: var(--s3);
 }
 
@@ -149,11 +149,11 @@
   min-width: 1.6rem;
   height: 1.6rem;
   border-radius: var(--r-sm);
-  border: 1px solid var(--rule-strong);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
   font-size: var(--fs-xs);
   font-weight: 700;
   color: var(--accent);
-  background: var(--surface);
+  background: var(--accent-wash);
 }
 
 .sourceBody {
@@ -173,11 +173,22 @@
   overflow-wrap: anywhere;
 }
 
+.source {
+  color: var(--ink);
+}
+
 .side {
-  padding: var(--s4);
+  padding: var(--s5) var(--s4) var(--s4);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   background: var(--surface);
+}
+
+@media (min-width: 60rem) {
+  .side {
+    position: sticky;
+    top: var(--s5);
+  }
 }
 
 .evaluation {

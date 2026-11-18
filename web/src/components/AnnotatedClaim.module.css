@@ -34,7 +34,7 @@
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s2) var(--s5);
+  gap: var(--s3) var(--s5);
   font-size: var(--fs-xs);
   color: var(--ink-2);
 }
@@ -76,7 +76,7 @@
 }
 
 .legendCount {
-  font-weight: 650;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -235,6 +235,7 @@
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
   background: var(--surface);
+  color: var(--ink);
   text-align: left;
   cursor: pointer;
 }
@@ -283,8 +284,11 @@
 /* ---------- Margin note ---------- */
 
 .note {
+  padding: var(--s4);
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--rule);
   border-left: 3px solid var(--rule-strong);
-  padding: var(--s1) 0 var(--s1) var(--s4);
+  border-radius: var(--r-sm) var(--r-md) var(--r-md) var(--r-sm);
   font-size: var(--fs-sm);
 }
 
@@ -349,9 +353,11 @@
 }
 
 .probValue {
+  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-2xl);
   font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .probLabel {
@@ -405,7 +411,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--ink);
-  background: var(--surface-sunken);
+  background: var(--bg-deep, var(--surface-sunken));
   padding: 0.05em 0.35em;
   border-radius: 3px;
   overflow-wrap: anywhere;
