@@ -2,53 +2,76 @@
  * Design tokens. Every colour in the app is referenced through these roles so
  * light and dark mode swap in one place.
  *
- * Status hues (grounded / extrapolated / risky) and system hues (LIBRAIN /
- * Naive-RAG / Single-LLM) were checked with a CVD + contrast validator against
- * the surfaces below, all pairs, in both modes. Status is never carried by
- * colour alone: each status also has an underline style and an icon + label.
+ * Direction: a precise research instrument with a neon signal. Dark-first ink
+ * and indigo surfaces, hairlines with a cool tint, and one brand gradient
+ * (cyan → violet → magenta, the logo's) kept for the logo, the primary action,
+ * the active section, key numbers and focus. Reading surfaces stay calm.
+ *
+ * Contrast (WCAG 2.x), checked against bg / surface / raised / sunken in both
+ * modes: ink, ink-2, ink-3, accent and every status hue clear 4.5:1 as text;
+ * button text on --grad-brand clears 4.6:1 at every stop. Status is never
+ * carried by colour alone: each status also has an underline style and an
+ * icon + label. The system and category hues keep the CVD-checked set (Compare
+ * uses the first three); LIBRAIN's own series takes the brand violet.
  */
 :root {
   color-scheme: light;
 
-  /* Surfaces and ink */
-  --bg: #f6f7f9;
+  /* Surfaces and ink: cool near-white, deep indigo ink */
+  --bg-deep: #eef1fa;
+  --bg: #f4f6fc;
   --surface: #ffffff;
-  --surface-sunken: #eef1f4;
-  --ink: #141b2d;
-  --ink-2: #434d60;
-  --ink-3: #5d6779;
-  --rule: #d9dee5;
-  --rule-strong: #b6bfcb;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eceff8;
+  --surface-input: #ffffff;
+  --ink: #0e1233;
+  --ink-2: #3a4068;
+  --ink-3: #585e8c;
+  --rule: #dde1f0;
+  --rule-strong: #b4bbd9;
+  --rule-glow: rgb(91 63 217 / 0.24);
 
-  /* Proof blue: interactive elements, links, focus */
-  --accent: #1c5da6;
-  --accent-hover: #164b88;
+  /* Signal violet: links, interactive text, focus */
+  --accent: #4b3fd6;
+  --accent-hover: #3a2fb8;
   --accent-ink: #ffffff;
-  --accent-wash: #e4edf8;
-  --focus-ring: #1c5da6;
+  --accent-wash: #ecebfd;
+  --focus-ring: #6d28d9;
+
+  /* Brand gradient, a little deeper on light so white text holds 5.3:1 */
+  --brand-cyan: #0e7490;
+  --brand-violet: #6d28d9;
+  --brand-magenta: #a21caf;
+  --grad-brand: linear-gradient(100deg, #0e7490 0%, #6d28d9 55%, #a21caf 100%);
+  --grad-brand-soft: linear-gradient(100deg, rgb(14 116 144 / 0.07) 0%, rgb(109 40 217 / 0.07) 55%, rgb(162 28 175 / 0.07) 100%);
+  --glow-accent: none;
+  --glow-line: none;
+
+  /* Faint circuit traces, header band only */
+  --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%234b3fd6' stroke-opacity='0.11' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%234b3fd6' fill-opacity='0.11' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
 
   /* Claim status */
-  --grounded: #00809a;
-  --grounded-wash: #d9eff3;
-  --extrapolated: #b87400;
-  --extrapolated-wash: #fbedcf;
-  --risky: #c2236a;
-  --risky-wash: #fadbe8;
+  --grounded: #0a7884;
+  --grounded-wash: #dbf1f2;
+  --extrapolated: #a35f00;
+  --extrapolated-wash: #fbeed3;
+  --risky: #c4215c;
+  --risky-wash: #fbe1ea;
 
   /* Feedback */
   --danger: #b4233c;
-  --danger-wash: #fce4e7;
+  --danger-wash: #fce6ea;
   --warning-ink: #7a4b00;
-  --warning-wash: #fdf1d6;
+  --warning-wash: #fdf2da;
   --success: #1d7a4a;
 
   /* Systems (Compare) */
-  --sys-librain: #2a78d6;
+  --sys-librain: #5b4be0;
   --sys-naive: #eb6834;
   --sys-single: #1baf7a;
 
   /* Meter track */
-  --track: #e3e7ec;
+  --track: #e2e6f3;
 
   /*
    * Explore categories: the eight categorical hues above (Compare uses the
@@ -58,17 +81,23 @@
   --cat-d: #2a78d6;
   --cat-a: #008300;
   --cat-c: #6250d6;
-  --cat-n: #7d8796;
+  --cat-n: #6f7894;
   --cat-f: #eb6834;
   --cat-s: #eda100;
   --cat-w: #1baf7a;
   --cat-p: #e87ba4;
   --cat-j: #e34948;
 
-  /* Type */
+  /*
+   * Type. Sora (display) is a round monoline geometric, the same build as the
+   * neon-tube wordmark; Instrument Sans carries the UI; Newsreader keeps
+   * hypotheses and passages calm for long reading; JetBrains Mono for ids and
+   * scores.
+   */
+  --font-display: 'Sora', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-text: 'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif;
-  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   --fs-xs: 0.8125rem;
   --fs-sm: 0.875rem;
@@ -88,10 +117,12 @@
   --s7: 3rem;
   --s8: 4rem;
 
-  --r-sm: 4px;
-  --r-md: 8px;
+  /* Corners step with size: controls, panels, large panels */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
 
-  --shadow-panel: 0 1px 2px rgb(20 27 45 / 0.06), 0 8px 24px rgb(20 27 45 / 0.08);
+  --shadow-panel: 0 1px 2px rgb(14 18 51 / 0.06), 0 10px 28px rgb(14 18 51 / 0.09);
 
   --page-max: 76rem;
   --gutter: clamp(1rem, 3vw, 2rem);
@@ -100,85 +131,109 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --bg: #0f141a;
-    --surface: #161c24;
-    --surface-sunken: #121820;
-    --ink: #e8ecf1;
-    --ink-2: #b9c1cc;
-    --ink-3: #8f99a7;
-    --rule: #2a3340;
-    --rule-strong: #3d4858;
-    --accent: #7db1ee;
-    --accent-hover: #a3c8f4;
-    --accent-ink: #0f141a;
-    --accent-wash: #1a2b40;
-    --focus-ring: #7db1ee;
-    --grounded: #1e96b0;
-    --grounded-wash: rgb(30 150 176 / 0.2);
-    --extrapolated: #c08410;
-    --extrapolated-wash: rgb(192 132 16 / 0.22);
-    --risky: #e0508a;
-    --risky-wash: rgb(224 80 138 / 0.22);
-    --danger: #f07d8f;
-    --danger-wash: rgb(240 125 143 / 0.14);
-    --warning-ink: #f0c36a;
-    --warning-wash: rgb(192 132 16 / 0.16);
-    --success: #5fcf93;
-    --sys-librain: #3987e5;
+    --bg-deep: #070a1a;
+    --bg: #070a1a;
+    --surface: #0d1130;
+    --surface-raised: #141a3d;
+    --surface-sunken: #0a0d25;
+    --surface-input: #0a0d25;
+    --ink: #e8eafb;
+    --ink-2: #b3b9dd;
+    --ink-3: #8a92be;
+    --rule: #1f2652;
+    --rule-strong: #3a4580;
+    --rule-glow: rgb(139 120 255 / 0.34);
+    --accent: #8fa6ff;
+    --accent-hover: #b7c5ff;
+    --accent-ink: #070a1a;
+    --accent-wash: #1b2155;
+    --focus-ring: #22d3ee;
+    --brand-cyan: #22d3ee;
+    --brand-violet: #8b5cf6;
+    --brand-magenta: #d946ef;
+    --grad-brand: linear-gradient(100deg, #22d3ee 0%, #8b5cf6 55%, #d946ef 100%);
+    --grad-brand-soft: linear-gradient(100deg, rgb(34 211 238 / 0.1) 0%, rgb(139 92 246 / 0.1) 55%, rgb(217 70 239 / 0.1) 100%);
+    --glow-accent: 0 0 0 1px rgb(139 92 246 / 0.5), 0 0 18px -4px rgb(34 211 238 / 0.55), 0 0 26px -8px rgb(217 70 239 / 0.6);
+    --glow-line: 0 0 8px rgb(139 92 246 / 0.85), 0 0 2px rgb(34 211 238 / 0.9);
+    --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%238b9cff' stroke-opacity='0.13' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%238b9cff' fill-opacity='0.16' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+    --grounded: #2dd4bf;
+    --grounded-wash: rgb(45 212 191 / 0.15);
+    --extrapolated: #f2b544;
+    --extrapolated-wash: rgb(242 181 68 / 0.16);
+    --risky: #ff6597;
+    --risky-wash: rgb(255 101 151 / 0.16);
+    --danger: #ff7f90;
+    --danger-wash: rgb(255 127 144 / 0.13);
+    --warning-ink: #f7c86a;
+    --warning-wash: rgb(242 181 68 / 0.13);
+    --success: #4ade9a;
+    --sys-librain: #8c8cff;
     --sys-naive: #d95926;
     --sys-single: #199e70;
-    --track: #252e3a;
+    --track: #1c2350;
     --cat-d: #3987e5;
     --cat-a: #0ca30c;
     --cat-c: #9085e9;
-    --cat-n: #8f99a7;
+    --cat-n: #8a92be;
     --cat-f: #d95926;
     --cat-s: #c98500;
     --cat-w: #199e70;
     --cat-p: #d55181;
     --cat-j: #e66767;
-    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px rgb(2 4 20 / 0.6);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0f141a;
-  --surface: #161c24;
-  --surface-sunken: #121820;
-  --ink: #e8ecf1;
-  --ink-2: #b9c1cc;
-  --ink-3: #8f99a7;
-  --rule: #2a3340;
-  --rule-strong: #3d4858;
-  --accent: #7db1ee;
-  --accent-hover: #a3c8f4;
-  --accent-ink: #0f141a;
-  --accent-wash: #1a2b40;
-  --focus-ring: #7db1ee;
-  --grounded: #1e96b0;
-  --grounded-wash: rgb(30 150 176 / 0.2);
-  --extrapolated: #c08410;
-  --extrapolated-wash: rgb(192 132 16 / 0.22);
-  --risky: #e0508a;
-  --risky-wash: rgb(224 80 138 / 0.22);
-  --danger: #f07d8f;
-  --danger-wash: rgb(240 125 143 / 0.14);
-  --warning-ink: #f0c36a;
-  --warning-wash: rgb(192 132 16 / 0.16);
-  --success: #5fcf93;
-  --sys-librain: #3987e5;
+  --bg-deep: #070a1a;
+  --bg: #070a1a;
+  --surface: #0d1130;
+  --surface-raised: #141a3d;
+  --surface-sunken: #0a0d25;
+  --surface-input: #0a0d25;
+  --ink: #e8eafb;
+  --ink-2: #b3b9dd;
+  --ink-3: #8a92be;
+  --rule: #1f2652;
+  --rule-strong: #3a4580;
+  --rule-glow: rgb(139 120 255 / 0.34);
+  --accent: #8fa6ff;
+  --accent-hover: #b7c5ff;
+  --accent-ink: #070a1a;
+  --accent-wash: #1b2155;
+  --focus-ring: #22d3ee;
+  --brand-cyan: #22d3ee;
+  --brand-violet: #8b5cf6;
+  --brand-magenta: #d946ef;
+  --grad-brand: linear-gradient(100deg, #22d3ee 0%, #8b5cf6 55%, #d946ef 100%);
+  --grad-brand-soft: linear-gradient(100deg, rgb(34 211 238 / 0.1) 0%, rgb(139 92 246 / 0.1) 55%, rgb(217 70 239 / 0.1) 100%);
+  --glow-accent: 0 0 0 1px rgb(139 92 246 / 0.5), 0 0 18px -4px rgb(34 211 238 / 0.55), 0 0 26px -8px rgb(217 70 239 / 0.6);
+  --glow-line: 0 0 8px rgb(139 92 246 / 0.85), 0 0 2px rgb(34 211 238 / 0.9);
+  --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%238b9cff' stroke-opacity='0.13' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%238b9cff' fill-opacity='0.16' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+  --grounded: #2dd4bf;
+  --grounded-wash: rgb(45 212 191 / 0.15);
+  --extrapolated: #f2b544;
+  --extrapolated-wash: rgb(242 181 68 / 0.16);
+  --risky: #ff6597;
+  --risky-wash: rgb(255 101 151 / 0.16);
+  --danger: #ff7f90;
+  --danger-wash: rgb(255 127 144 / 0.13);
+  --warning-ink: #f7c86a;
+  --warning-wash: rgb(242 181 68 / 0.13);
+  --success: #4ade9a;
+  --sys-librain: #8c8cff;
   --sys-naive: #d95926;
   --sys-single: #199e70;
-  --track: #252e3a;
+  --track: #1c2350;
   --cat-d: #3987e5;
   --cat-a: #0ca30c;
   --cat-c: #9085e9;
-  --cat-n: #8f99a7;
+  --cat-n: #8a92be;
   --cat-f: #d95926;
   --cat-s: #c98500;
   --cat-w: #199e70;
   --cat-p: #d55181;
   --cat-j: #e66767;
-  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px rgb(2 4 20 / 0.6);
 }

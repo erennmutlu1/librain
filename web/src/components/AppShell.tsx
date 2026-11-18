@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useApi } from '../api/context';
 import type { LibrainApi } from '../api/types';
 import { usePublicDemo } from '../public/context';
+import { LibrainLogo } from './brand/LibrainLogo';
 import { Icon } from './Icon';
 import { ProviderKeysMenu } from './ProviderKeysMenu';
 import { SettingsMenu } from './SettingsMenu';
@@ -15,6 +16,16 @@ const NAV = [
   { to: '/explore', label: 'Explore' },
   { to: '/compare', label: 'Compare' },
   { to: '/history', label: 'History' },
+] as const;
+
+const REPO_URL = 'https://github.com/erennmutlu1/librain';
+
+/** Footer links: where the code, the paper and the write-up live. All open in a new tab, so a run in progress survives. */
+const PROJECT_LINKS = [
+  { href: REPO_URL, label: 'Source code on GitHub' },
+  { href: 'https://doi.org/10.5281/zenodo.20745782', label: 'Companion paper (Zenodo)' },
+  { href: `${REPO_URL}/blob/main/docs/LIBRAIN-discoveries-explained.pdf`, label: 'Discoveries explained (PDF)' },
+  { href: 'https://erenmutlu.me', label: 'erenmutlu.me' },
 ] as const;
 
 type Theme = 'system' | 'light' | 'dark';
@@ -144,6 +155,45 @@ function ModeSwitch() {
   );
 }
 
+function ExternalLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
+  return (
+    <a href={href} className={className} target="_blank" rel="noreferrer">
+      {children}
+      <span className="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
+function SiteFooter({ publicBuild }: { publicBuild: boolean }) {
+  return (
+    <footer className={styles.footer}>
+      <div className={styles.footerInner}>
+        <div className={styles.about}>
+          <LibrainLogo variant="wordmark" height={20} />
+          <p className={styles.aboutLine}>Ask questions of a paper corpus and audit every generated hypothesis, sentence by sentence.</p>
+          {publicBuild ? (
+            <p className={styles.aboutNote}>The recorded runs are real outputs from the repository’s experiments folder.</p>
+          ) : null}
+        </div>
+        <ul role="list" className={styles.links} aria-label="Project links">
+          {PROJECT_LINKS.map((link) => (
+            <li key={link.href}>
+              <ExternalLink href={link.href} className={styles.footerLink}>
+                {link.label}
+                <Icon name="external" size={12} />
+              </ExternalLink>
+            </li>
+          ))}
+        </ul>
+        <p className={styles.legal}>
+          Open source under the{' '}
+          <ExternalLink href={`${REPO_URL}/blob/main/LICENSE`}>MIT licence</ExternalLink>, provided as is.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 export function AppShell() {
   const location = useLocation();
   const demo = usePublicDemo();
@@ -163,24 +213,9 @@ export function AppShell() {
       </a>
       <header className={styles.header}>
         <div className={styles.headerInner} data-public={demo ? '' : undefined}>
-          <div className={styles.brand}>
-            <NavLink to="/discover" className={styles.wordmark} aria-label="LIBRAIN home">
-              <span className={styles.glyph} aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </span>
-              LIBRAIN
-            </NavLink>
-            <p className={styles.tagline}>
-              Ask questions of a paper corpus and audit every generated hypothesis, sentence by sentence.
-            </p>
-          </div>
-          <div className={styles.tools}>
-            {demo ? <ModeSwitch /> : <ApiStatus />}
-            {demo ? <ProviderKeysMenu /> : <SettingsMenu />}
-            <ThemeToggle />
-          </div>
+          <NavLink to="/discover" className={styles.home} aria-label="LIBRAIN home">
+            <LibrainLogo variant="wordmark" height={28} decorative />
+          </NavLink>
           <nav className={styles.nav} aria-label="Sections">
             <ul role="list">
               {NAV.map((item) => (
@@ -192,6 +227,11 @@ export function AppShell() {
               ))}
             </ul>
           </nav>
+          <div className={styles.tools}>
+            {demo ? <ModeSwitch /> : <ApiStatus />}
+            {demo ? <ProviderKeysMenu /> : <SettingsMenu />}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <main id="main" tabIndex={-1} className={styles.main}>
@@ -209,6 +249,7 @@ export function AppShell() {
         {/* A new key per mode remounts the screen, so it starts clean on the other data source. */}
         <Outlet key={demo?.mode} />
       </main>
+      <SiteFooter publicBuild={demo !== null} />
     </div>
   );
 }

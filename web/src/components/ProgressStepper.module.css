@@ -1,12 +1,25 @@
 .root {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
   max-width: 44rem;
-  padding: var(--s4) var(--s5);
+  padding: var(--s4) var(--s5) var(--s5);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   background: var(--surface);
+}
+
+/* A lit top edge while the run is going. */
+.root::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: var(--s5);
+  right: var(--s5);
+  height: 1px;
+  background: var(--grad-brand);
+  box-shadow: var(--glow-line);
 }
 
 .head {
@@ -18,7 +31,8 @@
 }
 
 .title {
-  font-weight: 650;
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .meta {
@@ -82,8 +96,8 @@
 }
 
 .step[data-status='active'] .marker {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--focus-ring);
+  color: var(--ink);
   box-shadow: 0 0 0 4px var(--accent-wash);
   animation: breathe 1.6s ease-in-out infinite;
 }

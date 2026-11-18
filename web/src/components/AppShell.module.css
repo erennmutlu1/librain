@@ -21,86 +21,79 @@
   color: var(--accent-ink);
 }
 
+/* ---------- Header: the instrument bar ---------- */
+
 .header {
-  background: var(--surface);
+  position: relative;
+  isolation: isolate;
+  background: var(--bg-deep);
   border-bottom: 1px solid var(--rule);
+}
+
+/* Circuit traces behind the logo, fading out across the bar. A static tile and a mask: cheap on budget phones. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--circuit-pattern);
+  background-size: 320px 160px;
+  background-position: -48px -22px;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, rgb(0 0 0 / 0.55) 30%, transparent 70%);
+  mask-image: linear-gradient(90deg, #000 0%, rgb(0 0 0 / 0.55) 30%, transparent 70%);
+  pointer-events: none;
+}
+
+/* The signal line along the bottom edge; the active section lights a segment of it. */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--grad-brand);
+  opacity: 0.45;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  pointer-events: none;
 }
 
 .headerInner {
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--s4) var(--gutter) 0;
+  padding: var(--s3) var(--gutter) 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
     'brand tools'
     'nav nav';
-  column-gap: var(--s4);
-  row-gap: var(--s3);
+  align-items: center;
+  column-gap: var(--s5);
+  row-gap: var(--s2);
 }
 
-.brand {
+.home {
   grid-area: brand;
-  display: flex;
-  align-items: baseline;
-  gap: var(--s2) var(--s4);
-  flex-wrap: wrap;
-  min-width: 0;
-}
-
-.wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: 1.45rem;
-  letter-spacing: 0.06em;
+  min-height: 2.75rem;
   color: var(--ink);
   text-decoration: none;
-  line-height: 1;
-  font-variation-settings: 'opsz' 36;
+  border-radius: var(--r-sm);
 }
 
-.wordmark:hover {
+.home:hover {
   color: var(--ink);
 }
 
-.glyph {
-  display: inline-grid;
-  gap: 2px;
-  width: 0.95rem;
-}
-
-.glyph span {
-  display: block;
-  height: 3px;
-  border-radius: 1.5px;
-}
-
-.glyph span:nth-child(1) {
-  background: var(--grounded);
-  width: 100%;
-}
-
-.glyph span:nth-child(2) {
-  background: var(--extrapolated);
-  width: 72%;
-}
-
-.glyph span:nth-child(3) {
-  background: var(--risky);
-  width: 48%;
-}
-
-.tagline {
-  font-size: var(--fs-sm);
-  color: var(--ink-3);
-  max-width: 52ch;
+.home:focus-visible {
+  outline-offset: 4px;
 }
 
 .tools {
   grid-area: tools;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--s2);
@@ -110,9 +103,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45em;
-  padding: 0.2em 0.65em;
+  min-height: 1.75rem;
+  padding: 0.2em 0.7em;
   border-radius: 999px;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule-strong);
+  background: var(--surface);
   font-size: var(--fs-xs);
   font-weight: 600;
   white-space: nowrap;
@@ -120,6 +115,7 @@
 }
 
 .dot {
+  flex: none;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -138,11 +134,13 @@
 
 .status[data-tone='up'] .dot {
   background: var(--success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
 }
 
 .status[data-tone='down'] {
   color: var(--danger);
-  border-color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 60%, transparent);
+  background: var(--danger-wash);
 }
 
 .status[data-tone='down'] .dot {
@@ -152,22 +150,27 @@
 .iconButton {
   display: inline-grid;
   place-items: center;
+  flex: none;
   width: 2.5rem;
   height: 2.5rem;
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
-  background: transparent;
+  background: var(--surface);
   color: var(--ink-2);
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .iconButton:hover {
   color: var(--ink);
-  border-color: var(--rule-strong);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--rule-strong));
 }
 
 .nav {
   grid-area: nav;
+  min-width: 0;
 }
 
 .nav ul {
@@ -177,24 +180,53 @@
 }
 
 .link {
-  display: block;
-  padding: var(--s2) var(--s3) calc(var(--s2) + 3px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--s3);
   font-size: var(--fs-sm);
   font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--ink-2);
   text-decoration: none;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -1px;
+  white-space: nowrap;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  transition: color 120ms ease;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  left: var(--s3);
+  right: var(--s3);
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: transparent;
 }
 
 .link:hover {
   color: var(--ink);
-  border-bottom-color: var(--rule-strong);
 }
 
+.link:hover::after {
+  background: var(--rule-strong);
+}
+
+.link:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Active: full-strength label and the lit bar (a shape, not only a colour). */
 .link.active {
   color: var(--ink);
-  border-bottom-color: var(--accent);
+}
+
+.link.active::after {
+  background: var(--grad-brand);
+  box-shadow: var(--glow-line);
 }
 
 .main {
@@ -202,11 +234,30 @@
   outline: none;
 }
 
-@media (max-width: 40rem) {
-  .tagline {
-    font-size: var(--fs-xs);
+/* One row on wide screens: brand, sections, tools. The bar's links run its full height. */
+@media (min-width: 64rem) {
+  .headerInner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'brand nav tools';
+    padding-top: 0;
+    column-gap: var(--s6);
   }
 
+  .nav {
+    align-self: stretch;
+  }
+
+  .nav ul {
+    height: 100%;
+  }
+
+  .link {
+    height: 100%;
+    min-height: 4.25rem;
+  }
+}
+
+@media (max-width: 40rem) {
   /* Six sections share the row: each link takes an equal part of the spare width. */
   .nav ul {
     justify-content: space-between;
@@ -221,12 +272,22 @@
     padding-inline: var(--s1);
     text-align: center;
   }
+
+  .link::after {
+    left: var(--s2);
+    right: var(--s2);
+  }
 }
 
 @media (max-width: 26rem) {
   .link {
     padding-inline: 0;
     font-size: var(--fs-xs);
+  }
+
+  .link::after {
+    left: var(--s1);
+    right: var(--s1);
   }
 }
 
@@ -250,7 +311,7 @@
   align-items: center;
   gap: 0.4em;
   min-height: 2.125rem;
-  padding: 0 0.8em;
+  padding: 0 0.85em;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -260,6 +321,9 @@
   font-weight: 650;
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
 }
 
 .mode:hover {
@@ -269,12 +333,13 @@
 .mode[aria-pressed='true'][data-mode='recorded'] {
   background: var(--warning-wash);
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--extrapolated) 50%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--extrapolated) 55%, transparent);
 }
 
 .mode[aria-pressed='true'][data-mode='live'] {
   background: var(--accent);
   color: var(--accent-ink);
+  box-shadow: var(--glow-accent);
 }
 
 .mode .dot {
@@ -294,7 +359,11 @@
   box-shadow: 0 0 0 1.5px var(--surface);
 }
 
-/* The mode switch is wider than the mock badge: below ~30rem the tools get their own row. */
+/*
+ * Too narrow for logo and tools side by side: the tools get their own row.
+ * The public mode switch needs it below ~30rem, the owner's status badge
+ * ("API unreachable" is the widest) below ~24rem.
+ */
 @media (max-width: 30rem) {
   .headerInner[data-public] {
     grid-template-columns: minmax(0, 1fr);
@@ -302,6 +371,24 @@
       'brand'
       'tools'
       'nav';
+  }
+
+  .headerInner[data-public] .tools {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 24rem) {
+  .headerInner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'brand'
+      'tools'
+      'nav';
+  }
+
+  .tools {
+    justify-self: start;
   }
 }
 
@@ -314,4 +401,93 @@
 
 .wake > :global(.notice) {
   margin-top: var(--s4);
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  position: relative;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--rule);
+  color: var(--ink-2);
+}
+
+.footerInner {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--s6) var(--gutter) var(--s5);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+}
+
+.about {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+.aboutLine {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+.aboutNote {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  max-width: 52ch;
+  padding-left: var(--s3);
+  border-left: 2px solid var(--rule-glow);
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0 var(--s5);
+  align-content: start;
+  min-width: 0;
+}
+
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 2.25rem;
+  font-size: var(--fs-sm);
+  font-weight: 550;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.footerLink > svg {
+  flex: none;
+  color: var(--ink-3);
+}
+
+.legal {
+  grid-column: 1 / -1;
+  padding-top: var(--s4);
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.legal a {
+  color: var(--ink-2);
+}
+
+@media (min-width: 48rem) {
+  .footerInner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--s7);
+  }
 }

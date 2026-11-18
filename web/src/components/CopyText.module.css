@@ -36,6 +36,6 @@
 }
 
 .button:hover {
-  color: var(--accent);
+  color: var(--accent-hover);
   background: var(--accent-wash);
 }

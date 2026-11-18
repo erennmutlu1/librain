@@ -24,11 +24,16 @@
 }
 
 .row:first-child .number {
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
+/* The lead score is the key number: its bar carries the brand gradient. */
 .row:first-child .fill {
-  background: var(--accent);
+  background: var(--grad-brand);
+  box-shadow: var(--glow-line);
 }
 
 .label {
@@ -66,7 +71,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 0 4px 4px 0;
-  background: var(--ink-2);
+  background: var(--ink-3);
 }
 
 /* ---------- Risk meter ---------- */
@@ -98,9 +103,11 @@
 }
 
 .riskValue {
+  font-family: var(--font-display);
   font-size: var(--fs-xl);
   font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .riskBand {

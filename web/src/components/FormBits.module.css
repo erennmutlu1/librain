@@ -9,10 +9,11 @@
 
 .segments {
   display: inline-flex;
+  gap: 2px;
+  padding: 2px;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-sm);
-  overflow: hidden;
-  background: var(--surface);
+  background: var(--surface-sunken);
   width: max-content;
   max-width: 100%;
 }
@@ -20,10 +21,6 @@
 .segment {
   position: relative;
   display: flex;
-}
-
-.segment + .segment {
-  border-left: 1px solid var(--rule-strong);
 }
 
 .segment input {
@@ -35,20 +32,41 @@
 }
 
 .segment span {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: 2.375rem;
+  min-height: 2.125rem;
   padding: 0 var(--s3);
+  border-radius: calc(var(--r-sm) - 2px);
   font-size: var(--fs-sm);
   font-weight: 550;
   color: var(--ink-2);
   white-space: nowrap;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
 }
 
-.segment input:checked + span {
-  background: var(--accent-wash);
+.segment:hover input:not(:checked) + span {
   color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* Checked: raised face, full-strength label and the lit bar, the same marks as the active section. */
+.segment input:checked + span {
+  background: var(--surface-raised);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--rule-glow);
+}
+
+.segment input:checked + span::after {
+  content: '';
+  position: absolute;
+  left: var(--s2);
+  right: var(--s2);
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--grad-brand);
 }
 
 .segment input:focus-visible + span {
@@ -95,18 +113,25 @@
   border: 1px dashed var(--rule-strong);
   background: transparent;
   border-radius: var(--r-sm);
-  padding: 0.3rem 0.6rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.65rem;
   font-size: var(--fs-xs);
+  line-height: 1.35;
   color: var(--ink-2);
   cursor: pointer;
   text-align: left;
   max-width: 100%;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease;
 }
 
 .recordedButton:hover:not(:disabled) {
   border-style: solid;
   border-color: var(--accent);
-  color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
 }
 
 .recordedButton:disabled {

@@ -6,19 +6,28 @@
   position: relative;
   display: inline-grid;
   place-items: center;
+  flex: none;
   width: 2.5rem;
   height: 2.5rem;
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
-  background: transparent;
+  background: var(--surface);
   color: var(--ink-2);
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
-.trigger:hover,
+.trigger:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--rule-strong));
+}
+
 .trigger[aria-expanded='true'] {
   color: var(--ink);
-  border-color: var(--rule-strong);
+  border-color: var(--accent);
+  background: var(--accent-wash);
 }
 
 .dot {
@@ -30,6 +39,7 @@
   border-radius: 50%;
   background: var(--success);
   border: 1.5px solid var(--surface);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--success) 60%, transparent);
 }
 
 .panel {
@@ -41,16 +51,30 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
-  padding: var(--s4);
-  background: var(--surface);
+  padding: var(--s4) var(--s5) var(--s5);
+  background: var(--surface-raised);
   border: 1px solid var(--rule);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-panel);
 }
 
+/* A lit top edge marks the open panel as the brand's own surface. */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: var(--s4);
+  right: var(--s4);
+  height: 1px;
+  background: var(--grad-brand);
+  opacity: 0.8;
+}
+
 .title {
+  font-family: var(--font-display);
   font-size: var(--fs-md);
-  font-weight: 650;
+  font-weight: 600;
+  letter-spacing: -0.005em;
 }
 
 .reason {
@@ -159,9 +183,10 @@
 
 .disclaimer {
   font-size: var(--fs-xs);
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--ink-2);
   padding: var(--s3);
+  border: 1px solid var(--rule);
   border-radius: var(--r-sm);
   background: var(--surface-sunken);
 }
