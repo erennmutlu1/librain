@@ -23,8 +23,11 @@ describe('paperCatalog', () => {
     });
     expect(paperExternalUrl('self-rag')).toBe('https://arxiv.org/abs/2310.11511');
     expect(paperInfo('2005.11401')).toMatchObject({ title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks', year: 2020 });
-    // "Manuscript - Arxiv" is a placeholder, so the title stays unknown.
-    expect(paperInfo('biomedgpt')).toMatchObject({ title: null, authors: null });
+    // The API says "Manuscript - Arxiv" for biomedgpt; the real title comes from its own title page.
+    expect(paperInfo('biomedgpt')).toMatchObject({
+      title: 'BiomedGPT: A generalist vision–language foundation model for diverse biomedical tasks',
+      arxivId: '2305.17100',
+    });
     // "Anonymous Submission" is not an author.
     expect(paperInfo('whisper').authors).toBeNull();
   });

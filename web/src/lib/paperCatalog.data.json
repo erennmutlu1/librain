@@ -518,20 +518,30 @@
     "source": "api; paper text in the recorded passages"
   },
   "autoformer": {
-    "title": null,
-    "authors": null,
+    "title": "Autoformer: Decomposition Transformers with Auto-Correlation for Long-Term Series Forecasting",
+    "authors": [
+      "Haixu Wu",
+      "Jiehui Xu",
+      "Jianmin Wang",
+      "Mingsheng Long"
+    ],
     "year": 2022,
     "arxivId": "2106.13008",
     "current": true,
-    "source": "api; paper text in the recorded passages"
+    "source": "title page (first passage in the paper library)"
   },
   "biomedgpt": {
-    "title": null,
-    "authors": null,
+    "title": "BiomedGPT: A generalist vision–language foundation model for diverse biomedical tasks",
+    "authors": [
+      "Kai Zhang",
+      "Rong Zhou",
+      "Eashan Adhikarla",
+      "et al."
+    ],
     "year": 2024,
-    "arxivId": null,
+    "arxivId": "2305.17100",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "centaur": {
     "title": "A foundation model to predict and capture human cognition",
@@ -560,12 +570,14 @@
     "source": "api; paper text in the recorded passages"
   },
   "climate-adaptation-ml": {
-    "title": null,
-    "authors": null,
+    "title": "A Machine Learning Approach to Measuring Climate Adaptation",
+    "authors": [
+      "Max Vilgalys"
+    ],
     "year": 2023,
     "arxivId": null,
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library)"
   },
   "clip": {
     "title": "Learning Transferable Visual Models From Natural Language Supervision",
@@ -617,12 +629,15 @@
     "source": "api"
   },
   "crop-yield-rs": {
-    "title": null,
-    "authors": null,
+    "title": "Estimating Crop Yields with Remote Sensing and Deep Learning",
+    "authors": [
+      "Renato Luiz de Freitas Cunha",
+      "Bruno Silva"
+    ],
     "year": 2020,
     "arxivId": "2007.10882",
     "current": true,
-    "source": "api; paper text in the recorded passages"
+    "source": "title page (first passage in the paper library)"
   },
   "deepar": {
     "title": "DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks",
@@ -665,12 +680,17 @@
     "source": "api; paper text in the recorded passages"
   },
   "dqn": {
-    "title": null,
-    "authors": null,
+    "title": "Playing Atari with Deep Reinforcement Learning",
+    "authors": [
+      "Volodymyr Mnih",
+      "Koray Kavukcuoglu",
+      "David Silver",
+      "et al."
+    ],
     "year": 2013,
-    "arxivId": null,
+    "arxivId": "1312.5602",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "epi-pinn": {
     "title": "Approaching epidemiological dynamics of COVID-19 with physics-informed neural networks",
@@ -687,12 +707,17 @@
     "source": "api"
   },
   "flamingo": {
-    "title": null,
-    "authors": null,
+    "title": "Flamingo: a Visual Language Model for Few-Shot Learning",
+    "authors": [
+      "Jean-Baptiste Alayrac",
+      "Jeff Donahue",
+      "Pauline Luc",
+      "et al."
+    ],
     "year": 2022,
-    "arxivId": null,
+    "arxivId": "2204.14198",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "gat": {
     "title": "Graph Attention Networks",
@@ -750,12 +775,17 @@
     "source": "api; paper text in the recorded passages; docs/paper-source/architecture.html [19]"
   },
   "llava": {
-    "title": null,
-    "authors": null,
+    "title": "Visual Instruction Tuning",
+    "authors": [
+      "Haotian Liu",
+      "Chunyuan Li",
+      "Qingyang Wu",
+      "Yong Jae Lee"
+    ],
     "year": 2023,
-    "arxivId": null,
+    "arxivId": "2304.08485",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "llm-education-survey": {
     "title": "Large Language Models for Education: A Survey",
@@ -771,20 +801,30 @@
     "source": "api"
   },
   "neuromorphic-survey": {
-    "title": null,
-    "authors": null,
+    "title": "A Survey of Neuromorphic Computing and Neural Networks in Hardware",
+    "authors": [
+      "Catherine D. Schuman",
+      "Thomas E. Potok",
+      "Robert M. Patton",
+      "et al."
+    ],
     "year": 2017,
     "arxivId": "1705.06963",
     "current": true,
-    "source": "api; paper text in the recorded passages"
+    "source": "title page (first passage in the paper library)"
   },
   "oc20": {
-    "title": null,
-    "authors": null,
+    "title": "The Open Catalyst 2020 (OC20) Dataset and Community Challenges",
+    "authors": [
+      "Lowik Chanussot",
+      "Abhishek Das",
+      "Siddharth Goyal",
+      "et al."
+    ],
     "year": 2021,
-    "arxivId": null,
+    "arxivId": "2010.09990",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "pangu-weather": {
     "title": "Pangu-Weather: A 3D High-Resolution System for Fast and Accurate Global Weather Forecast",
@@ -828,12 +868,17 @@
     "source": "api; paper text in the recorded passages"
   },
   "protein-dl-survey": {
-    "title": null,
-    "authors": null,
+    "title": "Advanced Deep Learning Methods for Protein Structure Prediction and Design",
+    "authors": [
+      "Yichao Zhang",
+      "Ningyuan Deng",
+      "Xinyuan Song",
+      "et al."
+    ],
     "year": 2025,
-    "arxivId": null,
+    "arxivId": "2503.13522",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "self-rag": {
     "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
@@ -863,36 +908,56 @@
     "source": "api; arXiv id from the paper text in the recorded passages"
   },
   "tackling-climate-ml": {
-    "title": null,
-    "authors": null,
+    "title": "Tackling Climate Change with Machine Learning",
+    "authors": [
+      "David Rolnick",
+      "Priya L. Donti",
+      "Lynn H. Kaack",
+      "et al."
+    ],
     "year": 2019,
-    "arxivId": null,
+    "arxivId": "1906.05433",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "thought2text-eeg": {
-    "title": null,
-    "authors": null,
+    "title": "Thought2Text: Text Generation from EEG Signal using Large Language Models (LLMs)",
+    "authors": [
+      "Abhijit Mishra",
+      "Shreya Shukla",
+      "Jose Torres",
+      "et al."
+    ],
     "year": 2025,
-    "arxivId": null,
+    "arxivId": "2410.07507",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "vit": {
-    "title": null,
-    "authors": null,
+    "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+    "authors": [
+      "Alexey Dosovitskiy",
+      "Lucas Beyer",
+      "Alexander Kolesnikov",
+      "et al."
+    ],
     "year": 2021,
     "arxivId": "2010.11929",
     "current": true,
-    "source": "api; paper text in the recorded passages"
+    "source": "title page (first passage in the paper library)"
   },
   "wav2vec2": {
-    "title": null,
-    "authors": null,
+    "title": "wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations",
+    "authors": [
+      "Alexei Baevski",
+      "Henry Zhou",
+      "Abdelrahman Mohamed",
+      "Michael Auli"
+    ],
     "year": 2020,
-    "arxivId": null,
+    "arxivId": "2006.11477",
     "current": true,
-    "source": "api"
+    "source": "title page (first passage in the paper library); arXiv id checked against arxiv.org"
   },
   "whisper": {
     "title": "Robust Speech Recognition via Large-Scale Weak Supervision",
