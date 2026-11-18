@@ -6,6 +6,7 @@ import { EmptyState, ErrorNotice, SkeletonLines } from '../components/States';
 import { formatAuthors, formatCount, formatDate } from '../lib/format';
 import { displayTitle, usePapers } from '../lib/papers';
 import { useSessionState } from '../lib/sessionStore';
+import { usePublicDemo } from '../public/context';
 import { UploadPanel } from './UploadPanel';
 import styles from './LibraryPage.module.css';
 
@@ -16,6 +17,9 @@ interface Sort {
 }
 
 const COLUMNS = 6;
+
+/** The corpus the public API serves (experiments/new-areas-discoveries/featured.json). */
+export const PUBLIC_CORPUS_NOTE = 'The public corpus is read-only: 55 papers, 2,210 chunks.';
 
 /** Missing values sort after present ones, whichever the direction of the column. */
 function nullsLast<T>(x: T | null, y: T | null, cmp: (p: T, q: T) => number): number {
@@ -116,6 +120,10 @@ function ConfirmDelete({
 export default function LibraryPage() {
   const api = useApi();
   const uid = useId();
+  const demo = usePublicDemo();
+  // The public API refuses ingest and delete (403), so the public build does not offer them at all.
+  const readOnly = demo !== null;
+  const recordedOnly = demo?.mode === 'recorded';
   const { state, run } = usePapers();
   const [filter, setFilter] = useSessionState('library.filter', '');
   const [sort, setSort] = useState<Sort>({ key: 'paper', dir: 'asc' });
@@ -166,13 +174,22 @@ export default function LibraryPage() {
           {papers
             ? papers.length === 0
               ? 'No papers yet.'
-              : `${formatCount(papers.length)} papers, ${formatCount(totalChunks)} chunks in the vector store. Ask, Discover and Compare all search this collection.`
+              : recordedOnly
+                ? `The recorded runs cite ${formatCount(papers.length)} papers, some of them from the earlier, smaller corpora the runs were made on. Switch to Live to list today's corpus.`
+                : `${formatCount(papers.length)} papers, ${formatCount(totalChunks)} chunks in the vector store. Ask, Discover and Compare all search this collection.`
             : 'The papers LIBRAIN can search. Ask, Discover and Compare all draw their evidence from here.'}
         </p>
       </header>
 
-      <div className={styles.layout}>
-        <UploadPanel papers={papers} onIngested={() => void run()} />
+      {readOnly ? (
+        <div className={`notice notice-info ${styles.readOnly}`}>
+          <Icon name="info" />
+          <p>{PUBLIC_CORPUS_NOTE}</p>
+        </div>
+      ) : null}
+
+      <div className={readOnly ? undefined : styles.layout}>
+        {readOnly ? null : <UploadPanel papers={papers} onIngested={() => void run()} />}
 
         <section className={styles.listSection} aria-labelledby={`${uid}-h`}>
           <div className={styles.listHead}>
@@ -198,8 +215,9 @@ export default function LibraryPage() {
 
           {api.mode === 'mock' && papers && papers.length > 0 ? (
             <p className={styles.footnote}>
-              Mock mode: the API snapshot's paper plus every paper id the recorded runs cite. Titles are unknown for
-              those, and chunk counts are lower bounds (highest cited chunk index plus one).
+              {demo
+                ? 'Recorded mode: every paper id the recorded runs cite. Titles are unknown for those, and chunk counts are lower bounds (highest cited chunk index plus one). Switch to Live to list the whole corpus.'
+                : "Mock mode: the API snapshot's paper plus every paper id the recorded runs cite. Titles are unknown for those, and chunk counts are lower bounds (highest cited chunk index plus one)."}
             </p>
           ) : null}
 
@@ -216,7 +234,9 @@ export default function LibraryPage() {
 
           {papers && papers.length === 0 ? (
             <EmptyState title="The library is empty">
-              <p>Upload a PDF or ingest an arXiv paper to start. Every paper you add becomes searchable from Ask, Discover and Compare.</p>
+              {readOnly ? null : (
+                <p>Upload a PDF or ingest an arXiv paper to start. Every paper you add becomes searchable from Ask, Discover and Compare.</p>
+              )}
             </EmptyState>
           ) : null}
 
@@ -243,9 +263,11 @@ export default function LibraryPage() {
                   <SortHeader label="Year" sortKey="year" sort={sort} onSort={onSort} className={styles.yearCol} />
                   <SortHeader label="Chunks" sortKey="chunkCount" sort={sort} onSort={onSort} className={styles.numCol} />
                   <SortHeader label="Added" sortKey="firstIngestedAt" sort={sort} onSort={onSort} className={styles.dateCol} />
-                  <th scope="col" className={styles.actionCol}>
-                    <span className="visually-hidden">Actions</span>
-                  </th>
+                  {readOnly ? null : (
+                    <th scope="col" className={styles.actionCol}>
+                      <span className="visually-hidden">Actions</span>
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -272,26 +294,28 @@ export default function LibraryPage() {
                           </span>
                         </td>
                         <td className={styles.dateCol}>{formatDate(p.firstIngestedAt)}</td>
-                        <td className={styles.actionCol}>
-                          <button
-                            ref={(el) => {
-                              if (el) triggers.current.set(p.paperId, el);
-                              else triggers.current.delete(p.paperId);
-                            }}
-                            type="button"
-                            className={styles.rowAction}
-                            aria-expanded={confirming === p.paperId}
-                            onClick={() => {
-                              setDeleted(null);
-                              setConfirming((c) => (c === p.paperId ? null : p.paperId));
-                            }}
-                          >
-                            <Icon name="trash" size={15} />
-                            <span className="visually-hidden">Delete {p.paperId}</span>
-                          </button>
-                        </td>
+                        {readOnly ? null : (
+                          <td className={styles.actionCol}>
+                            <button
+                              ref={(el) => {
+                                if (el) triggers.current.set(p.paperId, el);
+                                else triggers.current.delete(p.paperId);
+                              }}
+                              type="button"
+                              className={styles.rowAction}
+                              aria-expanded={confirming === p.paperId}
+                              onClick={() => {
+                                setDeleted(null);
+                                setConfirming((c) => (c === p.paperId ? null : p.paperId));
+                              }}
+                            >
+                              <Icon name="trash" size={15} />
+                              <span className="visually-hidden">Delete {p.paperId}</span>
+                            </button>
+                          </td>
+                        )}
                       </tr>
-                      {confirming === p.paperId ? (
+                      {!readOnly && confirming === p.paperId ? (
                         <ConfirmDelete paper={p} onCancel={() => cancelDelete(p.paperId)} onDeleted={onDeleted} />
                       ) : null}
                     </Fragment>

@@ -10,7 +10,8 @@ namespace LIBRAIN.Endpoints;
 // so nothing from the request, keys included, can travel back in an error.
 public static class UpstreamErrors
 {
-    public sealed record Failure(int Status, string Title, string Detail);
+    // Provider: "anthropic" or "openai" when that provider refused the call (the UI names it).
+    public sealed record Failure(int Status, string Title, string Detail, string? Provider = null);
 
     public static Failure? Classify(Exception exception)
     {
@@ -50,11 +51,12 @@ public static class UpstreamErrors
     {
         (int)HttpStatusCode.Unauthorized => Rejected(provider),
         (int)HttpStatusCode.Forbidden => new(StatusCodes.Status403Forbidden, $"{provider} refused the request",
-            $"{provider} says this key is not allowed to make this request. Check the key's permissions in your {provider} account."),
+            $"{provider} says this key is not allowed to make this request. Check the key's permissions in your {provider} account.",
+            Id(provider)),
         (int)HttpStatusCode.TooManyRequests when message.Contains("insufficient_quota", StringComparison.OrdinalIgnoreCase)
             => NoCredit(provider),
         (int)HttpStatusCode.TooManyRequests => new(StatusCodes.Status429TooManyRequests, $"{provider} rate limit reached",
-            $"Your {provider} account hit its rate limit. Wait a minute and try again."),
+            $"Your {provider} account hit its rate limit. Wait a minute and try again.", Id(provider)),
         (int)HttpStatusCode.BadRequest when message.Contains("credit balance", StringComparison.OrdinalIgnoreCase)
             => NoCredit(provider),
         _ => FromMessage(provider, message),
@@ -72,23 +74,36 @@ public static class UpstreamErrors
         if (message.Contains("rate_limit_error", StringComparison.OrdinalIgnoreCase)
             || message.Contains("TooManyRequests", StringComparison.Ordinal))
             return new(StatusCodes.Status429TooManyRequests, $"{provider} rate limit reached",
-                $"Your {provider} account hit its rate limit. Wait a minute and try again.");
+                $"Your {provider} account hit its rate limit. Wait a minute and try again.", Id(provider));
         return null;
     }
 
     private static Failure Rejected(string provider) => new(StatusCodes.Status401Unauthorized,
-        $"{provider} rejected the key", $"{provider} did not accept the API key. Check that it is complete and still active.");
+        $"{provider} rejected the key", $"{provider} did not accept the API key. Check that it is complete and still active.",
+        Id(provider));
 
     private static Failure NoCredit(string provider) => new(StatusCodes.Status402PaymentRequired,
-        $"{provider} account has no credit", $"Your {provider} account has no credit left for this request. Add credit or use another key.");
+        $"{provider} account has no credit", $"Your {provider} account has no credit left for this request. Add credit or use another key.",
+        Id(provider));
+
+    private static string Id(string provider) => provider.ToLowerInvariant();
 
     // A problem result for a pipeline failure: the classified failure when there is one,
     // otherwise the endpoint's generic 502.
     public static IResult ToProblem(Exception ex, string fallbackTitle, string fallbackDetail, Guid? correlationId = null)
     {
-        var extensions = correlationId is null ? null : new Dictionary<string, object?> { ["correlationId"] = correlationId };
-        return Classify(ex) is { } failure
-            ? Results.Problem(title: failure.Title, detail: failure.Detail, statusCode: failure.Status, extensions: extensions)
-            : Results.Problem(title: fallbackTitle, detail: fallbackDetail, statusCode: StatusCodes.Status502BadGateway, extensions: extensions);
+        var failure = Classify(ex);
+        var extensions = new Dictionary<string, object?>();
+        if (correlationId is not null) extensions["correlationId"] = correlationId;
+        if (failure is null)
+            return Results.Problem(title: fallbackTitle, detail: fallbackDetail, statusCode: StatusCodes.Status502BadGateway, extensions: extensions);
+        return ToProblem(failure, extensions);
+    }
+
+    public static IResult ToProblem(Failure failure, Dictionary<string, object?>? extensions = null)
+    {
+        extensions ??= new();
+        if (failure.Provider is not null) extensions["provider"] = failure.Provider;
+        return Results.Problem(title: failure.Title, detail: failure.Detail, statusCode: failure.Status, extensions: extensions);
     }
 }

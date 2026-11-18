@@ -83,6 +83,14 @@
   margin-top: var(--s2);
 }
 
+.recordedList[data-long] {
+  max-height: 15rem;
+  overflow-y: auto;
+  padding: var(--s1);
+  margin-inline: calc(-1 * var(--s1));
+  overscroll-behavior: contain;
+}
+
 .recordedButton {
   border: 1px dashed var(--rule-strong);
   background: transparent;

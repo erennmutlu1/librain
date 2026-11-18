@@ -3,9 +3,11 @@ import { useApi } from '../api/context';
 import { MAX_QUERY_CHARS, type MockScenario, type QueryRequest, type QueryResponse } from '../api/types';
 import { AskResult } from '../components/AskResult';
 import { MockProvenance, RecordedRuns } from '../components/FormBits';
+import { Icon } from '../components/Icon';
 import { ProgressStepper } from '../components/ProgressStepper';
 import { EmptyState, ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
+import { usePublicDemo } from '../public/context';
 import { useSessionState } from '../lib/sessionStore';
 import { QUERY_STAGES } from '../lib/stages';
 import { useRequest, type RequestFn } from '../lib/useRequest';
@@ -34,6 +36,9 @@ export default function AskPage() {
   const api = useApi();
   const uid = useId();
   const record = useRecordRun();
+  const demo = usePublicDemo();
+  // The only Ask recording is an API contract snapshot (placeholder text), which the public site never shows.
+  const noRecordings = demo?.mode === 'recorded';
   const [form, setForm] = useSessionState<AskForm>('ask.form', { query: '', topK: '5' });
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -59,6 +64,7 @@ export default function AskPage() {
 
   const submit = (event?: FormEvent) => {
     event?.preventDefault();
+    if (noRecordings) return;
     const request = toRequest(form);
     if (typeof request === 'string') {
       setFormError(request);
@@ -90,6 +96,24 @@ export default function AskPage() {
         </p>
       </header>
 
+      {noRecordings ? (
+        <div className={`notice notice-info ${styles.modeNotice}`} role="status">
+          <Icon name="info" />
+          <div>
+            <strong>Ask has no recorded runs.</strong>
+            <p>
+              Recorded mode only replays real runs, and none were recorded for Ask. Switch to Live to ask the corpus a
+              question with your own Anthropic and OpenAI keys.
+            </p>
+            <div className="cluster">
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => demo.switchTo('live')}>
+                Switch to Live
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <form className={styles.queryBar} onSubmit={submit} noValidate>
         <div className="field">
           <label className="field-label" htmlFor={`${uid}-q`}>
@@ -98,6 +122,7 @@ export default function AskPage() {
           <textarea
             id={`${uid}-q`}
             className="input"
+            disabled={noRecordings}
             rows={3}
             value={form.query}
             maxLength={MAX_QUERY_CHARS}
@@ -125,6 +150,7 @@ export default function AskPage() {
               inputMode="numeric"
               min={1}
               max={20}
+              disabled={noRecordings}
               value={form.topK}
               onChange={(e) => setForm((f) => ({ ...f, topK: e.target.value }))}
             />
@@ -133,7 +159,7 @@ export default function AskPage() {
             <span id={`${uid}-kbd`} className={styles.kbd}>
               Ctrl or ⌘ + Enter to ask
             </span>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button type="submit" className="btn btn-primary" disabled={loading || noRecordings}>
               {loading ? 'Asking…' : 'Ask'}
             </button>
           </div>

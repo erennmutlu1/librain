@@ -114,3 +114,54 @@
   color: var(--ink-2);
   overflow-wrap: anywhere;
 }
+
+/* ---------- Public build: the visitor's provider keys ---------- */
+
+/*
+ * Positioned against the header's tool row rather than the button, so the
+ * panel's right edge meets the page gutter and it fits a 360 px screen even
+ * though the key button is not the last tool.
+ */
+.publicRoot {
+  position: static;
+}
+
+.publicRoot .panel {
+  width: min(24rem, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+}
+
+.intro {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.keyRow {
+  display: flex;
+  gap: var(--s2);
+  align-items: center;
+}
+
+.keyRow .input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.keyRow .btn {
+  flex: none;
+}
+
+.warn {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.disclaimer {
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--ink-2);
+  padding: var(--s3);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+}

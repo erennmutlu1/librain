@@ -12,6 +12,8 @@ export type RequestState<T> =
 
 const IDLE = { status: 'idle' } as const;
 const controllers = new Map<string, AbortController>();
+/** Every key that has ever run, i.e. every state that can hold a result. */
+const ranKeys = new Set<string>();
 
 export type RequestFn<A, T> = (args: A, signal: AbortSignal, onProgress: (event: ProgressEvent) => void) => Promise<T>;
 
@@ -26,6 +28,7 @@ export function useRequest<A, T>(key: string, fn: RequestFn<A, T>) {
 
   const run = useCallback(
     async (args: A): Promise<T | undefined> => {
+      ranKeys.add(key);
       controllers.get(key)?.abort();
       const controller = new AbortController();
       controllers.set(key, controller);
@@ -66,4 +69,16 @@ export function useRequest<A, T>(key: string, fn: RequestFn<A, T>) {
   }, [key, setState]);
 
   return { state, run, cancel, reset };
+}
+
+/**
+ * Cancels every request in flight and puts every result back to idle. The
+ * public build calls it when the visitor switches between recorded and live
+ * data, so no screen keeps showing an answer from the other source (or gets
+ * one late). Forms are separate session keys and stay as typed.
+ */
+export function resetAllRequests(): void {
+  controllers.forEach((controller) => controller.abort());
+  controllers.clear();
+  ranKeys.forEach((key) => setSession(key, IDLE));
 }

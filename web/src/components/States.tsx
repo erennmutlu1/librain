@@ -1,14 +1,19 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { requestApiKey } from '../api/apiKey';
 import { describeError } from '../api/errors';
+import { requestProviderKeys } from '../api/providerKeys';
+import { usePublicDemo } from '../public/context';
 import { CopyText } from './CopyText';
 import { Icon } from './Icon';
 import styles from './States.module.css';
 
 /**
  * A failure in plain language: what happened, what to do, and the correlation
- * id when the API gave one. A 401 offers the API-key setting; a 429 says when
- * the request can be retried and holds the retry button until then.
+ * id when the API gave one. A 401 offers the API-key setting (the visitor's
+ * own provider keys on the public site); a 429 says when the request can be
+ * retried and holds the retry button until then. Outcomes that are not
+ * failures, such as the public demo having no recording for the inputs, show
+ * as information and offer Live mode instead of a retry.
  */
 export function ErrorNotice({
   error,
@@ -21,7 +26,10 @@ export function ErrorNotice({
   retryLabel?: string;
   correlationId?: string | null;
 }) {
-  const { title, detail, correlationId, action } = describeError(error);
+  const demo = usePublicDemo();
+  const { title, detail, correlationId, action, tone = 'error', retryable = true } = describeError(error, undefined, {
+    publicDemo: demo !== null,
+  });
   const id = correlationOverride ?? correlationId;
   const retryAt = action?.kind === 'retry-at' ? action.at.getTime() : null;
   const [now, setNow] = useState(() => Date.now());
@@ -31,22 +39,34 @@ export function ErrorNotice({
     return () => clearInterval(timer);
   }, [retryAt]);
   const waiting = retryAt !== null && now < retryAt;
+  const goLive = action?.kind === 'go-live' && demo?.mode === 'recorded' ? demo : null;
+  const canRetry = Boolean(onRetry) && retryable;
 
   return (
-    <div className="notice notice-error" role="alert">
-      <Icon name="error" />
+    <div className={`notice ${tone === 'info' ? 'notice-info' : 'notice-error'}`} role={tone === 'info' ? 'status' : 'alert'}>
+      <Icon name={tone === 'info' ? 'info' : 'error'} />
       <div className={styles.body}>
         <strong>{title}</strong>
         {detail ? <p>{detail}</p> : null}
         {id ? <CopyText value={id} label="Correlation ID" /> : null}
-        {action?.kind === 'api-key' || onRetry ? (
+        {action?.kind === 'api-key' || action?.kind === 'provider-keys' || goLive || canRetry ? (
           <div className="cluster">
             {action?.kind === 'api-key' ? (
               <button type="button" className="btn btn-sm btn-primary" onClick={() => requestApiKey(detail ?? title)}>
                 Enter API key
               </button>
             ) : null}
-            {onRetry ? (
+            {action?.kind === 'provider-keys' ? (
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => requestProviderKeys({ reason: title })}>
+                Enter your keys
+              </button>
+            ) : null}
+            {goLive ? (
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => goLive.switchTo('live')}>
+                Switch to Live
+              </button>
+            ) : null}
+            {canRetry ? (
               <button type="button" className="btn btn-sm" onClick={onRetry} disabled={waiting}>
                 {retryLabel}
               </button>

@@ -7,7 +7,7 @@ using LIBRAIN.Runs;
 
 namespace LIBRAIN.Endpoints;
 
-public sealed record StreamError(string Title, string Detail, Guid? CorrelationId = null);
+public sealed record StreamError(string Title, string Detail, Guid? CorrelationId = null, string? Provider = null);
 
 // Server-sent-event variants of the long-running endpoints. The body is the same as
 // the non-streaming endpoint; the response is a text/event-stream of:
@@ -76,7 +76,7 @@ public static class StreamingEndpoints
             {
                 logger.LogError(ex, "Streaming {Pipeline} pipeline failed ({ExceptionType})", name, ex.GetType().Name);
                 var error = UpstreamErrors.Classify(ex) is { } failure
-                    ? new StreamError(failure.Title, failure.Detail, correlationId)
+                    ? new StreamError(failure.Title, failure.Detail, correlationId, failure.Provider)
                     : new StreamError("Upstream API error", $"The {name} pipeline failed: {ex.GetType().Name}", correlationId);
                 events.Writer.TryWrite(new SseItem<object>(error, "error"));
             }

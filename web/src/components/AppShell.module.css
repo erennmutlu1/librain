@@ -229,3 +229,89 @@
     font-size: var(--fs-xs);
   }
 }
+
+/* ---------- Public build ---------- */
+
+/* The keys panel anchors here, so it lines up with the page gutter (SettingsMenu.module.css). */
+.tools {
+  position: relative;
+}
+
+.modeSwitch {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 2.125rem;
+  padding: 0 0.8em;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.mode:hover {
+  color: var(--ink);
+}
+
+.mode[aria-pressed='true'][data-mode='recorded'] {
+  background: var(--warning-wash);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--extrapolated) 50%, transparent);
+}
+
+.mode[aria-pressed='true'][data-mode='live'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.mode .dot {
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.mode .dot[data-tone='up'] {
+  background: var(--success);
+  opacity: 1;
+  box-shadow: 0 0 0 1.5px var(--surface);
+}
+
+.mode .dot[data-tone='down'] {
+  background: var(--danger);
+  opacity: 1;
+  box-shadow: 0 0 0 1.5px var(--surface);
+}
+
+/* The mode switch is wider than the mock badge: below ~30rem the tools get their own row. */
+@media (max-width: 30rem) {
+  .headerInner[data-public] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'brand'
+      'tools'
+      'nav';
+  }
+}
+
+/* Live mode on the free host: shown while a request waits for the server to wake. */
+.wake {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.wake > :global(.notice) {
+  margin-top: var(--s4);
+}

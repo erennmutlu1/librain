@@ -9,6 +9,8 @@ import { runsToJson, runsToMarkdown } from '../history/exporters';
 import { RUN_KIND_LABEL, type RunDetail } from '../history/types';
 import { downloadText } from '../lib/download';
 import { formatDateTime, formatRelative, formatScore } from '../lib/format';
+import { PUBLIC_HISTORY_LIMIT } from '../public/browserHistory';
+import { usePublicDemo } from '../public/context';
 import styles from './HistoryPage.module.css';
 
 type Filter = 'all' | RunKind;
@@ -21,6 +23,7 @@ export default function HistoryPage() {
   const api = useApi();
   const uid = useId();
   const store = useRunStore();
+  const demo = usePublicDemo();
   const [filter, setFilter] = useState<Filter>('all');
   const { runs, error, loading, status, refresh } = useRuns(filter === 'all' ? undefined : filter);
   const [confirming, setConfirming] = useState(false);
@@ -60,10 +63,18 @@ export default function HistoryPage() {
       <header className="page-header">
         <h1 className="page-title">History</h1>
         <p className="page-lede">
-          {server
-            ? 'Every successful run the API has made, newest first, from its run database. That includes runs started outside this page, such as the experiments CLI. A run’s id is its correlation ID.'
-            : 'Mock mode keeps runs in this browser, newest first (the last 100). Open one to see it again, or export them as JSON or Markdown.'}
+          {demo
+            ? `Your Live runs, newest first (the last ${PUBLIC_HISTORY_LIMIT}). Open one to see it again, or export them as JSON or Markdown.`
+            : server
+              ? 'Every successful run the API has made, newest first, from its run database. That includes runs started outside this page, such as the experiments CLI. A run’s id is its correlation ID.'
+              : 'Mock mode keeps runs in this browser, newest first (the last 100). Open one to see it again, or export them as JSON or Markdown.'}
         </p>
+        {demo ? (
+          <p className={styles.browserOnly}>
+            <Icon name="info" size={14} /> History is kept only in this browser. The server stores no runs for this site, so
+            another browser or device will not see them, and clearing site data removes them.
+          </p>
+        ) : null}
       </header>
 
       {!status.persistent ? (
@@ -144,7 +155,7 @@ export default function HistoryPage() {
                 <Link className="btn" to="/explore">
                   Explore recorded discoveries
                 </Link>
-                {api.mode === 'mock' && filter === 'all' ? (
+                {api.mode === 'mock' && !demo && filter === 'all' ? (
                   <button type="button" className="btn" onClick={() => void seed()} disabled={busy === 'seed'}>
                     {busy === 'seed' ? 'Loading…' : 'Load the recorded runs'}
                   </button>
@@ -153,9 +164,11 @@ export default function HistoryPage() {
             }
           >
             <p>
-              {server
-                ? 'The API saves each successful Ask, Discover and Compare run automatically, with its full result.'
-                : 'Each Ask, Discover and Compare run is saved here automatically, with its full result.'}
+              {demo
+                ? 'Each Ask, Discover and Compare run you make in Live mode is saved here, with its full result. Recorded runs are not saved: they are always one click away in Recorded mode.'
+                : server
+                  ? 'The API saves each successful Ask, Discover and Compare run automatically, with its full result.'
+                  : 'Each Ask, Discover and Compare run is saved here automatically, with its full result.'}
             </p>
           </EmptyState>
         </div>

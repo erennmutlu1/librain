@@ -1,6 +1,24 @@
 /// <reference types="vitest/config" />
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+/**
+ * GitHub Pages has no SPA rewrites: a deep link such as /explore/F2 gets the
+ * site's 404.html. Shipping index.html under that name too lets the app boot
+ * there and BrowserRouter render the route. Any other static host ignores it.
+ */
+function spaFallback404(): Plugin {
+  return {
+    name: 'librain:spa-fallback-404',
+    apply: 'build',
+    // After Vite's own HTML plugin has emitted the final index.html.
+    enforce: 'post',
+    generateBundle(_options, bundle) {
+      const index = bundle['index.html'];
+      if (index?.type === 'asset') this.emitFile({ type: 'asset', fileName: '404.html', source: index.source });
+    },
+  };
+}
 
 // Real mode talks to the LIBRAIN API through this dev-server proxy, so the
 // browser only ever sees same-origin requests and the API needs no CORS policy
@@ -10,7 +28,7 @@ export default defineConfig(({ mode }) => {
   const target = env.VITE_API_PROXY_TARGET || 'http://localhost:5000';
 
   return {
-    plugins: [react()],
+    plugins: [react(), spaFallback404()],
     server: {
       port: 5173,
       proxy: {

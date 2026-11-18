@@ -26,6 +26,11 @@ export interface HttpClientOptions {
   apiKey?: () => string | null;
   /** Called on 401; defaults to opening the API-key setting. */
   onUnauthorized?: (error: ApiError) => void;
+  /**
+   * Extra headers per request path, added after X-Api-Key. The public build
+   * uses it for the visitor's provider keys, which only go to /api paths.
+   */
+  requestHeaders?: (path: string) => Record<string, string>;
 }
 
 const API_KEY_HEADER = 'X-Api-Key';
@@ -51,10 +56,11 @@ export function createHttpApi(options: HttpClientOptions = {}): LibrainApi {
   const createXhr = options.createXhr ?? (() => new XMLHttpRequest());
   const apiKey = options.apiKey ?? getApiKey;
   const onUnauthorized = options.onUnauthorized ?? ((e: ApiError) => requestApiKey(e.detail ?? e.title));
+  const requestHeaders: (path: string) => Record<string, string> = options.requestHeaders ?? (() => ({}));
 
-  function headers(extra: Record<string, string>): Record<string, string> {
+  function headers(path: string, extra: Record<string, string>): Record<string, string> {
     const key = apiKey();
-    return key ? { ...extra, [API_KEY_HEADER]: key } : extra;
+    return { ...(key ? { ...extra, [API_KEY_HEADER]: key } : extra), ...requestHeaders(path) };
   }
 
   function fail(error: ApiError): never {
@@ -71,6 +77,7 @@ export function createHttpApi(options: HttpClientOptions = {}): LibrainApi {
       response = await doFetch(`${baseUrl}${path}`, {
         method: init.method,
         headers: headers(
+          path,
           init.body === undefined
             ? { Accept: init.accept ?? 'application/json' }
             : { Accept: init.accept ?? 'application/json', 'Content-Type': 'application/json' },
@@ -167,6 +174,7 @@ export function createHttpApi(options: HttpClientOptions = {}): LibrainApi {
       xhr.setRequestHeader('Accept', 'application/json');
       const key = apiKey();
       if (key) xhr.setRequestHeader(API_KEY_HEADER, key);
+      for (const [name, value] of Object.entries(requestHeaders(path))) xhr.setRequestHeader(name, value);
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable && event.total > 0) opts.onProgress?.(event.loaded / event.total);
       };

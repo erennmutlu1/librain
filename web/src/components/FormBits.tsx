@@ -52,7 +52,8 @@ export function RecordedRuns<Req>({
       <summary className={styles.recordedLabel}>
         Recorded runs <span className="num">({scenarios.length})</span>
       </summary>
-      <ul role="list" className={styles.recordedList}>
+      {/* The public Discover list has 50 runs: past a dozen it scrolls instead of pushing the page down. */}
+      <ul role="list" className={styles.recordedList} data-long={scenarios.length > 12 || undefined}>
         {scenarios.map((s) => (
           <li key={s.id}>
             <button type="button" className={styles.recordedButton} onClick={() => onPick(s)} disabled={disabled}>

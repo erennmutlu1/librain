@@ -61,8 +61,7 @@ public static class CompareEndpoints
         {
             // The same rejected key or empty account usually sinks all three: say so plainly.
             var failure = librainTask.Result.Failure ?? naiveTask.Result.Failure ?? singleTask.Result.Failure;
-            if (failure is not null)
-                return Results.Problem(title: failure.Title, detail: failure.Detail, statusCode: failure.Status);
+            if (failure is not null) return UpstreamErrors.ToProblem(failure);
             return Results.Problem(title: "All three systems failed",
                 detail: $"LIBRAIN: {response.Librain.Error} | Naive-RAG: {response.NaiveRag.Error} | Single-LLM: {response.SingleLlm.Error}",
                 statusCode: StatusCodes.Status502BadGateway);

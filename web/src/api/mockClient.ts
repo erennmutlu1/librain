@@ -1,17 +1,15 @@
 import { normalizeArxivId } from '../lib/arxiv';
 import {
-  askScenarios,
-  compareScenarios,
   contract,
-  discoverScenarios,
-  findAsk,
-  findCompare,
-  findDiscover,
-  mockLibrary,
+  defaultRecordings,
+  matchAsk,
+  matchCompare,
+  matchDiscover,
   synthesiseDiscoverProgress,
   synthesiseQueryProgress,
+  type RecordingSet,
 } from '../mocks/scenarios';
-import { ApiError, errorFromStreamEvent } from './errors';
+import { ApiError, NO_RECORDING, errorFromStreamEvent } from './errors';
 import {
   normalizeCompareResponse,
   normalizeDiscoverResponse,
@@ -29,6 +27,7 @@ import {
   MAX_QUERY_CHARS,
   MAX_TOPIC_CHARS,
   OPENAI_MODELS,
+  type CompareRequest,
   type DiscoverRequest,
   type DiscoverResponse,
   type IngestOptions,
@@ -52,6 +51,8 @@ import {
 export interface MockApiOptions {
   /** Multiplier for the artificial delays; 0 in tests. */
   latency?: number;
+  /** What to serve; defaults to the owner's mock mode (src/mocks/scenarios.ts). */
+  recordings?: RecordingSet;
 }
 
 const DELAY = {
@@ -98,6 +99,10 @@ function problem(status: number, title: string, detail: string): ApiError {
   return new ApiError({ kind: 'http', status, title, detail });
 }
 
+function fail(error: ApiError): never {
+  throw error;
+}
+
 function checkTopK(topK: number | undefined): void {
   if (topK !== undefined && (!Number.isInteger(topK) || topK < 1 || topK > 20)) {
     throw problem(400, 'topK out of range', "The 'topK' field must be between 1 and 20.");
@@ -136,10 +141,23 @@ function uuid(): string {
   return 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => Math.floor(Math.random() * 16).toString(16));
 }
 
-function toMatch(found: { scenario: { label: string; source: string; note?: string }; matched: boolean }): MockMatch {
+type Found<R> = { scenario: R; matched: boolean } | null;
+
+function toMatch(found: Found<{ label: string; source: string; note?: string }>): MockMatch {
+  if (!found) return { matched: false, label: '', source: '' };
   const match: MockMatch = { matched: found.matched, label: found.scenario.label, source: found.scenario.source };
   if (found.scenario.note) match.note = found.scenario.note;
   return match;
+}
+
+/** A recording, else the set's fallback, else null (a strict set substitutes nothing). */
+function found<R>(scenario: R | undefined, fallback: R | undefined): Found<R> {
+  if (scenario) return { scenario, matched: true };
+  return fallback ? { scenario: fallback, matched: false } : null;
+}
+
+function noRecording(what: string): ApiError {
+  return problem(404, NO_RECORDING, `No recorded ${what} matches these inputs.`);
 }
 
 /** Splits a captured event stream into its events, each kept with its trailing blank line. */
@@ -150,10 +168,18 @@ function streamBlocks(text: string): string[] {
 export function createMockApi(options: MockApiOptions = {}): LibrainApi {
   const scale = options.latency ?? 1;
   const delay = (ms: number, signal?: AbortSignal) => sleep(Math.round(ms * scale), signal);
-  let library: PaperSummary[] = normalizePapers(mockLibrary());
+  const set = options.recordings ?? defaultRecordings;
+  let library: PaperSummary[] = normalizePapers(set.library());
+
+  const findAsk = (request: QueryRequest) => found(matchAsk(set.ask, request, set.strict), set.fallback?.ask);
+  const findDiscover = (request: DiscoverRequest) => found(matchDiscover(set.discover, request, set.strict), set.fallback?.discover);
+  const findCompare = (request: CompareRequest) => found(matchCompare(set.compare, request, set.strict), set.fallback?.compare);
+  const askFor = (request: QueryRequest) => findAsk(request)?.scenario ?? fail(noRecording('question'));
+  const discoverFor = (request: DiscoverRequest) => findDiscover(request)?.scenario ?? fail(noRecording('discovery'));
+  const compareFor = (request: CompareRequest) => findCompare(request)?.scenario ?? fail(noRecording('comparison'));
 
   // The run list the API returned at capture time, with full records built from the snapshots.
-  let runs: RunSummary[] = normalizeRunSummaries(contract.runs);
+  let runs: RunSummary[] = normalizeRunSummaries(set.runs);
   const runDetail = (summary: RunSummary): unknown => {
     const topics = { topicA: 'weather forecasting', topicB: 'protein folding', topK: 2 };
     switch (summary.kind) {
@@ -244,9 +270,9 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
   return {
     mode: 'mock',
     mock: {
-      ask: askScenarios.map(({ response: _r, stream: _s, ...s }) => s),
-      discover: discoverScenarios.map(({ response: _r, stream: _s, ...s }) => s),
-      compare: compareScenarios.map(({ response: _r, naiveRag: _n, singleLlm: _s, ...s }) => s),
+      ask: set.ask.map(({ response: _r, stream: _s, ...s }) => s),
+      discover: set.discover.map(({ response: _r, stream: _s, ...s }) => s),
+      compare: set.compare.map(({ response: _r, naiveRag: _n, singleLlm: _s, ...s }) => s),
       matchAsk: (request) => toMatch(findAsk(request)),
       matchDiscover: (request) => toMatch(findDiscover(request)),
       matchCompare: (request) => toMatch(findCompare(request)),
@@ -273,13 +299,14 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
 
     async query(request, signal) {
       checkQuery(request);
+      const scenario = askFor(request);
       await delay(DELAY.resultAfterLastStage + 1500, signal);
-      return normalizeQueryResponse(findAsk(request).scenario.response);
+      return normalizeQueryResponse(scenario.response);
     },
 
     async queryStream(request, onProgress, signal) {
       checkQuery(request);
-      const { scenario } = findAsk(request);
+      const scenario = askFor(request);
       if (scenario.stream) return replayStream(scenario.stream, normalizeQueryResponse, onProgress, signal);
       const result = normalizeQueryResponse(scenario.response);
       return emitSynthetic(synthesiseQueryProgress(scenario.request, result), result, onProgress, signal);
@@ -287,13 +314,14 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
 
     async discover(request, signal) {
       checkDiscover(request);
+      const scenario = discoverFor(request);
       await delay(DELAY.resultAfterLastStage + 2000, signal);
-      return normalizeDiscoverResponse(findDiscover(request).scenario.response);
+      return normalizeDiscoverResponse(scenario.response);
     },
 
     async discoverStream(request, onProgress, signal) {
       checkDiscover(request);
-      const { scenario } = findDiscover(request);
+      const scenario = discoverFor(request);
       if (scenario.stream) return replayStream(scenario.stream, normalizeDiscoverResponse, onProgress, signal);
       const result: DiscoverResponse = normalizeDiscoverResponse(scenario.response);
       return emitSynthetic(synthesiseDiscoverProgress(scenario.request, result), result, onProgress, signal);
@@ -302,21 +330,24 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
     async naiveRag(request, signal) {
       checkTopics(request.topicA ?? '', request.topicB);
       checkTopK(request.topK);
+      const scenario = compareFor(request);
       await delay(DELAY.naiveRag, signal);
-      return normalizeNaiveRag(findCompare(request).scenario.naiveRag);
+      return normalizeNaiveRag(scenario.naiveRag);
     },
 
     async singleLlm(request, signal) {
       checkTopics(request.topicA ?? '', request.topicB);
+      const scenario = compareFor(request);
       await delay(DELAY.singleLlm, signal);
-      return normalizeSingleLlm(findCompare(request).scenario.singleLlm);
+      return normalizeSingleLlm(scenario.singleLlm);
     },
 
     async compare(request, signal) {
       checkTopics(request.topicA ?? '', request.topicB);
       checkTopK(request.topK);
+      const scenario = compareFor(request);
       await delay(DELAY.compare, signal);
-      return normalizeCompareResponse(findCompare(request).scenario.response);
+      return normalizeCompareResponse(scenario.response);
     },
 
     async listRuns(filter = {}, signal) {

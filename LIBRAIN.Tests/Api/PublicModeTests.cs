@@ -210,6 +210,7 @@ public sealed partial class PublicModeTests
         var everything = string.Join("\n", bodies) + "\n" + logs.Text;
         Assert.DoesNotContain("SENTINEL", everything);
         Assert.Contains("Anthropic rejected the key", string.Join("\n", bodies));
+        Assert.Contains("\"provider\":\"anthropic\"", string.Join("\n", bodies));   // the UI names the provider from this
     }
 
     // ---------- the key that actually goes out to Anthropic ----------
