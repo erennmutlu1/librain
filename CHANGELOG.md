@@ -22,6 +22,9 @@
 
 ### Added
 
+- Public demo at https://librain.erenmutlu.me (GitHub Pages) with the API at https://librain.onrender.com (Render, free). Recorded runs replay without keys; live runs use the visitor's own Anthropic and OpenAI keys. Public mode (`Public__Enabled=true`) never reads configured keys, keeps the corpus read-only, stores no runs, and turns provider failures (rejected key, no credit, rate limit) into clear messages. Setup and checks: `deploy/README.md`.
+- The corpus (55 papers, 2,210 chunks) on a Qdrant Cloud free cluster, read with a read-only key, kept active by a scheduled read every 3 days.
+- New look: a neon "Librain" wordmark whose "ai" is one continuous line ending in a node, used as the favicon, header, footer and social preview image.
 - Companion paper (`docs/architecture.pdf`, 71 pages): rebuilt from the June PDF into an editable source (`docs/paper-source/`, verified word for word against the original), with the revision integrated into its sections: corrected stale statements, the hardening (§8.5), and Experiment 8 (§6.8, §7.11). Cover date unchanged (May 2026). Every change is listed in `docs/paper-source/CHANGES.md`.
 - Web UI (`web/`, React + Vite + TypeScript): Library, Ask, Discover, Compare and History.
 - Ingest by arXiv id with authoritative metadata from the arXiv API; delete papers; passage text in every citation.

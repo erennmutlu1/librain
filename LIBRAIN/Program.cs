@@ -141,8 +141,12 @@ if (publicMode)
     forwarded.KnownProxies.Clear();
     app.UseForwardedHeaders(forwarded);
 }
-
-app.UseHttpsRedirection();
+else
+{
+    // The hosting proxy terminates TLS in front of the public deployment; redirecting
+    // there only logged "Failed to determine the https port" on every start.
+    app.UseHttpsRedirection();
+}
 app.UseCors();
 app.UsePublicMode();
 app.UseApiKeyGuard();

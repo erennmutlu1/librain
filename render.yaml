@@ -1,16 +1,25 @@
-# Render Blueprint for the public LIBRAIN API (free web service, Frankfurt).
-# Render dashboard: New, Blueprint, pick this repository. It asks for the two values marked
-# sync: false (the Qdrant host and a READ-ONLY Qdrant key); nothing secret lives in the repo.
-# No Anthropic or OpenAI key is configured: in public mode every visitor brings their own.
-# The free instance sleeps after 15 minutes without traffic and wakes on the next request.
+# Render Blueprint for the public LIBRAIN API (free web service), matching the live service
+# https://librain.onrender.com: built by Render from this repository's Dockerfile on every
+# commit to main that touches the API.
+# To recreate it: Render dashboard, New, Blueprint, pick this repository. It asks for the two
+# values marked sync: false (the Qdrant host and a READ-ONLY Qdrant key); nothing secret lives
+# in the repo. No Anthropic or OpenAI key is configured: in public mode every visitor brings
+# their own. The free instance sleeps after 15 minutes without traffic and wakes on the next
+# request (up to about a minute).
 services:
   - type: web
-    name: librain-api
-    runtime: image
-    image:
-      url: ghcr.io/erennmutlu1/librain-api:latest
+    name: librain
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     plan: free
-    region: frankfurt
+    region: frankfurt   # next to the Qdrant cluster; any region works
+    branch: main
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - LIBRAIN/**
+        - Dockerfile
     healthCheckPath: /health
     envVars:
       - key: Public__Enabled

@@ -3,7 +3,7 @@
 | Part | Where | Cost |
 |---|---|---|
 | Web UI (public build) | GitHub Pages, `librain.erenmutlu.me` | free |
-| API (public mode) | Render free web service, Frankfurt (`render.yaml`) | free, no card |
+| API (public mode), https://librain.onrender.com | Render free web service, built from this repo (`render.yaml`) | free, no card |
 | Corpus (55 papers, 2,210 chunks) | Qdrant Cloud free cluster, Frankfurt | free |
 | Keep-alive | GitHub Actions, one read every 3 days (`qdrant-keepalive.yml`) | free |
 | Claude and OpenAI | **the visitor's own keys** | billed to the visitor |
@@ -31,7 +31,7 @@ touch the API.
 
 Values that are secret go from the macOS Keychain straight into the service that needs them,
 without being shown. The Keychain holds `librain-qdrant-url` and `librain-qdrant-readonly-key`
-(a **read-only** database key: Qdrant Cloud, Clusters, librain, API Keys, Create).
+(a **read-only** database key: Qdrant Cloud, Clusters, librain, API Keys, Create, read-only).
 
 1. **GitHub settings** (Settings, Secrets and variables, Actions):
    ```sh
@@ -39,25 +39,45 @@ without being shown. The Keychain holds `librain-qdrant-url` and `librain-qdrant
    security find-generic-password -s librain-qdrant-url -w | gh secret set QDRANT_URL
    security find-generic-password -s librain-qdrant-readonly-key -w | gh secret set QDRANT_READONLY_KEY
    ```
-2. **Image.** Push to `main` (or run the Publish workflow). Then, under the repository's
-   Packages, open `librain-api`, Package settings, and set the visibility to Public, so Render
-   can pull it without credentials.
-3. **Render.** Sign up with GitHub (the free plan needs no card). New, Blueprint, this
-   repository. Render asks for two values; copy each to the clipboard and paste it:
+2. **Render.** Sign up with GitHub (the free plan needs no card). New, Web Service, this
+   repository: language Docker, branch `main`, instance type **Free** (the footer must say
+   $0 / month). Environment Variables, "Add from .env": put the ten settings on the clipboard
+   with the command below and paste them. Advanced: Health Check Path `/health`; Build Filters,
+   Included Paths `LIBRAIN/**` and `Dockerfile` (so only API changes rebuild it). Deploy.
+   (New, Blueprint with `render.yaml` sets up the same service.)
    ```sh
-   security find-generic-password -s librain-qdrant-url -w | sed -E 's#^https?://##; s#[:/].*$##' | pbcopy   # Qdrant__Host
-   security find-generic-password -s librain-qdrant-readonly-key -w | pbcopy                                 # Qdrant__ApiKey
+   U=$(security find-generic-password -s librain-qdrant-url -w); H=${U#https://}; H=${H%%/*}; H=${H%%:*}
+   printf 'Public__Enabled=true\nQdrant__Host=%s\nQdrant__ApiKey=%s\nQdrant__Port=6334\nQdrant__UseHttps=true\nCors__AllowedOrigins__0=https://librain.erenmutlu.me\nRateLimiting__PaidRequestsPerHour=30\nASPNETCORE_ENVIRONMENT=Production\nPORT=8080\nDOTNET_gcServer=0\n' \
+     "$H" "$(security find-generic-password -s librain-qdrant-readonly-key -w)" | pbcopy
    ```
-   Apply. Note the service URL (`https://librain-api-….onrender.com`).
-4. **Redeploys.** In the Render service, Settings, Deploy Hook: copy it, then
-   `pbpaste | gh secret set RENDER_DEPLOY_HOOK`.
-5. **UI.** `gh variable set LIBRAIN_API_URL --body https://librain-api-….onrender.com`. In
-   Settings, Pages: source "GitHub Actions", custom domain `librain.erenmutlu.me`, Enforce HTTPS.
-6. **DNS (Namecheap).** Advanced DNS, add a CNAME record: host `librain`, value
-   `erennmutlu1.github.io.`
-7. Run the Publish workflow once more (or push to `main`).
+   Copy something else afterwards so the key does not stay on the clipboard.
+3. **UI.** `gh variable set LIBRAIN_API_URL --body https://librain.onrender.com` (the address
+   Render shows). GitHub Pages, source "GitHub Actions":
+   ```sh
+   gh api -X POST repos/erennmutlu1/librain/pages -f build_type=workflow
+   ```
+4. **DNS (Namecheap).** Advanced DNS, add a CNAME record: host `librain`, value
+   `erennmutlu1.github.io.` Once it resolves, attach it and, when the certificate is issued,
+   enforce HTTPS:
+   ```sh
+   gh api -X PUT repos/erennmutlu1/librain/pages -f cname=librain.erenmutlu.me
+   gh api -X PUT repos/erennmutlu1/librain/pages -F https_enforced=true -f cname=librain.erenmutlu.me
+   ```
+5. Push to `main` (or run the Publish workflow).
 
-After that, every push to `main` republishes the UI and the image and redeploys the API.
+After that, every push to `main` republishes the UI, and Render rebuilds the API when `LIBRAIN/`
+or the `Dockerfile` changed. The Publish workflow also pushes the API image to
+`ghcr.io/erennmutlu1/librain-api` for anyone who wants to run it themselves.
+
+## Checking it
+
+```sh
+curl -s https://librain.onrender.com/health                         # {"status":"ok"} (may take a minute to wake)
+curl -s https://librain.onrender.com/api/papers | jq length         # 55
+curl -s -X POST -H 'content-type: application/json' -d '{"topicA":"a","topicB":"b"}' \
+  https://librain.onrender.com/api/discover | jq .title             # "provider keys required"
+curl -s -o /dev/null -w '%{http_code}\n' https://librain.onrender.com/api/runs   # 403
+```
 
 ## Hosts that were ruled out
 

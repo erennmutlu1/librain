@@ -2,8 +2,8 @@ name: Publish
 
 # The public demo at https://librain.erenmutlu.me:
 #   - api-image: the API container (public mode is switched on by the host's settings,
-#     not baked in) to GitHub Container Registry, then a redeploy of the Render service
-#     that runs it (render.yaml), when the RENDER_DEPLOY_HOOK secret is set;
+#     not baked in) to GitHub Container Registry, for anyone who wants to run it. The live
+#     API itself is built by Render straight from this repository (render.yaml);
 #   - pages: the web UI's public build (recorded runs by default, live runs with the
 #     visitor's own keys) to GitHub Pages.
 # Both stay off until the repository variable PUBLIC_DEMO is "true", so forks and the
@@ -29,8 +29,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,10 +53,6 @@ jobs:
             org.opencontainers.image.description=LIBRAIN API (set Public__Enabled=true for the public demo)
             org.opencontainers.image.licenses=MIT
 
-      # Render does not watch the registry; its deploy hook pulls :latest again.
-      - name: Redeploy on Render
-        if: env.RENDER_DEPLOY_HOOK != ''
-        run: curl -fsS -m 30 -X POST -o /dev/null "$RENDER_DEPLOY_HOOK" && echo "Render redeploy requested"
 
   pages:
     name: Web UI (GitHub Pages)
@@ -96,7 +90,7 @@ jobs:
         env:
           VITE_PUBLIC_DEMO: 'true'
           VITE_USE_MOCKS: 'true'
-          # The Azure Container Apps URL, set as a repository variable after deployment.
+          # The public API (https://librain.onrender.com), a repository variable.
           VITE_API_BASE_URL: ${{ vars.LIBRAIN_API_URL }}
 
       - name: Configure Pages

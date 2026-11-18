@@ -8,9 +8,12 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/erennmutlu1/librain/actions/workflows/ci.yml/badge.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20745782.svg)](https://doi.org/10.5281/zenodo.20745782)
+[![Live demo](https://img.shields.io/badge/live%20demo-librain.erenmutlu.me-8B5CF6)](https://librain.erenmutlu.me)
 ![Status](https://img.shields.io/badge/status-Phase%203.A.5%20shipped-brightgreen)
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
+
+**Try it: [librain.erenmutlu.me](https://librain.erenmutlu.me).** The recorded runs (46 discoveries in nine fields) replay with no account and no key. Live runs use your own Anthropic and OpenAI keys, which are sent only with your own requests and never stored; the public API is read-only and keeps nothing (see [deploy/README.md](deploy/README.md)).
 
 ---
 
