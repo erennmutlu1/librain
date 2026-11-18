@@ -6,9 +6,11 @@ import styles from './LibrainLogo.module.css';
  *
  * Grid: baseline y=64, x-height y=28, ascender y=8, stroke 6. Every place a bowl
  * or shoulder meets a stem turns through the same radius-8 bend, like a neon tube
- * or a circuit trace. The "ai" is the one stroke that spans two letters: the bowl
- * of the a bends into its stem, loops along the baseline and rises as the i, whose
- * dot is the signal node.
+ * or a circuit trace. The "ai" is the one stroke that spans two letters, drawn as an
+ * alpha: a round bowl (radius 18, like the b) whose stroke crosses itself at the
+ * lower right. One strand leaves the crossing and flicks out along the baseline
+ * towards the n; the other rises past the x-height as the stem of the i, under the
+ * glowing signal node that is its dot.
  */
 
 const STROKE = 6;
@@ -18,26 +20,32 @@ const LETTERS = [
   'M44 28V64', // i
   'M60 8V56A8 8 0 0 0 68 64H78A18 18 0 0 0 78 28A18 18 0 0 0 60 46', // b
   'M110 64V36A8 8 0 0 1 118 28H128', // r
-  'M208 64V36A8 8 0 0 1 216 28H232A8 8 0 0 1 240 36V64', // n
+  'M210 64V36A8 8 0 0 1 218 28H234A8 8 0 0 1 242 36V64', // n
 ];
 
-/** a + i in one stroke: bowl, bend, stem, loop along the baseline, i stem. */
-const AI = 'M172 46A18 18 0 0 1 154 64A18 18 0 0 1 154 28H164A8 8 0 0 1 172 36V54A10 10 0 0 0 192 54V28';
+/**
+ * a + i in one stroke, as an alpha: from the baseline flick up to the crossing at
+ * (179, 57), over the shoulder to the top of the bowl, round the radius-18 bowl to
+ * its foot, back through the crossing and up as the i stem.
+ */
+const AI =
+  'M197 64C190 64 180.8 61.7 179 57C171.1 36.5 170 28 154 28A18 18 0 0 0 154 64C163 64 173.4 61.2 179 57C187.8 50.4 189.3 35.9 190.5 23';
 
 const DOT = { cx: 44, cy: 15, r: 3.4 };
-const NODE = { cx: 192, cy: 14, r: 5.2 };
+/** The i's dot, centred over the stem's tip and level with the ascender top. */
+const NODE = { cx: 190.5, cy: 11, r: 6 };
 
 type Box = readonly [x: number, y: number, width: number, height: number];
 
 const VARIANTS = {
   wordmark: {
-    box: [0, 4, 244, 64] as Box,
-    gradient: { x1: 0, y1: 36, x2: 244, y2: 36 },
+    box: [0, 4, 246, 64] as Box,
+    gradient: { x1: 0, y1: 36, x2: 246, y2: 36 },
     defaultHeight: 28,
   },
   mark: {
-    box: [132, 5, 66, 66] as Box,
-    gradient: { x1: 136, y1: 64, x2: 196, y2: 10 },
+    box: [132, 1, 70, 70] as Box,
+    gradient: { x1: 136, y1: 64, x2: 196, y2: 6 },
     defaultHeight: 24,
   },
 } as const;
@@ -50,7 +58,7 @@ const STOPS = [
 ];
 
 export interface LibrainLogoProps {
-  /** `wordmark`: "Librain". `mark`: the "ai" loop and node alone, square, for icons and tight spaces. */
+  /** `wordmark`: "Librain". `mark`: the alpha "ai" and its node alone, square, for icons and tight spaces. */
   variant?: 'wordmark' | 'mark';
   /** Rendered height in px; the width follows the aspect ratio. Defaults to 28 (wordmark) or 24 (mark). */
   height?: number;
