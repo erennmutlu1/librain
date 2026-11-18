@@ -205,20 +205,41 @@ public sealed class QdrantPaperRepository : IPaperStore
 
     private async Task InitializeAsync()
     {
-        if (await _client.CollectionExistsAsync(_collectionName).ConfigureAwait(false))
+        if (!await _client.CollectionExistsAsync(_collectionName).ConfigureAwait(false))
         {
-            return;
+            await _client.CreateCollectionAsync(
+                collectionName: _collectionName,
+                vectorsConfig: new VectorParams { Size = VectorSize, Distance = Distance.Cosine })
+                .ConfigureAwait(false);
+
+            _logger.LogInformation(
+                "Provisioned Qdrant collection '{Collection}' (size={VectorSize}, distance=Cosine)",
+                _collectionName,
+                VectorSize);
         }
 
-        await _client.CreateCollectionAsync(
-            collectionName: _collectionName,
-            vectorsConfig: new VectorParams { Size = VectorSize, Distance = Distance.Cosine })
-            .ConfigureAwait(false);
+        await EnsurePayloadIndexesAsync().ConfigureAwait(false);
+    }
 
-        _logger.LogInformation(
-            "Provisioned Qdrant collection '{Collection}' (size={VectorSize}, distance=Cosine)",
-            _collectionName,
-            VectorSize);
+    // Filters on paperId and chunkIndex (deleting a paper, removing a re-ingested paper's stale
+    // tail) need payload indexes on Qdrant Cloud, whose strict mode refuses unindexed filters;
+    // without them an ingest stored its chunks and then failed. Creating an existing index is a
+    // no-op. A read-only key (the public deployment) cannot create one: that is logged, not fatal,
+    // because that deployment never filters on these fields.
+    private async Task EnsurePayloadIndexesAsync()
+    {
+        try
+        {
+            await _client.CreatePayloadIndexAsync(_collectionName, "paperId", PayloadSchemaType.Keyword).ConfigureAwait(false);
+            await _client.CreatePayloadIndexAsync(_collectionName, "chunkIndex", PayloadSchemaType.Integer).ConfigureAwait(false);
+        }
+        catch (Grpc.Core.RpcException ex)
+        {
+            _logger.LogWarning(
+                "Could not ensure payload indexes on '{Collection}' ({Status}); filtered deletes may fail on strict-mode clusters",
+                _collectionName,
+                ex.StatusCode);
+        }
     }
 
     private static PointStruct ToPoint(ChunkRecord chunk)
