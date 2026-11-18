@@ -99,6 +99,7 @@ if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
     allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"];
 }
 builder.Services.AddLibrainGuards(builder.Configuration);
+builder.Services.AddKeyCheck();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()
         // Lets a separately hosted UI read when to retry after a 429.
@@ -163,5 +164,6 @@ app.MapDiscoveryEndpoints();
 app.MapBaselineEndpoints();
 app.MapFabricationProbeEndpoints();
 app.MapScoreEndpoints();
+app.MapKeyCheckEndpoints();
 
 app.Run();

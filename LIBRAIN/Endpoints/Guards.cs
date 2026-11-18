@@ -12,6 +12,11 @@ namespace LIBRAIN.Endpoints;
 public static class Guards
 {
     public const string PaidPolicy = "paid";
+    public const string KeyCheckPolicy = "key-check";
+
+    // Key checks are free but call the providers, so they get their own small budget:
+    // enough to fix a typo a few times, not enough to use the server as a key tester.
+    public const int KeyChecksPerHour = 20;
     public const string ApiKeyHeader = "X-Api-Key";
 
     public static IServiceCollection AddLibrainGuards(this IServiceCollection services, IConfiguration config)
@@ -26,8 +31,11 @@ public static class Guards
             {
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                     context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
+                var keyCheck = context.HttpContext.Request.Path.StartsWithSegments(KeyCheckEndpoints.Path);
                 await Results.Problem(title: "rate limit reached",
-                        detail: $"At most {limits.PaidRequestsPerHour} paid requests per hour are allowed from one client.",
+                        detail: keyCheck
+                            ? $"At most {KeyChecksPerHour} key checks per hour are allowed from one client."
+                            : $"At most {limits.PaidRequestsPerHour} paid requests per hour are allowed from one client.",
                         statusCode: StatusCodes.Status429TooManyRequests)
                     .ExecuteAsync(context.HttpContext);
             };
@@ -38,6 +46,16 @@ public static class Guards
                     _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = limits.PaidRequestsPerHour,
+                        Window = TimeSpan.FromHours(1),
+                        QueueLimit = 0,
+                    }));
+            options.AddPolicy(KeyCheckPolicy, http => limits.PaidRequestsPerHour <= 0
+                ? RateLimitPartition.GetNoLimiter("unlimited")
+                : RateLimitPartition.GetFixedWindowLimiter(
+                    http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = KeyChecksPerHour,
                         Window = TimeSpan.FromHours(1),
                         QueueLimit = 0,
                     }));

@@ -20,8 +20,11 @@ touch the API.
 - Keys are not stored, logged or echoed in errors. `LIBRAIN.Tests/Api/PublicModeTests.cs`
   checks this, including two visitors calling at the same moment.
 - The corpus is read-only. Ingest, delete, server-side run history, the OpenAI port and the
-  research endpoints answer 403. Only `GET /api/papers`, `/health` and the visitor pipelines
-  (discover, query, compare, naive-rag, single-llm) are reachable.
+  research endpoints answer 403. Only `GET /api/papers`, `/health`, `POST /api/keys/check` and
+  the visitor pipelines (discover, query, compare, naive-rag, single-llm) are reachable.
+- "Check my keys" (`POST /api/keys/check`) lists models on Anthropic and OpenAI with the
+  visitor's keys: free, no tokens, at most 20 checks per hour per visitor. It says whether each
+  key is accepted, not how much credit is left. Provider error bodies are never passed on.
 - A visitor's topics and results are not saved on the server. The UI keeps their history in
   their own browser.
 - Requests without keys are refused (401) before any work, and a rejected key, an empty
@@ -77,6 +80,8 @@ curl -s https://librain.onrender.com/api/papers | jq length         # 55
 curl -s -X POST -H 'content-type: application/json' -d '{"topicA":"a","topicB":"b"}' \
   https://librain.onrender.com/api/discover | jq .title             # "provider keys required"
 curl -s -o /dev/null -w '%{http_code}\n' https://librain.onrender.com/api/runs   # 403
+curl -s -X POST -H 'X-OpenAI-Key: sk-not-a-real-key' https://librain.onrender.com/api/keys/check
+# {"anthropic":{"status":"not_provided",...},"openai":{"status":"invalid",...}}
 ```
 
 ## Hosts that were ruled out

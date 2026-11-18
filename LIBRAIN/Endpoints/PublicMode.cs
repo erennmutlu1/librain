@@ -3,8 +3,8 @@ using LIBRAIN.Llm;
 namespace LIBRAIN.Endpoints;
 
 // The rules of the public deployment (Public:Enabled), applied before any endpoint runs.
-// Deny by default: under /api only the corpus listing and the pipelines a visitor can run
-// with their own keys are reachable, so an endpoint added later stays private until it
+// Deny by default: under /api only the corpus listing, the free key check and the pipelines
+// a visitor can run with their own keys are reachable, so an endpoint added later stays private until it
 // is listed here on purpose.
 public static class PublicMode
 {
@@ -28,6 +28,13 @@ public static class PublicMode
             }
 
             if (HttpMethods.IsGet(request.Method) && request.Path.Equals("/api/papers", StringComparison.OrdinalIgnoreCase))
+            {
+                await next(context);
+                return;
+            }
+
+            // Checking keys needs only the key being checked; the endpoint answers 400 without any.
+            if (HttpMethods.IsPost(request.Method) && request.Path.Equals(KeyCheckEndpoints.Path, StringComparison.OrdinalIgnoreCase))
             {
                 await next(context);
                 return;
