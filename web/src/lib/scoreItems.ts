@@ -19,3 +19,10 @@ export function askScoreItems(e: EvaluationSummary) {
     { key: 'completeness', label: 'Completeness', value: e.completenessScore, hint: 'Covers what the sources allow' },
   ];
 }
+
+/** Bands for aggregate claim risk (the highest per-sentence hallucination probability). */
+export function riskBand(value: number): { label: string; tone: 'low' | 'mid' | 'high' } {
+  if (value < 0.34) return { label: 'Low', tone: 'low' };
+  if (value < 0.67) return { label: 'Moderate', tone: 'mid' };
+  return { label: 'High', tone: 'high' };
+}

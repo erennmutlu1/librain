@@ -1,4 +1,5 @@
 import { formatScore } from '../lib/format';
+import { riskBand } from '../lib/scoreItems';
 import styles from './ScoreBars.module.css';
 
 export interface ScoreItem {
@@ -33,12 +34,6 @@ export function ScoreBars({ items, label, columns = 1 }: { items: ScoreItem[]; l
       })}
     </ul>
   );
-}
-
-function riskBand(value: number): { label: string; tone: 'low' | 'mid' | 'high' } {
-  if (value < 0.34) return { label: 'Low', tone: 'low' };
-  if (value < 0.67) return { label: 'Moderate', tone: 'mid' };
-  return { label: 'High', tone: 'high' };
 }
 
 /** Aggregate hallucination risk: the maximum per-sentence probability. Higher is worse. */

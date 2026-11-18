@@ -1,0 +1,50 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 2rem;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: var(--s4);
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.banner {
+  margin-bottom: var(--s4);
+}
+
+.bannerBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.bannerTitle {
+  font-size: var(--fs-md);
+}
+
+.why {
+  font-weight: 650;
+}
+
+.source {
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+}
+
+.source code {
+  overflow-wrap: anywhere;
+}
+
+.framing {
+  margin-bottom: var(--s6);
+}
+
+.spaced {
+  margin-top: var(--s5);
+}
