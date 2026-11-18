@@ -1,0 +1,33 @@
+# Changelog
+
+## Unreleased
+
+### Effect on published results
+
+- **No committed number changes** except one caveat: the RQ3 fabrication-delta total of **67** Naive-RAG fabrications should read **65–67**. Two of the counted citations (pair-01, starved corpus, gpt-4o-mini, both coercion levels) were the model echoing the prompt's source-header format, `[paper_id=deepdta chunk_index=0]`, which the old free-text parser could not read and so counted as fabricated. Whether chunk 0 of `deepdta` was in those runs' retrieval sets was not recorded, so each could be either. LIBRAIN's 0 is unaffected, and so is the conclusion.
+- All 30 committed Discovery results and all 40 committed RQ3 free-text answers are now replayed by the test suite through the current code and reproduce the committed scores and citation counts (`LIBRAIN.Tests/Replay`).
+- Prompts, models, temperatures and the request bodies sent to Anthropic are unchanged, so new runs remain comparable with the paper. The output-token ceiling rose from 1024 to 4096; billing is per generated token, so this only matters for replies that would previously have been truncated, and those now fail loudly instead.
+
+### Fixed
+
+- Claim validation no longer **fails open**: when the validator returns no usable per-sentence verdict, the result is flagged `validationFailed` with aggregate risk 1.0 instead of risk 0. A RISKY verdict without a probability counts as 0.6 (the band floor) instead of 0.
+- A missing or non-numeric judge score is now an error, not a recorded 0.
+- The OpenAI port used its own copy of the Discovery contract that had drifted (it invented a `pure_speculation` basis entry where the Anthropic path rejects the response). Both providers now share one implementation. No committed result contains the invented entry.
+- Free-text citation parser: reads the echoed `[paper_id=X chunk_index=N]` form, strips `arXiv:` / `e.g.` / `i.e.` / `cf.` / `see`, and ignores plain numbers and percentages.
+- Model JSON with a value of the wrong type (`"3"` for `3`, a numeric paper id) is coerced or the entry is dropped and counted, instead of failing the request with a 502.
+- Replies truncated at the token limit are rejected instead of being parsed as complete.
+- Re-ingesting a paper that became shorter removed nothing; the stale tail of chunks is now deleted.
+- Concurrent first requests could race to create the Qdrant collection.
+- Unused Microsoft.SemanticKernel package removed, which also removed the vulnerable transitive Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc).
+
+### Added
+
+- Web UI (`web/`, React + Vite + TypeScript): Library, Ask, Discover, Compare and History.
+- Ingest by arXiv id with authoritative metadata from the arXiv API; delete papers; passage text in every citation.
+- Run history in SQLite (`/api/runs`), doubling as the audit lookup by correlation id.
+- Live progress as server-sent events (`/api/query/stream`, `/api/discover/stream`).
+- `/api/compare`: LIBRAIN, Naive-RAG and Single-LLM on one topic pair, concurrently.
+- Retries with backoff for Anthropic calls; concurrency cap; cancel-on-fault parallel scoring; correlation id on every failure.
+- Optional API key and per-client rate limit on paid endpoints, for public deployments.
+- Docker Compose for Qdrant + API + UI; CI runs the Qdrant integration test, builds both images and tests the UI.
+- Provider-neutral `ILlmClient`, `IEmbeddingClient` and `IPaperStore` seams, so the pipeline is testable offline end to end.
