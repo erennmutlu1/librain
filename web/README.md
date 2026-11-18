@@ -73,6 +73,13 @@ the hour.
 behind the same origin as the API, or set `VITE_API_BASE_URL` to the API
 origin and add the site to the API's `Cors:AllowedOrigins`.
 
+**Docker.** `docker compose up --build` at the repo root builds this UI in
+real mode and serves it with nginx at http://localhost:5180. nginx forwards
+`/api` and `/health` to the API container, so the UI and the API share one
+origin, and `proxy_buffering off` keeps progress streams live. The API is
+also published on http://localhost:5080, so for `npm run dev` against that
+stack set `VITE_API_PROXY_TARGET=http://localhost:5080`.
+
 ### Environment variables
 
 | Variable | Default | Meaning |
