@@ -1,0 +1,28 @@
+{
+  "id": "J3",
+  "topicA": "büyük dil modellerine mesleki maruziyet",
+  "topicB": "özerk ajan tabanlı bilimsel keşif",
+  "hypothesis": "Büyük dil modellerine (LLM) mesleki maruziyet, yazma, programlama ve eleştirel düşünmeye dayanan yüksek ücretli, bilgi yoğun rollerde en yüksek düzeydedir; bu, özerk ajan tabanlı bilimsel keşif sistemlerini denetlemek ve yönlendirmek için gereken bilişsel beceri profilinin tam olarak aynısıdır. Agentik bilim Düzey 3 tam özerkliğe doğru olgunlaştıkça, rutin görevlerde LLM kaynaklı yer değiştirmeye en çok maruz kalan bilim insanları paradoksal biçimde insan-ajan ortak keşif döngüsünün en vazgeçilmez insan düğümleri hâline gelecek ve değerleri görev yürütmeden hedef belirlemeye, etik gözetime ve paradigma yorumlamaya kayacaktır. Bu yapısal yeniden hizalanma, şu anda işgücü yer değiştirmesi riski çerçevesinde ele alınan mesleki maruziyet ölçütlerinin, bir mesleğin salt otomasyonla ortadan kalkmak yerine ajan tabanlı yapay zekâ iş birliği etrafında yeniden örgütlenme derecesinin göstergeleri olarak yeniden yorumlanması gerektiğini ima etmektedir.",
+  "novelClaim": "Agentik bilim Düzey 3 tam özerkliğe doğru olgunlaştıkça, rutin görevlerde LLM kaynaklı yer değiştirmeye en çok maruz kalan bilim insanları paradoksal biçimde insan-ajan ortak keşif döngüsünün en vazgeçilmez insan düğümleri hâline gelecek ve değerleri görev yürütmeden hedef belirlemeye, etik gözetime ve paradigma yorumlamaya kayacaktır. Bu yapısal yeniden hizalanma, şu anda işgücü yer değiştirmesi riski çerçevesinde ele alınan mesleki maruziyet ölçütlerinin, bir mesleğin salt otomasyonla ortadan kalkmak yerine ajan tabanlı yapay zekâ iş birliği etrafında yeniden örgütlenme derecesinin göstergeleri olarak yeniden yorumlanması gerektiğini ima etmektedir.",
+  "reasoning": "Maruziyet çalışması (2303.10130), yüksek ücretli, yazma ve programlama yoğun mesleklerin LLM'lere en yüksek maruziyeti yaşadığını bulgularken; ajan tabanlı bilim taraması (2508.14111) ve ICLR sınıflandırması (2503.08979), Düzey 3 özerk ajanların insan bilim insanlarının hedef belirleme, etik gözetim ve yorumlayıcı doğrulamaya yönelmesini gerektirdiğini gösterir; bu beceriler tam olarak bu yüksek derecede maruz kalan rollerde yoğunlaşmıştır. Bu iki bulguyu birleştirmek, yüksek LLM maruziyet puanlarının yer değiştirmeyi değil, insan-ajan iş birliği etrafında derin bir yeniden örgütlenmeyi öngörebileceğini düşündürmektedir; bu iddiayı iki kaynak da açıkça ortaya koymamaktadır.",
+  "claims": [
+    {
+      "sentence": "Agentik bilim Düzey 3 tam özerkliğe doğru olgunlaştıkça, rutin görevlerde LLM kaynaklı yer değiştirmeye en çok maruz kalan bilim insanları paradoksal biçimde insan-ajan ortak keşif döngüsünün en vazgeçilmez insan düğümleri hâline gelecek ve değerleri görev yürütmeden hedef belirlemeye, etik gözetime ve paradigma yorumlamaya kayacaktır.",
+      "rationale": "İddia, ajan tabanlı bilim olgunlaştıkça bilimsel rollerde gelecekte yaşanacak yapısal bir kaymayı tahmin etmekte ve bunu maruziyet ölçütlerinin yeniden örgütlenmiş mesleki değere nasıl dönüşebileceğine dair bir hipotez olarak sunmaktadır; getirilen parçalar Düzey 3 özerkliği ve rollerin hedef belirleme ile gözetime kaydığı insan-ajan ortak keşif döngüsünü ele alsa da, yer değiştirme maruziyetinin vazgeçilmez insan değerini öngördüğüne dair belirli “paradoksal” iddia, kanıtın ötesinde spekülatif bir çıkarımdır."
+    },
+    {
+      "sentence": "Bu yapısal yeniden hizalanma, şu anda işgücü yer değiştirmesi riski çerçevesinde ele alınan mesleki maruziyet ölçütlerinin, bir mesleğin salt otomasyonla ortadan kalkmak yerine ajan tabanlı yapay zekâ iş birliği etrafında yeniden örgütlenme derecesinin göstergeleri olarak yeniden yorumlanması gerektiğini ima etmektedir.",
+      "rationale": "Cümle, maruziyet ölçütlerinin yeniden yorumlanmasını gelecekteki mesleki yeniden örgütlenmeye ilişkin bir hipotez olarak önermektedir; getirilen parçalar maruziyet ölçütlerini ve bunların mesleklerle ilişkisini ele alsa da, bu ölçütlerin yer değiştirme yerine yeniden örgütlenmenin göstergeleri olarak yeniden yorumlanması gerektiği yönündeki belirli iddia, kaynak materyal tarafından doğrudan desteklenmeyen spekülatif bir çıkarımdır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Agentik bilim Düzey 3 tam özerkliğe doğru olgunlaştıkça, rutin görevlerde LLM kaynaklı yer değiştirmeye en çok maruz kalan bilim insanları paradoksal biçimde insan-ajan ortak keşif döngüsünün en vazgeçilmez insan düğümleri hâline gelecek ve değerleri görev yürütmeden hedef belirlemeye, etik gözetime ve paradigma yorumlamaya kayacaktır.",
+      "rationale": "2508.14111:8 numaralı parça, ajan tabanlı yapay zekânın insan rolünü yürütücülükten stratejistliğe kaydırdığını, bilim insanlarından hedef belirlemelerini, etiği güvence altına almalarını ve çıktıları doğrulamalarını gerektirdiğini belirtir; bu da yüksek LLM maruziyetli bilişsel çalışanları yeni vazgeçilmez insan rolüne doğrudan eşler."
+    },
+    {
+      "claimSentence": "Bu yapısal yeniden hizalanma, şu anda işgücü yer değiştirmesi riski çerçevesinde ele alınan mesleki maruziyet ölçütlerinin, bir mesleğin salt otomasyonla ortadan kalkmak yerine ajan tabanlı yapay zekâ iş birliği etrafında yeniden örgütlenme derecesinin göstergeleri olarak yeniden yorumlanması gerektiğini ima etmektedir.",
+      "rationale": "Hiçbir getirilen parça LLM maruziyet ölçütlerinin yeniden örgütlenme göstergeleri olarak yeniden çerçevelenmesini önermemektedir; bu, maruziyet ölçüm çerçevesini (2303.10130) ajan tabanlı bilim özerklik düzeyleriyle (2508.14111) birleştiren ve iki kaynağın da yapmadığı çıkarımsal bir sıçramadır."
+    }
+  ]
+}

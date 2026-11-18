@@ -1,0 +1,28 @@
+{
+  "id": "A3",
+  "topicA": "otoregresif özyinelemeli ağlarla olasılıksal zaman serisi tahmini (DeepAR)",
+  "topicB": "bir atmosfer temel modelinin ince ayarı (Aurora)",
+  "hypothesis": "Aurora'nın ince ayar çerçevesi, önceden eğitilmiş bir atmosfer temel modelini hafif roll-out adımları ve LoRA aracılığıyla farklı yapıdaki alt görevlere uyarlar; bu çerçeve, birbiriyle ilişkili birçok zaman serisi üzerinde eğitilen tek bir özyinelemeli ağın, geçmişi az olan ya da hiç olmayan yeni serilere genelleştiği DeepAR'ın global model paradigmasıyla derin yapısal benzerlikler taşır. Bu iki paradigmayı birleştirerek, olasılıksal bir otoregresif başlık (DeepAR'ın olabilirlik parametreli LSTM kod çözücüsüne benzer) Aurora'nın örtük 3B temsiline eklenebilir ve böylece atmosferik tahminler üzerinde, tam yeniden eğitim gerektirmeden kalibre edilmiş belirsizlik dağılımları elde edilebilir. Böyle bir melez mimari, hem Aurora'nın yüksek çözünürlüklü ince ayarının hem de DeepAR'ın Gauss olmayan olabilirlik esnekliğinin aynı anda gerekli olduğu uç olay tahmininde özellikle değerli olurdu.",
+  "novelClaim": "Bu iki paradigmayı birleştirerek, olasılıksal bir otoregresif başlık (DeepAR'ın olabilirlik parametreli LSTM kod çözücüsüne benzer) Aurora'nın örtük 3B temsiline eklenebilir ve böylece atmosferik tahminler üzerinde, tam yeniden eğitim gerektirmeden kalibre edilmiş belirsizlik dağılımları elde edilebilir. Böyle bir melez mimari, hem Aurora'nın yüksek çözünürlüklü ince ayarının hem de DeepAR'ın Gauss olmayan olabilirlik esnekliğinin aynı anda gerekli olduğu uç olay tahmininde özellikle değerli olurdu.",
+  "reasoning": "Aurora, önceden eğitilmiş bir temel modelin, LoRA'nın yumuşatmasının zararlı olduğu uç olaylar da dâhil olmak üzere yeni atmosfer görevlerine asgari veriyle verimli biçimde ince ayarlanabildiğini (aurora:67), DeepAR ise esnek olabilirlik fonksiyonlarına sahip global bir otoregresif RNN'nin, farklı yapıdaki çarpık zaman serileri genelinde kalibre edilmiş olasılıksal tahminler ürettiğini gösterir (deepar:1, deepar:2). Yapısal boşluk (Aurora ince ayarla uyarlanan belirlenimci nokta tahminleri üretirken DeepAR bir olabilirlik başlığıyla tam kestirimsel dağılımlar üretir) özgün iddiayı doğurur: Aurora'nın örtük temsiline DeepAR tarzı bir olasılıksal kod çözücü eklemek, pahalı omurgayı yeniden eğitmeden, özellikle uç olaylar için kalibre edilmiş atmosferik belirsizlik tahminleri verebilir.",
+  "claims": [
+    {
+      "sentence": "Bu iki paradigmayı birleştirerek, olasılıksal bir otoregresif başlık (DeepAR'ın olabilirlik parametreli LSTM kod çözücüsüne benzer) Aurora'nın örtük 3B temsiline eklenebilir ve böylece atmosferik tahminler üzerinde, tam yeniden eğitim gerektirmeden kalibre edilmiş belirsizlik dağılımları elde edilebilir.",
+      "rationale": "Cümle, ihtiyatlı bir dille ('eklenebilir') spekülatif bir melez mimari öneriyor; DeepAR ile Aurora'nın belgelenmiş özelliklerini birleştiriyor, ancak bunu yerleşik bir olgu ya da iddia olarak öne sürmüyor."
+    },
+    {
+      "sentence": "Böyle bir melez mimari, hem Aurora'nın yüksek çözünürlüklü ince ayarının hem de DeepAR'ın Gauss olmayan olabilirlik esnekliğinin aynı anda gerekli olduğu uç olay tahmininde özellikle değerli olurdu.",
+      "rationale": "Cümle, koşullu bir çerçeveyle ('olurdu') varsayımsal bir mimarinin değeri hakkında spekülatif bir iddiada bulunuyor; iki modelin belgelenmiş yeteneklerine dayanıyor, ancak yerleşik bir olgu öne sürmüyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu iki paradigmayı birleştirerek, olasılıksal bir otoregresif başlık (DeepAR'ın olabilirlik parametreli LSTM kod çözücüsüne benzer) Aurora'nın örtük 3B temsiline eklenebilir ve böylece atmosferik tahminler üzerinde, tam yeniden eğitim gerektirmeden kalibre edilmiş belirsizlik dağılımları elde edilebilir.",
+      "rationale": "Aurora'nın ince ayar protokolü, yeni görevler için önceden eğitilmiş ağırlıkları zaten dondurur ya da hafifçe günceller; benzetme yoluyla, DeepAR'ın olabilirlik parametreli otoregresif başlığı, Aurora'nın dondurulmuş omurgasına hafif bir olasılıksal eklenti işlevi görebilir."
+    },
+    {
+      "claimSentence": "Böyle bir melez mimari, hem Aurora'nın yüksek çözünürlüklü ince ayarının hem de DeepAR'ın Gauss olmayan olabilirlik esnekliğinin aynı anda gerekli olduğu uç olay tahmininde özellikle değerli olurdu.",
+      "rationale": "Aurora'nın LoRA ince ayarındaki RMSE ile uç olaylar için (ör. Ciarán Fırtınası rüzgâr hızları) yüksek frekanslı ayrıntıyı koruma arasındaki ödünleşim, Gauss olmayan bir olasılıksal başlığın, DeepAR'ın çarpık talep dağılımlarında yaptığı gibi, uç atmosferik değişkenlerin ağır kuyruklarını daha iyi yakalayabileceği bir duruma genellenir."
+    }
+  ]
+}

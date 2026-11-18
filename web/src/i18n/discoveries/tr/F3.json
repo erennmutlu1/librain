@@ -1,0 +1,20 @@
+{
+  "id": "F3",
+  "topicA": "Google Research Football pekiştirmeli öğrenme ortamı",
+  "topicB": "proximal policy optimization (PPO)",
+  "hypothesis": "PPO'nun olasılık oranını [1−ε, 1+ε] aralığında sınırlayarak yıkıcı ölçüde büyük politika güncellemelerini önleyen kırpılmış vekil amaç fonksiyonu, Google Research Football Ortamı'na özellikle uygundur; çünkü ortamın doğasındaki stokastiklik ve çok ajanlı dinamikler, kısıtsız politika gradyanı güncellemelerinin kararlılığını bozacak ölçüde durağan olmayan avantaj tahminleri üretir. Ayrıca, PPO'nun çok epoklu mini-batch güncellemelerinin GRF'nin giderek zorlaşan Football Academy senaryolarıyla birleşimi, kırpma mekanizmasının etkin öğrenme oranını her senaryonun zorluğuna otomatik olarak uyarladığı, müfredat güdümlü bir eğitim rejimini mümkün kılabilir ve Corner ile Hard Counter-Attack gibi en zor görevlerde sabit adım büyüklüklü yöntemlere kıyasla potansiyel olarak daha hızlı yakınsama sağlayabilir.",
+  "novelClaim": "PPO'nun çok epoklu mini-batch güncellemelerinin GRF'nin giderek zorlaşan Football Academy senaryolarıyla birleşimi, kırpma mekanizmasının etkin öğrenme oranını her senaryonun zorluğuna otomatik olarak uyarladığı, müfredat güdümlü bir eğitim rejimini mümkün kılabilir ve Corner ile Hard Counter-Attack gibi en zor görevlerde sabit adım büyüklüklü yöntemlere kıyasla potansiyel olarak daha hızlı yakınsama sağlayabilir.",
+  "reasoning": "PPO'nun kırpılmış vekil amaç fonksiyonu, durağan olmayan ortamlarda yıkıcı ölçüde büyük politika güncellemelerini önlemek üzere tasarlanmıştır (ppo:2, ppo:0); GRF'nin Football Academy'si ise yakınsama için 1M ile 50M adım arasında gerektiren, giderek zorlaşan senaryolar sunar ve Corner senaryosu en zoru olarak belirlenmiştir (1907.11180:7). GRF'nin stokastikliği ve çok ajanlı dinamikleri (1907.11180:2, 1907.11180:8) avantaj tahmini varyansını daha da artırır; bu da PPO'nun kırpmasının özellikle dengeleyici olacağını ve çok epoklu güncellemelerinin GRF'nin müfredat yapısıyla eşleştirilmesinin, iki makalede de tarif edilmeyen örtük bir uyarlanabilir öğrenme oranı etkisi doğurabileceğini düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "PPO'nun çok epoklu mini-batch güncellemelerinin GRF'nin giderek zorlaşan Football Academy senaryolarıyla birleşimi, kırpma mekanizmasının etkin öğrenme oranını her senaryonun zorluğuna otomatik olarak uyarladığı, müfredat güdümlü bir eğitim rejimini mümkün kılabilir ve Corner ile Hard Counter-Attack gibi en zor görevlerde sabit adım büyüklüklü yöntemlere kıyasla potansiyel olarak daha hızlı yakınsama sağlayabilir.",
+      "rationale": "Cümle spekülatif ve hipotez çerçevesinde, ihtiyat diliyle ('mümkün kılabilir', 'potansiyel olarak') yazılmış; PPO'nun belgelenmiş çok epoklu güncellemeleri ile GRF'nin belgelenmiş aşamalı senaryolarının makul ama sınanmamış bir birleşimini öneriyor. Ancak kırpma yoluyla otomatik öğrenme oranı uyarlamasına ve yakınsama karşılaştırmasına dair özgül iddia, getirilen kanıtlarca desteklenmiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "PPO'nun çok epoklu mini-batch güncellemelerinin GRF'nin giderek zorlaşan Football Academy senaryolarıyla birleşimi, kırpma mekanizmasının etkin öğrenme oranını her senaryonun zorluğuna otomatik olarak uyarladığı, müfredat güdümlü bir eğitim rejimini mümkün kılabilir ve Corner ile Hard Counter-Attack gibi en zor görevlerde sabit adım büyüklüklü yöntemlere kıyasla potansiyel olarak daha hızlı yakınsama sağlayabilir.",
+      "rationale": "PPO'nun kırpması, büyük güncellemeleri önlemek için olasılık oranını sınırlar; benzetme yoluyla, GRF senaryo zorluğu arttıkça (avantaj yüzeyleri zorlaştıkça) kırpma sınırı örtük bir uyarlanabilir öğrenme oranı çizelgesi gibi davranabilir; ancak bu özgül müfredat etkileşimi iki kaynakta da belirtilmemiştir."
+    }
+  ]
+}

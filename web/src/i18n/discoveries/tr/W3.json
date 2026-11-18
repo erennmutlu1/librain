@@ -1,0 +1,20 @@
+{
+  "id": "W3",
+  "topicA": "web sayfası ekran görüntülerinden çok kipli ön yüz kodu üretimi",
+  "topicB": "vision transformer yama gömmeleri",
+  "hypothesis": "Vision Transformer yama gömmeleri, sabit boyutlu görüntü bölgeleri içindeki uzamsal yapıyı (satır-sütun topolojisi ve mesafe) kodlar; ancak ekran görüntüsünden kod üretimi için kullanılan mevcut çok kipli LLM'ler ince taneli görsel öğeleri ve düzeni geri çağırmada hâlâ geride kalmaktadır; bu da ViT görsel kodlayıcılarının sabit, tekdüze yama ayrıntı düzeyinin web sayfası ekran görüntüsü anlayışı için yapısal bir darboğaz olduğunu düşündürmektedir. Web arayüzü düzenlerinin çok ölçekli, anlamsal olarak heterojen yapısına göre ayarlanmış hiyerarşik veya içeriğe uyarlanabilir yama gömmeleri benimsemek, Design2Code kıyaslamalarında gözlenen görsel öğe geri çağırma açığını önemli ölçüde kapatabilir.",
+  "novelClaim": "Web arayüzü düzenlerinin çok ölçekli, anlamsal olarak heterojen yapısına göre ayarlanmış hiyerarşik veya içeriğe uyarlanabilir yama gömmeleri benimsemek, Design2Code kıyaslamalarında gözlenen görsel öğe geri çağırma açığını önemli ölçüde kapatabilir.",
+  "reasoning": "ViT'in yama gömmeleri satır-sütun uzamsal topolojisini ve mesafe yapısını öğrenir (vit:7) ancak sabit ve tekdüze yama boyutları kullanır (vit:2); Design2Code kıyaslamaları ise çok kipli LLM'lerin web sayfası ekran görüntülerinden görsel öğeleri ve düzeni geri çağırmada özellikle geride kaldığını göstermektedir (2403.03163:0, 2403.03163:9). Pangu-Weather modeli, yapısal olarak heterojen girdiler için alana uyarlanmış, çok ölçekli yama gömmelerinin kullanılmasının temsil kalitesini artırdığını göstermektedir (pangu-weather:8); bu da benzer uyarlanabilir yamalamanın web arayüzü ekran görüntüsü anlayışındaki görsel geri çağırma darboğazını giderebileceği hipotezini motive etmektedir.",
+  "claims": [
+    {
+      "sentence": "Web arayüzü düzenlerinin çok ölçekli, anlamsal olarak heterojen yapısına göre ayarlanmış hiyerarşik veya içeriğe uyarlanabilir yama gömmeleri benimsemek, Design2Code kıyaslamalarında gözlenen görsel öğe geri çağırma açığını önemli ölçüde kapatabilir.",
+      "rationale": "Cümle, gerçek bir soruna (Design2Code'daki görsel öğe geri çağırma açığı) spekülatif bir çözüm ('önemli ölçüde kapatabilir') öneriyor; ancak bu özgül teknik yaklaşım erişilen parçalarda ele alınmamış veya doğrulanmamıştır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Web arayüzü düzenlerinin çok ölçekli, anlamsal olarak heterojen yapısına göre ayarlanmış hiyerarşik veya içeriğe uyarlanabilir yama gömmeleri benimsemek, Design2Code kıyaslamalarında gözlenen görsel öğe geri çağırma açığını önemli ölçüde kapatabilir.",
+      "rationale": "Pangu-Weather, yapısal olarak farklı girdi türleri için alana uyarlanmış yama boyutları (4×4'e karşı 2×4×4) kullanır; analoji yoluyla, heterojen öğe ölçeklerine sahip web arayüzleri tekdüze ViT yamaları yerine uyarlanabilir yama ayrıntı düzeyinden yararlanabilir."
+    }
+  ]
+}

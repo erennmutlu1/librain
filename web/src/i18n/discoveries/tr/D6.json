@@ -1,0 +1,28 @@
+{
+  "id": "D6",
+  "topicA": "biyomedikal genel amaçlı temel model (BiomedGPT)",
+  "topicB": "LLM ajanlarıyla toksisite ve ADMET değerlendirmesi",
+  "hypothesis": "BiomedGPT'nin klinik metin ve tıbbi görüntüler dahil çeşitli disiplinler arası biyomedikal veriler üzerinde ön eğitilmiş birleşik çok kipli kodlayıcı-kod çözücü mimarisi, yalnızca metne dayanan LLM'lere kıyasla daha zengin, kip farkındalıklı moleküler bağlam sağlayarak LLM ajan tabanlı ADMET değerlendirme hatları için güçlü bir omurga işlevi görebilir. BiomedGPT'nin görme-dil temsillerini PharmAgents'ın Metabolizma ve Toksisite Değerlendirme Ajanı'nda gösterilen benzerlik tabanlı toksisite akıl yürütmesiyle bütünleştirmek, özellikle kimyasal komşulukları referans veritabanlarında seyrek temsil edilen yapısal olarak yeni bileşikler için toksisite hafife alma oranlarını büyük olasılıkla azaltacaktır. Bu sinerji, yeni ilaç adayları işlendikçe hem görüntüden türetilmiş yapısal önselleri hem de LLM tabanlı toksisite analojik akıl yürütmesini sürekli iyileştiren, kendi kendine evrilen bir klinik öncesi değerlendirme sistemini mümkün kılabilir.",
+  "novelClaim": "BiomedGPT'nin görme-dil temsillerini PharmAgents'ın Metabolizma ve Toksisite Değerlendirme Ajanı'nda gösterilen benzerlik tabanlı toksisite akıl yürütmesiyle bütünleştirmek, özellikle kimyasal komşulukları referans veritabanlarında seyrek temsil edilen yapısal olarak yeni bileşikler için toksisite hafife alma oranlarını büyük olasılıkla azaltacaktır. Bu sinerji, yeni ilaç adayları işlendikçe hem görüntüden türetilmiş yapısal önselleri hem de LLM tabanlı toksisite analojik akıl yürütmesini sürekli iyileştiren, kendi kendine evrilen bir klinik öncesi değerlendirme sistemini mümkün kılabilir.",
+  "reasoning": "BiomedGPT, çeşitli biyomedikal veriler üzerinde ön eğitilmiş birleşik bir çok kipli kodlayıcı-kod çözücünün görevler ve kipler arasında etkili biçimde genelleştiğini göstermektedir (biomedgpt:1, biomedgpt:3); PharmAgents ise LLM toksisite tahmin doğruluğunun sağlanan analojik moleküler bağlamın zenginliğine güçlü biçimde bağlı olduğunu, daha büyük modellerin ve daha ilgili referans verilerinin hafife almayı azalttığını göstermektedir (pharmagents:13). Özgün iddia, BiomedGPT'nin görme-dil yapısal temsillerini PharmAgents'ın toksisite ajanına ek bağlam olarak sağlamanın, seyrek kimyasal komşuluklar biçimindeki bilinen hata kipini giderebileceğini ve PharmAgents'ın kendi kendine evrilme mekanizmasının (pharmagents:16) bu çok kipli geri bildirim döngüsünü içerecek şekilde genişletilebileceğini çıkarım yoluyla öne sürmektedir.",
+  "claims": [
+    {
+      "sentence": "BiomedGPT'nin görme-dil temsillerini PharmAgents'ın Metabolizma ve Toksisite Değerlendirme Ajanı'nda gösterilen benzerlik tabanlı toksisite akıl yürütmesiyle bütünleştirmek, özellikle kimyasal komşulukları referans veritabanlarında seyrek temsil edilen yapısal olarak yeni bileşikler için toksisite hafife alma oranlarını büyük olasılıkla azaltacaktır.",
+      "rationale": "Cümle, ihtiyatlı bir dille ('büyük olasılıkla azaltacaktır') iki sistemin spekülatif bir bütünleşmesini öneriyor; hem BiomedGPT'nin görme-dil yetenekleri hem de PharmAgents'ın toksisite akıl yürütmesi erişilen parçalarda bağımsız olarak belgelenmiş olsa da belirli sinerji iddiası doğrudan desteklenmiyor, yalnızca hipotez olarak ifade ediliyor."
+    },
+    {
+      "sentence": "Bu sinerji, yeni ilaç adayları işlendikçe hem görüntüden türetilmiş yapısal önselleri hem de LLM tabanlı toksisite analojik akıl yürütmesini sürekli iyileştiren, kendi kendine evrilen bir klinik öncesi değerlendirme sistemini mümkün kılabilir.",
+      "rationale": "Cümle spekülatif bir dil kullanıyor ('mümkün kılabilir') ve varsayımsal bir sistem mimarisini anlatıyor; PharmAgents kendi kendine evrilme yeteneklerini gösterse de (pharmagents:16), BiomedGPT'nin görüntüden türetilmiş önselleriyle belirli bütünleşme doğrudan desteklenmiyor ve olası bir gelecek yetenek olarak ifade ediliyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "BiomedGPT'nin görme-dil temsillerini PharmAgents'ın Metabolizma ve Toksisite Değerlendirme Ajanı'nda gösterilen benzerlik tabanlı toksisite akıl yürütmesiyle bütünleştirmek, özellikle kimyasal komşulukları referans veritabanlarında seyrek temsil edilen yapısal olarak yeni bileşikler için toksisite hafife alma oranlarını büyük olasılıkla azaltacaktır.",
+      "rationale": "PharmAgents, daha zengin moleküler benzerlik bağlamının toksisite hafife almayı azalttığını gösteriyor; BiomedGPT'nin çok kipli temsilleri, seyrek kimyasal komşuluklar için Morgan parmak izlerinin ötesinde ek yapısal bağlam sağlayabilir."
+    },
+    {
+      "claimSentence": "Bu sinerji, yeni ilaç adayları işlendikçe hem görüntüden türetilmiş yapısal önselleri hem de LLM tabanlı toksisite analojik akıl yürütmesini sürekli iyileştiren, kendi kendine evrilen bir klinik öncesi değerlendirme sistemini mümkün kılabilir.",
+      "rationale": "Erişilen hiçbir parça, BiomedGPT'nin görüntüden türetilmiş önsellerini PharmAgents'ın kendi kendine evrilme döngüsüyle birleştirmeyi anlatmıyor; bu, kaynakların hiçbirinde belirtilmeyen, çıkarımsal bir bütünleşmedir."
+    }
+  ]
+}

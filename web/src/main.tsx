@@ -4,6 +4,7 @@ import { App } from './App';
 import { loadApi } from './api';
 import { API_BASE_URL } from './api/config';
 import { createDefaultRunStore } from './history/runStore';
+import { LangProvider } from './i18n/lang';
 import './styles/tokens.css';
 import './styles/base.css';
 
@@ -25,7 +26,9 @@ if (import.meta.env.VITE_PUBLIC_DEMO === 'true') {
   Promise.all([import('./public/PublicApp'), import('./public/clients')]).then(([{ PublicApp }, { createPublicClients }]) => {
     root.render(
       <StrictMode>
-        <PublicApp clients={createPublicClients({ baseUrl: API_BASE_URL })} />
+        <LangProvider>
+          <PublicApp clients={createPublicClients({ baseUrl: API_BASE_URL })} />
+        </LangProvider>
       </StrictMode>,
     );
   }, startFailed);
@@ -33,7 +36,9 @@ if (import.meta.env.VITE_PUBLIC_DEMO === 'true') {
   loadApi().then((api) => {
     root.render(
       <StrictMode>
-        <App api={api} runStore={createDefaultRunStore(api)} />
+        <LangProvider>
+          <App api={api} runStore={createDefaultRunStore(api)} />
+        </LangProvider>
       </StrictMode>,
     );
   }, startFailed);

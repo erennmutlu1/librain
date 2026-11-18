@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 import { resetBookmarks } from '../explore/bookmarks';
+import { resetLang } from '../i18n/lang';
 import { resetSessionStore } from '../lib/sessionStore';
 
 // findBy*/waitFor give up after 1 s by default. Lazy-loaded pages can take longer
@@ -20,6 +21,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  // A Turkish render must not leak into the next test's non-React helpers.
+  resetLang();
   resetSessionStore();
   resetBookmarks();
   vi.unstubAllGlobals();

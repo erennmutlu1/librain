@@ -1,0 +1,28 @@
+{
+  "id": "S2",
+  "topicA": "elit futbolcular için sakatlığa kadar geçen süre sağkalım modelleri",
+  "topicB": "LLM ajanlarıyla klinik deney sonucu tahmini (AutoCT)",
+  "hypothesis": "Elit futbol sakatlık tahminine uygulanan DeepHit sağkalım modelleri, SHAP tabanlı açıklanabilirliğin boylamsal izleme verilerinden klinik açıdan uygulanabilir, oyuncuya özgü risk faktörlerini ortaya çıkarabildiğini zaten göstermektedir. AUTOCT'nin, tablo biçimli öznitelikleri Monte Carlo Ağaç Araması ve SHAP analiziyle özerk biçimde üreten ve iyileştiren LLM ajan çerçevesi, spor sakatlıkları alanına uyarlanarak, saha uzmanlarının önceden belirlememiş olduğu yeni, veri güdümlü risk özniteliklerini (örneğin advers olay oranları veya bağlamsal yük örüntüleri) yinelemeli olarak keşfedebilir. Böyle bir hibrit sistem, futbolda sakatlık tahminindeki statik, uzman tarafından derlenmiş öznitelik kümeleri darboğazını aşabilir ve tamamen otomatik, yorumlanabilir, sürekli kendini geliştiren sakatlık riski modellerine olanak tanıyabilir.",
+  "novelClaim": "AUTOCT'nin, tablo biçimli öznitelikleri Monte Carlo Ağaç Araması ve SHAP analiziyle özerk biçimde üreten ve iyileştiren LLM ajan çerçevesi, spor sakatlıkları alanına uyarlanarak, saha uzmanlarının önceden belirlememiş olduğu yeni, veri güdümlü risk özniteliklerini (örneğin advers olay oranları veya bağlamsal yük örüntüleri) yinelemeli olarak keşfedebilir. Böyle bir hibrit sistem, futbolda sakatlık tahminindeki statik, uzman tarafından derlenmiş öznitelik kümeleri darboğazını aşabilir ve tamamen otomatik, yorumlanabilir, sürekli kendini geliştiren sakatlık riski modellerine olanak tanıyabilir.",
+  "reasoning": "Futbol sakatlığı için DeepHit sağkalım modelleri, SHAP açıklanabilirliğinin boylamsal verilerden uygulanabilir, oyuncu düzeyinde içgörüler sağlayabildiğini zaten göstermektedir (2601.19479, parça 5); alan ise statik, elle derlenmiş öznitelik kümeleri nedeniyle darboğazdadır (2601.19479, parça 1). AUTOCT, MCTS'li LLM ajanlarının düşük veri ve yüksek risk içeren bir alanda öngörücü tablo biçimli öznitelikleri özerk biçimde keşfedip yinelemeli olarak iyileştirebildiğini göstermektedir (autoct-clinical, parça 0, 1, 8, 9); bu yetenek spor sakatlığı modellemesine aktarılırsa, şu anda alan uzmanlarına ve önceden belirlenmiş risk faktörlerine bağlı olan öznitelik mühendisliği sürecini otomatikleştirebilir.",
+  "claims": [
+    {
+      "sentence": "AUTOCT'nin, tablo biçimli öznitelikleri Monte Carlo Ağaç Araması ve SHAP analiziyle özerk biçimde üreten ve iyileştiren LLM ajan çerçevesi, spor sakatlıkları alanına uyarlanarak, saha uzmanlarının önceden belirlememiş olduğu yeni, veri güdümlü risk özniteliklerini (örneğin advers olay oranları veya bağlamsal yük örüntüleri) yinelemeli olarak keşfedebilir.",
+      "rationale": "Cümle, AUTOCT'nin spor sakatlıklarına varsayımsal uyarlanmasını üstü kapalı bir ifadeyle ('uyarlanarak ... keşfedebilir') öne sürüyor; bu çıkarımın tipik bir özelliğidir. AUTOCT'nin çerçevesi ve yetenekleri erişilen makalede dayanaklı olsa da spor sakatlıklarına uygulanması spekülatiftir."
+    },
+    {
+      "sentence": "Böyle bir hibrit sistem, futbolda sakatlık tahminindeki statik, uzman tarafından derlenmiş öznitelik kümeleri darboğazını aşabilir ve tamamen otomatik, yorumlanabilir, sürekli kendini geliştiren sakatlık riski modellerine olanak tanıyabilir.",
+      "rationale": "Cümle spekülatif bir çerçeve ('aşabilir') kullanıyor ve AUTOCT'nin futbol sakatlık tahminine uygulanmasının varsayımsal bir yararını öne sürüyor; erişilen parçalar sakatlık tahmininde statik, uzman tarafından derlenmiş özniteliklerin gerçekten bir sınırlılık olduğunu doğrulasa da bu darboğazın AUTOCT uyarlamasıyla aşılacağı iddiası oluşmuş bir bulgu değil, spekülatiftir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "AUTOCT'nin, tablo biçimli öznitelikleri Monte Carlo Ağaç Araması ve SHAP analiziyle özerk biçimde üreten ve iyileştiren LLM ajan çerçevesi, spor sakatlıkları alanına uyarlanarak, saha uzmanlarının önceden belirlememiş olduğu yeni, veri güdümlü risk özniteliklerini (örneğin advers olay oranları veya bağlamsal yük örüntüleri) yinelemeli olarak keşfedebilir.",
+      "rationale": "AUTOCT, klinik deney tahmininde öznitelikleri önermek ve iyileştirmek için MCTS güdümlü LLM ajanlarını kullanır; aynı mekanizma, boylamsal sporcu izleme verilerinde de benzer biçimde bariz olmayan sakatlık risk özniteliklerini keşfedebilir."
+    },
+    {
+      "claimSentence": "Böyle bir hibrit sistem, futbolda sakatlık tahminindeki statik, uzman tarafından derlenmiş öznitelik kümeleri darboğazını aşabilir ve tamamen otomatik, yorumlanabilir, sürekli kendini geliştiren sakatlık riski modellerine olanak tanıyabilir.",
+      "rationale": "Futbol sakatlığı literatürü, statik, sezon öncesi, uzman tarafından derlenmiş özniteliklere bağımlılığı açıkça temel bir sınırlılık olarak belirtir; AUTOCT'nin otomatik öznitelik keşfi paradigması bu darboğaza çözüm olarak genellenebilir."
+    }
+  ]
+}

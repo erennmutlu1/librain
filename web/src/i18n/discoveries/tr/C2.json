@@ -1,0 +1,20 @@
+{
+  "id": "C2",
+  "topicA": "COVID-19 tahmini için uzay-zamansal grafik sinir ağları",
+  "topicB": "uyarlanabilir klinik deneme merkezi seçimi",
+  "hypothesis": "Hareketlilik ağırlıklı ilçe düzeyi grafikler üzerinde eğitilen uzay-zamansal GNN'ler, bölgeler arası bulaşma örüntülerini öğrenerek COVID-19 vaka dinamiklerini doğru biçimde tahmin edebilir; benzer şekilde, deneme merkezi ağlarının coğrafi ve hareketlilik yapısı da uyarlanabilir klinik deneme merkezi seçimini mümkün kılmak üzere uzay-zamansal bir grafik olarak kodlanabilir. Özellikle, gerçek zamanlı hareketlilik kenar ağırlıklarıyla güçlendirilmiş AUTOCT tarzı LLM güdümlü bir MCTS çerçevesi, bölgesel hasta akışı, yan etki oranları ve uygunluk kriterlerinin katılığı gibi hangi deneme merkezi özniteliklerinin hasta alımı başarısını ve deneme onayını en iyi yordadığını yinelemeli olarak keşfedebilir ve statik merkez seçimi sezgisel yöntemlerinden daha iyi sonuç verebilir.",
+  "novelClaim": "Özellikle, gerçek zamanlı hareketlilik kenar ağırlıklarıyla güçlendirilmiş AUTOCT tarzı LLM güdümlü bir MCTS çerçevesi, bölgesel hasta akışı, yan etki oranları ve uygunluk kriterlerinin katılığı gibi hangi deneme merkezi özniteliklerinin hasta alımı başarısını ve deneme onayını en iyi yordadığını yinelemeli olarak keşfedebilir ve statik merkez seçimi sezgisel yöntemlerinden daha iyi sonuç verebilir.",
+  "reasoning": "COVID-STGNN çalışması, bölgeler arası insan hareketliliğinin grafik kenar ağırlıkları olarak kodlanmasının, bir GNN'nin statik veya kapalı sistem modellerin yakalayabildiğinin ötesinde karmaşık uzay-zamansal bulaşma dinamiklerini öğrenmesine olanak tanıdığını göstermektedir (parçalar 0, 2, 6). AUTOCT çerçevesi ise LLM güdümlü MCTS'nin, yan etki oranları, uygunluk kriterlerinin katılığı ve coğrafi konum dâhil öznitelikleri yinelemeli olarak önerip rafine ederek klinik deneme sonucu tahminini iyileştirebildiğini göstermektedir (parçalar 6, 8, 9). Özgün iddia, hareketlilik ağırlıklı mekânsal grafik yapısının (A Konusu) AUTOCT öznitelik keşfi döngüsüne (B Konusu) katılmasının, makalelerin hiçbirinin tek başına önermediği, uyarlanabilir ve veri güdümlü bir klinik deneme merkezi seçimini mümkün kılabileceği çıkarımını yapmaktadır.",
+  "claims": [
+    {
+      "sentence": "Özellikle, gerçek zamanlı hareketlilik kenar ağırlıklarıyla güçlendirilmiş AUTOCT tarzı LLM güdümlü bir MCTS çerçevesi, bölgesel hasta akışı, yan etki oranları ve uygunluk kriterlerinin katılığı gibi hangi deneme merkezi özniteliklerinin hasta alımı başarısını ve deneme onayını en iyi yordadığını yinelemeli olarak keşfedebilir ve statik merkez seçimi sezgisel yöntemlerinden daha iyi sonuç verebilir.",
+      "rationale": "Cümle, AUTOCT'yi (erişilen parçalarda belgelenmiş, klinik deneme tahmini için bir LLM-MCTS çerçevesi) hareketlilik kenar ağırlıkları ve merkez seçimi eniyilemesiyle birleştiren spekülatif bir uygulama önermektedir; AUTOCT ve bileşenleri (yan etki oranları, uygunluk kriterlerinin katılığı) erişilen kanıtta dayanaklı olsa da merkez seçimine hareketlilik ağırlıklarıyla uygulanması ve üstün performans iddiası, çekingen bir dille ('could') ifade edilmiş varsayımsal uzantılardır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Özellikle, gerçek zamanlı hareketlilik kenar ağırlıklarıyla güçlendirilmiş AUTOCT tarzı LLM güdümlü bir MCTS çerçevesi, bölgesel hasta akışı, yan etki oranları ve uygunluk kriterlerinin katılığı gibi hangi deneme merkezi özniteliklerinin hasta alımı başarısını ve deneme onayını en iyi yordadığını yinelemeli olarak keşfedebilir ve statik merkez seçimi sezgisel yöntemlerinden daha iyi sonuç verebilir.",
+      "rationale": "COVID-STGNN makalesi, grafik kenar ağırlıkları olarak hareketlilik akışlarının hastalık tahminini iyileştirdiğini göstermektedir; benzetme yoluyla, deneme merkezleri arasındaki hasta hareketlilik akışları bir merkez seçimi grafiğinde dinamik kenar ağırlıkları olarak kullanılabilir ve AUTOCT'nin MCTS'sinin hasta alımını yordayan öznitelikleri keşfetmesini sağlayabilir."
+    }
+  ]
+}

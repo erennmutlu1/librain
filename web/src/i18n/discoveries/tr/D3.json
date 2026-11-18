@@ -1,0 +1,28 @@
+{
+  "id": "D3",
+  "topicA": "üretken modellerle de novo moleküler üretim",
+  "topicB": "yoğun bir belge indeksi üzerinde erişim destekli üretim",
+  "hypothesis": "RAG'in, üretken bir seq2seq modeli gizli değişkenler olarak ele alınan ilk K getirilmiş belgeye koşullandıran yoğun indeksli erişim mekanizması, metin belge indeksinin moleküler gömmelerden (ör. EGNN'lerden) oluşan yoğun bir indeksle değiştirilmesi suretiyle de novo moleküler üretime doğrudan uyarlanabilir; böylece difüzyon veya VAE tabanlı bir üreteç, yapısal olarak benzer erişilmiş moleküllere parametrik olmayan bellek olarak koşullanabilir. Böyle bir erişim destekli moleküler üreteç, erişilen komşular üretim sürecini moleküler uzayın bilinen, kimyasal olarak geçerli bölgelerine çıpaladığı için, tümüyle parametrik üretken modellere kıyasla daha yüksek geçerlilik ve hedefe bağlanma özgüllüğüne sahip moleküller üretmesi olasıdır. Bu hibrit mimari, RAG'in insan tarafından yazılabilir parametrik olmayan bellek özelliğini yansıtarak, yeni sentezlenen bileşikler doğrulandıkça moleküler bilgi tabanının dinamik olarak güncellenmesini de mümkün kılabilir.",
+  "novelClaim": "Böyle bir erişim destekli moleküler üreteç, erişilen komşular üretim sürecini moleküler uzayın bilinen, kimyasal olarak geçerli bölgelerine çıpaladığı için, tümüyle parametrik üretken modellere kıyasla daha yüksek geçerlilik ve hedefe bağlanma özgüllüğüne sahip moleküller üretmesi olasıdır. Bu hibrit mimari, RAG'in insan tarafından yazılabilir parametrik olmayan bellek özelliğini yansıtarak, yeni sentezlenen bileşikler doğrulandıkça moleküler bilgi tabanının dinamik olarak güncellenmesini de mümkün kılabilir.",
+  "reasoning": "RAG, parametrik bir üretecin gizli değişkenler olarak ele alınan ilk K yoğun erişimli belgeye koşullandırılmasının NLP görevlerinde olgusallığı ve özgüllüğü iyileştirdiğini göstermektedir (2005.11401:0, 2005.11401:2); EGNN tabanlı difüzyon modelleri gibi de novo moleküler üretim modelleri ise moleküllerin yoğun geometrik gömmelerini hâlihazırda üretmektedir (denovo-genai-survey:41, denovo-genai-survey:8). Bu iki paradigmayı birleştirmek—EGNN türevli moleküler gömmeleri parametrik olmayan indeks, bir difüzyon/VAE üretecini ise parametrik bileşen olarak kullanmak—her iki bulguyu da kaynakların hiçbirinde tanımlanmamış, yeni bir erişim destekli moleküler üretim çerçevesine çıkarımsal olarak genişletmektedir.",
+  "claims": [
+    {
+      "sentence": "Böyle bir erişim destekli moleküler üreteç, erişilen komşular üretim sürecini moleküler uzayın bilinen, kimyasal olarak geçerli bölgelerine çıpaladığı için, tümüyle parametrik üretken modellere kıyasla daha yüksek geçerlilik ve hedefe bağlanma özgüllüğüne sahip moleküller üretmesi olasıdır.",
+      "rationale": "Cümle, moleküler tasarıma uygulanan erişim destekli üretim hakkında makul bir hipotez önermektedir ve çekingen bir dil ('would likely') kullanmaktadır; ancak moleküler üretime yönelik bu belirli uygulama erişilen parçalarla doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu hibrit mimari, RAG'in insan tarafından yazılabilir parametrik olmayan bellek özelliğini yansıtarak, yeni sentezlenen bileşikler doğrulandıkça moleküler bilgi tabanının dinamik olarak güncellenmesini de mümkün kılabilir.",
+      "rationale": "Cümle çekingen bir dil ('could enable') kullanmakta ve RAG'in belgelenmiş bir özelliğini (insan tarafından yazılabilir parametrik olmayan bellek, 2005.11401:2) moleküler bilgi tabanlarına uygulama konusunda spekülasyon yapmaktadır; bu makul bir çıkarımdır ancak erişilen kanıtta doğrudan gösterilmemiştir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir erişim destekli moleküler üreteç, erişilen komşular üretim sürecini moleküler uzayın bilinen, kimyasal olarak geçerli bölgelerine çıpaladığı için, tümüyle parametrik üretken modellere kıyasla daha yüksek geçerlilik ve hedefe bağlanma özgüllüğüne sahip moleküller üretmesi olasıdır.",
+      "rationale": "RAG'in parametrik olmayan belleği, NLP üretiminde olgusallığı ve özgüllüğü gösterilebilir biçimde iyileştirir; benzetme yoluyla bir moleküler üreteci erişilmiş geçerli moleküllere koşullandırmak çıktıları kimyasal olarak geçerli uzaya çıpalamalı ve de novo modeller için bildirilen geçerlilik ve özgüllük ölçütlerini iyileştirmelidir."
+    },
+    {
+      "claimSentence": "Bu hibrit mimari, RAG'in insan tarafından yazılabilir parametrik olmayan bellek özelliğini yansıtarak, yeni sentezlenen bileşikler doğrulandıkça moleküler bilgi tabanının dinamik olarak güncellenmesini de mümkün kılabilir.",
+      "rationale": "RAG, belge indeksini düzenleyerek dinamik bellek güncellemelerini açıkça destekler; bu özelliğin bir moleküler indekse aktarılması, yeni doğrulanmış bileşiklerin üretken modeli yeniden eğitmeden sürekli olarak dâhil edilmesine olanak tanıyacaktır."
+    }
+  ]
+}

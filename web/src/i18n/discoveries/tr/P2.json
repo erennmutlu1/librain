@@ -1,0 +1,28 @@
+{
+  "id": "P2",
+  "topicA": "büyük ölçekli örnekleme ve filtrelemeyle yarışma düzeyinde kod üretimi (AlphaCode)",
+  "topicB": "LLM ajanlarında Monte Carlo ağaç arama ile öznitelik keşfi (AutoCT)",
+  "hypothesis": "AlphaCode'un geniş bir program uzayını keşfedip adayları davranışsal yürütmeyle budayan büyük ölçekli örnekleme ve filtreleme paradigması, AutoCT'de uygulandığı biçimiyle MCTS güdümlü öznitelik keşfiyle yapısal olarak izomorfiktir; bu da LLM güdümlü kod üretimini MCTS rollout'ları ve UCT tabanlı seçimle birleştiren birleşik bir arama çerçevesinin, rekabetçi programlamada düz büyük ölçekli örneklemenin yerini alabileceğini ve önemli ölçüde daha az toplam örnekle daha yüksek çözüm oranları elde edebileceğini düşündürmektedir. Özellikle, her program varyantını, test senaryolarına karşı yürütmeyle puanlanan bir MCTS düğümü olarak ele almak, aramanın umut vadeden algoritmik yönlerden yararlanırken yeni olanları da keşfetmesine olanak tanır; bu, AutoCT'nin Evaluator geri bildiriminin ağaç genişletmeyi daha iyi öznitelik kümelerine yönlendirmesini yansıtır. Bu hibrit mimari, örnekleme işlem maliyetini AlphaCode'un milyonlarca düz örnek üretmeye dayanan mevcut yaklaşımına kıyasla kat kat azaltabilir.",
+  "novelClaim": "Her program varyantını, test senaryolarına karşı yürütmeyle puanlanan bir MCTS düğümü olarak ele almak, aramanın umut vadeden algoritmik yönlerden yararlanırken yeni olanları da keşfetmesine olanak tanır; bu, AutoCT'nin Evaluator geri bildiriminin ağaç genişletmeyi daha iyi öznitelik kümelerine yönlendirmesini yansıtır. Bu hibrit mimari, örnekleme işlem maliyetini AlphaCode'un milyonlarca düz örnek üretmeye dayanan mevcut yaklaşımına kıyasla kat kat azaltabilir.",
+  "reasoning": "AlphaCode'un hattı çok sayıda düz örnek üretip bunları davranışsal yürütmeyle filtrelerken (parça 8, 9), AutoCT performans geri bildirimiyle yönlendirilen bir LLM ajanını daha iyi çözümlere doğru yinelemeli olarak yönlendirmek için UCT ile MCTS kullanır (parça 5, 3). Her iki sistem de LLM önerisini yürütmeye dayalı puanlama ve budamanın izlediği ortak çekirdek yapıyı paylaşır; bu nedenle AlphaCode'un düz örneklemesini, düğümlerin program varyantları ve kenarların LLM'nin önerdiği değişiklikler olduğu bir MCTS ağacıyla değiştirmenin, parça 29'da belirtilen işlem maliyetinin bir bölümüyle karşılaştırılabilir ya da daha üstün çözüm oranlarına ulaşabilmesi doğal bir çıkarımdır.",
+  "claims": [
+    {
+      "sentence": "Her program varyantını, test senaryolarına karşı yürütmeyle puanlanan bir MCTS düğümü olarak ele almak, aramanın umut vadeden algoritmik yönlerden yararlanırken yeni olanları da keşfetmesine olanak tanır; bu, AutoCT'nin Evaluator geri bildiriminin ağaç genişletmeyi daha iyi öznitelik kümelerine yönlendirmesini yansıtır.",
+      "rationale": "Cümle, program varyantları için MCTS kullanan varsayımsal bir hibrit mimari önermekte ve AutoCT'nin Evaluator'ına benzetme yapmaktadır; her ikisi de kurulmuş olgular değil spekülatif çerçevelemelerdir (“olanak tanır”, “yansıtır”). AutoCT'nin MCTS tabanlı Evaluator geri bildirimi getirilen parçalarda belgelenmiştir, ancak bunun kod üretimine uygulanması varsayımsaldır."
+    },
+    {
+      "sentence": "Bu hibrit mimari, örnekleme işlem maliyetini AlphaCode'un milyonlarca düz örnek üretmeye dayanan mevcut yaklaşımına kıyasla kat kat azaltabilir.",
+      "rationale": "Cümle, spekülatif bir verimlilik iddiasını çekinceli ifadeyle (“azaltabilir”) çerçevelemektedir; AlphaCode'un büyük ölçekli örnekleme yaklaşımı getirilen parçalarda belgelenmiş olsa da, MCTS aracılığıyla kat kat azalma yönündeki belirli iddia varsayımsaldır ve kanıtla desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Her program varyantını, test senaryolarına karşı yürütmeyle puanlanan bir MCTS düğümü olarak ele almak, aramanın umut vadeden algoritmik yönlerden yararlanırken yeni olanları da keşfetmesine olanak tanır; bu, AutoCT'nin Evaluator geri bildiriminin ağaç genişletmeyi daha iyi öznitelik kümelerine yönlendirmesini yansıtır.",
+      "rationale": "AutoCT, değerlendirici geri bildirimiyle yönlendirilen, öznitelik kümesi durumlarını temsil eden UCT puanlı MCTS düğümleri kullanır; aynı mekanizma, AlphaCode ortamında test senaryolarının yürütülmesiyle puanlanan program varyantlarına benzer biçimde uygulanabilir."
+    },
+    {
+      "claimSentence": "Bu hibrit mimari, örnekleme işlem maliyetini AlphaCode'un milyonlarca düz örnek üretmeye dayanan mevcut yaklaşımına kıyasla kat kat azaltabilir.",
+      "rationale": "AlphaCode, büyük ölçekli örneklemenin yüzlerce petaFLOPS günü gerektirdiğini açıkça belirtir; MCTS güdümlü arama, işlem gücünü kapsamlı düz örnekleme yerine umut vadeden dallara yoğunlaştırır ve AutoCT'nin verimlilik kazanımlarını kod üretimine genelleştirir."
+    }
+  ]
+}

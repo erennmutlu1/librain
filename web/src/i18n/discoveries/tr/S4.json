@@ -1,0 +1,28 @@
+{
+  "id": "S4",
+  "topicA": "sporcu sakatlık riskinin giyilebilir sensörlerle izlenmesi",
+  "topicB": "fizik bilgili sinir ağları",
+  "hypothesis": "Seyrek verilerden öğrenmeyi düzenlileştirmek için diferansiyel denklem kısıtlarını kayıp fonksiyonlarına gömen fizik bilgili sinir ağları (PINN'ler), sporcu yükü birikimini ve doku stresini yöneten biyomekanik ve fizyolojik ODE'leri kodlayacak şekilde uyarlanabilir; böylece veri eksikliğinden ve düzensiz zamansal aralıklardan şu anda muzdarip olan giyilebilir sensör tabanlı sakatlık riski modellerine ilkeli bir düzenlileştirme sağlayabilir. Böyle bir PINN tabanlı sakatlık tahmin mimarisi, birikimli yorgunluk azalması ve toparlanma kinetiği gibi bilinen fizyolojik dinamikleri katı kısıtlar olarak uygulayarak DeepHit gibi tümüyle veri güdümlü sağkalım modellerinden daha iyi başarım gösterebilir ve büyük, eksiksiz boylamsal veri kümelerine bağımlılığı azaltabilir. Bu bütünleştirme ayrıca doğal olarak, biyomekanik ilk ilkelere dayanan, yorumlanabilir, sporcuya özgü risk yörüngeleri üretecek ve model açıklanabilirliği ile yeterince temsil edilmeyen sporcu popülasyonlarına genelleme biçimindeki ikili sorunu ele alacaktır.",
+  "novelClaim": "Böyle bir PINN tabanlı sakatlık tahmin mimarisi, birikimli yorgunluk azalması ve toparlanma kinetiği gibi bilinen fizyolojik dinamikleri katı kısıtlar olarak uygulayarak DeepHit gibi tümüyle veri güdümlü sağkalım modellerinden daha iyi başarım gösterebilir ve büyük, eksiksiz boylamsal veri kümelerine bağımlılığı azaltabilir. Bu bütünleştirme ayrıca doğal olarak, biyomekanik ilk ilkelere dayanan, yorumlanabilir, sporcuya özgü risk yörüngeleri üretecek ve model açıklanabilirliği ile yeterince temsil edilmeyen sporcu popülasyonlarına genelleme biçimindeki ikili sorunu ele alacaktır.",
+  "reasoning": "PINN literatürü (epi-pinn:4), ODE tabanlı fiziksel kısıtların seyrek ve gürültülü veriyle eğitilen sinir ağlarını düzenlileştirebildiğini göstermektedir; bu, tam da giyilebilir sensörlerle sakatlık tahmininde belirlenen güçlüktür (2601.19479:9, 2601.19479:10) ve veri eksikliği ile düzensiz zamansal aralıklar Dynamic-DeepHit gibi gelişmiş mimarileri sınırlamaktadır. Bu mekanizmayı bilinen biyomekanik ODE'leri (örn. yorgunluk birikimi, doku stresi toparlanması) PINN kayıp terimleri olarak kodlamaya aktarmak, veri gereksinimlerini azaltırken yorumlanabilirliği de eşzamanlı olarak artırabilir; ikisi de erişilen hiçbir kaynakta doğrudan belirtilmemiştir.",
+  "claims": [
+    {
+      "sentence": "Böyle bir PINN tabanlı sakatlık tahmin mimarisi, birikimli yorgunluk azalması ve toparlanma kinetiği gibi bilinen fizyolojik dinamikleri katı kısıtlar olarak uygulayarak DeepHit gibi tümüyle veri güdümlü sağkalım modellerinden daha iyi başarım gösterebilir ve büyük, eksiksiz boylamsal veri kümelerine bağımlılığı azaltabilir.",
+      "rationale": "Cümle üstü kapalı bir ifade ('başarım gösterebilir') kullanıyor ve varsayımsal bir PINN mimarisi ile DeepHit arasında spekülatif bir karşılaştırma çerçeveliyor; DeepHit erişilen parçalarda belgelenmiş olsa da PINN'lerin DeepHit'e üstünlüğü kanıtla desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu bütünleştirme ayrıca doğal olarak, biyomekanik ilk ilkelere dayanan, yorumlanabilir, sporcuya özgü risk yörüngeleri üretecek ve model açıklanabilirliği ile yeterince temsil edilmeyen sporcu popülasyonlarına genelleme biçimindeki ikili sorunu ele alacaktır.",
+      "rationale": "Cümle koşullu bir çerçeve ('üretecek') kullanıyor ve PINN bütünleştirmesinin yararları hakkında spekülasyon yapıyor; erişilen parçalar açıklanabilirliği ve yeterince temsil edilmeyen popülasyonları gerçek güçlükler olarak ele alsa da PINN bütünleştirmesinin bunları ele alacağı iddiası varsayımsaldır ve ampirik olarak desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir PINN tabanlı sakatlık tahmin mimarisi, birikimli yorgunluk azalması ve toparlanma kinetiği gibi bilinen fizyolojik dinamikleri katı kısıtlar olarak uygulayarak DeepHit gibi tümüyle veri güdümlü sağkalım modellerinden daha iyi başarım gösterebilir ve büyük, eksiksiz boylamsal veri kümelerine bağımlılığı azaltabilir.",
+      "rationale": "PINN'ler, seyrek verilerden öğrenmeyi düzenlileştirmek için ODE kısıtlarını artık kayıp terimleri olarak gömer; analoji yoluyla yorgunluk/toparlanma için biyomekanik ODE'ler de veri eksikliği ve düzensiz aralıklarla boğuşan sakatlık modelleri için aynı düzenlileştirici rolü üstlenebilir."
+    },
+    {
+      "claimSentence": "Bu bütünleştirme ayrıca doğal olarak, biyomekanik ilk ilkelere dayanan, yorumlanabilir, sporcuya özgü risk yörüngeleri üretecek ve model açıklanabilirliği ile yeterince temsil edilmeyen sporcu popülasyonlarına genelleme biçimindeki ikili sorunu ele alacaktır.",
+      "rationale": "DeepHit çalışması, açıklanabilirliği ve yeterince temsil edilmeyen gruplara genellemeyi karşılanmamış kritik ihtiyaçlar olarak belirler; fizik önsellerini gömmek, yorumlanabilirliği olay sonrası SHAP analizinin ötesine, mekanizma temelli tahminlere taşıyacaktır."
+    }
+  ]
+}

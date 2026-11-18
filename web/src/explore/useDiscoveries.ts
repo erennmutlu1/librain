@@ -1,42 +1,61 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useLang, type Lang } from '../i18n/lang';
 import type { ExploreData } from './model';
 
 export type ExploreState = { status: 'loading' } | { status: 'ready'; data: ExploreData } | { status: 'error'; error: unknown };
 
-let pending: Promise<ExploreData> | null = null;
-let loaded: ExploreData | null = null;
+const pending: Partial<Record<Lang, Promise<ExploreData>>> = {};
+const loaded: Partial<Record<Lang, ExploreData>> = {};
 
 /**
- * Loads the bundled runs once per page. This fetches a static chunk of the
- * app, never the API; a failed load (say, a deploy replaced the chunk) can be
- * retried.
+ * Loads the bundled runs once per page and language: English is the recorded
+ * text, Turkish lays the translations over it (runsTr.ts). This fetches a
+ * static chunk of the app, never the API; a failed load (say, a deploy
+ * replaced the chunk) can be retried.
  */
-export function loadExploreData(): Promise<ExploreData> {
-  pending ??= import('./runs').then(
-    (m) => (loaded = m.exploreData),
+export function loadExploreData(lang: Lang = 'en'): Promise<ExploreData> {
+  pending[lang] ??= (lang === 'tr' ? import('./runsTr') : import('./runs')).then(
+    (m) => (loaded[lang] = m.exploreData),
     (error: unknown) => {
-      pending = null;
+      delete pending[lang];
       throw error;
     },
   );
-  return pending;
+  return pending[lang];
 }
 
-export function useExploreData(): { state: ExploreState; retry: () => void } {
-  const [state, setState] = useState<ExploreState>(() => (loaded ? { status: 'ready', data: loaded } : { status: 'loading' }));
+/**
+ * The runs in the interface language, or in `override` (the detail page's
+ * "show the original" switch passes 'en').
+ */
+export function useExploreData(override?: Lang): { state: ExploreState; retry: () => void } {
+  const { lang: uiLang } = useLang();
+  const lang = override ?? uiLang;
+  const [state, setState] = useState<ExploreState>(() => {
+    const data = loaded[lang];
+    return data ? { status: 'ready', data } : { status: 'loading' };
+  });
   const [attempt, setAttempt] = useState(0);
+  const [shown, setShown] = useState(lang);
+
+  // Switching language: show the other data at once if it is loaded, else load it.
+  if (shown !== lang) {
+    setShown(lang);
+    const data = loaded[lang];
+    setState(data ? { status: 'ready', data } : { status: 'loading' });
+  }
 
   useEffect(() => {
-    if (loaded) return;
+    if (loaded[lang]) return;
     let live = true;
-    loadExploreData().then(
+    loadExploreData(lang).then(
       (data) => live && setState({ status: 'ready', data }),
       (error: unknown) => live && setState({ status: 'error', error }),
     );
     return () => {
       live = false;
     };
-  }, [attempt]);
+  }, [attempt, lang]);
 
   const retry = useCallback(() => {
     setState({ status: 'loading' });

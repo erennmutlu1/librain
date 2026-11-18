@@ -1,0 +1,20 @@
+{
+  "id": "N3",
+  "topicA": "ağ örgüsü (mesh) tabanlı öğrenilmiş fizik simülatörleri",
+  "topicB": "fizik bilgili sinir ağlarıyla salgın yayılımı modellemesi",
+  "hypothesis": "Graf Ağ Tabanlı Simülatörler (GNS), fiziksel sistemleri etkileşen parçacık grafikleri olarak temsil eder ve dinamikleri öğrenilmiş mesaj iletimiyle yayar; bu yapısal paradigma, bireylerin veya bölgelerin düğüm, bulaşma yollarının ise kenar olduğu nüfus düzeyindeki salgın bölmeli modellere doğal biçimde karşılık gelir. SIR/SEIR ODE kısıtlarını GNS tarzı bir kodla-işle-kodu çöz mimarisi içine fizik bilgili kayıp terimleri olarak gömerek, seyrek gözetim verilerinden hem mekânsal olarak heterojen bulaşma oranları hem de bölgeler arası uzun menzilli bulaşma dinamikleri aynı anda öğrenilebilir. Böyle bir hibrit grafik-fizik simülatörü, GNS'nin parçacık sayıları ve başlangıç koşulları arasında genelleştirmesi gibi, farklı başlangıç enfeksiyon odakları, nüfus yoğunlukları ve müdahale rejimleri gibi salgın senaryoları arasında genelleştirebilir ve ulusal ölçekte gerçek zamanlı karşı-olgusal politika simülasyonunu olası kılabilir.",
+  "novelClaim": "Böyle bir hibrit grafik-fizik simülatörü, GNS'nin parçacık sayıları ve başlangıç koşulları arasında genelleştirmesi gibi, farklı başlangıç enfeksiyon odakları, nüfus yoğunlukları ve müdahale rejimleri gibi salgın senaryoları arasında genelleştirebilir ve ulusal ölçekte gerçek zamanlı karşı-olgusal politika simülasyonunu olası kılabilir.",
+  "reasoning": "GNS, parçacık grafikleri üzerindeki öğrenilmiş mesaj iletiminin görülmemiş başlangıç koşullarına ve ölçeklere genelleştiğini göstermektedir (gns-physics:0, gns-physics:1, gns-physics:11); epi-pinn, SIR ODE kısıtlarının fizik bilgili kayıp terimleri olarak gömülmesinin seyrek verilerden doğru parametre tanımlamayı ve tahmini mümkün kıldığını göstermektedir (epi-pinn:2, epi-pinn:13); covid-stgnn ise hareketlilik kenarlarına sahip uzay-zamansal GNN'lerin bölgeler arası bulaşmayı yakalayabildiğini göstermektedir (covid-stgnn:0). Özgün çıkarım, GNS'nin genelleme yeteneğini PINN tarzı ODE kısıtlarıyla tek bir grafik mimarisinde birleştirmenin, salgın senaryoları arasında aktarılabilen ve karşı-olgusal politika analizini destekleyen bir simülatör ortaya çıkarabileceğidir; bu, erişilen kaynakların hiçbirinde ileri sürülmemiş ya da sınanmamış bir yetenektir.",
+  "claims": [
+    {
+      "sentence": "Böyle bir hibrit grafik-fizik simülatörü, GNS'nin parçacık sayıları ve başlangıç koşulları arasında genelleştirmesi gibi, farklı başlangıç enfeksiyon odakları, nüfus yoğunlukları ve müdahale rejimleri gibi salgın senaryoları arasında genelleştirebilir ve ulusal ölçekte gerçek zamanlı karşı-olgusal politika simülasyonunu olası kılabilir.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor ('edebilir', 'olası kılabilir') ve iddiayı yerleşik bir olgu olarak değil, spekülatif bir benzetme olarak çerçeveliyor; GNS'nin genelleme özellikleri erişilen parçalarda belgelenmiş olsa da salgın senaryolarına ve ulusal ölçekte politika simülasyonuna uygulanması varsayımsaldır ve kanıtlarla desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir hibrit grafik-fizik simülatörü, GNS'nin parçacık sayıları ve başlangıç koşulları arasında genelleştirmesi gibi, farklı başlangıç enfeksiyon odakları, nüfus yoğunlukları ve müdahale rejimleri gibi salgın senaryoları arasında genelleştirebilir ve ulusal ölçekte gerçek zamanlı karşı-olgusal politika simülasyonunu olası kılabilir.",
+      "rationale": "GNS, test zamanında farklı başlangıç koşullarına ve daha büyük parçacık sayılarına genelleşmeyi gösteriyor; bu özellik, farklı odaklara ve nüfus yoğunluklarına sahip salgın senaryolarına benzetiliyor ve bu durum iki salgın makalesinin hiçbirinde doğrudan sınanmamıştır."
+    }
+  ]
+}

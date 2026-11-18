@@ -1,0 +1,73 @@
+{
+  "picks": {
+    "D7": {
+      "takeaway": "Çok ajanlı bir sistem bir sonraki hangi DFT hesaplamalarının çalıştırılacağını seçer; böylece OC20 üzerinde eğitilmiş katalizör modelleri, veri kümesinin dışarıda bıraktığı çoklu adsorbat ve çözünme rejimlerine genişler.",
+      "whyFeatured": "Belirli ve nicel bir boşluk (OC20 yapılandırmaların yaklaşık %0,07'sini kapsıyor) ile bu boşluğu kapatmak için somut bir mekanizma sunuyor; sınanabilir."
+    },
+    "C1": {
+      "takeaway": "Salgın ODE kısıtları, bir LLM ajanının üzerinde arama yapabileceği özniteliklere dönüşür; böylece bulaşıcı hastalık klinik deney sonucu modelleri, deneye özgü üreme sayıları gibi mekanistik niceliklerden tahmin yapar.",
+      "whyFeatured": "Kümedeki en az bariz köprü: bir LLM ajanının öznitelik aramasının içinde kompartman modeli fiziği."
+    },
+    "N3": {
+      "takeaway": "Fizik için kullanılan ağ örgüsü (mesh) tabanlı bir grafik simülatör, salgın dinamikleri üzerinde eğitilir; böylece enfeksiyon başlangıç noktaları, nüfus yoğunlukları ve müdahaleler arasında genelleme yapar ve gerçek zamanlı karşıolgusal politika denemelerini destekler.",
+      "whyFeatured": "GNS'in bilinen bir özelliğini (başlangıç koşulları arasında genelleme) salgınlara aktarıyor; üç makaleden yararlanıyor."
+    },
+    "A2": {
+      "takeaway": "Eşleştirilmiş uydu görüntüleri ve metinler üzerinde önceden eğitilmiş CLIP tarzı bir model, ürün koşullarının doğal dille tanımlarıyla yönlendirilerek sıfır atışlı (zero-shot) biçimde ürün verimini tahmin eder.",
+      "whyFeatured": "Doğru çıkarsa etiketli verim verisi darboğazını ortadan kaldıracak, açık ve sınanabilir bir sıfır atışlı (zero-shot) iddia."
+    },
+    "D5": {
+      "takeaway": "CGCNN, ajan tabanlı bir keşif döngüsünün içinde hızlı bir vekil model olarak görev yapar; böylece aday kristal yapılar herhangi bir DFT hesaplamasından önce in silico ortamda önerilir, puanlanır ve iyileştirilir.",
+      "whyFeatured": "Adı belli bir vekil model içeren somut bir döngü tasarımı; malzeme bilimi ile ajan tabanlı yapay zekâ alanlarından üç makaleye dayanıyor."
+    },
+    "D1": {
+      "takeaway": "Self-RAG eleştiri belirteçleri her PharmAgents ajanının içine yerleştirilir; böylece her aşama ihtiyaç duyduğunda erişim yapar ve belirteç düzeyindeki kalite sinyallerini sonraki aşamalara iletir. Doğrulayıcı, PharmAgents'ın %37,94'lük başarı oranını geçme iddiasını riskli olarak işaretliyor.",
+      "whyFeatured": "Denetimin işlediğini gösteriyor: kanıtın ötesine geçen, kendinden emin bir sayısal iddia RİSKLİ (0,72) olarak işaretleniyor."
+    },
+    "F4": {
+      "takeaway": "Kornerdeki her oyuncuyu öğrenilmiş bir fizik simülatöründeki bir parçacık gibi ele alın; böylece TacticAI tarzı bir asistan yalnızca başlangıç dizilişlerini değil, hareket planlarının tamamını sınayabilir.",
+      "whyFeatured": "Fizik simülasyonundan futbol taktiğine canlı ve sınanabilir bir mekanizma aktarımı."
+    },
+    "F2": {
+      "takeaway": "Bir graf dikkat modeli, bir hücum sırasındaki hangi önceki aksiyonların gol için en önemli olduğunu öğrenir; böylece sabit bir pencereye göre her oyuncu aksiyonu için daha keskin değerler verir.",
+      "whyFeatured": "Her iki partide de en yüksek kalite (0,665) ve yerleşik bir yönteme (VAEP) somut bir değişiklik."
+    },
+    "S5": {
+      "takeaway": "Tüm kadroyu zaman içinde oyunculardan oluşan bir graf olarak modelleyin; böylece sakatlık riski, her oyuncuyu tek başına ele almak yerine ortak iş yükünü ve takım içi ilişkileri yansıtır.",
+      "whyFeatured": "Dört makaleye dayanıyor; sakatlık tahminini bireyden takıma taşıyarak yeniden çerçeveliyor."
+    },
+    "S1": {
+      "takeaway": "Sinirsel (spiking) ağları nöromorfik çiplerle eşleştirin; böylece pille çalışan giyilebilir bir cihaz kas yorgunluğunu günlerce kesintisiz izleyebilir.",
+      "whyFeatured": "Ölçülebilen (pil ömrü, doğruluk) somut bir mühendislik iddiası."
+    },
+    "P5": {
+      "takeaway": "Diller arasında kod çevirirken, özellikle dinamik tipli dillerden statik tipli dillere çeviride, bir programın sözdizimi ağacı üzerinde graf evrişimleri çalıştırın.",
+      "whyFeatured": "Belirli bir mimari ve işe yaraması beklenen belirli bir zor durum."
+    },
+    "W5": {
+      "takeaway": "Ekran görüntüsünden koda kıyaslama veri kümelerini otomatik olarak denetlenen web geliştirme derslerine dönüştürün; sınır şu ki modeller karmaşık düzenlerde sayfa bloklarının %30–40'ını hâlâ kaçırıyor.",
+      "whyFeatured": "46 koşunun en düşük iddia riski (0,05) ve yerleşik, dürüst bir sınırlılık."
+    },
+    "J5": {
+      "takeaway": "AlphaCode tarzı “çok sayıda üret, sına, en iyisini tut” yaklaşımını eşli programlama araçlarına getirin; bu, en çok acemi geliştiricilere yardımcı olabilir.",
+      "whyFeatured": "GitHub Copilot makalesindeki gibi kontrollü bir verimlilik çalışmasıyla sınanabilir."
+    },
+    "J4": {
+      "takeaway": "İlaç Ar-Ge işleri, diğer mesleklerden ve politikaların uyum sağlama hızından daha hızlı biçimde, yapay zekânın neredeyse hiç kullanılmadığı durumdan yoğun kullanıldığı duruma doğrudan sıçrayabilir.",
+      "whyFeatured": "Cesur ve denetlenebilir bir işgücü piyasası öngörüsü (Ar-Ge rollerinde yapay zekâ kullanım verilerini zaman içinde izleyin)."
+    }
+  },
+  "areas": {
+    "F": "Yapay zekâ × futbol",
+    "S": "Yapay zekâ × spor",
+    "W": "Yapay zekâ × web geliştirme",
+    "P": "Programlama dilleri",
+    "J": "Geleceğin meslekleri"
+  },
+  "droppedAreas": [
+    {
+      "area": "İnsanlar para ve iş olmadan nasıl yaşayacak",
+      "reason": "Tutulmadı. (1) “Parasız” ifadesi söylendiği hâliyle mantıklı değil: her toplumun yiyecek, barınma ve bakımı dağıtmanın bir yoluna ihtiyacı var ve evrensel temel gelir bile paradır. (2) İnsanların iş olmadan nasıl yaşaması gerektiği, literatüre dayalı bir hipotez motorunun çözemeyeceği bir değerler ve politika sorusudur; üstelik arXiv kanıtı sınırlıdır, dolayısıyla çıktı, LIBRAIN'in işaretlemek için var olduğu türden dayanaksız spekülasyon olurdu. Araştırılabilir kısım (yapay zekânın işleri nasıl değiştirdiği) “Geleceğin meslekleri” alanında ele alınıyor."
+    }
+  ]
+}

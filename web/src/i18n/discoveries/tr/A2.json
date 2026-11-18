@@ -1,0 +1,28 @@
+{
+  "id": "A2",
+  "topicA": "çok kipli uzaktan algılamadan ürün verimi tahmini",
+  "topicB": "karşıt görüntü-metin ön eğitimi (CLIP)",
+  "hypothesis": "Ürün verimi tahmini için çok kipli uzaktan algılama modelleri, uydu görüntülerinin (optik, SAR, hiperspektral) zengin tarımsal metin tanımlarıyla (büyüme evresi raporları, tarla notları, ürün takvimleri) ortak bir gömme (embedding) uzayında hizalandığı CLIP tarzı bir karşıt ön eğitim stratejisi benimsenerek önemli ölçüde iyileştirilebilir. Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı. Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",
+  "novelClaim": "Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı. Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",
+  "reasoning": "Ürün verimi tahmini literatürü (crop-yield-multimodal parça 2–3; crop-yield-rs parça 1), kipe ve bölgeye özgü denetimli modellere yoğun bağımlılığı belgelemekte ve etiketli verinin kıtlığı darboğazına dikkat çekmektedir. CLIP (parça 2, 5, 9), büyük ölçekte karşıt görüntü-metin ön eğitiminin çeşitli görsel alanlarda aktarılabilir, sıfır atışlı (zero-shot) işlev görebilen temsiller ürettiğini göstermektedir. Bu bulguları birleştirmek, çok kipli uzaktan algılama görüntülerini tarımsal doğal dil tanımlarıyla karşıt ön eğitim yoluyla hizalamanın, sıfır atışlı ürün verimi tahmini yapabilen bir temel model ortaya çıkarabileceğini düşündürmektedir; bu iddia her iki literatürde de ortaya konmamıştır.",
+  "claims": [
+    {
+      "sentence": "Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı.",
+      "rationale": "Cümle, temel modellerin doğal dil istemiyle ürün verimi tahminine hipotetik bir uygulamasını öneriyor; bu, yerleşik bir olgu olarak değil, 'mümkün kılardı' diyen bir yetenek olarak çerçevelenmiş ve spekülatiftir. CLIP'in doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı gösterdiği doğru olsa da (clip:9, clip:2), bunun görülmemiş coğrafyalarda ürün verimi tahminine uygulanması getirilen parçalarca doğrudan desteklenmiyor."
+    },
+    {
+      "sentence": "Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor ('ortadan kaldırabilir') ve olası bir yararı yerleşik bir olgu olarak değil hipotez olarak çerçeveliyor; getirilen parçalar, ek açıklamalı verinin kıtlığının ürün verimi tahmininde gerçekten bir sorun olduğunu belgelese de (crop-yield-rs:1), bu özel yaklaşımın parçalı modelleri birleştireceği iddiası spekülatiftir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı.",
+      "rationale": "CLIP'in sınıf adlarının doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı, uzaktan algılama kodlayıcısına etiketli örnek olmadan verimi sınıflandırmak/tahmin etmek için tarımsal metin verilmesine doğrudan benzer."
+    },
+    {
+      "claimSentence": "Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",
+      "rationale": "crop-yield-rs makalesi, ek açıklamalı ürün haritalarının kıtlığını ve bölgeye özgü modellerin parçalanmışlığını temel sınırlılıklar olarak açıkça belirtir; CLIP tarzı ön eğitim, bilinen bir çözümü (web ölçeğinde denetim) bu alana genelleştirir."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "J4",
+  "topicA": "ekonomik görevler ve meslekler genelinde yapay zekâ kullanımı",
+  "topicB": "çok ajanlı ilaç keşfi hatları (PharmAgents)",
+  "hypothesis": "Ekonomide yapay zekâ kullanımı şu anda bilişsel, yazılım ve yazma görevlerinde yoğunlaşmakta, fiziksel ve yüksek derecede uzmanlaşmış mesleki rollerde ise asgari düzeyde benimsenmektedir; ancak PharmAgents gibi çok ajanlı ilaç keşfi hatları kendi kendine gelişen yetenekler sergileyip klinik çalışma yönetimine ve düzenleyici belgelendirmeye doğru genişledikçe, yapay zekâ kullanım istatistiklerinde şu anda yeterince temsil edilmeyen farmasötik araştırma ve geliştirme rolleri, düşük entegrasyondan derin entegrasyona hızlı ve doğrusal olmayan bir geçiş yaşayabilir ve diğer meslek kategorilerinde gözlenen kademeli yayılım örüntüsünü atlayabilir. Bu geçiş, tipik ilaç geliştirme süresini o denli çarpıcı biçimde kısaltabilir ki farmasötik sektörün ekonomik ve işgücü yapısını politika çerçevelerinin uyum sağlayabileceğinden daha hızlı yeniden şekillendirebilir.",
+  "novelClaim": "Farmasötik araştırma ve geliştirme rolleri, yapay zekâ kullanım istatistiklerinde şu anda yeterince temsil edilmese de, düşük yapay zekâ entegrasyonundan derin entegrasyona hızlı ve doğrusal olmayan bir geçiş yaşayabilir ve diğer meslek kategorilerinde gözlenen kademeli yayılım örüntüsünü atlayabilir. Bu geçiş, tipik ilaç geliştirme süresini o denli çarpıcı biçimde kısaltabilir ki farmasötik sektörün ekonomik ve işgücü yapısını politika çerçevelerinin uyum sağlayabileceğinden daha hızlı yeniden şekillendirebilir.",
+  "reasoning": "Ekonomik ölçüm çerçevesi (2503.04761), hekimler gibi yüksek ücretli uzmanlaşmış mesleklerin şu anda düşük yapay zekâ kullanımı sergilediğini ve derin görev düzeyi yapay zekâ entegrasyonunun (görevlerin ≥%75'i) nadir olduğunu (mesleklerin yaklaşık %4'ü) göstermektedir. Öte yandan PharmAgents (pharmagents:16, pharmagents:2), çok ajanlı hatların kendini geliştirme yetenekleriyle uçtan uca ilaç keşfi otomasyonunu hâlihazırda gerçekleştirdiğini ve klinik ve düzenleyici aşamalara genişleme planlarının açıkça belirtildiğini göstermektedir; bu da farmasötik AR-GE'nin kademeli yayılım örüntüsünü atlayabileceğini, mevcut ekonomik izleme çerçevelerinin ve işgücü politikalarının öngörmek üzere tasarlanmadığı yapısal bir süreksizlik yaratabileceğini düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "Farmasötik araştırma ve geliştirme rolleri, yapay zekâ kullanım istatistiklerinde şu anda yeterince temsil edilmese de, düşük yapay zekâ entegrasyonundan derin entegrasyona hızlı ve doğrusal olmayan bir geçiş yaşayabilir ve diğer meslek kategorilerinde gözlenen kademeli yayılım örüntüsünü atlayabilir.",
+      "rationale": "İddia, çekinceli ifadeyle (“yaşayabilir”) gelecekteki bir geçiş örüntüsü üzerine spekülasyon yapmaktadır; ancak farmasötik AR-GE'nin yapay zekâ kullanımında “şu anda yeterince temsil edilmediği” öncülü, farmasötik AR-GE'yi açıkça ele almadan yazılım mühendisliği, yazma ve analitik rollere odaklanan getirilen parçalar tarafından doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu geçiş, tipik ilaç geliştirme süresini o denli çarpıcı biçimde kısaltabilir ki farmasötik sektörün ekonomik ve işgücü yapısını politika çerçevelerinin uyum sağlayabileceğinden daha hızlı yeniden şekillendirebilir.",
+      "rationale": "Cümle, çekinceli ifade (“kısaltabilir”) kullanarak, kurulmuş bir olgu olarak öne sürmeden zaman çizelgesinin kısalmasına ve ekonomik yeniden yapılanmaya ilişkin varsayımsal bir gelecek senaryosu önermektedir; PharmAgents makaleleri ilaç keşfinin hızlandırılmasını ele alsa da, bu denli çarpıcı bir sürenin kısalmasını veya politikayı geride bırakan bir yeniden yapılanmayı iddia etmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Farmasötik araştırma ve geliştirme rolleri, yapay zekâ kullanım istatistiklerinde şu anda yeterince temsil edilmese de, düşük yapay zekâ entegrasyonundan derin entegrasyona hızlı ve doğrusal olmayan bir geçiş yaşayabilir ve diğer meslek kategorilerinde gözlenen kademeli yayılım örüntüsünü atlayabilir.",
+      "rationale": "PharmAgents, kendi kendine gelişen başarı oranlarını (%30→%36) göstermekte ve klinik çalışmalara ve düzenleyici belgelendirmeye genişleme planını açıkça belirtmektedir; bu da farmasötik alanda yapay zekâ benimsenmesinin, 2503.04761'de belgelenen kademeli yayılım eğrisini izlemek yerine doğrusal olmayan biçimde hızlanabileceğini düşündürmektedir."
+    },
+    {
+      "claimSentence": "Bu geçiş, tipik ilaç geliştirme süresini o denli çarpıcı biçimde kısaltabilir ki farmasötik sektörün ekonomik ve işgücü yapısını politika çerçevelerinin uyum sağlayabileceğinden daha hızlı yeniden şekillendirebilir.",
+      "rationale": "Getirilen hiçbir parça, politika uyumunun yapay zekâ kaynaklı farmasötik işgücü yer değiştirmesine göre hızını doğrudan ele almamaktadır; bu, hem ekonomik ölçüm hem de PharmAgents kaynaklarının ötesinde bir çıkarımdır."
+    }
+  ]
+}

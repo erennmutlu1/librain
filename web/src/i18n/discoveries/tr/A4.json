@@ -1,0 +1,20 @@
+{
+  "id": "A4",
+  "topicA": "ürün verimi tahmini",
+  "topicB": "3B Dünya'ya özgü dönüştürücü ile hava durumu tahmini (Pangu-Weather)",
+  "hypothesis": "Pangu-Weather'ın 3B Dünya'ya Özgü Dönüştürücüsü (3DEST), ERA5 yeniden analiz verisi üzerinde 0,25° çözünürlükte eğitilmiştir ve birden çok basınç düzeyinde sıcaklık, nem, rüzgâr hızı ve jeopotansiyel için saatin altından haftalığa kadar tahminler üretebilir; ürün verimi tahmin modelleri için yüksek doğruluklu, gerçeğe yakın zamanlı bir hava girdisi omurgası olarak hizmet edebilir ve veriye dayalı verim hatlarında şu anda kullanılan ERA5 geçmiş yeniden analiz beslemelerinin yerini alabilir ya da onları önemli ölçüde tamamlayabilir. Pangu-Weather'ın topluluk (ensemble) tahmin çıktılarını (özellikle özgül nem ve yüzey rüzgârı gibi düzgün olmayan değişkenler için) bölgeye özgü ürün takvimleri ve toprak verileriyle eşleştirerek, birleşik bir uçtan uca sistem, meteorolojik topluluk yayılımından türetilen belirsizlik nicelemesiyle birlikte küresel ölçekte sezon öncesi verim tahminlerini mümkün kılabilir; bu, iki sistemin de tek başına göstermediği bir yetenektir.",
+  "novelClaim": "Pangu-Weather'ın topluluk (ensemble) tahmin çıktılarını (özellikle özgül nem ve yüzey rüzgârı gibi düzgün olmayan değişkenler için) bölgeye özgü ürün takvimleri ve toprak verileriyle eşleştirerek, birleşik bir uçtan uca sistem, meteorolojik topluluk yayılımından türetilen belirsizlik nicelemesiyle birlikte küresel ölçekte sezon öncesi verim tahminlerini mümkün kılabilir; bu, iki sistemin de tek başına göstermediği bir yetenektir.",
+  "reasoning": "Pangu-Weather, ERA5 verisini kullanarak 0,25° çözünürlükte hızlı, yüksek çözünürlüklü topluluk hava tahminleri (sıcaklık, nem, rüzgâr) üretir (pangu-weather:0, pangu-weather:7, pangu-weather:25); crop-yield-rs'deki ürün verimi tahmin hattı ise ERA5'ten alınan hava ve toprak girdilerine açıkça dayanır ve geçmiş gözlemlerin yerine hava tahmini verisi konulduğunda sezon öncesi tahmini destekler (crop-yield-rs:1, crop-yield-rs:7). Özgün iddia, Pangu-Weather'ın topluluk yayılımının (düzgün olmayan meteorolojik değişkenler için çok günlük ufuklarda doğruluğu artırdığı gösterilmiştir) bir ürün verimi modeli içinden doğrudan yayılarak tarımsal açıdan anlamlı olasılıksal verim tahminleri üretebileceğini çıkarımlar; bu, her iki çalışma grubunda da gösterilmemiş bir hat entegrasyonudur.",
+  "claims": [
+    {
+      "sentence": "Pangu-Weather'ın topluluk (ensemble) tahmin çıktılarını (özellikle özgül nem ve yüzey rüzgârı gibi düzgün olmayan değişkenler için) bölgeye özgü ürün takvimleri ve toprak verileriyle eşleştirerek, birleşik bir uçtan uca sistem, meteorolojik topluluk yayılımından türetilen belirsizlik nicelemesiyle birlikte küresel ölçekte sezon öncesi verim tahminlerini mümkün kılabilir; bu, iki sistemin de tek başına göstermediği bir yetenektir.",
+      "rationale": "Cümle, ihtiyatlı bir dille ('mümkün kılabilir') mevcut iki sistemin varsayımsal bir birleşimini öneriyor ve yerleşik bir olgu öne sürmeden gelecekteki bir yetenek üzerine spekülasyon yapıyor; tek tek bileşenler (Pangu-Weather topluluk çıktıları, ürün takvimleri, toprak verisi, sezon öncesi tahmin) getirilen kanıtla desteklense de belirli entegre sistem ve iddia edilen yeteneği hiçbir getirilen kaynakta gösterilmiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Pangu-Weather'ın topluluk (ensemble) tahmin çıktılarını (özellikle özgül nem ve yüzey rüzgârı gibi düzgün olmayan değişkenler için) bölgeye özgü ürün takvimleri ve toprak verileriyle eşleştirerek, birleşik bir uçtan uca sistem, meteorolojik topluluk yayılımından türetilen belirsizlik nicelemesiyle birlikte küresel ölçekte sezon öncesi verim tahminlerini mümkün kılabilir; bu, iki sistemin de tek başına göstermediği bir yetenektir.",
+      "rationale": "Pangu-Weather'ın 100 üyeli topluluk tahmini, 5–7 günlük ufuklarda düzgün olmayan değişkenler (Q500, U10) için RMSE'yi gözle görülür biçimde düşürür; benzer biçimde bu topluluk yayılımını bir ürün verimi modeline aktarmak, henüz denenmemiş tarımsal belirsizlik sınırları verirdi."
+    }
+  ]
+}

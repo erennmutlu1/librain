@@ -1,0 +1,20 @@
+{
+  "id": "N2",
+  "topicA": "EEG sinyallerinden metin kod çözme (Thought2Text)",
+  "topicB": "insan biliş temel modeli (Centaur)",
+  "hypothesis": "Büyük ölçekli davranışsal veriler üzerinde ince ayardan sonra insan nöral etkinliğiyle daha uyumlu hâle gelen Centaur'un iç temsilleri, Thought2Text gibi sistemlerde EEG sinyallerinin kodunu çözmek için ilkeli bir önsel işlevi görebilir; CLIP tabanlı hizalama amacının yerini alabilir veya onu bilişsel olarak temellendirilmiş bir gömme (embedding) uzayıyla destekleyebilir. Böyle bir hibrit mimari, EEG'den metne kod çözme doğruluğunu artırmakla kalmaz, yalnızca bireysel EEG kayıtlarına dayanmak yerine Centaur'un insan bilişine ilişkin popülasyon düzeyindeki modelinden yararlanarak sistemin denekler arasında genelleştirmesini de sağlayabilir.",
+  "novelClaim": "Böyle bir hibrit mimari, EEG'den metne kod çözme doğruluğunu artırmakla kalmaz, yalnızca bireysel EEG kayıtlarına dayanmak yerine Centaur'un insan bilişine ilişkin popülasyon düzeyindeki modelinden yararlanarak sistemin denekler arasında genelleştirmesini de sağlayabilir.",
+  "reasoning": "Centaur'un Psych-101 üzerindeki ince ayarı, insan nöral etkinliğiyle giderek daha uyumlu iç temsiller üretmektedir (centaur:2, centaur:9); Thought2Text'in EEG kodlayıcısı ise CLIP görüntü gömmeleriyle hizalanacak şekilde eğitilmiştir ve bireysel EEG değişkenliği nedeniyle denekler arası genellemede zorlanmaktadır (thought2text-eeg:4, thought2text-eeg:10). CLIP hizalama hedefini Centaur'un nöral olarak uyumlu, popülasyona dayalı temsilleriyle değiştirmek veya desteklemek, hem kod çözme doğruluğunu hem de denekler arası dayanıklılığı iyileştirmek için olası ancak henüz sınanmamış bir mekanizmadır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir hibrit mimari, EEG'den metne kod çözme doğruluğunu artırmakla kalmaz, yalnızca bireysel EEG kayıtlarına dayanmak yerine Centaur'un insan bilişine ilişkin popülasyon düzeyindeki modelinden yararlanarak sistemin denekler arasında genelleştirmesini de sağlayabilir.",
+      "rationale": "Cümle spekülatif ve hipotez çerçevesinde; EEG'den metne kod çözmeyi Centaur'un popülasyon düzeyindeki modeliyle birleştiren olası bir hibrit mimari öneriyor. Thought2Text ve Centaur'un her ikisi de erişilen parçalarda belgelenmiş gerçek sistemler olsa da, denekler arası genellemeyi iyileştirmek için bunların birleştirilmesine ilişkin belirli iddia erişilen hiçbir kanıtla desteklenmiyor ve yerleşik bir olgu değil, gelecekteki bir olasılık olarak sunuluyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir hibrit mimari, EEG'den metne kod çözme doğruluğunu artırmakla kalmaz, yalnızca bireysel EEG kayıtlarına dayanmak yerine Centaur'un insan bilişine ilişkin popülasyon düzeyindeki modelinden yararlanarak sistemin denekler arasında genelleştirmesini de sağlayabilir.",
+      "rationale": "Centaur, popülasyon düzeyindeki davranışsal verileri kullanarak görülmemiş katılımcılara genelleşiyor; benzetme yoluyla, temsilleri EEG kodlayıcılarını düzenlileştirerek bireysel varyansı azaltabilir; bu, Thought2Text'in bilinen bir sınırlılığıdır."
+    }
+  ]
+}

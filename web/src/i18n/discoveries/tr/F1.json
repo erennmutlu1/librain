@@ -1,0 +1,28 @@
+{
+  "id": "F1",
+  "topicA": "futbol taktikleri için grafik sinir ağı asistanı (TacticAI)",
+  "topicB": "grafik sinir ağlarıyla orta vadeli hava tahmini (GraphCast)",
+  "hypothesis": "Hem TacticAI hem de GraphCast, geometrik veya çok ölçekli graf temsillerine sahip GNN'lerin, karmaşık ve yüksek boyutlu uzay-zamansal sistemleri (sırasıyla futbolcu etkileşimlerini ve küresel atmosfer dinamiklerini) verimli biçimde modelleyebildiğini ve sınırlı ya da gürültülü verilere rağmen güçlü performans elde edebildiğini göstermektedir. Her iki sistemin de temelinde yer alan ortak kodlama-işleme-kod çözme (encode-process-decode) GNN mimarisi ve dikkat tabanlı mesaj iletimi mekanizmaları, gerçek zamanlı spor analitiğinde çok ajanlı taktik dinamiklerini ve çevresel koşulları (ör. hava durumu, saha durumu) eşzamanlı olarak modelleyen birleşik bir GNN çerçevesi tasarlanabileceğini düşündürmektedir. Böyle bir ortak model, oyuncu konumlandırma stratejilerini öngörülen atmosfer koşullarına göre dinamik biçimde ayarlayan hava durumuna duyarlı taktik öneri sistemlerini mümkün kılabilir ve veriye dayalı spor biliminde potansiyel olarak yeni bir ufuk açabilir.",
+  "novelClaim": "Her iki sistemin de temelinde yer alan ortak kodlama-işleme-kod çözme (encode-process-decode) GNN mimarisi ve dikkat tabanlı mesaj iletimi mekanizmaları, gerçek zamanlı spor analitiğinde çok ajanlı taktik dinamiklerini ve çevresel koşulları (ör. hava durumu, saha durumu) eşzamanlı olarak modelleyen birleşik bir GNN çerçevesi tasarlanabileceğini düşündürmektedir. Böyle bir ortak model, oyuncu konumlandırma stratejilerini öngörülen atmosfer koşullarına göre dinamik biçimde ayarlayan hava durumuna duyarlı taktik öneri sistemlerini mümkün kılabilir ve veriye dayalı spor biliminde potansiyel olarak yeni bir ufuk açabilir.",
+  "reasoning": "TacticAI, oyuncuların performansının hava ve saha durumundan etkilendiğini açıkça belirtmektedir (parça 0); GAT tabanlı kodlama-işleme-kod çözme GNN mimarisi (parça 13/17) yapısal olarak GraphCast'in çok ağlı (multi-mesh) kodlama-işleme-kod çözme GNN'ine benzemektedir (parça 2/20). GraphCast ince taneli atmosfer değişkenlerini neredeyse gerçek zamanlı tahmin edebildiğinden (parça 1), çıktıları prensipte TacticAI tarzı bir çerçevede dinamik çevresel düğüm ya da graf öznitelikleri olarak kullanılabilir; bu da hava durumuna koşullu bir taktik öneri sistemi şeklindeki spekülatif hipotezi motive etmektedir.",
+  "claims": [
+    {
+      "sentence": "Her iki sistemin de temelinde yer alan ortak kodlama-işleme-kod çözme (encode-process-decode) GNN mimarisi ve dikkat tabanlı mesaj iletimi mekanizmaları, gerçek zamanlı spor analitiğinde çok ajanlı taktik dinamiklerini ve çevresel koşulları (ör. hava durumu, saha durumu) eşzamanlı olarak modelleyen birleşik bir GNN çerçevesi tasarlanabileceğini düşündürmektedir.",
+      "rationale": "Cümle, hem TacticAI'da hem de GraphCast'te kodlama-işleme-kod çözme mimarisini ve dikkat mekanizmalarını doğru biçimde tespit ediyor; ancak birleşik çerçeveyi spekülatif olarak sunuyor ('tasarlanabileceğini', 'düşündürmektedir'). Bu, getirilen parçalarca doğrudan desteklenmeyen bir hipotez için uygun bir ihtiyat dilidir."
+    },
+    {
+      "sentence": "Böyle bir ortak model, oyuncu konumlandırma stratejilerini öngörülen atmosfer koşullarına göre dinamik biçimde ayarlayan hava durumuna duyarlı taktik öneri sistemlerini mümkün kılabilir ve veriye dayalı spor biliminde potansiyel olarak yeni bir ufuk açabilir.",
+      "rationale": "Bu cümle, hava tahminini taktik önerilerle birleştiren olası bir uygulamayı ('mümkün kılabilir', 'potansiyel olarak') kesinleşmiş bir olgu olarak değil, hipotez olarak çerçeveleyen uygun bir ihtiyat diliyle ele alıyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Her iki sistemin de temelinde yer alan ortak kodlama-işleme-kod çözme (encode-process-decode) GNN mimarisi ve dikkat tabanlı mesaj iletimi mekanizmaları, gerçek zamanlı spor analitiğinde çok ajanlı taktik dinamiklerini ve çevresel koşulları (ör. hava durumu, saha durumu) eşzamanlı olarak modelleyen birleşik bir GNN çerçevesi tasarlanabileceğini düşündürmektedir.",
+      "rationale": "GraphCast'in kodlama-işleme-kod çözme GNN'i, küresel ölçekte heterojen uzay-zamansal girdileri işler; TacticAI ise oyuncu grafları için benzer bir GATv2 mesaj iletimi GNN'i kullanır. Bu, mimari birleşmenin olanaklı olduğunu düşündürmektedir."
+    },
+    {
+      "claimSentence": "Böyle bir ortak model, oyuncu konumlandırma stratejilerini öngörülen atmosfer koşullarına göre dinamik biçimde ayarlayan hava durumuna duyarlı taktik öneri sistemlerini mümkün kılabilir ve veriye dayalı spor biliminde potansiyel olarak yeni bir ufuk açabilir.",
+      "rationale": "Getirilen hiçbir parça, hava tahmini çıktılarının futbol taktik önerileriyle eşleştirilmesini önermiyor; bu, iki sistemin birbirini tamamlayan yeteneklerinden çıkarsanan spekülatif bir uygulamadır."
+    }
+  ]
+}

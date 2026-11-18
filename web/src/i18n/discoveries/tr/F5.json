@@ -1,0 +1,28 @@
+{
+  "id": "F5",
+  "topicA": "futbolcu karar ve aksiyonlarını değerleme",
+  "topicB": "insan bilişinin ve karar vermesinin temel modeli (Centaur)",
+  "hypothesis": "VAEP çerçevesi, her oyuncu aksiyonunun ardışık oyun durumlarında gol atma ve gol yeme olasılıklarını nasıl değiştirdiğini modelleyerek bağlama bağlı aksiyon değerlerini yakalar ve böylece bilişsel bilimlerde incelenen ardışık seçim paradigmalarını yansıtan, belirsizlik altında davranışsal karar vermenin bir biçimini etkin olarak kodlar. Centaur, Markov karar süreçleri ve çok kollu haydut (multi-armed bandit) görevleri üzerinde eğitilmiş bir insan bilişi temel modeli olarak, bireysel oyuncuların karar verme eğilimlerini tahmin etmek ve simüle etmek üzere SPADL ile kodlanmış futbol aksiyon dizileri üzerinde prensipte ince ayarlanabilir ya da istemle yönlendirilebilir. Böyle bir yaklaşım, aksiyonları yalnızca oyun durumu üzerindeki etkilerine göre puanlamakla kalmayıp her oyuncunun altta yatan karar sezgisellerini de (ör. risk seven dripling yapan oyuncuları temkinli pasörlerden psikolojik olarak yorumlanabilir biçimde ayırt ederek) karakterize eden, bilişsel temelli bir oyuncu değerleme sistemi sunabilir.",
+  "novelClaim": "Centaur, Markov karar süreçleri ve çok kollu haydut (multi-armed bandit) görevleri üzerinde eğitilmiş bir insan bilişi temel modeli olarak, bireysel oyuncuların karar verme eğilimlerini tahmin etmek ve simüle etmek üzere SPADL ile kodlanmış futbol aksiyon dizileri üzerinde prensipte ince ayarlanabilir ya da istemle yönlendirilebilir. Böyle bir yaklaşım, aksiyonları yalnızca oyun durumu üzerindeki etkilerine göre puanlamakla kalmayıp her oyuncunun altta yatan karar sezgisellerini de (ör. risk seven dripling yapan oyuncuları temkinli pasörlerden psikolojik olarak yorumlanabilir biçimde ayırt ederek) karakterize eden, bilişsel temelli bir oyuncu değerleme sistemi sunabilir.",
+  "reasoning": "VAEP, futbolu oyun durumu olasılıklarını değiştiren bağlama bağlı aksiyonlar dizisi olarak kodlar; bu, Centaur'un eğitildiği ardışık karar görevleriyle (MDP'ler, çok kollu haydutlar) yapısal olarak özdeştir. Centaur doğal dilde ifade edilebilen yeni alanlara genelleştiği ve davranış izlerinden yorumlanabilir bilişsel sezgiselleri çıkarabildiği için, SPADL biçimindeki oyuncu aksiyon geçmişlerine uygulanması, nicel aksiyon değerlemesini psikolojik olarak anlamlı oyuncu profillemesiyle birleştirebilir; iki sistemin de tek başına iddia etmediği bir yetenek.",
+  "claims": [
+    {
+      "sentence": "Centaur, Markov karar süreçleri ve çok kollu haydut (multi-armed bandit) görevleri üzerinde eğitilmiş bir insan bilişi temel modeli olarak, bireysel oyuncuların karar verme eğilimlerini tahmin etmek ve simüle etmek üzere SPADL ile kodlanmış futbol aksiyon dizileri üzerinde prensipte ince ayarlanabilir ya da istemle yönlendirilebilir.",
+      "rationale": "Cümle ihtiyat diliyle ('prensipte') yazılmış ve bağımsız biçimde belgelenmiş iki kavramın (Centaur'un MDP'ler/haydutlar üzerindeki eğitimi ve SPADL'nin futbol aksiyon kodlaması) spekülatif bir uygulamasını öneriyor; bunu yerleşik bir olgu olarak öne sürmüyor."
+    },
+    {
+      "sentence": "Böyle bir yaklaşım, aksiyonları yalnızca oyun durumu üzerindeki etkilerine göre puanlamakla kalmayıp her oyuncunun altta yatan karar sezgisellerini de (ör. risk seven dripling yapan oyuncuları temkinli pasörlerden psikolojik olarak yorumlanabilir biçimde ayırt ederek) karakterize eden, bilişsel temelli bir oyuncu değerleme sistemi sunabilir.",
+      "rationale": "Cümle spekülatif bir olasılık olarak ('sunabilir') çerçevelenmiş; bilişsel modellemeyi futbol analitiğiyle birleştiren varsayımsal bir sistemi anlatıyor ve bunun gösterildiğini ya da uygulandığını iddia etmiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Centaur, Markov karar süreçleri ve çok kollu haydut (multi-armed bandit) görevleri üzerinde eğitilmiş bir insan bilişi temel modeli olarak, bireysel oyuncuların karar verme eğilimlerini tahmin etmek ve simüle etmek üzere SPADL ile kodlanmış futbol aksiyon dizileri üzerinde prensipte ince ayarlanabilir ya da istemle yönlendirilebilir.",
+      "rationale": "Centaur, doğal dilde ifade edilen yeni alanlara genelleşir; SPADL aksiyon dizileri ise Psych-101'deki MDP'lere ve haydut görevlerine benzeyen, yapılandırılmış ardışık bir karar alanıdır."
+    },
+    {
+      "claimSentence": "Böyle bir yaklaşım, aksiyonları yalnızca oyun durumu üzerindeki etkilerine göre puanlamakla kalmayıp her oyuncunun altta yatan karar sezgisellerini de (ör. risk seven dripling yapan oyuncuları temkinli pasörlerden psikolojik olarak yorumlanabilir biçimde ayırt ederek) karakterize eden, bilişsel temelli bir oyuncu değerleme sistemi sunabilir.",
+      "rationale": "Centaur'un vaka çalışması, davranış verisinden yorumlanabilir sezgiselleri (ör. stratejilerin ağırlıklı bileşimlerini) çıkarabildiğini gösterir; bunu futbolcu aksiyon dizilerine genişletmek benzer bireysel karar stillerini ortaya çıkarabilir."
+    }
+  ]
+}

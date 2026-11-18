@@ -1,0 +1,28 @@
+{
+  "id": "D5",
+  "topicA": "malzeme özelliği tahmini için kristal grafik evrişim ağları",
+  "topicB": "özerk ajan tabanlı bilimsel keşif döngüleri",
+  "hypothesis": "Kristal Grafik Evrişimli Sinir Ağları (CGCNN'ler), kristal malzemelerin yorumlanabilir, grafik yapılı bir temsilini sunar ve DFT düzeyindeki malzeme özelliklerini büyüklük mertebeleri daha düşük hesaplama maliyetiyle tahmin edebilir. Hızlı bir vekil değerlendirici olarak özerk, ajan tabanlı bir bilimsel keşif döngüsüne yerleştirildiğinde, CGCNN destekli bir ajan hipotez-deney-analiz döngüsünü tamamen in silico olarak kapatabilir; aday kristal yapılarını yinelemeli biçimde önerir, bunları CGCNN çıkarımıyla skorlar ve arama politikasını biriken deneysel geri bildirimle iyileştirir; üstelik keşif sırasında tek bir DFT hesaplaması gerektirmez. Bu sıkı bütünleşme, insan güdümlü yüksek verimli taramanın başa çıkamayacağı kadar büyük bileşim uzaylarında yeni kararlı fazların özerk keşfini mümkün kılabilir.",
+  "novelClaim": "Hızlı bir vekil değerlendirici olarak özerk, ajan tabanlı bir bilimsel keşif döngüsüne yerleştirildiğinde, CGCNN destekli bir ajan hipotez-deney-analiz döngüsünü tamamen in silico olarak kapatabilir; aday kristal yapılarını yinelemeli biçimde önerir, bunları CGCNN çıkarımıyla skorlar ve arama politikasını biriken deneysel geri bildirimle iyileştirir; üstelik keşif sırasında tek bir DFT hesaplaması gerektirmez. Bu sıkı bütünleşme, insan güdümlü yüksek verimli taramanın başa çıkamayacağı kadar büyük bileşim uzaylarında yeni kararlı fazların özerk keşfini mümkün kılabilir.",
+  "reasoning": "CGCNN, ihmal edilebilir hesaplama maliyetiyle DFT doğruluğunda özellik tahminleri sunar ve yorumlanabilir yerel kimyasal ortam öznitelikleri üretir (cgcnn:0, cgcnn:2); ajan tabanlı keşif çerçeveleri ise hızlı ve güvenilir bir değerlendirici verildiğinde yinelemeli hipotez-değerlendirme-iyileştirme döngülerinin özerk biçimde işleyebileceğini göstermektedir (2508.14111:26, 2508.14111:25). CGCNN'i özerk bir ajanın iç döngüsünde in silico kahin olarak kullanmak biçimindeki bu iki yeteneğin birleştirilmesi, kaynakların hiçbirinde anlatılmamış olsa da her bileşenin üstlendiği tamamlayıcı rollerden doğrudan çıkmaktadır.",
+  "claims": [
+    {
+      "sentence": "Hızlı bir vekil değerlendirici olarak özerk, ajan tabanlı bir bilimsel keşif döngüsüne yerleştirildiğinde, CGCNN destekli bir ajan hipotez-deney-analiz döngüsünü tamamen in silico olarak kapatabilir; aday kristal yapılarını yinelemeli biçimde önerir, bunları CGCNN çıkarımıyla skorlar ve arama politikasını biriken deneysel geri bildirimle iyileştirir; üstelik keşif sırasında tek bir DFT hesaplaması gerektirmez.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor ('edebilir') ve CGCNN'in ajan tabanlı bir döngüye entegrasyonuna dair spekülatif bir senaryo kuruyor; CGCNN'in DFT özelliklerini tahmin etme yeteneği dayanaklı olsa da (cgcnn:0, cgcnn:1, cgcnn:2), keşif sırasında DFT kullanmadan özerk keşif döngülerine özgü uygulama varsayımsaldır ve erişilen parçalarca doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu sıkı bütünleşme, insan güdümlü yüksek verimli taramanın başa çıkamayacağı kadar büyük bileşim uzaylarında yeni kararlı fazların özerk keşfini mümkün kılabilir.",
+      "rationale": "Cümle koşullu ihtiyatlı bir dil kullanıyor ('mümkün kılabilir') ve olası bir gelecek yetenekten söz ediyor; ajan tabanlı keşif sistemleri erişilen literatürde ele alınsa da (2508.14111, 2503.08979), CGCNN entegrasyonuyla yeni kararlı fazların keşfedilmesine dair belirli iddia spekülatiftir ve erişilen kanıtlarda doğrudan gösterilmemiştir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Hızlı bir vekil değerlendirici olarak özerk, ajan tabanlı bir bilimsel keşif döngüsüne yerleştirildiğinde, CGCNN destekli bir ajan hipotez-deney-analiz döngüsünü tamamen in silico olarak kapatabilir; aday kristal yapılarını yinelemeli biçimde önerir, bunları CGCNN çıkarımıyla skorlar ve arama politikasını biriken deneysel geri bildirimle iyileştirir; üstelik keşif sırasında tek bir DFT hesaplaması gerektirmez.",
+      "rationale": "Sparks/OriGene/MOOSE-Chem3 çerçeveleri, ajan tabanlı döngülerin hipotezleri deneysel geri bildirimden yinelemeli olarak iyileştirebildiğini gösteriyor; benzetme yoluyla, CGCNN'in DFT hızındaki vekil rolü böyle bir döngüdeki laboratuvar/simülasyon adımının yerini alabilir."
+    },
+    {
+      "claimSentence": "Bu sıkı bütünleşme, insan güdümlü yüksek verimli taramanın başa çıkamayacağı kadar büyük bileşim uzaylarında yeni kararlı fazların özerk keşfini mümkün kılabilir.",
+      "rationale": "CGCNN, perovskitler için arama uzayını ampirik kurallarla zaten daraltıyor; bunu geniş bileşim uzayları üzerinde tamamen özerk bir döngüye genellemek, makalede belirtilmeyen doğrudan bir uzantıdır."
+    }
+  ]
+}

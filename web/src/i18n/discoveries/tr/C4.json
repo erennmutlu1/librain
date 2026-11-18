@@ -1,0 +1,20 @@
+{
+  "id": "C4",
+  "topicA": "klinik deneme uygunluk kriterleri tasarımı",
+  "topicB": "erişim destekli üretim (RAG)",
+  "hypothesis": "Üretilen içeriği uyarlanabilir biçimde getiren ve öz-eleştiriye tabi tutan RAG sistemleri (SELF-RAG'deki gibi), her iki alan da yapılandırılmış, heterojen bilginin talep üzerine getirilmesini ve üretilen çıktıların ince taneli kalite değerlendirmesini gerektirdiğinden, klinik deneme uygunluk kriteri özniteliklerinin tasarımını ve doğrulamasını otomatikleştirmek için doğrudan uygulanabilir. Özellikle, uygunluk kriterleri tasarımına uygulanan SELF-RAG tarzı bir çerçeve, üretilen bir öznitelik şemasının (ör. eligibility_criteria_strictness veya participant_health_status) eksik, yanlış kategorize edilmiş veya kritik değerleri eksik olduğunu, yani şu anda yalnızca sonradan yapılan insan incelemesiyle belirlenen sorunları, işaretlemek için yansıtma (reflection) belirteçlerini kullanabilir. Bu, uygunluk kriterleri kalite kontrolünü geriye dönük bir düzeltme sürecinden, satır içi ve üretken bir öz-doğrulama döngüsüne kaydıracak ve klinik deneme sonucu tahmin modellerine yayılan öznitelik yanlış sınıflandırma hatalarını olası biçimde azaltacaktır.",
+  "novelClaim": "Bu, uygunluk kriterleri kalite kontrolünü geriye dönük bir düzeltme sürecinden, satır içi ve üretken bir öz-doğrulama döngüsüne kaydıracak ve klinik deneme sonucu tahmin modellerine yayılan öznitelik yanlış sınıflandırma hatalarını olası biçimde azaltacaktır.",
+  "reasoning": "SELF-RAG, dil modellerinin eleştiri belirteçlerini kullanarak üretilen çıktılar üzerinde öz-yansıtma yapacak şekilde eğitilebildiğini ve ilgisiz veya düşük kaliteli içeriği satır içi olarak filtreleyebildiğini göstermektedir (self-rag:0, self-rag:2). autoct-clinical kaynakları ise uygunluk kriteri şemalarındaki öznitelik yanlış sınıflandırmasının ve eksik değerlerin (ör. eksik number_of_participants, yanlış trial_design_elements, dışlanan coğrafyalar) şu anda yalnızca sonradan yapılan değerlendirmeyle yakalandığını göstermektedir (autoct-clinical:23, autoct-clinical:18). Bu iki bulguyu birleştirmek, SELF-RAG tarzı satır içi bir öz-doğrulama döngüsünün bu hataları üretimden sonra değil üretim sırasında yakalayabileceğini düşündürmektedir; bu mekanizma iki kaynak derlemde de tanımlanmamıştır.",
+  "claims": [
+    {
+      "sentence": "Bu, uygunluk kriterleri kalite kontrolünü geriye dönük bir düzeltme sürecinden, satır içi ve üretken bir öz-doğrulama döngüsüne kaydıracak ve klinik deneme sonucu tahmin modellerine yayılan öznitelik yanlış sınıflandırma hatalarını olası biçimde azaltacaktır.",
+      "rationale": "Cümle, yöntemde varsayımsal bir kaymayı çekingen bir dille ('would', 'potentially') önermektedir; erişilen parçalar klinik deneme sonucu tahmininde öznitelik yanlış sınıflandırma hatalarını ele alsa da (autoct-clinical:23), uygunluk kriterleri kalite kontrolü için 'satır içi, üretken öz-doğrulama döngüsü' mekanizmasını tanımlamamakta veya desteklememektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu, uygunluk kriterleri kalite kontrolünü geriye dönük bir düzeltme sürecinden, satır içi ve üretken bir öz-doğrulama döngüsüne kaydıracak ve klinik deneme sonucu tahmin modellerine yayılan öznitelik yanlış sınıflandırma hatalarını olası biçimde azaltacaktır.",
+      "rationale": "SELF-RAG'in yansıtma belirteçleri, üretilen çıktıların olgusallık ve ilgi açısından satır içi eleştirisini mümkün kılar; benzetme yoluyla bu mekanizmanın uygunluk kriteri özniteliği üretimine uygulanması, autoct-clinical parça 23'te belirtildiği gibi, yanlış sınıflandırmaları sonradan değil üretim anında yakalayabilir."
+    }
+  ]
+}
