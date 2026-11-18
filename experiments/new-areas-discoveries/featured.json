@@ -1,0 +1,142 @@
+{
+  "model": "claude-sonnet-4-6 (generation), claude-haiku-4-5 (judge, claim validator)",
+  "corpus": "55 papers, 2,210 chunks (41 existing + 14 added from arXiv for these areas)",
+  "date": "2026-11-18",
+  "topK": 5,
+  "areas": [
+    {
+      "prefix": "F",
+      "name": "AI × football"
+    },
+    {
+      "prefix": "S",
+      "name": "AI × sport"
+    },
+    {
+      "prefix": "W",
+      "name": "AI × web development"
+    },
+    {
+      "prefix": "P",
+      "name": "Programming languages"
+    },
+    {
+      "prefix": "J",
+      "name": "Future jobs"
+    }
+  ],
+  "droppedAreas": [
+    {
+      "area": "How people will live without money or work",
+      "reason": "Not kept. (1) 'Without money' is not logical as stated: every society needs a way to allocate food, housing and care, and even a universal basic income is money. (2) How people should live without work is a values and policy question that a literature-grounded hypothesis engine cannot settle, and arXiv evidence is thin, so the output would be the unsupported speculation LIBRAIN exists to flag. The researchable part (how AI changes jobs) is covered by 'Future jobs'."
+    }
+  ],
+  "newPapers": [
+    {
+      "arxivId": "2403.03163",
+      "title": "Design2Code: Benchmarking Multimodal Code Generation for Automated Front-End Engineering"
+    },
+    {
+      "arxivId": "2307.13854",
+      "title": "WebArena: A Realistic Web Environment for Building Autonomous Agents"
+    },
+    {
+      "arxivId": "2310.10553",
+      "title": "TacticAI: an AI assistant for football tactics"
+    },
+    {
+      "arxivId": "1802.07127",
+      "title": "Actions Speak Louder Than Goals: Valuing Player Actions in Soccer"
+    },
+    {
+      "arxivId": "1907.11180",
+      "title": "Google Research Football: A Novel Reinforcement Learning Environment"
+    },
+    {
+      "arxivId": "2107.03374",
+      "title": "Evaluating Large Language Models Trained on Code"
+    },
+    {
+      "arxivId": "2203.07814",
+      "title": "Competition-Level Code Generation with AlphaCode"
+    },
+    {
+      "arxivId": "2006.03511",
+      "title": "Unsupervised Translation of Programming Languages"
+    },
+    {
+      "arxivId": "2303.10130",
+      "title": "GPTs are GPTs: An Early Look at the Labor Market Impact Potential of Large Language Models"
+    },
+    {
+      "arxivId": "2302.06590",
+      "title": "The Impact of AI on Developer Productivity: Evidence from GitHub Copilot"
+    },
+    {
+      "arxivId": "2503.04761",
+      "title": "Which Economic Tasks are Performed with AI? Evidence from Millions of Claude Conversations"
+    },
+    {
+      "arxivId": "1609.07480",
+      "title": "Predictive modelling of football injuries"
+    },
+    {
+      "arxivId": "2601.19479",
+      "title": "Time-to-Injury Forecasting in Elite Female Football: A DeepHit Survival Approach"
+    },
+    {
+      "arxivId": "2607.11065",
+      "title": "Efficient and Robust Spiking Neural Networks for sEMG-Based Muscle Fatigue Detection"
+    }
+  ],
+  "featured": [
+    {
+      "id": "F4",
+      "takeaway": "Treat each player at a corner kick like a particle in a learned physics simulator, so a TacticAI-style assistant can test whole movement plans, not just starting positions.",
+      "whyFeatured": "A vivid, testable mechanism transfer from physics simulation to football tactics.",
+      "file": "runs/F4.json"
+    },
+    {
+      "id": "F2",
+      "takeaway": "A graph-attention model learns which earlier actions in a possession matter most for a goal, giving sharper values for each player action than a fixed window.",
+      "whyFeatured": "Highest quality in both batches (0.665) and a concrete change to an established method (VAEP).",
+      "file": "runs/F2.json"
+    },
+    {
+      "id": "S5",
+      "takeaway": "Model a whole squad as a graph of players over time, so injury risk reflects shared workload and team relationships, not each player in isolation.",
+      "whyFeatured": "Draws on four papers; reframes injury prediction from individuals to the team.",
+      "file": "runs/S5.json"
+    },
+    {
+      "id": "S1",
+      "takeaway": "Pair spiking neural networks with neuromorphic chips so a battery-powered wearable can monitor muscle fatigue continuously for days.",
+      "whyFeatured": "Concrete engineering claim that can be measured (battery life, accuracy).",
+      "file": "runs/S1.json"
+    },
+    {
+      "id": "P5",
+      "takeaway": "Run graph convolutions over a program's syntax tree when translating code between languages, especially from dynamically to statically typed languages.",
+      "whyFeatured": "Specific architecture and a specific hard case where it should help.",
+      "file": "runs/P5.json"
+    },
+    {
+      "id": "W5",
+      "takeaway": "Turn screenshot-to-code benchmarks into automatically checked web-development lessons; the limit is that models still miss 30–40% of page blocks on complex layouts.",
+      "whyFeatured": "Lowest claim risk of all 46 runs (0.05) and an honest built-in limitation.",
+      "file": "runs/W5.json"
+    },
+    {
+      "id": "J5",
+      "takeaway": "Bring AlphaCode-style 'generate many, test, keep the best' into pair-programming tools, which could help beginner developers most.",
+      "whyFeatured": "Testable with a controlled productivity study like the GitHub Copilot paper.",
+      "file": "runs/J5.json"
+    },
+    {
+      "id": "J4",
+      "takeaway": "Pharmaceutical R&D jobs may jump straight from little to deep AI use, faster than other occupations and faster than policy adapts.",
+      "whyFeatured": "A bold, checkable labour-market prediction (track AI-usage data for R&D roles over time).",
+      "file": "runs/J4.json"
+    }
+  ]
+}
