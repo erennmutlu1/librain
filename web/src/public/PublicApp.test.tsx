@@ -141,10 +141,11 @@ describe('public build: Recorded mode', () => {
     expect(await screen.findByText(/pair-10\.json/)).toBeInTheDocument();
   });
 
-  it('explains that Ask has no recorded runs and points to Live', async () => {
+  it('offers the five recorded questions on Ask, never the API snapshot, and points to Live', async () => {
     await setup({ path: '/ask' });
-    expect(await screen.findByText(askText.en.noRecordingsTitle)).toBeInTheDocument();
+    expect(await screen.findByText(askText.en.someRecordingsTitle(5))).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Why does GraphCast forecast well?' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Why does GraphCast forecast medium-range weather so well\?/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Switch to Live' })).toBeInTheDocument();
   });
 });

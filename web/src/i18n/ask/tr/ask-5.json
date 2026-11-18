@@ -1,0 +1,12 @@
+{
+  "id": "ask-5",
+  "question": "HumanEval üretilen kodun işlevsel doğruluğunu nasıl ölçüyor?",
+  "hypothesis": "HumanEval, üretilen kodun işlevsel doğruluğunu, modelin ürettiği Python fonksiyonlarının elle yazılmış bir dizi birim testini geçip geçmediğine bakarak ve pass@k ölçütünü kullanarak ölçer. Kıyaslama veri kümesi, her biri bir fonksiyon imzası, belgeleme metni (docstring), gövde ve problem başına ortalama 7,7 birim testi içeren, elle yazılmış 164 programlama probleminden oluşur. İşlevsel olarak eşdeğer programların geniş uzayını yakalayamayan eşleşme tabanlı ölçütlere (örneğin BLEU puanı) dayanmak yerine HumanEval, bir örneği ancak tüm birim testlerini geçerse doğru sayar. pass@k’yı yansız ve sayısal olarak kararlı biçimde hesaplamak için her problem için n ≥ k örnek üretilir, doğru örneklerin (birim testlerini geçenlerin) sayısı c belirlenir ve yansız kestirici şöyle hesaplanır: pass@k = E[1 − C(n−c, k) / C(n, k)]. Üretilen programlar, güvenilmeyen kodu birim testlerine karşı güvenle çalıştırmak için bir korumalı alan ortamında (gVisor ile) yürütülür.",
+  "critique": "Yanıt kaynaklara son derece sağlam biçimde dayanıyor ve kullanıcının HumanEval’in işlevsel doğruluğu nasıl ölçtüğüne dair sorusunu doğrudan yanıtlıyor. Neredeyse tüm temel iddialar kaynaklarca açıkça destekleniyor: elle yazılmış 164 problem (kaynak 2, 5), problem başına ortalama 7,7 birim testi (kaynak 5), pass@k ölçütü ve matematiksel tanımı (kaynak 2), BLEU gibi eşleşme tabanlı ölçütlerin reddedilmesi (kaynak 2, 5), gVisor kullanan korumalı alan ortamı (kaynak 5) ve birebir eşleşme yerine işlevsel eşdeğerliğe verilen önem (kaynak 2). Yanıt birden çok ilgili kaynaktaki bilgiyi etkili biçimde bir araya getiriyor. Tek küçük eksik: problemlerin “dil anlama, algoritmalar ve basit matematik” becerilerini ölçtüğü (kaynak 5’te anılıyor) açıkça belirtilseydi yanıt biraz daha güçlenirdi; ancak bu, ölçüm yönteminin özünü etkilemeyen küçük bir eksik.",
+  "unsupportedClaims": [],
+  "missingEvidence": [
+    "Yansız kestiricinin, basit pass@k hesabına kıyasla yüksek varyansı nasıl önlediğine dair somut örnekler",
+    "Sayısal olarak kararlı uygulamanın neden gerekli olduğunun (“çok büyük sayılar ve sayısal kararsızlık” ifadesinin ötesinde) tartışılması",
+    "HumanEval’deki problem türlerine dair ayrıntılar (örneğin dil anlama, algoritmalar ve basit matematik becerilerini ölçtükleri)"
+  ]
+}

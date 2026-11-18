@@ -49,7 +49,10 @@ export default function AskPage() {
   const record = useRecordRun();
   const demo = usePublicDemo();
   // The only Ask recording is an API contract snapshot (placeholder text), which the public site never shows.
+  // Recorded mode replays only the questions that were recorded (exact match).
   const noRecordings = demo?.mode === 'recorded';
+  const recordedCount = api.mock?.ask.length ?? 0;
+  const isRecorded = (request: QueryRequest) => api.mock?.matchAsk(request).matched === true;
   /*
    * Recorded mode, after a submit: nothing can replay, so the message sits
    * right under the submit row and takes focus. `tick` moves focus again on a
@@ -99,7 +102,7 @@ export default function AskPage() {
       return;
     }
     setFormError(null);
-    if (noRecordings) {
+    if (noRecordings && !isRecorded(request)) {
       setNoRecording((n) => ({ query: form.query, tick: (n?.tick ?? 0) + 1 }));
       return;
     }
@@ -117,7 +120,8 @@ export default function AskPage() {
 
   const remaining = MAX_QUERY_CHARS - form.query.length;
   const showNoRecording = noRecordings && noRecording !== null && noRecording.query === form.query;
-  const hint = noRecordings && form.query.trim() && !showNoRecording ? t.noRecordingHint : '';
+  const typedRecorded = form.query.trim() !== '' && isRecorded({ query: form.query.trim(), topK: Number(form.topK) || 5 });
+  const hint = noRecordings && form.query.trim() && !typedRecorded && !showNoRecording ? t.noRecordingHint : '';
   // Recent questions other than the one already in the field.
   const otherRecent = noRecordings ? [] : recent.filter((q) => q !== form.query.trim());
 
@@ -132,8 +136,8 @@ export default function AskPage() {
         <div className={`notice notice-info ${styles.modeNotice}`} role="status">
           <Icon name="info" />
           <div>
-            <strong>{t.noRecordingsTitle}</strong>
-            <p>{t.noRecordingsBody}</p>
+            <strong>{recordedCount > 0 ? t.someRecordingsTitle(recordedCount) : t.noRecordingsTitle}</strong>
+            <p>{recordedCount > 0 ? t.someRecordingsBody : t.noRecordingsBody}</p>
             <div className="cluster">
               <button type="button" className="btn btn-sm btn-primary" onClick={() => demo.switchTo('live')}>
                 {t.switchLive}

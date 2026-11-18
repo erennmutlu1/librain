@@ -13,7 +13,7 @@ export const text = strings({
     title: 'Your API keys',
     bothSet: ' (both set)',
     /** First thing in the panel: what Live mode costs, before any key is entered. US$0.066 average over 46 runs (README). */
-    cost: 'About US$0.07 per new idea, billed to your Anthropic and OpenAI accounts. Ask costs less; Compare runs three systems and costs more.',
+    cost: 'About US$0.07 per new idea and US$0.03 per question, billed to your Anthropic and OpenAI accounts. Compare runs three systems and costs more than a new idea.',
     intro:
       'Recorded mode needs no keys. Live mode runs on the LIBRAIN API with your own Anthropic API key (writing and checking the hypothesis) and OpenAI API key (making papers and questions searchable).',
     disclaimer:
@@ -77,7 +77,7 @@ export const text = strings({
   tr: {
     title: 'API key’ler',
     bothSet: ' (ikisi de girildi)',
-    cost: 'Yeni fikir başına yaklaşık 0,07 ABD doları; ücret Anthropic ve OpenAI hesaplarınıza yansır. Sor daha ucuzdur; Karşılaştır üç sistemi çalıştırır ve daha pahalıdır.',
+    cost: 'Yeni fikir başına yaklaşık 0,07, soru başına yaklaşık 0,03 ABD doları; ücret Anthropic ve OpenAI hesaplarınıza yansır. Karşılaştır üç sistemi çalıştırır ve yeni bir fikirden daha pahalıdır.',
     intro:
       'Hazır mod API key gerektirmez. Canlı mod, LIBRAIN API’de kendi Anthropic API key’inizle (hipotezi yazma ve denetleme) ve OpenAI API key’inizle (makaleleri ve soruları aranabilir hâle getirme) çalışır.',
     disclaimer:

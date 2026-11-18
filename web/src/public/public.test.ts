@@ -222,7 +222,9 @@ describe('Recorded mode on the public site (strict recordings)', () => {
     expect(catalog.discover.map((s) => s.id)).not.toContainEqual(expect.stringMatching(/^(contract-|openai-)/));
     expect(catalog.discover.filter((s) => s.id.startsWith('anthropic-pair-'))).toHaveLength(4);
     expect(catalog.compare.map((s) => s.id)).toEqual(['pair-10', 'pair-01']);
-    expect(catalog.ask).toEqual([]);
+    // The five real questions from experiments/ask-examples, never the API contract snapshot.
+    expect(catalog.ask.map((s) => s.id)).toEqual(['ask-1', 'ask-2', 'ask-3', 'ask-4', 'ask-5']);
+    expect(catalog.ask[0]?.source).toBe('experiments/ask-examples/ask-1.json');
     expect(f4.label).toBe('F4 · corner kick tactic generation and player positioning × learned physics simulators with graph networks');
     expect(f4.source).toBe('experiments/new-areas-discoveries/runs/F4.json');
     expect(exploreRecordings[0]?.source).toBe('experiments/featured-discoveries/runs/A1.json');

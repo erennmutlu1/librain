@@ -1,0 +1,13 @@
+{
+  "id": "ask-3",
+  "question": "TacticAI korner vuruşları için futbol antrenörlerine ne öneriyor ve uzmanlar bunu nasıl değerlendirdi?",
+  "hypothesis": "Liverpool FC ile birlikte geliştirilen bir yapay zekâ futbol taktik asistanı olan TacticAI, korner vuruşlarında oyuncuların konumlarında ve hızlarında ayarlamalar önerir; özellikle daha iyi savunma yerleşimi, daha iyi takip koşuları ve savunmacılar için daha elverişli bir kapsama önererek tahmini şut olasılığını artırmayı ya da azaltmayı hedefler. Liverpool FC’den beş uzman değerlendiriciyle yapılan nitel bir vaka çalışmasında TacticAI’ın önerileri ortalama 0,7±0,1 olumlu puan aldı ([−1, 1] ölçeğinde), değerlendirilen 50 durumun %90’ında mevcut taktiklere tercih edildi ve beş değerlendiricinin her biri için istatistiksel olarak anlamlı biçimde yapıcı bulundu (hepsinde p < 0,001). Ayrıca alan uzmanları TacticAI’ın önerilerini gerçek taktiklerden ayırt edemedi ve değerlendiriciler arası uyum yüksekti.",
+  "critique": "Yanıt verilen kaynaklara sağlam biçimde dayanıyor ve kullanıcının TacticAI’ın korner önerileri ile uzman değerlendirmelerine dair sorusunu doğrudan yanıtlıyor. TacticAI’ın oyuncu konumları ve hızlarında ayarlamalar önerdiği, ortalama 0,7±0,1 puan, %90 tercih oranı, istatistiksel anlamlılık (hepsinde p < 0,001) ve değerlendiriciler arası yüksek uyum gibi temel iddiaların hepsi [3] numaralı kaynakça doğrudan destekleniyor. TacticAI’ın Liverpool FC ile geliştirilmesine ve yeteneklerine (savunma yerleşimi, takip koşuları, kapsama) ilişkin açıklama [1], [2] ve [4] numaralı kaynaklarca destekleniyor. Önerilerin “gerçek taktiklerden ayırt edilemediği” iddiası [1] ve [3] numaralı kaynaklarda açıkça yer alıyor. Yanıt birden çok kaynağı etkili biçimde bir araya getiriyor ve bilgiyi açık, kapsamlı bir şekilde sunuyor. Küçük bir eksik: vaka çalışmasının tasarımına (örneğin 50 durumun 5 değerlendirici tarafından incelendiğine) dair daha fazla ayrıntı verilebilirdi; bu bilgi kaynaklarda mevcut.",
+  "unsupportedClaims": [],
+  "missingEvidence": [
+    "Önerilen taktik ayarlamaların türlerine dair daha somut örnekler (Şekil 5’teki örnekler kaynaklarda geçiyor; yanıt belirli ayarlama türlerini anmaktan yararlanabilirdi)",
+    "Puanlama ölçeğinin nasıl tanımlandığı ve neyin olumlu, neyin olumsuz puan sayıldığına dair ayrıntılar",
+    "%90 tercih karşılaştırmasında kullanılan referans ya da karşılaştırma taktiklerine dair bilgi",
+    "İstatistiksel testte “yapıcı” ifadesinin ne anlama geldiğinin açıklanması"
+  ]
+}

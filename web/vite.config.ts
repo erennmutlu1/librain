@@ -65,12 +65,12 @@ export default defineConfig(({ mode }) => {
         '/api': { target, changeOrigin: true },
         '/health': { target, changeOrigin: true },
       },
-      // Tests only: src/featured/featured.test.ts and src/explore/explore.test.ts
+      // Tests only: src/featured/featured.test.ts, src/explore/explore.test.ts and src/mocks/publicScenarios.test.ts
       // check that their data folders are still byte-for-byte copies of the
       // experiment outputs. The app itself never reads outside web/ (the Docker
       // image is built from web/ alone).
       ...(mode === 'test'
-        ? { fs: { allow: ['.', '../experiments/featured-discoveries', '../experiments/new-areas-discoveries'] } }
+        ? { fs: { allow: ['.', '../experiments/featured-discoveries', '../experiments/new-areas-discoveries', '../experiments/ask-examples'] } }
         : {}),
     },
     test: {

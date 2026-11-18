@@ -37,7 +37,7 @@ describe('Ask: no recording in Recorded mode', () => {
   it('says so quietly while typing, and right under the submit row (focused) on submit', async () => {
     const { user, fetchImpl, runStore } = await setup();
     const field = await screen.findByRole('textbox', { name: 'Question' });
-    const hint = 'No recording for this question — switch to Live to ask it.';
+    const hint = 'No recording for this question: pick one of the ready questions below, or switch to Live to ask it.';
     expect(screen.queryByText(hint)).not.toBeInTheDocument();
 
     await user.type(field, 'Why does GraphCast forecast well?');
@@ -72,10 +72,10 @@ describe('Ask: no recording in Recorded mode', () => {
     const { user } = await setup({ lang: 'tr' });
     const field = await screen.findByRole('textbox', { name: 'Soru' });
     expect(field).toHaveAttribute('placeholder', 'Erişim destekli üretim (RAG) halüsinasyonu nasıl azaltır?');
-    expect(screen.getByText(/^Hazır mod yalnızca gerçek çalıştırmaları yeniden gösterir ve Sor için/)).toBeInTheDocument();
+    expect(screen.getByText('Hazır soru sayısı: 5')).toBeInTheDocument();
     expect(screen.queryByText(/[Dd]erlem/)).not.toBeInTheDocument();
     await user.type(field, 'GraphCast neden iyi tahmin yapar?');
-    expect(screen.getByText('Bu soru için hazır çalıştırma yok. Sormak için Canlı moda geçin.')).toBeInTheDocument();
+    expect(screen.getByText('Bu soru için hazır çalıştırma yok: aşağıdaki hazır sorulardan birini seçin ya da sormak için Canlı moda geçin.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Sor' }));
     const notice = screen.getByText('Bu soru için hazır çalıştırma yok.').closest('[role="status"]') as HTMLElement;
     expect(notice).toHaveFocus();
@@ -85,11 +85,11 @@ describe('Ask: no recording in Recorded mode', () => {
 });
 
 describe('Ask: the cost before a Live run', () => {
-  it('states who is billed and how it compares with a new idea', async () => {
+  it('states who is billed and what a question costs', async () => {
     setProviderKeys({ anthropic: 'sk-ant-test', openai: 'sk-test' }, false);
     await setup({ mode: 'live' });
     await screen.findByRole('textbox', { name: 'Question' });
-    expect(screen.getByText('Billed to your Anthropic and OpenAI accounts. A question costs less than a new idea (about US$0.07).')).toBeInTheDocument();
+    expect(screen.getByText('Billed to your Anthropic and OpenAI accounts: about US$0.03 per question (measured on the five recorded ones).')).toBeInTheDocument();
     expect(screen.queryByText('Ask has no recorded runs.')).not.toBeInTheDocument();
   });
 });

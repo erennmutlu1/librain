@@ -1,0 +1,8 @@
+{
+  "id": "ask-4",
+  "question": "Kontrollü deneyde geliştiriciler GitHub Copilot ile bir görevi ne kadar daha hızlı tamamladı?",
+  "hypothesis": "JavaScript ile bir HTTP sunucusu yazmaları için 95 profesyonel geliştiricinin katıldığı kontrollü bir deneyde, GitHub Copilot’a erişimi olan deney grubu görevi kontrol grubundan %55,8 daha hızlı tamamladı (ortalama tamamlama süresi 71,17 dakikaya karşı 160,89 dakika). Bu sonuç istatistiksel olarak anlamlıydı (p = 0,0017) ve iyileşme için %95 güven aralığı [%21, %89] idi.",
+  "critique": "Yanıt kaynaklara son derece sağlam biçimde dayanıyor ve kullanıcının sorusunu doğrudan yanıtlıyor. Her somut iddia verilen kaynaklarca destekleniyor: 95 profesyonel geliştirici, JavaScript ile HTTP sunucusu görevi, %55,8 daha hızlı tamamlama, tamamlama süreleri (71,17’ye karşı 160,89 dakika), 0,0017 p değeri ve [%21, %89] %95 güven aralığı kaynaklarda açıkça yer alıyor. Yanıt, kontrollü deneyin temel bulgularını kapsamlı biçimde bir araya getiriyor ve çalışmanın ana sonuçlarını doğru yansıtıyor. Dil kesin ve kaynak metinle yakından örtüşüyor; bu da spekülasyondan çok dikkatli bir sentez yapıldığını gösteriyor.",
+  "unsupportedClaims": [],
+  "missingEvidence": []
+}

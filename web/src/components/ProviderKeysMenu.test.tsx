@@ -81,7 +81,7 @@ describe('ProviderKeysMenu fields', () => {
     expect(within(panel).getByRole('button', { name: 'API key’leri kaydet' })).toBeInTheDocument();
     expect(
       within(panel).getByText(
-        'Yeni fikir başına yaklaşık 0,07 ABD doları; ücret Anthropic ve OpenAI hesaplarınıza yansır. Sor daha ucuzdur; Karşılaştır üç sistemi çalıştırır ve daha pahalıdır.',
+        'Yeni fikir başına yaklaşık 0,07, soru başına yaklaşık 0,03 ABD doları; ücret Anthropic ve OpenAI hesaplarınıza yansır. Karşılaştır üç sistemi çalıştırır ve yeni bir fikirden daha pahalıdır.',
       ),
     ).toBeInTheDocument();
     expect(within(panel).getByText(/^Hazır mod API key gerektirmez\./)).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('ProviderKeysMenu cost', () => {
   it('states the cost first, right under the title and before any key field', async () => {
     const { panel } = await openPanel();
     const cost = within(panel).getByText(
-      'About US$0.07 per new idea, billed to your Anthropic and OpenAI accounts. Ask costs less; Compare runs three systems and costs more.',
+      'About US$0.07 per new idea and US$0.03 per question, billed to your Anthropic and OpenAI accounts. Compare runs three systems and costs more than a new idea.',
     );
     const heading = within(panel).getByRole('heading', { name: 'Your API keys' });
     expect(heading.nextElementSibling).toBe(cost);
