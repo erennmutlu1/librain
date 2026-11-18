@@ -22,6 +22,8 @@
 
 ### Added
 
+- Companion paper (`docs/architecture.pdf`): Appendix B, pages 66–70, with the November 2026 revision (changes, the two corrections, verification by replay, interface and deployment, Experiment 8 with 46 runs, limitations). Pages 1–65 are unchanged. Source: `docs/addendum/appendix-b.html`.
+
 - Web UI (`web/`, React + Vite + TypeScript): Library, Ask, Discover, Compare and History.
 - Ingest by arXiv id with authoritative metadata from the arXiv API; delete papers; passage text in every citation.
 - Run history in SQLite (`/api/runs`), doubling as the audit lookup by correlation id.
