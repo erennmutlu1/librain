@@ -141,6 +141,9 @@ export default function HistoryPage() {
                 <Link className="btn" to="/ask">
                   Ask a question
                 </Link>
+                <Link className="btn" to="/explore">
+                  Explore recorded discoveries
+                </Link>
                 {api.mode === 'mock' && filter === 'all' ? (
                   <button type="button" className="btn" onClick={() => void seed()} disabled={busy === 'seed'}>
                     {busy === 'seed' ? 'Loading…' : 'Load the recorded runs'}

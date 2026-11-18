@@ -16,6 +16,13 @@ kit. Tests use Vitest and Testing Library.
 
 ![Featured discoveries: six recorded runs, each opening its full sentence-by-sentence audit](docs/screenshots/featured.png)
 
+![Explore: all 46 recorded discoveries, rated out of 10, with the discovery of the day, category chips, sort and search](docs/screenshots/explore.png)
+
+| | |
+| --- | --- |
+| ![An Explore idea: the case for it, computed from the run](docs/screenshots/explore-detail.png) | ![Explore statistics: rating histogram and category averages](docs/screenshots/stats.png) |
+| ![Spot the risk: guess the validator's verdict on a real sentence](docs/screenshots/quiz.png) | ![Explore on a 375 px phone, dark mode](docs/screenshots/mobile-explore.png) |
+
 ## Run it
 
 Requires Node 20.19+ or 22.12+ (developed on Node 23) and npm.
@@ -162,6 +169,67 @@ See `.env.example`.
     they are not saved to History. To change the selection, edit
     `experiments/featured-discoveries/featured.json`, then copy it and the run
     files it names into `src/featured/data/`.
+- **Explore** (`/explore`, no API call in either mode): every Discovery run
+  recorded on 2026-11-18, all 46 of them, from `experiments/featured-discoveries`
+  (21 runs) and `experiments/new-areas-discoveries` (25).
+  - Each run has a category from its id prefix (D drug & materials
+    discovery × agents, A agriculture & energy, C clinical trials × causal &
+    graph methods, N new cross-field pairings, F football, S sport, W web
+    development, P programming languages, J future jobs), shown as an icon,
+    a name and a hue (`--cat-*` tokens, light and dark). The hue is never
+    the only cue.
+  - **Rating out of 10** (`explore/rating.ts`, a pure function):
+    `10 × (0.35·plausibility + 0.25·coherence + 0.25·noveltyNorm + 0.15·(1 − claim risk))`,
+    one decimal, where `noveltyNorm = (novelty − min) / (max − min)` over the 46
+    runs (0.281 to 0.541). For example S3 and W5 rate 7.8, F2 7.6, D1 5.1
+    and C2 4.1. It shows as "7.8 / 10" with five stars, read as "Rated 7.8 out
+    of 10"; "How ratings work" opens the formula, and on an idea's page the
+    sum with its own numbers. The 14 editor's picks carry a badge.
+  - `/explore`: the discovery of the day (an editor's pick, the same all day,
+    the next one tomorrow), category chips with counts that follow the
+    search, sort by rating, novelty, plausibility or lowest claim risk, a
+    search over topics, takeaways, hypotheses and novel claims, grid or list
+    cards, bookmarks and a Saved filter. Filters live in the URL
+    (`?q=&cat=F&sort=risk&saved=1&view=list`), so a view can be shared.
+  - `/explore/:id` (for example `/explore/F2`): the header with the rating
+    and "Recorded run · 2026-11-18 · $0.06"; the idea in one line (the
+    editor's takeaway, or the hypothesis's first sentence, trimmed); **Why
+    it's promising**, bullets computed from the data, never written by
+    hand (passages and papers, using the arXiv titles batch 2 recorded,
+    percentile ranks such as "top 5% of all 46 ideas", whether any sentence
+    was flagged risky), under the note "Candidate hypothesis: the evidence
+    supports its starting points; the novel part still needs a real test";
+    the top three passages, quoted; the generator's basis for each novel
+    sentence; **What's still unproven**, the annotated novel claim from
+    Discover; three related ideas sharing a paper or the category; copy
+    link, save, and "Open full result" (`/explore/:id/full`, the Discover
+    result view under a "Recorded run" banner). Percentiles count ties
+    against the run, so they never flatter it.
+  - `/explore/stats`: inline-SVG charts (rating histogram, average rating
+    per category, novelty against plausibility with one link per dot and a
+    legend that picks out a category), each with a table view; completed
+    46/46, claim checks 46/46, plausibility ≥ 0.6 34/46, no risky sentence
+    42/46, editor's picks 14/46; 246 citations claimed, 0 dropped, 0
+    fabricated; $3.05 in all ($0.057 to $0.075 a run); and the area left
+    out ("how people will live without money or work") with its reason.
+  - `/explore/quiz`, **Spot the risk**: a real novel-claim sentence; guess
+    Grounded, Extrapolated or Risky; see the validator's verdict, its
+    probability and rationale, and a link to the idea. A round has every
+    risky (D1, D4, P1, P3) and grounded sentence plus eight extrapolated
+    ones, because 67 of the 73 sentences are extrapolated. `?q=D1.2` starts
+    on a given sentence. Score and streak are kept in `localStorage`.
+  - "Surprise me" opens a random idea rated 6 or more. Novelty,
+    plausibility, coherence, claim risk and the three verdicts have glossary
+    tooltips (hover, focus or tap).
+  - Bookmarks and the quiz score survive storage that throws: they then last
+    for the visit, and the page says so.
+  - The Featured gallery on Discover and an empty History link to Explore.
+  - The runs ship with the app: `src/explore/data/` is a byte-for-byte copy
+    of both experiment folders (a test fails if they drift). They load as
+    their own lazy chunk (1.16 MB, 385 kB gzip, almost all of it passage
+    text) when an Explore screen opens; Vite's "larger than 500 kB" warning
+    is about that data chunk. The six batch-1 picks are also in the Featured
+    gallery's smaller chunk.
 - **Compare** (`POST /api/compare`, one call): a plain-language explainer of
   the three systems and one score table on a shared 0 to 1 scale.
   - Naive-RAG citations outside the retrieved set are marked as fabricated
@@ -205,19 +273,26 @@ src/
                 stages.ts      progress events -> stepper steps
   featured/     data/          copies of experiments/featured-discoveries (manifest + six runs)
                 manifest.ts    the manifest; runs.ts the runs (lazy chunk); useFeatured.ts loads them once
+  explore/      data/          copies of both discovery experiment folders (2 manifests + 46 runs)
+                rating.ts      the rating out of 10 (pure); categories.ts the id-prefix categories
+                model.ts       takeaways, percentiles, evidence bullets, related ideas, filter/sort/search,
+                               day pick, quiz rounds, stats; runs.ts builds it (lazy chunk)
+                bookmarks.ts / quizScore.ts   localStorage with every access guarded
   history/      runStore.ts    THE SEAM: RunStore interface + createDefaultRunStore(api)
                 httpRunStore.ts / localRunStore.ts, exporters.ts (JSON/Markdown)
   components/   AnnotatedClaim (the sentence view), ProgressStepper, DiscoverResult, AskResult, CompareView, ...
   pages/        one lazily loaded chunk per screen
 ```
 
-The initial bundle is 297 kB (95 kB gzip), down from 420 kB (130 kB gzip)
+The initial bundle is 301 kB (96 kB gzip), down from 420 kB (130 kB gzip)
 before route splitting and the switch from the data router to declarative
-routing. React DOM is about 200 kB of that.
+routing. React DOM is about 200 kB of that. Explore added 4 kB (1.6 kB gzip)
+to it, the nav link, routes and icons; its four screens share a 31 kB
+(12 kB gzip) chunk and the recorded runs load separately.
 
 ## Tests
 
-`npm test` runs 173 tests, all offline:
+`npm test` runs 216 tests, all offline:
 
 - **Contract tests** (`api/contract.test.ts`) parse every file in
   `src/mocks/contract/` through the client mapping. When the backend
@@ -238,6 +313,16 @@ routing. React DOM is about 200 kB of that.
   exactly one RISKY sentence; opening a run makes no call through an injected
   client, and with the real client and the API offline only the header's
   `/health` check reaches `fetch`; the routes and the not-found.
+- **Explore** (`explore/explore.test.ts`, `pages/ExplorePage.test.tsx`), on
+  the real bundled data: the copies match both experiment folders byte for
+  byte; all 46 runs map to the nine categories; the rating for W5 (7.8) and
+  D1 (5.1) worked by hand, novelty 0 and 1 at the extremes, and range
+  checks; filter, sort and search; F2's page shows the arXiv title "Actions
+  Speak Louder Than Goals: …" and "top 5% of all 46 ideas"; the quiz
+  reveals RISKY for D1's 37.94% sentence; bookmarks and the quiz work when
+  `localStorage` throws; no Explore screen calls the API (injected client),
+  and in real mode only the header's `/health` reaches `fetch`; no page
+  calls an idea proven.
 - Sentence matching against every recorded run, fabricated-citation audit,
   arXiv id rules, the progress stepper, and screen-level flows (arXiv
   ingest, inline delete, 401 to API key to retry, 429).

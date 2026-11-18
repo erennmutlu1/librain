@@ -50,6 +50,21 @@
   /* Meter track */
   --track: #e3e7ec;
 
+  /*
+   * Explore categories: the eight categorical hues above (Compare uses the
+   * first three), plus a neutral for the catch-all "New cross-field pairings".
+   * A category is never shown by colour alone: its icon and name go with it.
+   */
+  --cat-d: #2a78d6;
+  --cat-a: #008300;
+  --cat-c: #6250d6;
+  --cat-n: #7d8796;
+  --cat-f: #eb6834;
+  --cat-s: #eda100;
+  --cat-w: #1baf7a;
+  --cat-p: #e87ba4;
+  --cat-j: #e34948;
+
   /* Type */
   --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-text: 'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif;
@@ -113,6 +128,15 @@
     --sys-naive: #d95926;
     --sys-single: #199e70;
     --track: #252e3a;
+    --cat-d: #3987e5;
+    --cat-a: #0ca30c;
+    --cat-c: #9085e9;
+    --cat-n: #8f99a7;
+    --cat-f: #d95926;
+    --cat-s: #c98500;
+    --cat-w: #199e70;
+    --cat-p: #d55181;
+    --cat-j: #e66767;
     --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
   }
 }
@@ -147,5 +171,14 @@
   --sys-naive: #d95926;
   --sys-single: #199e70;
   --track: #252e3a;
+  --cat-d: #3987e5;
+  --cat-a: #0ca30c;
+  --cat-c: #9085e9;
+  --cat-n: #8f99a7;
+  --cat-f: #d95926;
+  --cat-s: #c98500;
+  --cat-w: #199e70;
+  --cat-p: #d55181;
+  --cat-j: #e66767;
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
 }

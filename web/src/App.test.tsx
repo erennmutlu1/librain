@@ -19,7 +19,7 @@ describe('App (mock mode, no network)', () => {
   it('shows the shell with the mock badge and five sections', async () => {
     setup('/library');
     const nav = screen.getByRole('navigation', { name: 'Sections' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Library', 'Ask', 'Discover', 'Compare', 'History']);
+    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Library', 'Ask', 'Discover', 'Explore', 'Compare', 'History']);
     expect(screen.getByText('Mock data')).toBeInTheDocument();
     // The captured papers list plus ids cited by the recordings (never invented titles).
     expect(await screen.findByRole('table')).toBeInTheDocument();

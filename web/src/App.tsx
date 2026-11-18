@@ -16,12 +16,19 @@ const ComparePage = lazy(() => import('./pages/ComparePage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const HistoryDetailPage = lazy(() => import('./pages/HistoryDetailPage'));
 const FeaturedPage = lazy(() => import('./pages/FeaturedPage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
+const ExploreDetailPage = lazy(() => import('./pages/ExploreDetailPage'));
+const ExploreStatsPage = lazy(() => import('./pages/ExploreStatsPage'));
+const ExploreQuizPage = lazy(() => import('./pages/ExploreQuizPage'));
 
 const TITLES: Record<string, string> = {
   '/library': 'Library',
   '/ask': 'Ask',
   '/discover': 'Discover',
   '/discover/featured': 'Featured discoveries',
+  '/explore': 'Explore',
+  '/explore/stats': 'Explore statistics',
+  '/explore/quiz': 'Spot the risk',
   '/compare': 'Compare',
   '/history': 'History',
 };
@@ -31,7 +38,13 @@ function DocumentTitle() {
   useEffect(() => {
     const section =
       TITLES[pathname] ??
-      (pathname.startsWith('/history/') ? 'Run' : pathname.startsWith('/discover/featured/') ? 'Featured discovery' : null);
+      (pathname.startsWith('/history/')
+        ? 'Run'
+        : pathname.startsWith('/discover/featured/')
+          ? 'Featured discovery'
+          : pathname.startsWith('/explore/')
+            ? `Discovery ${decodeURIComponent(pathname.split('/')[2] ?? '').toUpperCase()}`
+            : null);
     document.title = section ? `${section} · LIBRAIN` : 'LIBRAIN';
   }, [pathname]);
   return null;
@@ -71,6 +84,11 @@ const routes: RouteObject[] = [
       { path: 'discover', element: <Screen><DiscoverPage /></Screen> },
       { path: 'discover/featured', element: <Screen><FeaturedPage /></Screen> },
       { path: 'discover/featured/:id', element: <Screen><FeaturedPage /></Screen> },
+      { path: 'explore', element: <Screen><ExplorePage /></Screen> },
+      { path: 'explore/stats', element: <Screen><ExploreStatsPage /></Screen> },
+      { path: 'explore/quiz', element: <Screen><ExploreQuizPage /></Screen> },
+      { path: 'explore/:id', element: <Screen><ExploreDetailPage /></Screen> },
+      { path: 'explore/:id/full', element: <Screen><ExploreDetailPage full /></Screen> },
       { path: 'compare', element: <Screen><ComparePage /></Screen> },
       { path: 'history', element: <Screen><HistoryPage /></Screen> },
       { path: 'history/:id', element: <Screen><HistoryDetailPage /></Screen> },
