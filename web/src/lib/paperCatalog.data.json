@@ -1,0 +1,905 @@
+{
+  "02-biomed-fm": {
+    "title": "Foundation Model in Biomedicine",
+    "authors": [
+      "X. Liu",
+      "Y. Zhang",
+      "Q. Shang",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2503.02104",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [18]"
+  },
+  "03-pharmagents": {
+    "title": "PharmAgents: Building a Virtual Pharma with Large Language Model Agents",
+    "authors": [
+      "B. Gao",
+      "Y. Huang",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2503.22164",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [17]"
+  },
+  "04-graphcast": {
+    "title": "GraphCast: Learning skillful medium-range global weather forecasting",
+    "authors": [
+      "R. Lam",
+      "A. Sanchez-Gonzalez",
+      "M. Willson",
+      "P. Wirnsberger",
+      "et al."
+    ],
+    "year": 2023,
+    "arxivId": "2212.12794",
+    "current": false,
+    "source": "paper text in the recorded passages; docs/paper-source/architecture.html [19]"
+  },
+  "05-pangu-weather": {
+    "title": "Accurate medium-range global weather forecasting with 3D neural networks",
+    "authors": [
+      "K. Bi",
+      "L. Xie",
+      "H. Zhang",
+      "X. Chen",
+      "X. Gu",
+      "Q. Tian"
+    ],
+    "year": 2023,
+    "arxivId": "2211.02556",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [20]"
+  },
+  "06-aurora": {
+    "title": "A foundation model for the Earth system",
+    "authors": [
+      "C. Bodnar",
+      "W. P. Bruinsma",
+      "A. Lucic",
+      "M. Stanley",
+      "A. Allen",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2405.13063",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [21]"
+  },
+  "07-centaur": {
+    "title": "A foundation model to predict and capture human cognition",
+    "authors": [
+      "M. Binz",
+      "E. Akata",
+      "M. Bethge",
+      "F. Brändle",
+      "F. Callaway",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2410.20268",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [22]"
+  },
+  "08-llm-eeg": {
+    "title": "Large Language Models for EEG: A Comprehensive Survey and Taxonomy",
+    "authors": [
+      "N. Babu",
+      "J. Mathew"
+    ],
+    "year": 2025,
+    "arxivId": "2506.06353",
+    "current": false,
+    "source": "docs/paper-source/architecture.html [23]"
+  },
+  "1609.07480": {
+    "title": "Predictive modelling of football injuries",
+    "authors": [
+      "Stylianos Kampakis"
+    ],
+    "year": 2016,
+    "arxivId": "1609.07480",
+    "current": true,
+    "source": "api"
+  },
+  "1802.07127": {
+    "title": "Actions Speak Louder Than Goals: Valuing Player Actions in Soccer",
+    "authors": [
+      "Tom Decroos",
+      "Lotte Bransen",
+      "Jan Van Haaren",
+      "Jesse Davis"
+    ],
+    "year": 2018,
+    "arxivId": "1802.07127",
+    "current": true,
+    "source": "api"
+  },
+  "1907.11180": {
+    "title": "Google Research Football: A Novel Reinforcement Learning Environment",
+    "authors": [
+      "Karol Kurach",
+      "Anton Raichuk",
+      "Piotr Stańczyk",
+      "Michał Zając",
+      "Olivier Bachem",
+      "Lasse Espeholt",
+      "Carlos Riquelme",
+      "Damien Vincent",
+      "Marcin Michalski",
+      "Olivier Bousquet",
+      "Sylvain Gelly"
+    ],
+    "year": 2019,
+    "arxivId": "1907.11180",
+    "current": true,
+    "source": "api"
+  },
+  "2005.11401": {
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "authors": [
+      "Patrick Lewis",
+      "Ethan Perez",
+      "Aleksandra Piktus",
+      "Fabio Petroni",
+      "Vladimir Karpukhin",
+      "Naman Goyal",
+      "Heinrich Küttler",
+      "Mike Lewis",
+      "Wen-tau Yih",
+      "Tim Rocktäschel",
+      "Sebastian Riedel",
+      "Douwe Kiela"
+    ],
+    "year": 2020,
+    "arxivId": "2005.11401",
+    "current": true,
+    "source": "api; web/src/mocks/contract/papers.json (API arXiv ingest)"
+  },
+  "2006.03511": {
+    "title": "Unsupervised Translation of Programming Languages",
+    "authors": [
+      "Marie-Anne Lachaux",
+      "Baptiste Roziere",
+      "Lowik Chanussot",
+      "Guillaume Lample"
+    ],
+    "year": 2020,
+    "arxivId": "2006.03511",
+    "current": true,
+    "source": "api"
+  },
+  "2107.03374": {
+    "title": "Evaluating Large Language Models Trained on Code",
+    "authors": [
+      "Mark Chen",
+      "Jerry Tworek",
+      "Heewoo Jun",
+      "Qiming Yuan",
+      "Henrique Ponde de Oliveira Pinto",
+      "Jared Kaplan",
+      "Harri Edwards",
+      "Yuri Burda",
+      "Nicholas Joseph",
+      "Greg Brockman",
+      "Alex Ray",
+      "Raul Puri",
+      "Gretchen Krueger",
+      "Michael Petrov",
+      "Heidy Khlaaf",
+      "Girish Sastry",
+      "Pamela Mishkin",
+      "Brooke Chan",
+      "Scott Gray",
+      "Nick Ryder",
+      "Mikhail Pavlov",
+      "Alethea Power",
+      "Lukasz Kaiser",
+      "Mohammad Bavarian",
+      "Clemens Winter",
+      "Philippe Tillet",
+      "Felipe Petroski Such",
+      "Dave Cummings",
+      "Matthias Plappert",
+      "Fotios Chantzis",
+      "Elizabeth Barnes",
+      "Ariel Herbert-Voss",
+      "William Hebgen Guss",
+      "Alex Nichol",
+      "Alex Paino",
+      "Nikolas Tezak",
+      "Jie Tang",
+      "Igor Babuschkin",
+      "Suchir Balaji",
+      "Shantanu Jain",
+      "William Saunders",
+      "Christopher Hesse",
+      "Andrew N. Carr",
+      "Jan Leike",
+      "Josh Achiam",
+      "Vedant Misra",
+      "Evan Morikawa",
+      "Alec Radford",
+      "Matthew Knight",
+      "Miles Brundage",
+      "Mira Murati",
+      "Katie Mayer",
+      "Peter Welinder",
+      "Bob McGrew",
+      "Dario Amodei",
+      "Sam McCandlish",
+      "Ilya Sutskever",
+      "Wojciech Zaremba"
+    ],
+    "year": 2021,
+    "arxivId": "2107.03374",
+    "current": true,
+    "source": "api"
+  },
+  "2203.07814": {
+    "title": "Competition-Level Code Generation with AlphaCode",
+    "authors": [
+      "Yujia Li",
+      "David Choi",
+      "Junyoung Chung",
+      "Nate Kushman",
+      "Julian Schrittwieser",
+      "Rémi Leblond",
+      "Tom Eccles",
+      "James Keeling",
+      "Felix Gimeno",
+      "Agustin Dal Lago",
+      "Thomas Hubert",
+      "Peter Choy",
+      "Cyprien de Masson d'Autume",
+      "Igor Babuschkin",
+      "Xinyun Chen",
+      "Po-Sen Huang",
+      "Johannes Welbl",
+      "Sven Gowal",
+      "Alexey Cherepanov",
+      "James Molloy",
+      "Daniel J. Mankowitz",
+      "Esme Sutherland Robson",
+      "Pushmeet Kohli",
+      "Nando de Freitas",
+      "Koray Kavukcuoglu",
+      "Oriol Vinyals"
+    ],
+    "year": 2022,
+    "arxivId": "2203.07814",
+    "current": true,
+    "source": "api"
+  },
+  "2302.06590": {
+    "title": "The Impact of AI on Developer Productivity: Evidence from GitHub Copilot",
+    "authors": [
+      "Sida Peng",
+      "Eirini Kalliamvakou",
+      "Peter Cihon",
+      "Mert Demirer"
+    ],
+    "year": 2023,
+    "arxivId": "2302.06590",
+    "current": true,
+    "source": "api"
+  },
+  "2303.10130": {
+    "title": "GPTs are GPTs: An Early Look at the Labor Market Impact Potential of Large Language Models",
+    "authors": [
+      "Tyna Eloundou",
+      "Sam Manning",
+      "Pamela Mishkin",
+      "Daniel Rock"
+    ],
+    "year": 2023,
+    "arxivId": "2303.10130",
+    "current": true,
+    "source": "api"
+  },
+  "2307.13854": {
+    "title": "WebArena: A Realistic Web Environment for Building Autonomous Agents",
+    "authors": [
+      "Shuyan Zhou",
+      "Frank F. Xu",
+      "Hao Zhu",
+      "Xuhui Zhou",
+      "Robert Lo",
+      "Abishek Sridhar",
+      "Xianyi Cheng",
+      "Tianyue Ou",
+      "Yonatan Bisk",
+      "Daniel Fried",
+      "Uri Alon",
+      "Graham Neubig"
+    ],
+    "year": 2023,
+    "arxivId": "2307.13854",
+    "current": true,
+    "source": "api"
+  },
+  "2310.10553": {
+    "title": "TacticAI: an AI assistant for football tactics",
+    "authors": [
+      "Zhe Wang",
+      "Petar Veličković",
+      "Daniel Hennes",
+      "Nenad Tomašev",
+      "Laurel Prince",
+      "Michael Kaisers",
+      "Yoram Bachrach",
+      "Romuald Elie",
+      "Li Kevin Wenliang",
+      "Federico Piccinini",
+      "William Spearman",
+      "Ian Graham",
+      "Jerome Connor",
+      "Yi Yang",
+      "Adrià Recasens",
+      "Mina Khan",
+      "Nathalie Beauguerlange",
+      "Pablo Sprechmann",
+      "Pol Moreno",
+      "Nicolas Heess",
+      "Michael Bowling",
+      "Demis Hassabis",
+      "Karl Tuyls"
+    ],
+    "year": 2023,
+    "arxivId": "2310.10553",
+    "current": true,
+    "source": "api"
+  },
+  "2403.03163": {
+    "title": "Design2Code: Benchmarking Multimodal Code Generation for Automated Front-End Engineering",
+    "authors": [
+      "Chenglei Si",
+      "Yanzhe Zhang",
+      "Ryan Li",
+      "Zhengyuan Yang",
+      "Ruibo Liu",
+      "Diyi Yang"
+    ],
+    "year": 2024,
+    "arxivId": "2403.03163",
+    "current": true,
+    "source": "api"
+  },
+  "2503.04761": {
+    "title": "Which Economic Tasks are Performed with AI? Evidence from Millions of Claude Conversations",
+    "authors": [
+      "Kunal Handa",
+      "Alex Tamkin",
+      "Miles McCain",
+      "Saffron Huang",
+      "Esin Durmus",
+      "Sarah Heck",
+      "Jared Mueller",
+      "Jerry Hong",
+      "Stuart Ritchie",
+      "Tim Belonax",
+      "Kevin K. Troy",
+      "Dario Amodei",
+      "Jared Kaplan",
+      "Jack Clark",
+      "Deep Ganguli"
+    ],
+    "year": 2025,
+    "arxivId": "2503.04761",
+    "current": true,
+    "source": "api"
+  },
+  "2503.08979": {
+    "title": "Agentic AI for Scientific Discovery: A Survey of Progress, Challenges, and Future Directions",
+    "authors": [
+      "M. Gridach",
+      "J. Nanavati",
+      "K. Z. El Abidine",
+      "L. Mendes",
+      "C. Mack"
+    ],
+    "year": 2025,
+    "arxivId": "2503.08979",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [1]"
+  },
+  "2504.05496": {
+    "title": "A Survey on Hypothesis Generation for Scientific Discovery in the Era of Large Language Models",
+    "authors": [
+      "A. K. Alkan",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2504.05496",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [2]"
+  },
+  "2505.04651": {
+    "title": "Scientific Hypothesis Generation and Validation: Methods, Datasets, and Future Directions",
+    "authors": [
+      "S. Kulkarni",
+      "A. Alotaibi"
+    ],
+    "year": 2025,
+    "arxivId": "2505.04651",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [3]"
+  },
+  "2508.14111": {
+    "title": "From AI for Science to Agentic Science: A Survey on Autonomous Scientific Discovery",
+    "authors": [
+      "Jiaqi Wei",
+      "Yuejin Yang",
+      "Xiang Zhang",
+      "Yuhan Chen",
+      "Xiang Zhuang",
+      "Zhangyang Gao",
+      "Dongzhan Zhou",
+      "Guangshuai Wang",
+      "Zhiqiang Gao",
+      "Juntai Cao",
+      "Zijie Qiu",
+      "Ming Hu",
+      "Chenglong Ma",
+      "Shixiang Tang",
+      "Junjun He",
+      "Chunfeng Song",
+      "Xuming He",
+      "Qiang Zhang",
+      "Chenyu You",
+      "Shuangjia Zheng",
+      "Ning Ding",
+      "Wanli Ouyang",
+      "Nanqing Dong",
+      "Yu Cheng",
+      "Siqi Sun",
+      "Lei Bai",
+      "Bowen Zhou"
+    ],
+    "year": 2025,
+    "arxivId": "2508.14111",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [4]"
+  },
+  "2601.19479": {
+    "title": "Time-to-Injury Forecasting in Elite Female Football: A DeepHit Survival Approach",
+    "authors": [
+      "Victoria Catterall",
+      "Cise Midoglu",
+      "Stephen Lynch"
+    ],
+    "year": 2026,
+    "arxivId": "2601.19479",
+    "current": true,
+    "source": "api"
+  },
+  "2607.11065": {
+    "title": "Efficient and Robust Spiking Neural Networks for sEMG-Based Muscle Fatigue Detection",
+    "authors": [
+      "Kaiwen Tang",
+      "Jiaqi Dong",
+      "Zhanglu Yan",
+      "Weng-Fai Wong"
+    ],
+    "year": 2026,
+    "arxivId": "2607.11065",
+    "current": true,
+    "source": "api"
+  },
+  "aurora": {
+    "title": "A foundation model for the Earth system",
+    "authors": [
+      "C. Bodnar",
+      "W. P. Bruinsma",
+      "A. Lucic",
+      "M. Stanley",
+      "A. Allen",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2405.13063",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [21]"
+  },
+  "autoct-clinical": {
+    "title": "AutoCT: Automating Interpretable Clinical Trial Prediction with LLM Agents",
+    "authors": [
+      "Fengze Liu",
+      "Haoyu Wang",
+      "Joonhyuk Cho",
+      "Dan Roth",
+      "Andrew W. Lo"
+    ],
+    "year": 2025,
+    "arxivId": "2506.04293",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "autoformer": {
+    "title": null,
+    "authors": null,
+    "year": 2022,
+    "arxivId": "2106.13008",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "biomedgpt": {
+    "title": null,
+    "authors": null,
+    "year": 2024,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "centaur": {
+    "title": "A foundation model to predict and capture human cognition",
+    "authors": [
+      "M. Binz",
+      "E. Akata",
+      "M. Bethge",
+      "F. Brändle",
+      "F. Callaway",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2410.20268",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [22]"
+  },
+  "cgcnn": {
+    "title": "Crystal Graph Convolutional Neural Networks for an Accurate and Interpretable Prediction of Material Properties",
+    "authors": [
+      "Tian Xie",
+      "Jeffrey C. Grossman"
+    ],
+    "year": 2018,
+    "arxivId": null,
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "climate-adaptation-ml": {
+    "title": null,
+    "authors": null,
+    "year": 2023,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "clip": {
+    "title": "Learning Transferable Visual Models From Natural Language Supervision",
+    "authors": [
+      "Alec Radford",
+      "Jong Wook Kim",
+      "Chris Hallacy",
+      "Aditya Ramesh",
+      "Gabriel Goh",
+      "Sandhini Agarwal",
+      "Girish Sastry",
+      "Amanda Askell",
+      "Pamela Mishkin",
+      "Jack Clark",
+      "Gretchen Krueger",
+      "Ilya Sutskever"
+    ],
+    "year": 2021,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "covid-stgnn": {
+    "title": "Examining COVID-19 Forecasting using Spatio-Temporal Graph Neural Networks",
+    "authors": [
+      "Amol Kapoor",
+      "Xue Ben",
+      "Luyang Liu",
+      "Bryan Perozzi",
+      "Matt Barnes",
+      "Martin Blais",
+      "Shawn O'Banion"
+    ],
+    "year": 2020,
+    "arxivId": "2007.03113",
+    "current": true,
+    "source": "api; arXiv id from the paper text in the recorded passages"
+  },
+  "crop-yield-multimodal": {
+    "title": "Multi-modal Data Fusion and Deep Ensemble Learning for Accurate Crop Yield Prediction",
+    "authors": [
+      "Akshay Dagadu Yewle",
+      "Laman Mirzayeva",
+      "Oktay Karakuş"
+    ],
+    "year": 2025,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "crop-yield-rs": {
+    "title": null,
+    "authors": null,
+    "year": 2020,
+    "arxivId": "2007.10882",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "deepar": {
+    "title": "DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks",
+    "authors": [
+      "David Salinas",
+      "Valentin Flunkert",
+      "Jan Gasthaus"
+    ],
+    "year": 2019,
+    "arxivId": "1704.04110",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "deepdta": {
+    "title": "DeepDTA: Deep Drug-Target Binding Affinity Prediction",
+    "authors": [
+      "Hakime Öztürk",
+      "Elif Ozkirimli",
+      "Arzucan Özgür"
+    ],
+    "year": 2018,
+    "arxivId": "1801.10193",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "denovo-genai-survey": {
+    "title": "A Survey of Generative AI for de novo Drug Design: New Frontiers in Molecule and Protein Generation",
+    "authors": [
+      "Xiangru Tang",
+      "Howard Dai",
+      "Elizabeth Knight",
+      "Fang Wu",
+      "Yunyang Li",
+      "Tianxiao Li",
+      "Mark Gerstein"
+    ],
+    "year": 2024,
+    "arxivId": null,
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "dqn": {
+    "title": null,
+    "authors": null,
+    "year": 2013,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "epi-pinn": {
+    "title": "Approaching epidemiological dynamics of COVID-19 with physics-informed neural networks",
+    "authors": [
+      "Shuai Han",
+      "Lukas Stelz",
+      "Horst Stoecker",
+      "Lingxiao Wang",
+      "Kai Zhou"
+    ],
+    "year": 2023,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "flamingo": {
+    "title": null,
+    "authors": null,
+    "year": 2022,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "gat": {
+    "title": "Graph Attention Networks",
+    "authors": [
+      "Petar Veličković",
+      "Guillem Cucurull",
+      "Arantxa Casanova",
+      "Adriana Romero",
+      "Pietro Liò",
+      "Yoshua Bengio"
+    ],
+    "year": 2018,
+    "arxivId": "1710.10903",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "gcn": {
+    "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+    "authors": [
+      "Thomas N. Kipf",
+      "Max Welling"
+    ],
+    "year": 2017,
+    "arxivId": "1609.02907",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "gns-physics": {
+    "title": "Learning to Simulate Complex Physics with Graph Networks",
+    "authors": [
+      "Alvaro Sanchez-Gonzalez",
+      "Jonathan Godwin",
+      "Tobias Pfaff",
+      "Rex Ying",
+      "Jure Leskovec",
+      "Peter W. Battaglia"
+    ],
+    "year": 2020,
+    "arxivId": "2002.09405",
+    "current": true,
+    "source": "api; arXiv id from the paper text in the recorded passages"
+  },
+  "graphcast": {
+    "title": "GraphCast: Learning skillful medium-range global weather forecasting",
+    "authors": [
+      "R. Lam",
+      "A. Sanchez-Gonzalez",
+      "M. Willson",
+      "P. Wirnsberger",
+      "et al."
+    ],
+    "year": 2023,
+    "arxivId": "2212.12794",
+    "current": true,
+    "source": "api; paper text in the recorded passages; docs/paper-source/architecture.html [19]"
+  },
+  "llava": {
+    "title": null,
+    "authors": null,
+    "year": 2023,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "llm-education-survey": {
+    "title": "Large Language Models for Education: A Survey",
+    "authors": [
+      "Hanyi Xu",
+      "Wensheng Gan",
+      "Zhenlian Qi",
+      "et al."
+    ],
+    "year": 2024,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "neuromorphic-survey": {
+    "title": null,
+    "authors": null,
+    "year": 2017,
+    "arxivId": "1705.06963",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "oc20": {
+    "title": null,
+    "authors": null,
+    "year": 2021,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "pangu-weather": {
+    "title": "Pangu-Weather: A 3D High-Resolution System for Fast and Accurate Global Weather Forecast",
+    "authors": [
+      "Kaifeng Bi",
+      "Lingxi Xie",
+      "Hengheng Zhang",
+      "Xin Chen",
+      "Xiaotao Gu",
+      "Qi Tian"
+    ],
+    "year": 2022,
+    "arxivId": "2211.02556",
+    "current": true,
+    "source": "api; paper text in the recorded passages; docs/paper-source/architecture.html [20]"
+  },
+  "pharmagents": {
+    "title": "PharmAgents: Building a Virtual Pharma with Large Language Model Agents",
+    "authors": [
+      "B. Gao",
+      "Y. Huang",
+      "et al."
+    ],
+    "year": 2025,
+    "arxivId": "2503.22164",
+    "current": true,
+    "source": "api; docs/paper-source/architecture.html [17]"
+  },
+  "ppo": {
+    "title": "Proximal Policy Optimization Algorithms",
+    "authors": [
+      "John Schulman",
+      "Filip Wolski",
+      "Prafulla Dhariwal",
+      "Alec Radford",
+      "Oleg Klimov"
+    ],
+    "year": 2017,
+    "arxivId": "1707.06347",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "protein-dl-survey": {
+    "title": null,
+    "authors": null,
+    "year": 2025,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "self-rag": {
+    "title": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection",
+    "authors": [
+      "Akari Asai",
+      "Zeqiu Wu",
+      "Yizhong Wang",
+      "Avirup Sil",
+      "Hannaneh Hajishirzi"
+    ],
+    "year": 2023,
+    "arxivId": "2310.11511",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "solnet-pv": {
+    "title": "SolNet: Open-source deep learning models for photovoltaic power forecasting across the globe",
+    "authors": [
+      "Joris Depoortere",
+      "Johan Driesen",
+      "Johan Suykens",
+      "Hussain Syed Kazmi"
+    ],
+    "year": null,
+    "arxivId": "2405.14472",
+    "current": true,
+    "source": "api; arXiv id from the paper text in the recorded passages"
+  },
+  "tackling-climate-ml": {
+    "title": null,
+    "authors": null,
+    "year": 2019,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "thought2text-eeg": {
+    "title": null,
+    "authors": null,
+    "year": 2025,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "vit": {
+    "title": null,
+    "authors": null,
+    "year": 2021,
+    "arxivId": "2010.11929",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  },
+  "wav2vec2": {
+    "title": null,
+    "authors": null,
+    "year": 2020,
+    "arxivId": null,
+    "current": true,
+    "source": "api"
+  },
+  "whisper": {
+    "title": "Robust Speech Recognition via Large-Scale Weak Supervision",
+    "authors": null,
+    "year": 2022,
+    "arxivId": "2212.04356",
+    "current": true,
+    "source": "api; paper text in the recorded passages"
+  }
+}
