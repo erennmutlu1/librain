@@ -9,11 +9,11 @@ import {
   type OpenAiModel,
   type Provider,
 } from '../api/types';
-import { StatusLegend } from '../components/AnnotatedClaim';
 import { DiscoverResult } from '../components/DiscoverResult';
+import { FeaturedGallery } from '../components/FeaturedGallery';
 import { MockProvenance, RecordedRuns, Segmented } from '../components/FormBits';
 import { ProgressStepper } from '../components/ProgressStepper';
-import { EmptyState, ErrorNotice } from '../components/States';
+import { ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
 import { topicLabel } from '../lib/format';
 import { useSessionState } from '../lib/sessionStore';
@@ -207,18 +207,6 @@ export default function DiscoverPage() {
       </form>
 
       <div className={styles.result}>
-        {state.status === 'idle' ? (
-          <EmptyState title="No discovery yet">
-            <p>
-              Run one and the novel claim comes back marked up sentence by sentence. Each verdict comes from an
-              independent validator that reads the same retrieved passages:
-            </p>
-            <div className={styles.legendSlot}>
-              <StatusLegend />
-            </div>
-          </EmptyState>
-        ) : null}
-
         {state.status === 'loading' ? (
           <ProgressStepper
             title="Running discovery"
@@ -246,6 +234,9 @@ export default function DiscoverPage() {
             <DiscoverResult request={state.data.request} result={state.data.result} />
           </>
         ) : null}
+
+        {/* No result on screen: recorded runs that open without calling the API. */}
+        {state.status === 'idle' || state.status === 'error' ? <FeaturedGallery /> : null}
       </div>
     </div>
   );

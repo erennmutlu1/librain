@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import type { DiscoverRequest, DiscoverResponse } from '../api/types';
+import type { DiscoverRequest, DiscoverResponse, PaperSummary } from '../api/types';
 import { topicLabel } from '../lib/format';
 import { usePaperIndex } from '../lib/papers';
 import { discoveryScoreItems } from '../lib/scoreItems';
@@ -12,9 +12,20 @@ import { FencedHypothesis } from './FencedHypothesis';
 import { RiskMeter, ScoreBars } from './ScoreBars';
 import styles from './DiscoverResult.module.css';
 
-export function DiscoverResult({ request, result }: { request: DiscoverRequest; result: DiscoverResponse }) {
-  const uid = useId();
+interface Props {
+  request: DiscoverRequest;
+  result: DiscoverResponse;
+}
+
+/** A Discover result, with paper titles from the library list (loaded on first use). */
+export function DiscoverResult({ request, result }: Props) {
   const papers = usePaperIndex();
+  return <DiscoverResultView request={request} result={result} papers={papers} />;
+}
+
+/** The same view with the paper index supplied, so rendering it never calls the API. */
+export function DiscoverResultView({ request, result, papers }: Props & { papers: Map<string, PaperSummary> }) {
+  const uid = useId();
   const cv = result.claimValidation;
   const provider = request.provider ?? 'anthropic';
 

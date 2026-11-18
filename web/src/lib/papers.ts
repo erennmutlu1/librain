@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useApi } from '../api/context';
 import type { PaperSummary } from '../api/types';
-import { getSession } from './sessionStore';
+import { getSession, useSessionState } from './sessionStore';
 import { useRequest, type RequestState } from './useRequest';
 
 const KEY = 'papers';
+const IDLE: RequestState<PaperSummary[]> = { status: 'idle' };
 
 /** The library list, loaded once per tab and shared by every screen. */
 export function usePapers() {
@@ -20,14 +21,25 @@ export function usePapers() {
   return request;
 }
 
+function indexPapers(state: RequestState<PaperSummary[]>): Map<string, PaperSummary> {
+  const map = new Map<string, PaperSummary>();
+  if (state.status === 'success') for (const p of state.data) map.set(p.paperId, p);
+  return map;
+}
+
 /** paperId -> summary, for showing titles next to citations. Empty until loaded. */
 export function usePaperIndex(): Map<string, PaperSummary> {
   const { state } = usePapers();
-  return useMemo(() => {
-    const map = new Map<string, PaperSummary>();
-    if (state.status === 'success') for (const p of state.data) map.set(p.paperId, p);
-    return map;
-  }, [state]);
+  return useMemo(() => indexPapers(state), [state]);
+}
+
+/**
+ * The same index from a library list this tab has already loaded, without
+ * ever requesting one. For views that must not call the API (featured runs).
+ */
+export function useLoadedPaperIndex(): Map<string, PaperSummary> {
+  const [state] = useSessionState<RequestState<PaperSummary[]>>(KEY, IDLE);
+  return useMemo(() => indexPapers(state), [state]);
 }
 
 /** A title worth showing: hides the backend's paperId fallback and empty titles. */

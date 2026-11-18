@@ -15,11 +15,13 @@ const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const HistoryDetailPage = lazy(() => import('./pages/HistoryDetailPage'));
+const FeaturedPage = lazy(() => import('./pages/FeaturedPage'));
 
 const TITLES: Record<string, string> = {
   '/library': 'Library',
   '/ask': 'Ask',
   '/discover': 'Discover',
+  '/discover/featured': 'Featured discoveries',
   '/compare': 'Compare',
   '/history': 'History',
 };
@@ -27,7 +29,9 @@ const TITLES: Record<string, string> = {
 function DocumentTitle() {
   const { pathname } = useLocation();
   useEffect(() => {
-    const section = TITLES[pathname] ?? (pathname.startsWith('/history/') ? 'Run' : null);
+    const section =
+      TITLES[pathname] ??
+      (pathname.startsWith('/history/') ? 'Run' : pathname.startsWith('/discover/featured/') ? 'Featured discovery' : null);
     document.title = section ? `${section} · LIBRAIN` : 'LIBRAIN';
   }, [pathname]);
   return null;
@@ -65,6 +69,8 @@ const routes: RouteObject[] = [
       { path: 'library', element: <Screen><LibraryPage /></Screen> },
       { path: 'ask', element: <Screen><AskPage /></Screen> },
       { path: 'discover', element: <Screen><DiscoverPage /></Screen> },
+      { path: 'discover/featured', element: <Screen><FeaturedPage /></Screen> },
+      { path: 'discover/featured/:id', element: <Screen><FeaturedPage /></Screen> },
       { path: 'compare', element: <Screen><ComparePage /></Screen> },
       { path: 'history', element: <Screen><HistoryPage /></Screen> },
       { path: 'history/:id', element: <Screen><HistoryDetailPage /></Screen> },

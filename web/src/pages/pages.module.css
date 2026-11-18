@@ -71,10 +71,6 @@
   color: var(--ink-3);
 }
 
-.legendSlot {
-  margin-top: var(--s4);
-}
-
 .explainer {
   margin-bottom: var(--s6);
 }
