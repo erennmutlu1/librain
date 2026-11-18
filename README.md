@@ -184,6 +184,20 @@ curl -k -X POST https://localhost:7XXX/api/query \
 
 ---
 
+## Web UI
+
+`web/` is a React + Vite + TypeScript app over the API: **Library** (upload or arXiv ingest), **Ask** (citation chips open the cited passage), **Discover** (every `novelClaim` sentence coloured by its claim-validation verdict), **Compare** (the three systems side by side, fabricated citations in red) and **History** (saved runs). Long runs show live progress.
+
+![Discover: each novel-claim sentence marked grounded, extrapolated or risky](web/docs/screenshots/discover.png)
+
+```bash
+cd web && npm ci
+npm run dev                          # mock mode: replays committed experiment results and captured API output, no backend needed
+VITE_USE_MOCKS=false npm run dev     # against the API on http://localhost:5000
+```
+
+Or run the API, Qdrant and the UI together with `docker compose up --build` (UI on http://localhost:5180). Details, screenshots and the fixture inventory are in [`web/README.md`](web/README.md).
+
 ## HTTP API
 
 Interactive reference at `/scalar` when running in Development. Errors are `application/problem+json`.
@@ -244,7 +258,9 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over a 5-paper weather/energy slice (the PDFs present at run time); citation contract holds (zero fabricated citations) across every configuration
 - [x] **RQ3 measured benefit + cross-family port**: free-text/starved fabrication-delta (Naive-RAG 67 fabricated vs LIBRAIN 0); the full Discovery pipeline ported to OpenAI (`provider=openai`, gpt-4o) with provider routing; corpus scaled to 41 papers / 30 pairs; novelty-metric validation (ρ=0.41) + in-code inter-rater agreement (Cohen/Fleiss/Krippendorff). Anthropic-judged tables unchanged.
 - [x] **Two-panel human eval (n=30)**: a second blinded three-rater panel extends the AFTER-FIX pilot to 30 outputs (LIBRAIN 0/30 vs Naive-RAG 3/30 hallucination flags; pooled novelClaim novelty 4.47 / 1.80 / 2.47), committed under `experiments/hallucination-pilot/combined-n30-*.csv`
-- [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming
+- [x] **Hardening**: fail-closed claim validation, one shared Discovery contract for both providers, retries, replay tests over every committed result, run history, progress streaming, arXiv ingest, API key + rate limit (see [`CHANGELOG.md`](CHANGELOG.md))
+- [x] **Phase 3.B (local)**: web UI (Library, Ask, Discover, Compare, History) with live progress, and Docker Compose for the whole stack
+- [ ] **Phase 3.B (hosted)**: public deployment (Azure Container Apps + Static Web Apps, or any container host)
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
@@ -332,7 +348,8 @@ librain/
 │   ├── Models/                  # DTOs, domain types
 │   ├── Reading/                 # PDF extraction + chunking
 │   └── Program.cs
-├── LIBRAIN.Tests/               # 81 xUnit unit tests
+├── LIBRAIN.Tests/               # xUnit: unit, replay-of-committed-results, in-memory API, opt-in Qdrant
+├── web/                         # React + Vite + TypeScript UI (Library, Ask, Discover, Compare, History)
 ├── LIBRAIN.Experiments/         # .NET CLI: phase-b, baseline, robustness,
 │                                # fabrication-delta, discover-run, score-systems,
 │                                # novelty-validation, human-eval,
