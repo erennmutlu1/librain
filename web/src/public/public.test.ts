@@ -215,10 +215,10 @@ describe('Recorded mode on the public site (strict recordings)', () => {
   const api = () => createMockApi({ latency: 0, recordings: publicRecordings });
   const f4 = exploreRecordings.find((r) => r.id === 'explore-F4')!;
 
-  it('offers the 46 committed runs and the real Anthropic pairs, and no API snapshot or OpenAI run', () => {
-    expect(exploreRecordings).toHaveLength(46);
+  it('offers the 70 committed runs and the real Anthropic pairs, and no API snapshot or OpenAI run', () => {
+    expect(exploreRecordings).toHaveLength(70);
     const catalog = api().mock!;
-    expect(catalog.discover).toHaveLength(50);
+    expect(catalog.discover).toHaveLength(74);
     expect(catalog.discover.map((s) => s.id)).not.toContainEqual(expect.stringMatching(/^(contract-|openai-)/));
     expect(catalog.discover.filter((s) => s.id.startsWith('anthropic-pair-'))).toHaveLength(4);
     expect(catalog.compare.map((s) => s.id)).toEqual(['pair-10', 'pair-01']);
@@ -228,6 +228,11 @@ describe('Recorded mode on the public site (strict recordings)', () => {
     expect(f4.label).toBe('F4 · corner kick tactic generation and player positioning × learned physics simulators with graph networks');
     expect(f4.source).toBe('experiments/new-areas-discoveries/runs/F4.json');
     expect(exploreRecordings[0]?.source).toBe('experiments/featured-discoveries/runs/A1.json');
+    // Batch 3 follows batches 1 and 2, in id order.
+    expect(exploreRecordings.slice(-24).map((r) => r.id)).toEqual(
+      [...Array.from({ length: 23 }, (_, i) => i + 1), 25].map((n) => `explore-X${String(n).padStart(2, '0')}`),
+    );
+    expect(exploreRecordings.find((r) => r.id === 'explore-X17')?.source).toBe('experiments/cross-field-discoveries/runs/X17.json');
   });
 
   it('serves a recording only for its own topics, either order, any case', async () => {

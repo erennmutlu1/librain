@@ -29,4 +29,15 @@ describe('RecordedIndex count note', () => {
     show('tr');
     expect(screen.getByText(/Kayıtlı çalıştırma sayısı: 3 = 2 fikir \+ referans sistem karşılaştırmasından 1 çalıştırma/)).toBeInTheDocument();
   });
+
+  it('groups batch-3 runs under their own category, after the others', () => {
+    render(
+      <MemoryRouter>
+        <RecordedIndex scenarios={[mk('explore-X17', 'x'), ...scenarios]} onPick={() => {}} />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(/4 recorded runs = the 3 ideas \+ 1 from the baseline comparison/)).toBeInTheDocument();
+    const titles = screen.getAllByRole('group').filter((g) => g.hasAttribute('aria-labelledby')).map((g) => document.getElementById(g.getAttribute('aria-labelledby')!)?.textContent);
+    expect(titles).toEqual(['Drug & materials discovery × agents1', 'AI × football1', 'Cross-field bridges1', 'Baseline comparison (the 4 extra runs)1']);
+  });
 });

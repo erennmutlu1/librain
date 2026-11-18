@@ -79,6 +79,8 @@
   --cat-w: #13865f;
   --cat-p: #b54577;
   --cat-j: #c43c3b;
+  /* Cross-field bridges (batch 3): a cyan, 5.1:1 on white, ΔE2000 ≥ 19 from every other --cat-* hue */
+  --cat-x: #0d7a86;
 
   /* Shadows: hairline ring plus soft layers (light); dark mode uses borders only */
   --shadow-panel: 0 0 0 1px rgb(0 0 0 / 0.02), 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 12px rgb(0 0 0 / 0.04);
@@ -174,6 +176,7 @@
   --cat-w: #3fb68b;
   --cat-p: #e483ad;
   --cat-j: #ec7b7a;
+  --cat-x: #4fc9d4;
   --shadow-panel: none;
   --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.06), 0 8px 24px rgb(0 0 0 / 0.55);
 }

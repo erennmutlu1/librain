@@ -24,11 +24,13 @@ describe('Explore in Turkish', () => {
     const { user } = setup('/explore');
     expect(await screen.findByRole('heading', { level: 1, name: 'Fikirler' })).toBeInTheDocument();
     const list = await screen.findByRole('list', { name: 'Fikirler' });
-    expect(within(list).getAllByRole('listitem')).toHaveLength(46);
+    expect(within(list).getAllByRole('listitem')).toHaveLength(70);
+    expect(screen.getByText(/^10 alanda tüm fikirler; kayıt tarihi:/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Köprüler 24 fikir' })).toBeInTheDocument();
     expect(screen.getByText(/Fikirler İngilizceden çevrildi; makale parçaları özgün dilinde/)).toBeInTheDocument();
     expect(screen.getByRole('search', { name: 'Fikirleri filtrele' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Sırala' })).toHaveDisplayValue('En yüksek not');
-    expect(screen.getByRole('status')).toHaveTextContent('Tüm 46 fikir');
+    expect(screen.getByRole('status')).toHaveTextContent('Tüm 70 fikir');
 
     // Search works on the translated text.
     await user.type(screen.getByRole('searchbox', { name: 'Konularda ve iddialarda ara' }), 'PharmAgents');
@@ -43,6 +45,8 @@ describe('Explore in Turkish', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Fikir istatistikleri' })).toBeInTheDocument();
     expect(await screen.findByText('Ortalama not (/10)')).toBeInTheDocument();
     expect(screen.getByText('Not dağılımı')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Maliyet' })).toHaveTextContent('Üçüncü grup (alanlar arası köprüler): 24 çalıştırma için');
+    expect(screen.getByText(/Birbirine yakın notları eşit sayın\./)).toBeInTheDocument();
   });
 
   it('translates the quiz', async () => {

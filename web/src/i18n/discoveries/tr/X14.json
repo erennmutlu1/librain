@@ -1,0 +1,28 @@
+{
+  "id": "X14",
+  "topicA": "EEG kodlayıcısı ve LLM ile EEG sinyallerinden metin üretme",
+  "topicB": "örtük öznitelikleri maskeleyerek konuşma temsillerinin kendi kendine denetimli öğrenilmesi",
+  "hypothesis": "wav2vec 2.0’da konuşma için gösterildiği gibi örtük temsillerin kendi kendine denetimli maskelenmesi, büyük etiketsiz EEG derlemleri üzerinde EEG kodlayıcılarını ön eğitmek için doğrudan uyarlanabilir; böylece Thought2Text gibi sistemlerdeki EEG kodlayıcısı, kıt etiketli EEG-metin çiftleri üzerinde ince ayar yapılmadan önce daha zengin, daha genellenebilir nöral gömmeler (embedding) öğrenebilir. Böyle bir ön eğitim stratejisi, kodlayıcı yalnızca denetimli nesne etiketi hizalamasına dayanmak yerine nöral aktivitenin maskelenmiş aralıklarını yeniden oluşturmayı öğreneceği için, EEG’den metin üretme kalitesini şu anda sınırlayan denekler arası değişkenliği ve yanlış sınıflandırma hatalarını büyük olasılıkla azaltırdı. Maskelenmiş örtük kendi kendine denetimli paradigmanın bu kipler arası aktarımı, sonunda EEG’den metin sistemlerinin wav2vec 2.0’ın konuşma tanımada elde ettiği düşük etiketli veri verimliliğine yaklaşmasına olanak tanıyabilir.",
+  "novelClaim": "Böyle bir ön eğitim stratejisi, kodlayıcı yalnızca denetimli nesne etiketi hizalamasına dayanmak yerine nöral aktivitenin maskelenmiş aralıklarını yeniden oluşturmayı öğreneceği için, EEG’den metin üretme kalitesini şu anda sınırlayan denekler arası değişkenliği ve yanlış sınıflandırma hatalarını büyük olasılıkla azaltırdı. Maskelenmiş örtük kendi kendine denetimli paradigmanın bu kipler arası aktarımı, sonunda EEG’den metin sistemlerinin wav2vec 2.0’ın konuşma tanımada elde ettiği düşük etiketli veri verimliliğine yaklaşmasına olanak tanıyabilir.",
+  "reasoning": "wav2vec 2.0, örtük temsilleri maskelemenin ve nicemlenmiş hedefler üzerinde karşıtlıklı bir görevi çözmenin etiketsiz verilerden güçlü konuşma temsilleri sağladığını ve etiketli örnek ihtiyacını çarpıcı biçimde azalttığını gösterir (wav2vec2:0, wav2vec2:4, wav2vec2:9). Thought2Text, veri kıtlığını, denekler arası değişkenliği ve kodlayıcının yanlış sınıflandırmasını başlıca darboğazları olarak belirler (thought2text-eeg:10, thought2text-eeg:9); EEG kodlayıcısı ise şu anda yalnızca denetimli hizalama amaç fonksiyonlarıyla eğitilir (thought2text-eeg:3). wav2vec 2.0’ın maskelenmiş örtük kendi kendine denetimli paradigmasını EEG ön eğitimine uygulamak, tam da bu sınırlılıkları giderebilecek doğal ama henüz sınanmamış bir varsayımdır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir ön eğitim stratejisi, kodlayıcı yalnızca denetimli nesne etiketi hizalamasına dayanmak yerine nöral aktivitenin maskelenmiş aralıklarını yeniden oluşturmayı öğreneceği için, EEG’den metin üretme kalitesini şu anda sınırlayan denekler arası değişkenliği ve yanlış sınıflandırma hatalarını büyük olasılıkla azaltırdı.",
+      "rationale": "Cümle, ihtiyatlı bir dille ('büyük olasılıkla azaltırdı') varsayımsal bir ön eğitim stratejisi öneriyor ve olası faydaları yerleşik bir olgu olarak öne sürmeden spekülasyon konusu yapıyor; getirilen parçalar mevcut sınırlılıkları (denekler arası değişkenlik, yanlış sınıflandırma) belgeliyor, ancak önerilen maskelenmiş yeniden oluşturma yaklaşımını EEG için doğrulamıyor."
+    },
+    {
+      "sentence": "Maskelenmiş örtük kendi kendine denetimli paradigmanın bu kipler arası aktarımı, sonunda EEG’den metin sistemlerinin wav2vec 2.0’ın konuşma tanımada elde ettiği düşük etiketli veri verimliliğine yaklaşmasına olanak tanıyabilir.",
+      "rationale": "Cümle spekülatif bir ihtiyat dili ('sonunda ... olanak tanıyabilir') kullanıyor ve varsayımsal bir kipler arası aktarım öneriyor; wav2vec 2.0’ın düşük etiketli veri verimliliği getirilen parçalarda belgelenmiş olsa da bunun EEG’den metne uygulanması yerleşik bir olgu olarak değil, spekülasyon olarak sunuluyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir ön eğitim stratejisi, kodlayıcı yalnızca denetimli nesne etiketi hizalamasına dayanmak yerine nöral aktivitenin maskelenmiş aralıklarını yeniden oluşturmayı öğreneceği için, EEG’den metin üretme kalitesini şu anda sınırlayan denekler arası değişkenliği ve yanlış sınıflandırma hatalarını büyük olasılıkla azaltırdı.",
+      "rationale": "wav2vec 2.0, nicemlenmiş hedeflere sahip sürekli örtük girdilerin, tümüyle denetimli hedeflere göre daha iyi genellenebilir temsiller sağladığını gösterir; benzer şekilde, maskelenmiş EEG örtük ön eğitimi, EEG kodlayıcılarındaki deneğe özgü gürültüyü ve yanlış sınıflandırmayı azaltabilir."
+    },
+    {
+      "claimSentence": "Maskelenmiş örtük kendi kendine denetimli paradigmanın bu kipler arası aktarımı, sonunda EEG’den metin sistemlerinin wav2vec 2.0’ın konuşma tanımada elde ettiği düşük etiketli veri verimliliğine yaklaşmasına olanak tanıyabilir.",
+      "rationale": "Getirilen hiçbir parça, maskelenmiş örtük kendi kendine denetimli ön eğitimin EEG sinyallerine uygulandığını doğrudan göstermiyor ya da bunun EEG’den metin görevlerinde etiketli veri verimliliği üzerindeki etkisini nicelendirmiyor."
+    }
+  ]
+}

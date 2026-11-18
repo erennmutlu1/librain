@@ -23,15 +23,20 @@ export const partsText = strings({
     formulaCoherence: 'coherence',
     formulaNovelty: 'novelty',
     formulaRisk: 'claim risk',
-    normExplain: (min: string, max: string) =>
-      `= (novelty − ${min}) ÷ (${max} − ${min}), so the least novel of the 46 ideas counts 0 and the most novel 1. Rounded to one decimal.`,
+    normExplain: (min: string, max: string, total: number) =>
+      `= (novelty − ${min}) ÷ (${max} − ${min}), so the least novel of the ${total} ideas counts 0 and the most novel 1. Rounded to one decimal.`,
     thisIdea: 'This idea:',
     plausibilityNote: 'weighs most: a strong idea has to be believable.',
     coherenceNote: 'rewards an argument whose steps fit together.',
     noveltyNote: 'rewards distance from what the paper library already says.',
     riskNote: 'docks ideas that state unsupported facts.',
-    weightsNote:
-      'The weights rank these 46 recorded ideas against each other. They are this page’s reading aid, not a score from the paper, and a high rating is still a candidate to test.',
+    weightsNote: (total: number) =>
+      `The weights rank these ${total} recorded ideas against each other. They are this page’s reading aid, not a score from the paper, and a high rating is still a candidate to test.`,
+    noiseLead: 'A rating is not exact.',
+    noiseText:
+      ' Each one comes from a single run, and running the same request again gives a different idea. Two of the best pairs were re-run four times each: they rated 6.5–7.2 and 5.6–6.2, against 7.6 and 7.7 the first time. So a rating can be off by about a point either way. Treat close ratings as ties.',
+    noiseLink: 'See the re-run experiment on GitHub',
+    newTab: '(opens in a new tab)',
     loadErrorTitle: 'The recorded ideas did not load.',
     loadErrorBody: 'They ship with the app, so this usually means the page is out of date after an update. Reload the page, or try again.',
     tryAgain: 'Try again',
@@ -60,15 +65,20 @@ export const partsText = strings({
     formulaCoherence: 'tutarlılık',
     formulaNovelty: 'özgünlük',
     formulaRisk: 'iddia riski',
-    normExplain: (min: string, max: string) =>
-      `= (özgünlük − ${min}) ÷ (${max} − ${min}); yani 46 fikrin en az özgünü 0, en özgünü 1 sayılır. Bir ondalığa yuvarlanır.`,
+    normExplain: (min: string, max: string, total: number) =>
+      `= (özgünlük − ${min}) ÷ (${max} − ${min}); yani ${total} fikrin en az özgünü 0, en özgünü 1 sayılır. Bir ondalığa yuvarlanır.`,
     thisIdea: 'Bu fikir:',
     plausibilityNote: 'en çok ağırlığı taşır: güçlü bir fikrin inandırıcı olması gerekir.',
     coherenceNote: 'adımları birbirine oturan bir argümanı ödüllendirir.',
     noveltyNote: 'makale kütüphanesinin zaten söylediklerinden uzaklığı ödüllendirir.',
     riskNote: 'desteklenmeyen olgular öne süren fikirlerin notunu düşürür.',
-    weightsNote:
-      'Ağırlıklar, kayıtlı 46 fikri birbirine göre sıralar. Bu sayfanın okuma yardımcısıdır, makaleden gelen bir puan değildir; yüksek not da yine sınanması gereken bir adaydır.',
+    weightsNote: (total: number) =>
+      `Ağırlıklar, kayıtlı ${total} fikri birbirine göre sıralar. Bu sayfanın okuma yardımcısıdır, makaleden gelen bir puan değildir; yüksek not da yine sınanması gereken bir adaydır.`,
+    noiseLead: 'Not kesin değildir.',
+    noiseText:
+      ' Her not tek bir çalıştırmadan gelir ve aynı istek yeniden çalıştırıldığında başka bir fikir çıkar. En iyi konu çiftlerinden ikisi dörder kez yeniden çalıştırıldı: ilk seferdeki 7,6 ve 7,7 yerine 6,5–7,2 ve 5,6–6,2 arasında not aldılar. Yani bir not, iki yönde de yaklaşık 1 birim şaşabilir. Birbirine yakın notları eşit sayın.',
+    noiseLink: 'GitHub’daki yeniden çalıştırma deneyine bakın',
+    newTab: '(yeni sekmede açılır)',
     loadErrorTitle: 'Kayıtlı fikirler yüklenemedi.',
     loadErrorBody: 'Uygulamayla birlikte gelir; bu yüzden genellikle bir güncellemeden sonra sayfanın eskidiği anlamına gelir. Sayfayı yenileyin ya da yeniden deneyin.',
     tryAgain: 'Yeniden dene',

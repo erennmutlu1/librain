@@ -1,0 +1,28 @@
+{
+  "id": "X15",
+  "topicA": "giyilebilir kas yorgunluğu izleme için spiking sinir ağları",
+  "topicB": "DeepHit sağkalım ağıyla sakatlığa kadar geçen süre tahmini",
+  "hypothesis": "SNN tabanlı giyilebilir kas yorgunluğu monitörleri, düşük güçlü, gerçek zamanlı ve sEMG kaynaklı yorgunluk sinyalleri sürekli üreterek DeepHit sağkalım ağına yüksek frekanslı bir fizyolojik girdi akışı sağlayabilir; bu da hem uç dağıtımına yetecek kadar enerji verimli hem de bireysel sporcu-gün düzeyinde bağlama özgü sakatlık riski dalgalanmalarını saptayacak kadar zamansal olarak ayrıntılı bir sakatlığa kadar geçen süre tahminini mümkün kılar. Böyle bir hibrit mimari, sağkalım modelinin sakatlık tehlikesi tahminlerini statik ya da kaba örneklenmiş yük ölçütleri yerine dinamik olarak değişen nöromüsküler duruma koşullandırmasına olanak tanıyarak, yalnızca GPS/zindelik girdileri için bildirilen 0,762’lik uyum indeksini olası biçimde aşabilir. Bu entegrasyon, giyilebilir yorgunluk izlemeyi tepkisel bir saptama aracından ileriye dönük, kişiselleştirilmiş bir sakatlık önleme sistemine dönüştürebilir.",
+  "novelClaim": "Böyle bir hibrit mimari, sağkalım modelinin sakatlık tehlikesi tahminlerini statik ya da kaba örneklenmiş yük ölçütleri yerine dinamik olarak değişen nöromüsküler duruma koşullandırmasına olanak tanıyarak, yalnızca GPS/zindelik girdileri için bildirilen 0,762’lik uyum indeksini olası biçimde aşabilir. Bu entegrasyon, giyilebilir yorgunluk izlemeyi tepkisel bir saptama aracından ileriye dönük, kişiselleştirilmiş bir sakatlık önleme sistemine dönüştürebilir.",
+  "reasoning": "SNN çerçevesi (2607.11065), sürekli giyilebilir dağıtıma uygun, gerçek zamanlı, enerji verimli ve gürültüye dayanıklı sEMG yorgunluk saptaması gösterirken, DeepHit modeli (2601.19479) boylamsal fizyolojik zaman serilerinin bireyselleştirilmiş, gün düzeyinde sakatlık tehlikesi tahminlerini yönlendirebildiğini gösterir; ancak şu anda kaba GPS ve zindelik özniteliklerine dayanır. SNN’nin sürekli nöromüsküler yorgunluk çıktısını yüksek frekanslı, biyolojik olarak dayanaklı bir öznitelik olarak DeepHit’in sağkalım omurgasına beslemek, her iki bulguyu da hiçbir makalenin önermediği birleşik bir mimariye genişletir.",
+  "claims": [
+    {
+      "sentence": "Böyle bir hibrit mimari, sağkalım modelinin sakatlık tehlikesi tahminlerini statik ya da kaba örneklenmiş yük ölçütleri yerine dinamik olarak değişen nöromüsküler duruma koşullandırmasına olanak tanıyarak, yalnızca GPS/zindelik girdileri için bildirilen 0,762’lik uyum indeksini olası biçimde aşabilir.",
+      "rationale": "Cümle, ihtiyatlı bir dil ('olanak tanıyarak', 'olası biçimde aşabilir') kullanarak varsayımsal bir hibrit mimarinin olası faydaları üzerine spekülasyon yapıyor; 0,762’lik uyum indeksi getirilen DeepHit makalesine dayanıyor olsa da nöromüsküler entegrasyonla bunun aşılacağı iddiası spekülatif ve doğrudan desteklenmiyor."
+    },
+    {
+      "sentence": "Bu entegrasyon, giyilebilir yorgunluk izlemeyi tepkisel bir saptama aracından ileriye dönük, kişiselleştirilmiş bir sakatlık önleme sistemine dönüştürebilir.",
+      "rationale": "Cümle spekülatif bir dil ('dönüştürebilir') kullanıyor ve varsayımsal bir gelecek yeteneği, yerleşik bir olgu olarak öne sürmeden öneriyor; bu, mevcut giyilebilir izleme teknolojisinin makul ama doğrulanmamış bir uzantısını temsil ediyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir hibrit mimari, sağkalım modelinin sakatlık tehlikesi tahminlerini statik ya da kaba örneklenmiş yük ölçütleri yerine dinamik olarak değişen nöromüsküler duruma koşullandırmasına olanak tanıyarak, yalnızca GPS/zindelik girdileri için bildirilen 0,762’lik uyum indeksini olası biçimde aşabilir.",
+      "rationale": "DeepHit’teki SHAP analizi, yorgunluk ve yüksek yoğunluklu koşuyu gün düzeyinde temel risk belirleyicileri olarak gösterdi; kaba GPS/zindelik vekillerinin yerine sürekli SNN kaynaklı sEMG yorgunluk sinyallerini koymak, bu bulguyu daha zengin bir nöromüsküler girdi akışına genelleştirir."
+    },
+    {
+      "claimSentence": "Bu entegrasyon, giyilebilir yorgunluk izlemeyi tepkisel bir saptama aracından ileriye dönük, kişiselleştirilmiş bir sakatlık önleme sistemine dönüştürebilir.",
+      "rationale": "DeepHit’in bireyselleştirilmiş zamanla değişen risk tahminleri ve SNN çerçevesinin gerçek zamanlı uç dağıtım yeteneği ayrı ayrı yerleşiktir; bunları diğer sensör birleştirmeli sağkalım hatlarına benzetme yoluyla birleştirmek, iki kaynakta da tanımlanmayan ileriye dönük bir önleme sistemi ortaya çıkarır."
+    }
+  ]
+}

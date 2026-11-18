@@ -1,0 +1,28 @@
+{
+  "id": "X10",
+  "topicA": "taktik ayarlamaları önermek için benzer korner atışlarını getirme (TacticAI)",
+  "topicB": "parametrik olmayan bellekle erişim destekli üretim (RAG)",
+  "hypothesis": "TacticAI’nin benzer korner atışlarını graf gömmeleri (embedding) üzerinden getirmesi, RAG’in yoğun vektör indeksine benzer bir parametrik olmayan taktik bellek işlevi görür ve geçmişte gözlenen duran top durumlarına dayanan taktik ayarlamalarının erişim destekli üretimini mümkün kılar. RAG paradigmasını spor analitiğine genişleterek birleşik bir sistem, tek bir en iyi eşleşme yerine getirilen birden çok benzer kornerin üzerinden marjinalleştirme yapıp daha sağlam ve çeşitli taktik öneriler üretebilir; böylece getirilen her korneri, üretici ayarlama modelini koşullandıran örtük bir “belge” olarak ele alır. Bu tür RAG tarzı bir taktik asistan, getirmenin ne zaman gerekli olduğuna dinamik olarak karar vermek ve üretilen oyuncu ayarlamalarının olgusallığını ve gerçekçiliğini puanlamak için (SELF-RAG’deki gibi) kendini yansıtan eleştiri belirteçlerini de ayrıca içerebilir.",
+  "novelClaim": "RAG paradigmasını spor analitiğine genişleterek birleşik bir sistem, tek bir en iyi eşleşme yerine getirilen birden çok benzer kornerin üzerinden marjinalleştirme yapıp daha sağlam ve çeşitli taktik öneriler üretebilir; böylece getirilen her korneri, üretici ayarlama modelini koşullandıran örtük bir “belge” olarak ele alır. Bu tür RAG tarzı bir taktik asistan, getirmenin ne zaman gerekli olduğuna dinamik olarak karar vermek ve üretilen oyuncu ayarlamalarının olgusallığını ve gerçekçiliğini puanlamak için (SELF-RAG’deki gibi) kendini yansıtan eleştiri belirteçlerini de ayrıca içerebilir.",
+  "reasoning": "TacticAI, bir graf gömme erişim sistemini (geçmiş kornerlerin parametrik olmayan belleği) taktik ayarlamalar için koşullu bir üretici modelle zaten birleştirir; bu da yapısal olarak RAG’in getirici+üretici mimarisini yansıtır. RAG literatürü, getirilen birden çok öğe üzerinden marjinalleştirmenin çıktı çeşitliliğini ve olgusallığı iyileştirdiğini, SELF-RAG ise kendini yansıtan puanlamanın sağlamlığı daha da artırdığını gösterir; her iki ilkeyi TacticAI’nin en iyi K korner getirme ve üretici ayarlama hattına uygulamak doğal ama henüz dile getirilmemiş bir çıkarımdır.",
+  "claims": [
+    {
+      "sentence": "RAG paradigmasını spor analitiğine genişleterek birleşik bir sistem, tek bir en iyi eşleşme yerine getirilen birden çok benzer kornerin üzerinden marjinalleştirme yapıp daha sağlam ve çeşitli taktik öneriler üretebilir; böylece getirilen her korneri, üretici ayarlama modelini koşullandıran örtük bir “belge” olarak ele alır.",
+      "rationale": "Cümle, ihtiyatlı bir dil ('üretebilir') kullanarak RAG’in spor analitiğine varsayımsal bir genişletmesini öneriyor; RAG’deki marjinalleştirme ile TacticAI’nin getirme/üretme yetenekleri belgelenmiş olsa da getirilen birden çok kornerin örtük belgeler olarak kullanılması yönündeki özgül uygulama, getirilen parçalar tarafından doğrudan desteklenmeyen yeni bir hipotezdir."
+    },
+    {
+      "sentence": "Bu tür RAG tarzı bir taktik asistan, getirmenin ne zaman gerekli olduğuna dinamik olarak karar vermek ve üretilen oyuncu ayarlamalarının olgusallığını ve gerçekçiliğini puanlamak için (SELF-RAG’deki gibi) kendini yansıtan eleştiri belirteçlerini de ayrıca içerebilir.",
+      "rationale": "Cümle ihtiyatlı bir dil ('içerebilir') kullanıyor ve SELF-RAG’in eleştiri belirteçlerinin taktik önerilerle varsayımsal bir birleşimini öneriyor; SELF-RAG’in yansıtma mekanizması belgelenmiş olsa da bunun oyuncu ayarlamalarının gerçekçiliğini puanlamak üzere spor analitiğine uygulanması, doğrudan desteklenmeyen yeni bir hipotezdir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "RAG paradigmasını spor analitiğine genişleterek birleşik bir sistem, tek bir en iyi eşleşme yerine getirilen birden çok benzer kornerin üzerinden marjinalleştirme yapıp daha sağlam ve çeşitli taktik öneriler üretebilir; böylece getirilen her korneri, üretici ayarlama modelini koşullandıran örtük bir “belge” olarak ele alır.",
+      "rationale": "RAG, çıktı üretmek için getirilen en iyi K belge üzerinden marjinalleştirme yapar; TacticAI benzer kornerleri zaten getirip ayarlamalar ürettiğinden, RAG’in çok belgeli marjinalleştirmesini getirilen en iyi K kornere uygulamak doğrudan bir yapısal benzetmedir."
+    },
+    {
+      "claimSentence": "Bu tür RAG tarzı bir taktik asistan, getirmenin ne zaman gerekli olduğuna dinamik olarak karar vermek ve üretilen oyuncu ayarlamalarının olgusallığını ve gerçekçiliğini puanlamak için (SELF-RAG’deki gibi) kendini yansıtan eleştiri belirteçlerini de ayrıca içerebilir.",
+      "rationale": "SELF-RAG, istek üzerine getirmeye karar vermek ve çıktı kalitesini değerlendirmek için yansıtma belirteçleri kullanır; bu mekanizmayı TacticAI’nin üretici modeline uygulamak, modelin önerilen oyuncu konumlarının gerçekçiliğini kendi kendine değerlendirmesine olanak tanır; bu yetenek mevcut sistemde yoktur."
+    }
+  ]
+}

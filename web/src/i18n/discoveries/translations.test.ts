@@ -21,8 +21,8 @@ const trById = new Map(Object.entries(translations).map(([path, t]) => [path.spl
 const nonEmpty = (s: unknown) => typeof s === 'string' && s.trim().length > 0;
 
 describe('Turkish discovery translations', () => {
-  it('covers all 46 recorded runs and nothing else', () => {
-    expect(byId.size).toBe(46);
+  it('covers all 70 recorded runs and nothing else', () => {
+    expect(byId.size).toBe(70);
     expect([...trById.keys()].sort()).toEqual([...byId.keys()].sort());
   });
 

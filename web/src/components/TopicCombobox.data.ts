@@ -1,10 +1,11 @@
 /*
- * The topic pairs of the 46 recorded Explore discoveries
- * (src/explore/data/<batch>/runs/<id>.json), in repository order, all at
- * topK 5. A tiny copy, so the topic suggestions in Live mode never pull the
- * runs (and their passage text) into the bundle. TopicCombobox.test.tsx
- * checks it against the run files, so a new or changed run fails a test
- * until this list follows.
+ * The topic pairs of every recorded Explore discovery
+ * (src/explore/data/<batch>/runs/<id>.json), in repository order (batch 1,
+ * 2, 3, each by id), all at topK 5. A tiny copy, so the topic suggestions in
+ * Live mode never pull the runs (and their passage text) into the bundle.
+ * TopicCombobox.test.tsx checks it against the run files, so a new or
+ * changed run fails a test until this list follows. Its length is the
+ * build-time idea count (src/explore/ideaCount.ts).
  *
  * Recorded mode does not use it: there the suggestions come from the mock
  * client's own catalogue, which is exactly what can replay.
@@ -56,6 +57,30 @@ export const RECORDED_TOPIC_PAIRS: readonly (readonly [string, string | null])[]
   ['multimodal front-end code generation from web page screenshots', 'vision transformer patch embeddings'],
   ['web navigation agents completing multi-step tasks', 'reinforcement learning with proximal policy optimization'],
   ['automated front-end engineering benchmarks', 'large language models for education'],
+  ['evaluating code generation by functional correctness with unit tests (HumanEval)', 'large language models for education'],
+  ['valuing player actions in soccer by their effect on scoring probability', 'deep Q-learning of action-value functions from raw experience (DQN)'],
+  ['muscle fatigue detection from surface electromyography signals', 'self-supervised contrastive pretraining on raw speech audio (wav2vec 2.0)'],
+  ['predicting football injuries from training load and GPS data', 'series decomposition and auto-correlation for long-term forecasting (Autoformer)'],
+  ['occupational task exposure to large language models rated with a rubric', 'semi-supervised node classification with graph convolutional networks'],
+  ['crop yield prediction with multi-modal satellite and meteorological data fusion', 'probabilistic forecasting with autoregressive recurrent networks (DeepAR)'],
+  ['large-scale program sampling, filtering and clustering (AlphaCode)', 'scientific hypothesis generation and validation with language models'],
+  ['controlled experiment on developer productivity with an AI pair programmer', 'large language models for education'],
+  ['COVID-19 case forecasting with mobility-based spatio-temporal graph neural networks', 'probabilistic forecasting with autoregressive recurrent networks (DeepAR)'],
+  ['retrieving similar corner kicks to suggest tactical adjustments (TacticAI)', 'retrieval-augmented generation with a non-parametric memory'],
+  ['predictive modelling of football injuries from player training data', 'debiased machine learning for elasticities in high-dimensional panel data'],
+  ['valuing on-the-ball actions of soccer players', 'advantage estimation and clipped surrogate objectives in policy gradient methods'],
+  ['benchmarking automated front-end engineering from webpage screenshots', 'labor market exposure of occupations to large language models'],
+  ['generating text from EEG signals with an EEG encoder and LLM', 'self-supervised learning of speech representations by masking latent features'],
+  ['spiking neural networks for wearable muscle fatigue monitoring', 'time-to-injury forecasting with a DeepHit survival network'],
+  ['realistic web environment for evaluating autonomous agents on long-horizon tasks', 'which economic tasks people perform with AI assistants'],
+  ['COVID-19 forecasting on a spatio-temporal graph of human mobility', 'multi-mesh message passing for global weather forecasting (GraphCast)'],
+  ['estimating crop yields from NDVI time series with deep learning', 'decomposition transformers with auto-correlation for long-term series forecasting'],
+  ['reward shaping and sparse scoring rewards in a football reinforcement learning environment', 'valuing soccer actions by their change in scoring and conceding probability'],
+  ['pretraining photovoltaic forecasting models on synthetic data then fine-tuning', 'estimating crop yields with remote sensing and deep learning'],
+  ['drug-target binding affinity prediction from protein sequences and SMILES', 'contrastive pretraining of paired encoders for zero-shot transfer (CLIP)'],
+  ['robust multilingual speech recognition from large-scale weak supervision', 'large language models for education'],
+  ['predicting forces and relaxed energies for catalyst adsorption (OC20)', 'learned particle simulators with message passing and noise-robust rollouts'],
+  ['municipality-level crop yield estimation from satellite data', 'semi-supervised learning on graphs with graph convolutional networks'],
 ];
 
 /** Every recorded Explore run asked for five passages per topic. */

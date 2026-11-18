@@ -1,0 +1,20 @@
+{
+  "id": "X08",
+  "topicA": "yapay zekâ eş programcısıyla geliştirici üretkenliği üzerine kontrollü deney",
+  "topicB": "eğitimde büyük dil modelleri",
+  "hypothesis": "GitHub Copilot gibi yapay zekâ eş programcıları, daha az deneyimli geliştiricilere orantısız biçimde fayda sağlamakta; kontrollü deneylerde görev tamamlama süresini ortalama %55,8 kısaltmakta ve en büyük kazanımlar acemi programcılara gitmektedir. Akıllı özel ders sistemleri ve kişiselleştirilmiş kodlama geri bildirim araçları gibi eğitim bağlamlarında kullanılan LLM’ler, gerçek zamanlı kod önerisini öğrencinin beceri düzeyine göre uyarlanan pedagojik iskelelemeyle birleştirerek bu etkiyi artırabilir. Bu yakınsama, yapay zekâ eş programlama yeteneklerinin doğrudan LLM destekli eğitim platformlarına entegre edilmesinin, giriş düzeyi yazılım geliştirme eğitimini ölçekli olarak hızlandırabileceğini ve olasılıkla yıllar süren beceri edinimini aylara sıkıştırabileceğini düşündürmektedir.",
+  "novelClaim": "Bu yakınsama, yapay zekâ eş programlama yeteneklerinin doğrudan LLM destekli eğitim platformlarına entegre edilmesinin, giriş düzeyi yazılım geliştirme eğitimini ölçekli olarak hızlandırabileceğini ve olasılıkla yıllar süren beceri edinimini aylara sıkıştırabileceğini düşündürmektedir.",
+  "reasoning": "Copilot deneyi (2302.06590) en büyük üretkenlik kazanımlarının daha az deneyimli programcılarda görüldüğünü, LLM eğitim derlemesi (llm-education-survey parça 13) ise akıllı özel ders sistemlerini ve kişiselleştirilmiş LLM tabanlı eğitim araçlarını belgelemektedir; bu iki bulgunun birleştirilmesi, entegre bir platformun acemi geliştiriciler için öğrenme eğrisini büyük ölçüde kısaltabileceği yönündeki spekülasyonu motive etmektedir; ancak hiçbir kaynak bu birleşik etkiyi doğrudan test etmemekte veya ölçmemektedir.",
+  "claims": [
+    {
+      "sentence": "Bu yakınsama, yapay zekâ eş programlama yeteneklerinin doğrudan LLM destekli eğitim platformlarına entegre edilmesinin, giriş düzeyi yazılım geliştirme eğitimini ölçekli olarak hızlandırabileceğini ve olasılıkla yıllar süren beceri edinimini aylara sıkıştırabileceğini düşündürmektedir.",
+      "rationale": "Cümle, yapay zekâ eş programlamanın eğitim platformlarına entegre edilmesine dair varsayımsal bir hipotezi çekinceli bir dille (“düşündürmektedir”, “hızlandırabileceğini”, “olasılıkla”) kurgulamaktadır; bu hipotez getirilen kanıtın ötesine geçmekte ancak belirli bir olgusal iddiayı yerleşik bir olgu olarak öne sürmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu yakınsama, yapay zekâ eş programlama yeteneklerinin doğrudan LLM destekli eğitim platformlarına entegre edilmesinin, giriş düzeyi yazılım geliştirme eğitimini ölçekli olarak hızlandırabileceğini ve olasılıkla yıllar süren beceri edinimini aylara sıkıştırabileceğini düşündürmektedir.",
+      "rationale": "Getirilen hiçbir parça, LLM eğitim platformlarına gömülü yapay zekâ eş programlamanın uzun vadeli beceri edinimi süreleri üzerindeki birleşik etkisini doğrudan incelememektedir; bu, her iki kaynak makalenin de ötesine geçen varsayımsal bir sıçramadır."
+    }
+  ]
+}

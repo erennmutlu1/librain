@@ -1,0 +1,20 @@
+{
+  "id": "X11",
+  "topicA": "oyuncu antrenman verilerinden futbol sakatlıklarının öngörücü modellenmesi",
+  "topicB": "yüksek boyutlu panel verilerinde esneklikler için yanlılığı giderilmiş makine öğrenmesi",
+  "hypothesis": "Standart makine öğrenmesi düzenlileştirmesinin türev tahmininde yanlılığa yol açtığı yüksek boyutlu panel verilerinde esneklikleri tahmin etmek için geliştirilen yanlılığı giderilmiş makine öğrenmesi (DML) yöntemleri, ortak değişken uzayı geniş (örn. 69 GPS değişkeni) ve panel birimleri (oyuncular) az olduğunda bile antrenman yükünün sakatlık riski üzerindeki marjinal etkisinin yansız tahminlerini elde etmek üzere futbol sakatlığı tahmin modellerine uyarlanabilir. Böyle bir uyarlama, özellikle oyuncu içi boylamsal modeller için değerli olurdu; burada, grup içi dönüşümle sabit etkilerin çıkarılması ve çapraz katlamalı doğrulamanın oyunculara göre gruplanması, hem istatistiksel olarak geçerli hem de klinik olarak yorumlanabilir, yanlılığı giderilmiş, oyuncuya özgü sakatlık riski esneklikleri sağlayabilir.",
+  "novelClaim": "Böyle bir uyarlama, özellikle oyuncu içi boylamsal modeller için değerli olurdu; burada, grup içi dönüşümle sabit etkilerin çıkarılması ve çapraz katlamalı doğrulamanın oyunculara göre gruplanması, hem istatistiksel olarak geçerli hem de klinik olarak yorumlanabilir, yanlılığı giderilmiş, oyuncuya özgü sakatlık riski esneklikleri sağlayabilir.",
+  "reasoning": "DML çerçevesi (climate-adaptation-ml parça 1, 12, 17), yüksek boyutlu panel ortamlarında standart makine öğrenmesi düzenlileştirmesinin türev/esneklik tahminlerini yanlı kıldığını; grup içi dönüşümle sabit etkilerin çıkarıldığı ve panele göre gruplanmış çapraz doğrulamanın kullanıldığı çift yönlü sağlam bir yanlılık giderme prosedürünün ise yansız ortalama yönlü türevleri elde ettiğini gösterir. Futbol sakatlığı modelleri (1609.07480 parça 0; 2601.19479 parça 1, 6) yapısal olarak benzer zorluklarla karşılaşır: yüksek boyutlu GPS/yük ortak değişkenleri, kısa oyuncu düzeyi paneller ve antrenman yükünün sakatlık riski üzerindeki marjinal etkisinin tahmin edilme gereği. Bu da DML’nin doğrudan aktarılabileceğini, oyuncu başına klinik olarak uygulanabilir, yanlılığı giderilmiş sakatlık riski esneklikleri sağlayabileceğini düşündürür.",
+  "claims": [
+    {
+      "sentence": "Böyle bir uyarlama, özellikle oyuncu içi boylamsal modeller için değerli olurdu; burada, grup içi dönüşümle sabit etkilerin çıkarılması ve çapraz katlamalı doğrulamanın oyunculara göre gruplanması, hem istatistiksel olarak geçerli hem de klinik olarak yorumlanabilir, yanlılığı giderilmiş, oyuncuya özgü sakatlık riski esneklikleri sağlayabilir.",
+      "rationale": "Cümle, sakatlık riski esneklikleri için grup içi dönüşüm ve çapraz katlamalı doğrulama kullanan bir yöntem öneriyor; bu yaklaşım yerleşik bir olgu olarak değil, olası bir uygulama olarak ('sağlayabilir') çerçeveleniyor ve varsayımsal. Getirilen parçalar iklim uyumu bağlamında grup içi dönüşüm tekniklerini ve panel birimlerine göre gruplanmış çapraz katlamalı doğrulamayı ele alsa da bunun esneklik tahminiyle oyuncu içi sakatlık modellerine özgü uygulaması varsayımsaldır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir uyarlama, özellikle oyuncu içi boylamsal modeller için değerli olurdu; burada, grup içi dönüşümle sabit etkilerin çıkarılması ve çapraz katlamalı doğrulamanın oyunculara göre gruplanması, hem istatistiksel olarak geçerli hem de klinik olarak yorumlanabilir, yanlılığı giderilmiş, oyuncuya özgü sakatlık riski esneklikleri sağlayabilir.",
+      "rationale": "DML panel prosedürü, ortak gözlemlenemeyen etkenler nedeniyle eğitim/test verisi arasındaki korelasyonu azaltmak için çapraz doğrulama katlamalarını panel birimine (ilçe) göre gruplar; ortak bireysel özelliklere sahip panel birimleri olarak futbolcular için de aynı gerekçe geçerlidir."
+    }
+  ]
+}

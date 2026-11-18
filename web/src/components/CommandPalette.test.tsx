@@ -102,13 +102,24 @@ describe('command palette', () => {
     expect(where()).toBe('/');
   });
 
-  it('finds the 46 recorded ideas by id and opens one', async () => {
+  it('finds the 70 recorded ideas by id and opens one', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'F4');
     const option = await screen.findByRole('option', { name: /^F4 · corner kick tactic generation/ });
     expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'Ideas' })).toContainElement(option);
     await user.click(option);
     expect(where()).toBe('/explore/F4');
+  });
+
+  it('finds batch-3 ideas too, and counts all 70 in the Ideas hint', async () => {
+    const { user, input, where } = renderPalette();
+    await user.type(input, 'checked sentence');
+    expect(screen.getByRole('option', { name: /All 70 recorded ideas, checked sentence by sentence/ })).toBeInTheDocument();
+    await user.clear(input);
+    await user.type(input, 'X17');
+    const option = await screen.findByRole('option', { name: /^X17 · COVID-19 forecasting on a spatio-temporal graph/ });
+    await user.click(option);
+    expect(where()).toBe('/explore/X17');
   });
 
   it('offers any typed text as a new idea, with the topic encoded in the link', async () => {

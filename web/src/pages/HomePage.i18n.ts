@@ -1,11 +1,13 @@
 import { strings } from '../i18n/lang';
 import type { ClaimStatus } from '../api/types';
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 
 type Verdict = { label: string; line: string };
 
 /*
  * The home page. Every number here is checked against the repository: 55
- * papers and 46 recorded ideas (src/explore/data), about US$0.07 an idea
+ * papers, the recorded ideas (counted from src/explore/data at build time,
+ * see explore/ideaCount.ts), about US$0.07 an idea
  * (README: $0.066 on average), and the human-rating figures from
  * experiments/hallucination-pilot/combined-n30-per-system.csv. The example's
  * sentences, verdicts and reason are read from the recorded run itself.
@@ -16,7 +18,7 @@ export const text = strings({
       eyebrow: 'Open-source research demo',
       title: 'Research ideas from 55 papers, with every sentence checked',
       lede: 'LIBRAIN answers questions with the exact passages it used, and suggests ideas that link two topics. A second AI then marks each sentence: backed by the papers, a reasoned guess, or risky.',
-      primary: 'See 46 checked ideas',
+      primary: `See ${RECORDED_IDEA_COUNT} checked ideas`,
       secondary: 'Try your own topics',
       free: 'Free to browse. No account, no key.',
     },
@@ -57,7 +59,7 @@ export const text = strings({
       intro: 'Switch any time with Recorded | Live at the top of the page.',
       recorded: {
         title: 'Recorded',
-        lede: '46 real runs from the project’s experiments, ready to read.',
+        lede: `${RECORDED_IDEA_COUNT} real runs from the project’s experiments, ready to read.`,
         points: ['Free: nothing is billed', 'No account, no API key', 'Opens instantly: no server call'],
       },
       live: {
@@ -94,7 +96,7 @@ export const text = strings({
       eyebrow: 'Açık kaynaklı araştırma demosu',
       title: '55 makaleden araştırma fikirleri, her cümlesi kontrol edilmiş',
       lede: 'LIBRAIN sorularınızı dayandığı parçaları göstererek yanıtlar ve iki konuyu birbirine bağlayan fikirler önerir. Ardından ikinci bir yapay zekâ her cümleyi işaretler: makalelerde dayanağı var, makul bir tahmin ya da riskli.',
-      primary: 'Kontrol edilmiş 46 fikri görün',
+      primary: `Kontrol edilmiş ${RECORDED_IDEA_COUNT} fikri görün`,
       secondary: 'Kendi konularınızı deneyin',
       free: 'Göz atmak ücretsiz. Hesap ya da API key gerekmez.',
     },
@@ -135,7 +137,7 @@ export const text = strings({
       intro: 'Sayfanın üstündeki Hazır | Canlı düğmesiyle istediğiniz zaman geçebilirsiniz.',
       recorded: {
         title: 'Hazır',
-        lede: 'Projenin deneylerinden 46 gerçek çalıştırma, okumaya hazır.',
+        lede: `Projenin deneylerinden ${RECORDED_IDEA_COUNT} gerçek çalıştırma, okumaya hazır.`,
         points: ['Ücretsiz: hiçbir ücret alınmaz', 'Hesap ya da API key gerekmez', 'Anında açılır: sunucuya istek gitmez'],
       },
       live: {

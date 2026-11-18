@@ -1,0 +1,20 @@
+{
+  "id": "X16",
+  "topicA": "uzun ufuklu görevlerde otonom ajanları değerlendirmek için gerçekçi web ortamı",
+  "topicB": "insanların yapay zekâ asistanlarıyla hangi ekonomik görevleri yerine getirdiği",
+  "hypothesis": "Yapay zekâ asistanları en yoğun biçimde yazılım geliştirme ve yazma görevleri için kullanılmaktadır; bunlar tam da WebArena gibi gerçekçi web kıyaslamalarının değerlendirmek üzere tasarlandığı uzun ufuklu, çok adımlı görev kategorileridir. Dolayısıyla güncel LLM ajanları (%14,41 başarı) ile insanlar (%78,24) arasındaki büyük performans açığının WebArena tarzı ortamlarda kapatılması, gerçek dünyadaki yapay zekâ kullanımına zaten egemen olan ekonomik görevleri orantısız biçimde otomatikleştirir ya da güçlendirir. Ayrıca gerçek dünyadaki yapay zekâ etkileşimlerinin çoğu tam otomatikleştirici değil, güçlendirici olduğundan, gelecekteki ajan kıyaslamaları görev tamamlamayı salt otonom, uçtan uca bir süreç olarak ele almak yerine, görev ortası düzeltme ya da yinelemeli geri bildirim döngüleri gibi insan-yapay zekâ iş birliğine dayalı görev devir noktalarını açıkça modellemelidir.",
+  "novelClaim": "Ayrıca gerçek dünyadaki yapay zekâ etkileşimlerinin çoğu tam otomatikleştirici değil, güçlendirici olduğundan, gelecekteki ajan kıyaslamaları görev tamamlamayı salt otonom, uçtan uca bir süreç olarak ele almak yerine, görev ortası düzeltme ya da yinelemeli geri bildirim döngüleri gibi insan-yapay zekâ iş birliğine dayalı görev devir noktalarını açıkça modellemelidir.",
+  "reasoning": "WebArena, uçtan uca otonom görev tamamlamada insan ile ajan arasında büyük bir performans açığını (%78,24 ve %14,41) belgelerken, ekonomik kullanım çalışması gerçek dünyadaki yapay zekâ etkileşimlerinin çoğunun tam otonom değil, güçlendirici ve yinelemeli olduğunu gösterir. Bu bulguları birleştirmek, salt otonom kıyaslamaların gerçek dağıtım örüntüleriyle uyumsuz olabileceğini düşündürür ve ara görev adımlarında insan düzeltmesini ve geri bildirim döngülerini açıkça içeren yeni bir kıyaslama sınıfına gerekçe oluşturur.",
+  "claims": [
+    {
+      "sentence": "Ayrıca gerçek dünyadaki yapay zekâ etkileşimlerinin çoğu tam otomatikleştirici değil, güçlendirici olduğundan, gelecekteki ajan kıyaslamaları görev tamamlamayı salt otonom, uçtan uca bir süreç olarak ele almak yerine, görev ortası düzeltme ya da yinelemeli geri bildirim döngüleri gibi insan-yapay zekâ iş birliğine dayalı görev devir noktalarını açıkça modellemelidir.",
+      "rationale": "İddia, yapay zekâ kullanım örüntülerine ilişkin ampirik bir gözleme dayanan yönlendirici bir öneri ('açıkça modellemelidir') olarak çerçeveleniyor; getirilen kanıt güçlendirici etkileşimlerin yaygın olduğunu (%57’ye karşı %43 otomatikleştirici) desteklese de gelecekteki kıyaslamaların nasıl tasarlanması gerektiğine dair özgül öneri spekülatif ve kanıtın doğrudan söylediğinin ötesine geçiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Ayrıca gerçek dünyadaki yapay zekâ etkileşimlerinin çoğu tam otomatikleştirici değil, güçlendirici olduğundan, gelecekteki ajan kıyaslamaları görev tamamlamayı salt otonom, uçtan uca bir süreç olarak ele almak yerine, görev ortası düzeltme ya da yinelemeli geri bildirim döngüleri gibi insan-yapay zekâ iş birliğine dayalı görev devir noktalarını açıkça modellemelidir.",
+      "rationale": "Claude kullanımının %57’sinin güçlendirici (yinelemeli, döngüde insan olan) olduğu bulgusu, WebArena gibi otonom uçtan uca kıyaslamaların insan devir noktalarını dışarıda bırakarak gerçek dağıtım koşullarını sistematik olarak yanlış ölçtüğünü ima edecek biçimde genelleştirilmiştir."
+    }
+  ]
+}

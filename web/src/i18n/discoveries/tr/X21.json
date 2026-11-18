@@ -1,0 +1,28 @@
+{
+  "id": "X21",
+  "topicA": "protein dizilerinden ve SMILES’tan ilaç-hedef bağlanma afinitesi tahmini",
+  "topicB": "sıfır atışlı (zero-shot) transfer için eşleştirilmiş kodlayıcıların karşılaştırmalı ön eğitimi (CLIP)",
+  "hypothesis": "Eşleştirilmiş (SMILES, protein dizisi) kodlayıcılarına uygulanan CLIP tarzı bir karşılaştırmalı (contrastive) ön eğitim hedefi, çıkarım sırasında hiçbir etiketli afinite verisi gerektirmeden, daha önce hiç görülmemiş ilaç-hedef çiftleri için sıfır atışlı (zero-shot) bağlanma afinitesi sıralamasını mümkün kılan ortak bir moleküler gömme (embedding) uzayı öğrenebilir. CLIP’in karşılaştırmalı kaybı eşleşen çiftler arasındaki kosinüs benzerliğini en üst düzeye çıkarıp eşleşmeyenleri birbirinden uzaklaştırdığı için, ortaya çıkan gömme geometrisi göreli bağlanma gücünü geometrik yakınlık olarak kodlayacak ve kosinüs benzerliği skorunun kendisinin bağlanma afinitesi sıralaması için bir vekil olarak kullanılmasına izin verecektir; bu, CLIP’te görüntü ve metin gömmeleri arasındaki kosinüs benzerliğinin sıfır atışlı (zero-shot) sınıflandırma skoru olarak kullanılmasına benzer. Bu yaklaşım, DeepDTA gibi dizi tabanlı modellerin, yeni ilaç-hedef çiftleri için hâlâ etiketli afinite örneklerine ihtiyaç duyması biçimindeki soğuk başlangıç sınırlılığını aşabilir.",
+  "novelClaim": "Ortaya çıkan gömme (embedding) geometrisi, göreli bağlanma gücünü geometrik yakınlık olarak kodlayacak ve kosinüs benzerliği skorunun kendisinin bağlanma afinitesi sıralaması için bir vekil olarak kullanılmasına izin verecektir; bu, CLIP’te görüntü ve metin gömmeleri arasındaki kosinüs benzerliğinin sıfır atışlı (zero-shot) sınıflandırma skoru olarak kullanılmasına benzer. Bu yaklaşım, DeepDTA gibi dizi tabanlı modellerin, yeni ilaç-hedef çiftleri için hâlâ etiketli afinite örneklerine ihtiyaç duyması biçimindeki soğuk başlangıç sınırlılığını aşabilir.",
+  "reasoning": "DeepDTA, ilaçların (SMILES) ve proteinlerin ham dizi temsillerinin afinite tahmini için yeterli girdiler olduğunu gösterir; ancak eğitim için hâlâ etiketli afinite verisi gerektirir ve görülmemiş çiftlere sıfır atışlı (zero-shot) genelleyemez. CLIP ise eşleştirilmiş modaliteler üzerinde karşılaştırmalı ön eğitimin, göreve özgü etiket olmadan doğrudan sıfır atışlı transfere olanak tanıyan, kosinüs benzerliğinin kullanıldığı bir gömme uzayı ürettiğini gösterir. Bu iki bulgunun birleştirilmesi, büyük etiketsiz etkileşim veritabanları üzerinde eğitilmiş, (SMILES, protein dizisi) çiftleri üzerinde CLIP tarzı bir karşılaştırmalı hedefin, benzerlik geometrisinin afinite sıralamasına vekil olduğu ortak bir uzay verebileceğini ve sıfır atışlı tahmini mümkün kılabileceğini düşündürmektedir; ancak getirilen hiçbir kaynak bu çapraz modaliteli transferi ilaç-hedef alanında doğrudan göstermemekte veya test etmemektedir.",
+  "claims": [
+    {
+      "sentence": "Ortaya çıkan gömme (embedding) geometrisi, göreli bağlanma gücünü geometrik yakınlık olarak kodlayacak ve kosinüs benzerliği skorunun kendisinin bağlanma afinitesi sıralaması için bir vekil olarak kullanılmasına izin verecektir; bu, CLIP’te görüntü ve metin gömmeleri arasındaki kosinüs benzerliğinin sıfır atışlı (zero-shot) sınıflandırma skoru olarak kullanılmasına benzer.",
+      "rationale": "Cümle, CLIP’in belgelenmiş yaklaşımından benzetmeyle varsayımsal bir mekanizma önermektedir (kosinüs benzerliğinin bağlanma afinitesi için vekil olarak kullanılması); CLIP’in kosinüs benzerliği kullanımı getirilen parçalarda dayanak bulsa da bunun ilaç-hedef bağlanma afinitesine uygulanması spekülatiftir ve doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu yaklaşım, DeepDTA gibi dizi tabanlı modellerin, yeni ilaç-hedef çiftleri için hâlâ etiketli afinite örneklerine ihtiyaç duyması biçimindeki soğuk başlangıç sınırlılığını aşabilir.",
+      "rationale": "Cümle, spekülatif bir yarar önermek için çekimser bir dil kullanmaktadır ('aşabilir'); DeepDTA’nın etiketli veriye bağımlılığı belgelenmiş olsa da önerilen yaklaşımın bu sınırlılığı aşacağı iddiası varsayımsaldır ve getirilen kanıtta deneysel olarak gösterilmemiştir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Ortaya çıkan gömme (embedding) geometrisi, göreli bağlanma gücünü geometrik yakınlık olarak kodlayacak ve kosinüs benzerliği skorunun kendisinin bağlanma afinitesi sıralaması için bir vekil olarak kullanılmasına izin verecektir; bu, CLIP’te görüntü ve metin gömmeleri arasındaki kosinüs benzerliğinin sıfır atışlı (zero-shot) sınıflandırma skoru olarak kullanılmasına benzer.",
+      "rationale": "CLIP, eşleştirilmiş kodlayıcı gömmeleri arasındaki kosinüs benzerliğini sıfır atışlı (zero-shot) sınıflandırma skoru olarak kullanır; benzetme yoluyla, bağlanma çiftleri üzerinde karşılaştırmalı olarak eğitilmiş ilaç ve protein gömmeleri arasındaki kosinüs benzerliği afiniteyi sıralayabilir, ancak biyokimyasal bağlanmaya yönelik bu özel transfer getirilen hiçbir parçada gösterilmemiştir."
+    },
+    {
+      "claimSentence": "Bu yaklaşım, DeepDTA gibi dizi tabanlı modellerin, yeni ilaç-hedef çiftleri için hâlâ etiketli afinite örneklerine ihtiyaç duyması biçimindeki soğuk başlangıç sınırlılığını aşabilir.",
+      "rationale": "DeepDTA, gelecekteki çalışmaların yeni hedefler/ilaçlar için afinite tahminini amaçladığını açıkça belirtir; bu da bir soğuk başlangıç boşluğuna işaret eder. CLIP’in sıfır atışlı yeteneğini bu boşluğu doldurmak üzere genellemek, iki kaynakta da belirtilmeyen bir ekstrapolasyondur."
+    }
+  ]
+}

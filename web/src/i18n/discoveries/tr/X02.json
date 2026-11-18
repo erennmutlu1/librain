@@ -1,0 +1,28 @@
+{
+  "id": "X02",
+  "topicA": "futbolda oyuncu aksiyonlarının gol olasılığı üzerindeki etkisine göre değerlendirilmesi",
+  "topicB": "ham deneyimden eylem-değer fonksiyonlarının derin Q-öğrenmesi (DQN)",
+  "hypothesis": "VAEP gibi, her top üzerindeki aksiyona gol atma/gol yeme olasılığındaki marjinal değişimi ölçerek pay atayan futbol aksiyon değerleme çerçeveleri, oyun durumu dizisinin pekiştirmeli öğrenmedeki durum rolünü oynadığı ve VAEP ödül sinyalinin DQN’de kullanılan seyrek nihai ödülün yerini aldığı bir eylem-değer (Q-fonksiyonu) tahmini problemi olarak yeniden kurgulanabilir. Bu yeniden kurguya deneyim tekrarıyla derin Q-öğrenmesi uygulamak, bir sinir ağının daha zengin, zamansal olarak genişletilmiş eylem-değer tahminlerini, elle tasarlanmış oyun durumu öznitelikleri gerektirmeden doğrudan ham uzamsal-zamansal olay akışı verisinden öğrenmesine olanak tanıyabilir. Bu uçtan uca yaklaşım, mevcut VAEP modellerinin yalnızca son birkaç gözlenen top üzerindeki aksiyona koşullandığı için göremediği örtük taktik örüntüleri (konumsal pres yapıları veya topsuz hareket dizileri gibi) keşfedebilir.",
+  "novelClaim": "Bu yeniden kurguya deneyim tekrarıyla derin Q-öğrenmesi uygulamak, bir sinir ağının daha zengin, zamansal olarak genişletilmiş eylem-değer tahminlerini, elle tasarlanmış oyun durumu öznitelikleri gerektirmeden doğrudan ham uzamsal-zamansal olay akışı verisinden öğrenmesine olanak tanıyabilir. Bu uçtan uca yaklaşım, mevcut VAEP modellerinin yalnızca son birkaç gözlenen top üzerindeki aksiyona koşullandığı için göremediği örtük taktik örüntüleri (konumsal pres yapıları veya topsuz hareket dizileri gibi) keşfedebilir.",
+  "reasoning": "VAEP, aksiyon değerini ardışık oyun durumları boyunca gol atma/gol yeme olasılığındaki marjinal değişim olarak tanımlar (parça 1802.07127:3,4); bu, DQN’deki Bellman denklemi tabanlı Q-değeri güncellemesine yapısal olarak benzer (parça dqn:2). DQN’nin deneyim tekrarı (parça dqn:4,5), ilişkili ardışık örnekler ve seyrek ödüller sorununu, yani tam da futbolun düşük skorlu ve ardışık yapısının ortaya koyduğu zorlukları ele alır; bu da VAEP’in denetimli olasılık kestiricisinin, tekrar oynatılan aksiyon geçişleri üzerinde eğitilmiş derin bir Q-ağıyla değiştirilmesinin, zamansal olarak daha zengin değerlemeler sağlayabileceğini ve mevcut yalnızca top üzerindeki aksiyonlara koşullanma yaklaşımının yakalayabildiğinin ötesinde taktik yapıyı ortaya çıkarabileceğini düşündürür.",
+  "claims": [
+    {
+      "sentence": "Bu yeniden kurguya deneyim tekrarıyla derin Q-öğrenmesi uygulamak, bir sinir ağının daha zengin, zamansal olarak genişletilmiş eylem-değer tahminlerini, elle tasarlanmış oyun durumu öznitelikleri gerektirmeden doğrudan ham uzamsal-zamansal olay akışı verisinden öğrenmesine olanak tanıyabilir.",
+      "rationale": "Cümle, çekinceli bir dil (“olanak tanıyabilir”) kullanmakta ve yerleşik tekniklerin (DQN makalesindeki deneyim tekrarlı derin Q-öğrenmesi) yeni bir alana (futbol olay akışı verisi) varsayımsal bir uygulamasını ortaya koymaktadır; yerleşik bir olguyu öne sürmek yerine hipotez biçiminde kurgulanmıştır."
+    },
+    {
+      "sentence": "Bu uçtan uca yaklaşım, mevcut VAEP modellerinin yalnızca son birkaç gözlenen top üzerindeki aksiyona koşullandığı için göremediği örtük taktik örüntüleri (konumsal pres yapıları veya topsuz hareket dizileri gibi) keşfedebilir.",
+      "rationale": "Cümle spekülatif bir dil (“keşfedebilir”) kullanmakta ve uçtan uca bir yaklaşımın neleri ortaya çıkarabileceğine dair bir hipotez önermektedir; aynı zamanda VAEP’in top üzerindeki aksiyonlara koşullanma sınırlılığını, getirilen parçalarda belirtildiği şekilde doğru biçimde nitelemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu yeniden kurguya deneyim tekrarıyla derin Q-öğrenmesi uygulamak, bir sinir ağının daha zengin, zamansal olarak genişletilmiş eylem-değer tahminlerini, elle tasarlanmış oyun durumu öznitelikleri gerektirmeden doğrudan ham uzamsal-zamansal olay akışı verisinden öğrenmesine olanak tanıyabilir.",
+      "rationale": "DQN, eylem-değer fonksiyonlarını deneyim tekrarı yoluyla ham yüksek boyutlu girdilerden uçtan uca öğrenir; aynı mekanizma, VAEP’in elle hazırlanmış öznitelik hattının yerine olay akışı dizilerinden doğrudan öğrenmeyi koyabilir."
+    },
+    {
+      "claimSentence": "Bu uçtan uca yaklaşım, mevcut VAEP modellerinin yalnızca son birkaç gözlenen top üzerindeki aksiyona koşullandığı için göremediği örtük taktik örüntüleri (konumsal pres yapıları veya topsuz hareket dizileri gibi) keşfedebilir.",
+      "rationale": "Kaynakların hiçbiri topsuz taktik örüntüleri veya pres yapılarını ele almamaktadır; bu, DQN tarzı bir futbol modelinin mevcut VAEP kapsamının ötesinde neleri öğrenebileceğine dair varsayımsal bir çıkarımdır."
+    }
+  ]
+}

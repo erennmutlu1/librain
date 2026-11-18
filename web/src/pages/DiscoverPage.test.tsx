@@ -182,7 +182,7 @@ describe('Discover: Recorded mode (public build)', () => {
     render(<PublicApp clients={clients} initialPath="/discover" />);
 
     const a = await topicA();
-    await user.type(a, 'corner kick');
+    await user.type(a, 'corner kick tactic');
     const options = screen.getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual([
       'corner kick tactic generation and player positioning× learned physics simulators with graph networks',

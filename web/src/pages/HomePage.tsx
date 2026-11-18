@@ -17,7 +17,7 @@ import styles from './HomePage.module.css';
  * "/": what LIBRAIN is in the first five seconds, one real checked idea as
  * proof, then the ways in. The example is the recorded run D1 (with its
  * Turkish translation laid over it in Turkish), imported on its own so this
- * page never loads the 46-run chunk.
+ * page never loads the chunk of recorded runs.
  */
 
 const REPO_URL = 'https://github.com/erennmutlu1/librain';

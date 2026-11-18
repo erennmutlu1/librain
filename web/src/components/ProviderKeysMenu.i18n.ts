@@ -12,7 +12,7 @@ export const text = strings({
   en: {
     title: 'Your API keys',
     bothSet: ' (both set)',
-    /** First thing in the panel: what Live mode costs, before any key is entered. US$0.066 average over 46 runs (README). */
+    /** First thing in the panel: what Live mode costs, before any key is entered. US$0.066 average over the recorded runs (the batch READMEs: $3.05 for the first 46, $1.598 for the next 24). */
     cost: 'About US$0.07 per new idea and US$0.03 per question, billed to your Anthropic and OpenAI accounts. Compare runs three systems and costs more than a new idea.',
     intro:
       'Recorded mode needs no keys. Live mode runs on the LIBRAIN API with your own Anthropic API key (writing and checking the hypothesis) and OpenAI API key (making papers and questions searchable).',

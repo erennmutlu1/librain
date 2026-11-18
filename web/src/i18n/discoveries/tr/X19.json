@@ -1,0 +1,28 @@
+{
+  "id": "X19",
+  "topicA": "bir futbol pekiştirmeli öğrenme ortamında ödül biçimlendirme ve seyrek gol ödülleri",
+  "topicB": "futbol eylemlerinin gol atma ve gol yeme olasılığındaki değişime göre değerlendirilmesi",
+  "hypothesis": "Google Research Football Environment’ta kullanılan seyrek gol ödülü, işlevsel olarak VAEP çerçevesinin eylem değerleme sinyalinin kaba, ikili bir yaklaşığına eşdeğerdir; çünkü her ikisi de nihayetinde bir takımın gol atma olasılığındaki değişimi ölçer. İkili (binary) gol ödülünü, her oyun içi eyleme gol atma ve gol yeme olasılığındaki değişime eşit sürekli bir değer atayan yoğun, VAEP türevli bir ödül sinyaliyle değiştirmek, yalnızca gol anlarında değil her zaman adımında bilgilendirici gradyan sinyali sağlayarak Football RL ortamında örnek verimliliğini dramatik biçimde hızlandırabilir. Bu hibrit yaklaşım, futbol pekiştirmeli öğrenme problemini seyrek ödüllü bir zorluktan, insan tarafından tasarlanmış ara kontrol noktaları gerektirmeyen, yoğun ve analitik olarak temellendirilmiş bir ödül biçimlendirme (reward-shaping) rejimine etkili biçimde dönüştürecektir.",
+  "novelClaim": "İkili (binary) gol ödülünü, her oyun içi eyleme gol atma ve gol yeme olasılığındaki değişime eşit sürekli bir değer atayan yoğun, VAEP türevli bir ödül sinyaliyle değiştirmek, yalnızca gol anlarında değil her zaman adımında bilgilendirici gradyan sinyali sağlayarak Football RL ortamında örnek verimliliğini dramatik biçimde hızlandırabilir. Bu hibrit yaklaşım, futbol pekiştirmeli öğrenme problemini seyrek ödüllü bir zorluktan, insan tarafından tasarlanmış ara kontrol noktaları gerektirmeyen, yoğun ve analitik olarak temellendirilmiş bir ödül biçimlendirme (reward-shaping) rejimine etkili biçimde dönüştürecektir.",
+  "reasoning": "GRF makalesi, seyrek GOL (SCORING) ödüllerinin yoğun KONTROL NOKTASI (CHECKPOINT) ödüllerinden öğrenilmesinin belirgin biçimde daha zor olduğunu gösterirken, VAEP çerçevesi bağımsız olarak her futbol eyleminin gol atma ve gol yeme olasılığındaki değişimler üzerinden ilkeli ve sürekli bir değerlemesini sunar. Bu iki bulgunun birleştirilmesi, VAEP değerlerinin GRF ortamında ödül sinyali olarak kullanılmasının her zaman adımında yoğun, anlamsal olarak anlamlı bir ödül sağlayacağını ve örnek verimliliği ile stratejik derinlik açısından elle tasarlanmış kontrol noktalarını potansiyel olarak aşabileceğini düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "İkili (binary) gol ödülünü, her oyun içi eyleme gol atma ve gol yeme olasılığındaki değişime eşit sürekli bir değer atayan yoğun, VAEP türevli bir ödül sinyaliyle değiştirmek, yalnızca gol anlarında değil her zaman adımında bilgilendirici gradyan sinyali sağlayarak Football RL ortamında örnek verimliliğini dramatik biçimde hızlandırabilir.",
+      "rationale": "Cümle, VAEP çerçevesi kavramlarını (1802.07127’de temellendirilmiş) Football RL ortamıyla (1907.11180’de temellendirilmiş) birleştiren varsayımsal bir müdahale önermektedir ('dramatik biçimde hızlandırabilir'); ancak hızlanma ve gradyan sinyali iyileşmesine ilişkin özel iddia spekülatiftir ve getirilen kanıtlarca doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu hibrit yaklaşım, futbol pekiştirmeli öğrenme problemini seyrek ödüllü bir zorluktan, insan tarafından tasarlanmış ara kontrol noktaları gerektirmeyen, yoğun ve analitik olarak temellendirilmiş bir ödül biçimlendirme (reward-shaping) rejimine etkili biçimde dönüştürecektir.",
+      "rationale": "Cümle, VAEP tabanlı ödüllerle pekiştirmeli öğrenmeyi birleştiren varsayımsal bir sonuç önermek için koşullu bir kurgu kullanmaktadır ('etkili biçimde dönüştürecektir'); bu, getirilen kanıtın ötesinde spekülatiftir. Seyrek ödüllerin Football ortamında bir araştırma zorluğu olarak anıldığı doğru olsa da VAEP aracılığıyla dönüşüme ilişkin özel iddia doğrudan desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "İkili (binary) gol ödülünü, her oyun içi eyleme gol atma ve gol yeme olasılığındaki değişime eşit sürekli bir değer atayan yoğun, VAEP türevli bir ödül sinyaliyle değiştirmek, yalnızca gol anlarında değil her zaman adımında bilgilendirici gradyan sinyali sağlayarak Football RL ortamında örnek verimliliğini dramatik biçimde hızlandırabilir.",
+      "rationale": "GRF makalesi, KONTROL NOKTASI ödülünün (elle tasarlanmış yoğun bir sinyal) örnek verimliliğinde seyrek GOL ödülünden daha iyi performans gösterdiğini ortaya koyar; VAEP ise aynı yoğunlaştırma rolünü üstlenebilecek ilkeli, veriye dayalı yoğun bir sinyal sunar."
+    },
+    {
+      "claimSentence": "Bu hibrit yaklaşım, futbol pekiştirmeli öğrenme problemini seyrek ödüllü bir zorluktan, insan tarafından tasarlanmış ara kontrol noktaları gerektirmeyen, yoğun ve analitik olarak temellendirilmiş bir ödül biçimlendirme (reward-shaping) rejimine etkili biçimde dönüştürecektir.",
+      "rationale": "VAEP, gol atma/yeme olasılığındaki değişimler aracılığıyla topla yapılan her eyleme sürekli bir değer atar; bu da doğrudan, manuel kontrol noktası tasarımı gerektirmeyen adım başına bir ödül sinyaline genellenir."
+    }
+  ]
+}

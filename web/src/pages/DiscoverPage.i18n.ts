@@ -7,7 +7,7 @@ export const text = strings({
     hintA: 'For example: weather foundation models',
     hintB: 'For example: renewable energy planning',
     anthropicOnly: 'The hypothesis and the claim checks come from Anthropic models.',
-    /** Shown before a paid run. US$0.066 on average over the 46 recorded runs (README). */
+    /** Shown before a paid run. US$0.066 on average over the recorded runs (the batch READMEs: $3.05 for the first 46, $1.598 for the next 24). */
     cost: 'About US$0.07 per new idea, billed to your Anthropic and OpenAI accounts.',
     provider: 'Model provider',
     openaiModel: 'OpenAI model',

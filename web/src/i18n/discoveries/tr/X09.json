@@ -1,0 +1,28 @@
+{
+  "id": "X09",
+  "topicA": "hareketliliğe dayalı uzamsal-zamansal graf sinir ağlarıyla COVID-19 vaka tahmini",
+  "topicB": "otoregresif yinelemeli ağlarla olasılıksal tahmin (DeepAR)",
+  "hypothesis": "DeepAR tarzı olasılıksal tahmin başlıklarının COVID-19 için uzamsal-zamansal GNN çerçevelerine entegre edilmesi, ilçeler arası vaka yörüngeleri üzerinde kalibre edilmiş belirsizlik tahminleri sağlayabilir; çünkü GNN, DeepAR’ın bağımsız seri başına LSTM’inin yakalayamadığı hareketlilik ağırlıklı uzamsal bağımlılıkları zaten kodlar. Böyle bir hibrit mimari, politika yapıcıların yalnızca nokta tahminleri değil, gerçek zamanlı hareketlilik graflarına koşullandırılmış tam öngörü dağılımları da almasına olanak tanıyarak belirsizlik altında riske duyarlı kaynak tahsisini mümkün kılar. Bu birleşim, ani karantinalar gibi ani davranış değişimleri sırasında, yani hareketlilik grafının topolojisinin hızla değiştiği ve klasik otoregresif modellerin sabit dinamik varsayımlarının çöktüğü durumlarda özellikle güçlü olabilir.",
+  "novelClaim": "Böyle bir hibrit mimari, politika yapıcıların yalnızca nokta tahminleri değil, gerçek zamanlı hareketlilik graflarına koşullandırılmış tam öngörü dağılımları da almasına olanak tanıyarak belirsizlik altında riske duyarlı kaynak tahsisini mümkün kılar. Bu birleşim, ani karantinalar gibi ani davranış değişimleri sırasında, yani hareketlilik grafının topolojisinin hızla değiştiği ve klasik otoregresif modellerin sabit dinamik varsayımlarının çöktüğü durumlarda özellikle güçlü olabilir.",
+  "reasoning": "COVID-STGNN çalışması, hareketlilik ağırlıklı graf yapısının, kapalı sistem varsayan otoregresif modellerin gözden kaçırdığı bölgeler arası hastalık dinamiklerini yakaladığını gösterirken, DeepAR de LSTM tabanlı global modellerin birbiriyle ilişkili çok sayıda zaman serisi için kalibre edilmiş olasılıksal tahmin dağılımları üretebildiğini gösterir. GNN’nin uzamsal mesaj iletiminin DeepAR’ın olabilirlik tabanlı olasılıksal çıktı başlığıyla birleştirilmesi iki makalede de gösterilmemiştir; bu nedenle hibrit mimari ve onun hızlı topoloji değişimleri sırasındaki özgül avantajı, yeni varsayım olarak öne çıkar.",
+  "claims": [
+    {
+      "sentence": "Böyle bir hibrit mimari, politika yapıcıların yalnızca nokta tahminleri değil, gerçek zamanlı hareketlilik graflarına koşullandırılmış tam öngörü dağılımları da almasına olanak tanıyarak belirsizlik altında riske duyarlı kaynak tahsisini mümkün kılar.",
+      "rationale": "Cümle, varsayımsal bir hibrit mimarinin yeteneklerini koşullu bir dille ('olanak tanıyarak') ele alıyor; getirilen parçalar, hareketlilik verisiyle çalışan GNN’lerin tahmin üretebildiğini ve olasılıksal tahminin riske duyarlı karar vermeyi mümkün kıldığını destekliyor, ancak bu özgül birleşim doğrudan gösterilmiyor."
+    },
+    {
+      "sentence": "Bu birleşim, ani karantinalar gibi ani davranış değişimleri sırasında, yani hareketlilik grafının topolojisinin hızla değiştiği ve klasik otoregresif modellerin sabit dinamik varsayımlarının çöktüğü durumlarda özellikle güçlü olabilir.",
+      "rationale": "Cümle ihtiyatlı bir dil ('özellikle güçlü olabilir') kullanıyor ve karantinalar ile topoloji değişimleri hakkında varsayımsal bir senaryo öneriyor; getirilen parçalar karantinaları ve hareketlilik değişimlerini ele alsa da otoregresif varsayımların bu koşullarda çöktüğü yönündeki özgül iddia doğrudan desteklenmiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir hibrit mimari, politika yapıcıların yalnızca nokta tahminleri değil, gerçek zamanlı hareketlilik graflarına koşullandırılmış tam öngörü dağılımları da almasına olanak tanıyarak belirsizlik altında riske duyarlı kaynak tahsisini mümkün kılar.",
+      "rationale": "DeepAR, nokta tahminleri yerine olasılıksal tahminlerin risk fonksiyonlarını en aza indirerek belirsizlik altında en uygun karar vermeyi mümkün kıldığını açıkça savunur; bu, uzamsal hareketlilik graflarına koşullandırıldığında benzetme yoluyla salgında kaynak tahsisine de uygulanır."
+    },
+    {
+      "claimSentence": "Bu birleşim, ani karantinalar gibi ani davranış değişimleri sırasında, yani hareketlilik grafının topolojisinin hızla değiştiği ve klasik otoregresif modellerin sabit dinamik varsayımlarının çöktüğü durumlarda özellikle güçlü olabilir.",
+      "rationale": "COVID-STGNN makalesi, ARIMA’nın sabit dinamik varsayımının mayıs sonunda hareketlilik örüntüleri değiştiğinde onun düşük performans göstermesine yol açtığını gösterir; bu, sabit varsayımlı her otoregresif modelin ani davranış değişimleri sırasında başarısız olacağı iddiasına genellenmiştir."
+    }
+  ]
+}

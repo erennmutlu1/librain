@@ -16,7 +16,7 @@ import styles from './CommandPalette.module.css';
 
 /*
  * Quick search (⌘K / Ctrl+K): jump to any section, run a header action, or
- * open one of the 46 recorded ideas; anything else typed becomes
+ * open one of the recorded ideas; anything else typed becomes
  * "New idea: <text>".
  *
  * A modal dialog holding an ARIA 1.2 combobox: focus stays in the input,

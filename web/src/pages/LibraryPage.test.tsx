@@ -91,10 +91,10 @@ describe('Papers in Recorded mode (public build)', () => {
     await screen.findByRole('table', { name: /^Papers in the library/ });
     expect(
       screen.getByText(
-        'Today’s library has 55 papers; the recorded runs cite 54 paper IDs: 48 from today’s library and 6 from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.',
+        'Today’s library has 55 papers; the recorded runs cite 58 paper IDs: 52 from today’s library and 6 from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('54 papers')).toBeInTheDocument();
+    expect(screen.getByText('58 papers')).toBeInTheDocument();
   });
 
   it('prefills the search from ?q= (the link other screens use for a paper)', async () => {
@@ -110,7 +110,7 @@ describe('Papers in Recorded mode (public build)', () => {
       'href',
       'https://arxiv.org/abs/2212.12794',
     );
-    expect(screen.getByText('1 of 54 papers')).toBeInTheDocument();
+    expect(screen.getByText('1 of 58 papers')).toBeInTheDocument();
   });
 
   it('says it in Turkish', async () => {
@@ -120,7 +120,7 @@ describe('Papers in Recorded mode (public build)', () => {
     expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toHaveValue('gat');
     expect(
       screen.getByText(
-        'Bugünkü makale kütüphanesinde 55 makale var; hazır çalıştırmalar 54 makale kimliğine atıf yapıyor: bugünkü kütüphaneden 48 makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) 6 kimlik.',
+        'Bugünkü makale kütüphanesinde 55 makale var; hazır çalıştırmalar 58 makale kimliğine atıf yapıyor: bugünkü kütüphaneden 52 makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) 6 kimlik.',
       ),
     ).toBeInTheDocument();
     expect(screen.getByText('Herkese açık makale kütüphanesi salt okunurdur: 55 makale, 2.210 parça.')).toBeInTheDocument();

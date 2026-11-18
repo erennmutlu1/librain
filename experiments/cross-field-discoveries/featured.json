@@ -1,0 +1,34 @@
+{
+  "model": "claude-sonnet-4-6 (generation), claude-haiku-4-5 (judge, claim validator)",
+  "corpus": "55 papers, 2,210 chunks (Qdrant Cloud, the public library)",
+  "date": "2026-11-18",
+  "topK": 5,
+  "areas": [
+    {
+      "prefix": "X",
+      "name": "Cross-field bridges"
+    }
+  ],
+  "droppedAreas": [],
+  "newPapers": [],
+  "featured": [
+    {
+      "id": "X17",
+      "takeaway": "Give a COVID-19 forecasting graph network a GraphCast-style multi-mesh, with edges reweighted by live mobility at each level, so disease-spread signals travel both locally (county to county) and over long range (between states).",
+      "whyFeatured": "Highest rating of the 24 cross-field runs (7.7, third of all 70) with low claim risk (0.15); four re-runs of the same request rated only 5.6 to 6.2.",
+      "file": "runs/X17.json"
+    },
+    {
+      "id": "X01",
+      "takeaway": "Code-trained LLMs could grade programming assignments by functional correctness, as HumanEval scores code, but students could game weak unit tests the way search-generated programs do, so such graders need far stronger tests than instructors usually write.",
+      "whyFeatured": "Second-highest rating of the batch (7.6, fifth of 70); its claim sentence is one of only 3 of 110 the validator marked grounded (claim risk 0.15). Four re-runs rated 6.5 to 7.2.",
+      "file": "runs/X01.json"
+    },
+    {
+      "id": "X13",
+      "takeaway": "Screenshot-to-code benchmarks such as Design2Code might be an early signal of job displacement for front-end engineers, but the validator flags as risky the claim that multimodal code generation explains the 28–40% of exposure variance older automation measures leave unexplained.",
+      "whyFeatured": "Shows the audit at work: no retrieved passage supports the cause the claim names, and the validator marks the sentence risky (0.75). Lowest rating of the batch (4.6).",
+      "file": "runs/X13.json"
+    }
+  ]
+}

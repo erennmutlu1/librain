@@ -1,3 +1,4 @@
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 import { strings } from '../i18n/lang';
 import type { Theme } from '../lib/theme';
 
@@ -20,7 +21,7 @@ export const text = strings({
     groups: { go: 'Go to', actions: 'Actions', discoveries: 'Ideas', picks: 'Editor’s picks', discover: 'New idea' },
     sections: {
       home: { label: 'Home', hint: 'What LIBRAIN is and how it works' },
-      explore: { label: 'Ideas', hint: 'All 46 recorded ideas, checked sentence by sentence' },
+      explore: { label: 'Ideas', hint: `All ${RECORDED_IDEA_COUNT} recorded ideas, checked sentence by sentence` },
       featured: { label: 'Featured ideas', hint: 'Recorded ideas worth reading first' },
       stats: { label: 'Idea statistics', hint: 'Charts across all the recorded ideas' },
       quiz: { label: 'Spot the risk', hint: 'Quiz: find the risky sentence' },
@@ -56,7 +57,7 @@ export const text = strings({
     groups: { go: 'Git', actions: 'Eylemler', discoveries: 'Fikirler', picks: 'Editörün seçimi', discover: 'Yeni fikir' },
     sections: {
       home: { label: 'Ana sayfa', hint: 'LIBRAIN nedir, nasıl çalışır' },
-      explore: { label: 'Fikirler', hint: 'Kayıtlı 46 fikrin tümü, cümle cümle kontrol edilmiş' },
+      explore: { label: 'Fikirler', hint: `Kayıtlı ${RECORDED_IDEA_COUNT} fikrin tümü, cümle cümle kontrol edilmiş` },
       featured: { label: 'Öne çıkan fikirler', hint: 'Önce okunmaya değer kayıtlı fikirler' },
       stats: { label: 'Fikir istatistikleri', hint: 'Tüm kayıtlı fikirlerin grafikleri' },
       quiz: { label: 'Riski bul', hint: 'Test: riskli cümleyi bulun' },

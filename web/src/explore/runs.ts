@@ -1,5 +1,5 @@
 /*
- * All 46 recorded runs, built into Explore's model. This module is its own
+ * Every recorded run, built into Explore's model. This module is its own
  * chunk, loaded on demand (useDiscoveries.ts), because the passage text makes
  * it large. Nothing here calls the API: the data is bundled.
  */

@@ -30,7 +30,7 @@ describe('home page', () => {
     renderHome();
     expect(screen.getByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
     expect(screen.getByText(/^LIBRAIN answers questions with the exact passages it used/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'See 46 checked ideas' })).toHaveAttribute('href', '/explore');
+    expect(screen.getByRole('link', { name: 'See 70 checked ideas' })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Try your own topics' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Free to browse. No account, no key.')).toBeInTheDocument();
     // Plain HTML structure: one h1, then sections with h2 headings.
@@ -103,7 +103,7 @@ describe('home page', () => {
   it('speaks Turkish, with the translated example and its reason', () => {
     renderHome('tr');
     expect(screen.getByRole('heading', { level: 1, name: '55 makaleden araştırma fikirleri, her cümlesi kontrol edilmiş' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Kontrol edilmiş 46 fikri görün' })).toHaveAttribute('href', '/explore');
+    expect(screen.getByRole('link', { name: 'Kontrol edilmiş 70 fikri görün' })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Kendi konularınızı deneyin' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Göz atmak ücretsiz. Hesap ya da API key gerekmez.')).toBeInTheDocument();
 

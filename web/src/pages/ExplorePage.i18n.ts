@@ -33,8 +33,10 @@ export const exploreText = strings({
     moreMiddle: ' on New idea. Runs you make yourself are saved in ',
     moreAfter: '.',
     title: 'Ideas',
-    ledeBefore: 'Every idea recorded on ',
-    ledeAfter: ', across nine areas. Each is a candidate hypothesis with a rating out of 10, checked sentence by sentence and linked to the passages behind it. Scores use a 0–1 scale. “How ratings work” explains both.',
+    lede: (areas: number) => ({
+      before: 'Every idea recorded on ',
+      after: `, across ${areas} areas. Each is a candidate hypothesis with a rating out of 10, checked sentence by sentence and linked to the passages behind it. Scores use a 0–1 scale. “How ratings work” explains both.`,
+    }),
     loading: 'Loading ideas',
   },
   tr: {
@@ -69,8 +71,10 @@ export const exploreText = strings({
     moreMiddle: ' bölümünden de açılır. Kendi yaptığınız çalıştırmalar ',
     moreAfter: ' sayfasına kaydedilir.',
     title: 'Fikirler',
-    ledeBefore: 'Dokuz alanda tüm fikirler; kayıt tarihi: ',
-    ledeAfter: '. Her biri aday bir hipotezdir: 10 üzerinden notlanmış, cümle cümle denetlenmiş ve arkasındaki parçalara bağlanmıştır. Puanlar 0–1 aralığındadır. İkisi de “Notlar nasıl hesaplanır” bölümünde açıklanır.',
+    lede: (areas: number) => ({
+      before: `${areas} alanda tüm fikirler; kayıt tarihi: `,
+      after: '. Her biri aday bir hipotezdir: 10 üzerinden notlanmış, cümle cümle denetlenmiş ve arkasındaki parçalara bağlanmıştır. Puanlar 0–1 aralığındadır. İkisi de “Notlar nasıl hesaplanır” bölümünde açıklanır.',
+    }),
     loading: 'Fikirler yükleniyor',
   },
 });

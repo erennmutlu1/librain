@@ -23,7 +23,7 @@ function Bold({ parts }: { parts: readonly string[] }) {
   );
 }
 
-/* /explore/stats: what the 46 recorded runs add up to, computed from the files. */
+/* /explore/stats: what the recorded runs add up to, computed from the files. */
 
 function Rate({ label, value, of, note, lang }: { label: ReactNode; value: number; of: number; note?: ReactNode; lang: Lang }) {
   const pct = of > 0 ? value / of : 0;
@@ -85,7 +85,7 @@ function StatsBody({ data }: { data: ExploreData }) {
         </li>
       </ul>
 
-      <Section id="ratings" title={t.ratingsTitle} note={<RatingExplainer range={data.noveltyRange} />}>
+      <Section id="ratings" title={t.ratingsTitle} note={<RatingExplainer range={data.noveltyRange} total={data.discoveries.length} />}>
         <div className={styles.charts}>
           <RatingHistogram bins={bins} />
           <CategoryBars stats={cats} />
@@ -163,7 +163,7 @@ function StatsBody({ data }: { data: ExploreData }) {
             </li>
             {tot.cost.byBatch.map((b) => (
               <li key={b.batch}>
-                <Bold parts={t.batchLine(b.batch === 1 ? t.batch1 : t.batch2, usd(b.total), b.runs)} />
+                <Bold parts={t.batchLine(t[`batch${b.batch}`], usd(b.total), b.runs)} />
               </li>
             ))}
           </ul>

@@ -1,0 +1,20 @@
+{
+  "id": "X01",
+  "topicA": "kod üretiminin birim testleriyle işlevsel doğruluk açısından değerlendirilmesi (HumanEval)",
+  "topicB": "eğitimde büyük dil modelleri",
+  "hypothesis": "Kod üzerinde ince ayar yapılmış LLM’ler (Codex gibi), HumanEval üzerinde pass@k gibi birim testi tabanlı metriklerle ölçüldüğünde programlama görevlerinde ölçülebilir bir işlevsel doğruluk göstermektedir; eğitim ortamlarında kullanıldığında bu modeller, eşleşme tabanlı değerlendirme ölçeklerinin yerine işlevsel doğruluk değerlendirmesini koyarak programlama ödevleri için otomatik ve ölçeklenebilir değerlendiriciler olarak hizmet edebilir. Ancak, genetik aramayla elde edilen çözümlerin birim testlerini kandırmasına olanak tanıyan aynı zayıf test paketi açıkları, öğrencilerin gönderdiği kodlar tarafından da sistematik biçimde istismar edilebilir; bu da LLM tabanlı kod değerlendiricilerinin eğitimde kullanılmasının, dejenere çözümler yoluyla not şişirmesini önlemek için, öğretmenlerin yazdığı olağan test kapsamının çok ötesine geçen, saldırılara karşı dayanıklı test paketleri gerektirdiği anlamına gelir.",
+  "novelClaim": "Ancak, genetik aramayla elde edilen çözümlerin birim testlerini kandırmasına olanak tanıyan aynı zayıf test paketi açıkları, öğrencilerin gönderdiği kodlar tarafından da sistematik biçimde istismar edilebilir; bu da LLM tabanlı kod değerlendiricilerinin eğitimde kullanılmasının, dejenere çözümler yoluyla not şişirmesini önlemek için, öğretmenlerin yazdığı olağan test kapsamının çok ötesine geçen, saldırılara karşı dayanıklı test paketleri gerektirdiği anlamına gelir.",
+  "reasoning": "HumanEval kaynakları şunları ortaya koyar: (1) birim testleriyle ölçülen işlevsel doğruluk, kodu değerlendirmede altın standarttır (parça 2); (2) insan geliştiriciler sınırlı ama hedefli kapsamlı test paketleri yazar ve bunlar algoritmalara karşı her zaman iyi çalışmaz (parça 18); (3) LLM’ler özel ders ve geri bildirim için eğitim platformlarına hâlihazırda entegre edilmektedir (llm-education-survey parça 13). Bu bulgular birleştirildiğinde, yeni çıkarım şudur: eğitimde LLM tabanlı işlevsel doğruluk değerlendiricileri kullanmak, rekabetçi kod değerlendirmesinde belgelenen zayıf test paketi istismarı riskini devralır ve dejenere öğrenci çözümlerinin testleri geçmesini önlemek için saldırılara karşı güçlendirilmiş test paketleri gerektirir.",
+  "claims": [
+    {
+      "sentence": "Ancak, genetik aramayla elde edilen çözümlerin birim testlerini kandırmasına olanak tanıyan aynı zayıf test paketi açıkları, öğrencilerin gönderdiği kodlar tarafından da sistematik biçimde istismar edilebilir; bu da LLM tabanlı kod değerlendiricilerinin eğitimde kullanılmasının, dejenere çözümler yoluyla not şişirmesini önlemek için, öğretmenlerin yazdığı olağan test kapsamının çok ötesine geçen, saldırılara karşı dayanıklı test paketleri gerektirdiği anlamına gelir.",
+      "rationale": "Zayıf test paketlerinin istismar edildiğine dair iddia, 2107.03374:18 numaralı parçayla doğrudan desteklenmektedir; bu parça, genetik arama çözümlerinin “başarısız olan işlevselliği silerek zayıf test paketlerinden geçtiğini” açıkça belirtir ve “İnsan geliştiriciler çoğunlukla sınırlı ama hedefli kapsamlı test paketleri yazar, ancak bu bir algoritmaya karşı her zaman iyi çalışmaz” der."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Ancak, genetik aramayla elde edilen çözümlerin birim testlerini kandırmasına olanak tanıyan aynı zayıf test paketi açıkları, öğrencilerin gönderdiği kodlar tarafından da sistematik biçimde istismar edilebilir; bu da LLM tabanlı kod değerlendiricilerinin eğitimde kullanılmasının, dejenere çözümler yoluyla not şişirmesini önlemek için, öğretmenlerin yazdığı olağan test kapsamının çok ötesine geçen, saldırılara karşı dayanıklı test paketleri gerektirdiği anlamına gelir.",
+      "rationale": "Parça 18, genetik arama çözümlerinin başarısız olan işlevselliği silerek zayıf test paketlerinden geçtiğini belgelemektedir (Qi vd., 2015); aynı kandırma mekanizması, eğitimdeki değerlendirme bağlamlarında öğrencilerin gönderdiği LLM üretimi kodlara da aktarılabilir."
+    }
+  ]
+}

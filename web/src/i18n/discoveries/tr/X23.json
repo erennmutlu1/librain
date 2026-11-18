@@ -1,0 +1,20 @@
+{
+  "id": "X23",
+  "topicA": "katalizör adsorpsiyonu için kuvvetlerin ve gevşemiş enerjilerin tahmini (OC20)",
+  "topicB": "mesaj iletimi ve gürültüye dayanıklı rollout’lara sahip öğrenilmiş parçacık simülatörleri",
+  "hypothesis": "Öğrenilmiş parçacık simülatörlerinde gösterildiği gibi gürültü enjeksiyonlu rollout kararlılaştırmasıyla eğitilen graf sinir ağı mesaj iletimi mimarileri, atomların parçacık, atomlar arası kuvvetlerin ise ivme hedeflerinin yerini aldığı OC20 tarzı katalizör gevşetmeleri için doğrudan kuvvet alanı vekil modelleri olarak yeniden kullanılabilir. Her iki alan da aynı kodla-işle-çöz (encode-process-decode) graf yapısını paylaştığından ve dağılım dışı ara konfigürasyonlara karşı gürbüzlük gerektirdiğinden, GNS tarzı modelleri OC20’nin rattled/MD yapıları üzerinde rastgele yürüyüş (random-walk) gürültüsü enjeksiyonuyla eğitmek, tek noktalı kuvvet doğruluğunu iyileştirirken yinelemeli yapı gevşetmesi sırasında rollout hata birikimini de azaltabilir ve böylece ML modellerini şu anda görülmemiş adsorbat–yüzey kombinasyonlarında sınırlayan genelleme açığını kapatabilir.",
+  "novelClaim": "GNS tarzı modelleri OC20’nin rattled/MD yapıları üzerinde rastgele yürüyüş (random-walk) gürültüsü enjeksiyonuyla eğitmek, tek noktalı kuvvet doğruluğunu iyileştirirken yinelemeli yapı gevşetmesi sırasında rollout hata birikimini de azaltabilir ve böylece ML modellerini şu anda görülmemiş adsorbat–yüzey kombinasyonlarında sınırlayan genelleme açığını kapatabilir.",
+  "reasoning": "GNS çerçevesi, rastgele yürüyüş gürültüsü enjeksiyonlu kodla-işle-çöz mesaj iletiminin uzun rollout’larda dağılım kaymasını gürbüz biçimde ele aldığını gösterirken (gns-physics:16, gns-physics:3), OC20 model gürbüzlüğünü artırmak için açıkça rattled ve MD yapıları sağlar ve mevcut modellerin görülmemiş adsorbat–yüzey çiftlerine genelleyemediğini belirtir (oc20:2, oc20:4, oc20:5). Hiçbir kaynak, GNS tarzı gürbüz gürültü eğitimini OC20 rattled/MD artırma verisiyle birleştirerek kuvvet doğruluğunu ve gevşetme rollout kararlılığını aynı anda ele almayı önermemektedir; yeni iddia bu alanlar arası sentezdir.",
+  "claims": [
+    {
+      "sentence": "GNS tarzı modelleri OC20’nin rattled/MD yapıları üzerinde rastgele yürüyüş (random-walk) gürültüsü enjeksiyonuyla eğitmek, tek noktalı kuvvet doğruluğunu iyileştirirken yinelemeli yapı gevşetmesi sırasında rollout hata birikimini de azaltabilir ve böylece ML modellerini şu anda görülmemiş adsorbat–yüzey kombinasyonlarında sınırlayan genelleme açığını kapatabilir.",
+      "rationale": "İddia spekülatif olarak kurgulanmıştır ('-abilir', 'potansiyel olarak') ve yerleşik unsurları (rattled/MD yapılı OC20 veri kümesi, GNS mimarisi, rastgele yürüyüş gürültüsü enjeksiyonu) doğrudan kanıtın ötesine geçen varsayımsal bir biçimde birleştirir; ancak kesinleşmiş olgu olarak desteklenmeyen belirli iddialar öne sürmez."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "GNS tarzı modelleri OC20’nin rattled/MD yapıları üzerinde rastgele yürüyüş (random-walk) gürültüsü enjeksiyonuyla eğitmek, tek noktalı kuvvet doğruluğunu iyileştirirken yinelemeli yapı gevşetmesi sırasında rollout hata birikimini de azaltabilir ve böylece ML modellerini şu anda görülmemiş adsorbat–yüzey kombinasyonlarında sınırlayan genelleme açığını kapatabilir.",
+      "rationale": "GNS, rollout’larda eğitim/test dağılım kaymasını köprülemek için rastgele yürüyüş gürültüsü enjeksiyonu kullanır; OC20 de benzer biçimde gürbüzlüğü artırmak için rattled/MD yapıları sağlar. Bu nedenle her iki stratejiyi birleşik bir GNS tarzı katalizör modelinde birleştirmek, iki kaynakta da belirtilmeyen analojik bir aktarımdır."
+    }
+  ]
+}

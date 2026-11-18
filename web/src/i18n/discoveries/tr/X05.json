@@ -1,0 +1,20 @@
+{
+  "id": "X05",
+  "topicA": "büyük dil modellerine mesleki görev maruziyetinin bir ölçekle derecelendirilmesi",
+  "topicB": "graf evrişimli ağlarla yarı denetimli düğüm sınıflandırma",
+  "hypothesis": "Düğümlerin O*NET görevlerini, kenarların ise aynı meslek içindeki birlikte bulunmayı veya ortak beceri gereksinimlerini temsil ettiği mesleki görev grafları, ölçekle derecelendirilmiş mevcut LLM maruziyet verilerinden oluşturulabilir; bu da GCN tabanlı yarı denetimli bir modelin maruziyet etiketlerini küçük bir etiketli görev kümesinden tüm O*NET görev envanterine yaymasını sağlar. GCN’ler hem graf yapısını hem de düğüm özniteliklerini tek bir türevlenebilir modelde kodladığı için, böyle bir yaklaşım insan değerlendiricilerin şu anda gerektirdiği etiketleme yükünü azaltabilir ve aynı zamanda LLM maruziyetini yalnızca ücret veya istihdam göstergelerinden daha güvenilir biçimde tahmin eden örtük görev benzerliği kümelerini ortaya çıkarabilir.",
+  "novelClaim": "GCN’ler hem graf yapısını hem de düğüm özniteliklerini tek bir türevlenebilir modelde kodladığı için, böyle bir yaklaşım insan değerlendiricilerin şu anda gerektirdiği etiketleme yükünü azaltabilir ve aynı zamanda LLM maruziyetini yalnızca ücret veya istihdam göstergelerinden daha güvenilir biçimde tahmin eden örtük görev benzerliği kümelerini ortaya çıkarabilir.",
+  "reasoning": "LLM maruziyeti çalışması (2303.10130), O*NET görevlerinin maliyetli insan ve GPT-4 etiketlemesine dayanır ve etiketleyici uzmanlık boşluklarını ile görüş ayrılıklarını temel sınırlılıklar olarak kabul eder; GCN makalesi (gcn) ise graf yapılı yarı denetimli öğrenmenin, graf topolojisini ve düğüm özniteliklerini birlikte kodlayarak etiketleri küçük bir etiketli alt kümeden etiketsiz düğümlere yayabildiğini gösterir. Bu bulgular birleştirildiğinde, O*NET verilerinden oluşturulan ve mevcut ölçekle derecelendirilmiş maruziyet etiketleriyle başlatılan bir görev birlikte bulunma grafının, bir GCN’nin maruziyet derecelendirmelerini tüm görev envanterine genelleştirmesine olanak tanıyabileceğini düşündürür; bu da iki makalenin tek başına önerdiğinin ötesine geçer.",
+  "claims": [
+    {
+      "sentence": "GCN’ler hem graf yapısını hem de düğüm özniteliklerini tek bir türevlenebilir modelde kodladığı için, böyle bir yaklaşım insan değerlendiricilerin şu anda gerektirdiği etiketleme yükünü azaltabilir ve aynı zamanda LLM maruziyetini yalnızca ücret veya istihdam göstergelerinden daha güvenilir biçimde tahmin eden örtük görev benzerliği kümelerini ortaya çıkarabilir.",
+      "rationale": "Cümle, GCN’lerin etiketleme yükünü azaltabileceğine ve LLM maruziyetini ücret/istihdam göstergelerinden daha iyi tahmin eden görev benzerliği kümelerini ortaya çıkarabileceğine dair belirli bir olgusal iddiada bulunmaktadır; ancak LLM maruziyeti tahminine bu uygulama getirilen hiçbir parçada desteklenmemektedir; GCN makalesi mesleki maruziyet analizini değil, atıf ağları üzerinde yarı denetimli düğüm sınıflandırmayı ele almaktadır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "GCN’ler hem graf yapısını hem de düğüm özniteliklerini tek bir türevlenebilir modelde kodladığı için, böyle bir yaklaşım insan değerlendiricilerin şu anda gerektirdiği etiketleme yükünü azaltabilir ve aynı zamanda LLM maruziyetini yalnızca ücret veya istihdam göstergelerinden daha güvenilir biçimde tahmin eden örtük görev benzerliği kümelerini ortaya çıkarabilir.",
+      "rationale": "GCN’ler, etiketlerin yalnızca küçük bir düğüm alt kümesi için bulunduğu yarı denetimli düğüm sınıflandırma için özel olarak tasarlanmıştır; bu, O*NET görev veri kümesindeki seyrek insan etiketli LLM maruziyet etiketleriyle doğrudan benzerdir; ücret/istihdam göstergesi karşılaştırması ise kaynakların hiçbirinde belirtilmeyen bir çıkarımdır."
+    }
+  ]
+}

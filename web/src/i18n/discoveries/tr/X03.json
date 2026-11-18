@@ -1,0 +1,28 @@
+{
+  "id": "X03",
+  "topicA": "yüzey elektromiyografi sinyallerinden kas yorgunluğu tespiti",
+  "topicB": "ham konuşma sesi üzerinde öz denetimli karşılaştırmalı ön eğitim (wav2vec 2.0)",
+  "hypothesis": "wav2vec 2.0 tarzı öz denetimli karşılaştırmalı ön eğitim (gizli temsilleri maskeleme ve etiketsiz ham dalga biçimleri üzerinde nicemlenmiş bir karşılaştırmalı görevi çözme), büyük etiketli yorgunluk veri kümeleri gerektirmeden kas aktivitesinin genel zamansal temsillerini öğrenmek üzere sEMG sinyallerine uyarlanabilir. Bu tür ön eğitimli sEMG kodlayıcıları, enerji verimli darbeli (spiking) sinir ağı çıkarımıyla birleştirildiğinde, gerçek zamanlı giyilebilir yorgunluk izlemeyi şu anda sınırlayan veri kıtlığı ve güç bütçesi kısıtlarını aynı anda ele alabilir. Bu sinerji büyük olasılıkla, hem etiket açısından verimli hem de geleneksel derin öğrenme temel modellerinden büyüklük mertebeleri kadar daha enerji verimli, uç cihazlara dağıtılabilir yeni bir yorgunluk tespit sistemi sınıfı ortaya çıkaracaktır.",
+  "novelClaim": "Bu tür ön eğitimli sEMG kodlayıcıları, enerji verimli darbeli (spiking) sinir ağı çıkarımıyla birleştirildiğinde, gerçek zamanlı giyilebilir yorgunluk izlemeyi şu anda sınırlayan veri kıtlığı ve güç bütçesi kısıtlarını aynı anda ele alabilir. Bu sinerji büyük olasılıkla, hem etiket açısından verimli hem de geleneksel derin öğrenme temel modellerinden büyüklük mertebeleri kadar daha enerji verimli, uç cihazlara dağıtılabilir yeni bir yorgunluk tespit sistemi sınıfı ortaya çıkaracaktır.",
+  "reasoning": "wav2vec 2.0 (wav2vec2:0 ve wav2vec2:9 parçaları), ham etiketsiz zamansal sinyaller üzerinde karşılaştırmalı ön eğitimin, etiketli veriye bağımlılığı büyük ölçüde azaltan güçlü temsiller öğrenebildiğini gösterirken; 2607.11065 (parça 0, 1, 11), sEMG yorgunluk tespitinin sınırlı etiketli veri ve yüksek enerji maliyetinden muzdarip olduğunu ve SNN’lerin enerjiyi yaklaşık 200 kat azaltabildiğini ortaya koyar. Birbirinden bağımsız olarak doğrulanmış bu iki fikrin, yani etiket verimliliği için öz denetimli karşılaştırmalı ön eğitimin ve enerji verimliliği için SNN çıkarımının, tek bir sEMG hattında birleştirilmesi kaynakların hiçbirinde belirtilmemiştir ve yeni çıkarımı oluşturur.",
+  "claims": [
+    {
+      "sentence": "Bu tür ön eğitimli sEMG kodlayıcıları, enerji verimli darbeli (spiking) sinir ağı çıkarımıyla birleştirildiğinde, gerçek zamanlı giyilebilir yorgunluk izlemeyi şu anda sınırlayan veri kıtlığı ve güç bütçesi kısıtlarını aynı anda ele alabilir.",
+      "rationale": "Cümle çekinceli bir dil (“alabilir”) kullanmakta ve iddiayı yerleşik bir olgu olarak değil, varsayımsal bir yetenek olarak sunmaktadır; getirilen makale, SNN’lerin sEMG yorgunluk tespitinde enerji ve veri verimliliği sağladığını göstermektedir, ancak anlatılan özel sinerji varsayımsaldır."
+    },
+    {
+      "sentence": "Bu sinerji büyük olasılıkla, hem etiket açısından verimli hem de geleneksel derin öğrenme temel modellerinden büyüklük mertebeleri kadar daha enerji verimli, uç cihazlara dağıtılabilir yeni bir yorgunluk tespit sistemi sınıfı ortaya çıkaracaktır.",
+      "rationale": "Cümle çekinceli bir dil (“büyük olasılıkla”) kullanmakta ve varsayımsal bir sonuç sunmaktadır; getirilen makale SNN’lerin ANN’lere kıyasla 201,77 kata kadar enerji azaltımı sağladığını gösterse de, “yeni bir sınıf” sistemler ve bunların birleşik etiket ve enerji verimliliğine ilişkin iddia, yerleşik bir olgu olarak değil, gelecekteki bir olasılık olarak kurgulanmıştır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu tür ön eğitimli sEMG kodlayıcıları, enerji verimli darbeli (spiking) sinir ağı çıkarımıyla birleştirildiğinde, gerçek zamanlı giyilebilir yorgunluk izlemeyi şu anda sınırlayan veri kıtlığı ve güç bütçesi kısıtlarını aynı anda ele alabilir.",
+      "rationale": "wav2vec 2.0, ham etiketsiz ses üzerinde öz denetimli ön eğitimin etiketli veri gereksinimini büyük ölçüde azalttığını gösterir; benzetme yoluyla, aynı stratejinin sEMG’ye uygulanması 2607.11065:0’da belirlenen veri kıtlığı sorununu hafifletebilir."
+    },
+    {
+      "claimSentence": "Bu sinerji büyük olasılıkla, hem etiket açısından verimli hem de geleneksel derin öğrenme temel modellerinden büyüklük mertebeleri kadar daha enerji verimli, uç cihazlara dağıtılabilir yeni bir yorgunluk tespit sistemi sınıfı ortaya çıkaracaktır.",
+      "rationale": "2607.11065, sEMG yorgunluk tespitinde SNN’lerle 201,77 kata kadar enerji azaltımı gösterir; bunun öz denetimli ön eğitimi de içeren bir hatta genellenmesi, etiket verimliliği kazanımlarını yerleşik enerji kazanımlarıyla birleştirecektir."
+    }
+  ]
+}

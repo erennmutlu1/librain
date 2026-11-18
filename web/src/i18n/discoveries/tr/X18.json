@@ -1,0 +1,20 @@
+{
+  "id": "X18",
+  "topicA": "derin öğrenmeyle NDVI zaman serilerinden mahsul veriminin tahmin edilmesi",
+  "topicB": "uzun vadeli seri tahmini için otokorelasyonlu ayrıştırma transformer’ları",
+  "hypothesis": "Mahsul verimi tahmininde kullanılan NDVI zaman serileri, Autoformer’ın ayrıştırma mimarisinin açıkça birbirinden ayırmak üzere tasarlandığı zamansal örüntülere benzeyen güçlü mevsimsel ve eğilim-döngüsel bileşenler sergiler. Autoformer’ın ilerleyici blok içi seri ayrıştırmasını ve Otokorelasyon (Auto-Correlation) mekanizmasını doğrudan NDVI zaman serisi tahmin hatlarına uygulamak, fenolojik mevsimselliği uzun vadeli verimlilik eğilimlerinden ayırarak sezon içi verim tahmini doğruluğunu önemli ölçüde artırabilir. Bu hibrit yaklaşım, ayrıştırılmış eğilim bileşenlerini gözlenen büyüme mevsiminin ötesine ekstrapole ederek güvenilir sezon öncesi verim tahminlerini de mümkün kılabilir; bu, mahsul verimi literatüründe henüz gösterilmemiş bir yetenektir.",
+  "novelClaim": "Bu hibrit yaklaşım, ayrıştırılmış eğilim bileşenlerini gözlenen büyüme mevsiminin ötesine ekstrapole ederek güvenilir sezon öncesi verim tahminlerini de mümkün kılabilir; bu, mahsul verimi literatüründe henüz gösterilmemiş bir yetenektir.",
+  "reasoning": "NDVI zaman serileri mahsul verimi modelleri için köklü girdilerdir (crop-yield-rs:0, crop-yield-multimodal:2) ve Autoformer’ın ilerleyici ayrıştırma bloklarının (autoformer:3) ile Otokorelasyon mekanizmasının (autoformer:1) ayırmak ve değerlendirmek üzere tasarlandığı mevsimsel ve eğilim-döngüsel yapının aynısını sergiler. Autoformer, yalnızca geçmiş seriyi ön işlemek yerine gelecek yer tutucular dahil ara gizli değişkenleri de ilerleyici biçimde ayrıştırabildiğinden, NDVI kaynaklı fenolojik eğilim bileşenlerini sezon öncesi döneme ekstrapole edebilir; bu, mevcut derin öğrenmeli mahsul verimi modellerinin (crop-yield-multimodal:4) gösterdiklerinin ötesinde bir adımdır.",
+  "claims": [
+    {
+      "sentence": "Bu hibrit yaklaşım, ayrıştırılmış eğilim bileşenlerini gözlenen büyüme mevsiminin ötesine ekstrapole ederek güvenilir sezon öncesi verim tahminlerini de mümkün kılabilir; bu, mahsul verimi literatüründe henüz gösterilmemiş bir yetenektir.",
+      "rationale": "Cümle, çekimser bir dil kullanır ('daha da mümkün kılabilir') ve yeteneği kesinleşmiş bir olgu olarak değil, spekülatif olarak sunar; getirilen literatürde ayrıştırma yöntemleri ve sezon öncesi tahmin belgelenmiş olsa da, ayrıştırılmış eğilim bileşenlerinin büyüme mevsiminin ötesine ekstrapole edilmesi şeklindeki özel birleşim gösterilmiş bir yetenek değil, bir hipotez olarak sunulmaktadır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu hibrit yaklaşım, ayrıştırılmış eğilim bileşenlerini gözlenen büyüme mevsiminin ötesine ekstrapole ederek güvenilir sezon öncesi verim tahminlerini de mümkün kılabilir; bu, mahsul verimi literatüründe henüz gösterilmemiş bir yetenektir.",
+      "rationale": "Autoformer’ın kod çözücüsü, bilinmeyen gelecek seriyi tahmin etmek için ayrıştırılmış eğilim ve mevsimsel yer tutucularla başlatılır; benzetme yoluyla bunu NDVI’ya uygulamak, sezon başlamadan önce mahsul fenolojisi eğilimlerini öngörebilir ve sezon öncesi verim tahminlerini mümkün kılabilir."
+    }
+  ]
+}

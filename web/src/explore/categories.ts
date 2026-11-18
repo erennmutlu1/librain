@@ -1,6 +1,6 @@
 /*
  * Explore categories. A run's category comes from the letter its id starts
- * with (D1, F4, J5, …), the naming both experiment batches used.
+ * with (D1, F4, J5, X17, …), the naming every experiment batch used.
  *
  * Each category has a hue (a --cat-* token in styles/tokens.css, light and
  * dark steps from the same categorical palette as the Compare systems) and an
@@ -10,8 +10,9 @@
  */
 import type { CSSProperties } from 'react';
 import { currentLang, type Lang } from '../i18n/lang';
+import type { ExploreBatch } from './manifests';
 
-export type CategoryIcon = 'pill' | 'leaf' | 'pulse' | 'venn' | 'ball' | 'stopwatch' | 'browser' | 'code' | 'briefcase';
+export type CategoryIcon = 'pill' | 'leaf' | 'pulse' | 'venn' | 'ball' | 'stopwatch' | 'browser' | 'code' | 'briefcase' | 'link';
 
 export interface Category {
   /** The id prefix, e.g. "D". */
@@ -24,12 +25,12 @@ export interface Category {
   /** CSS custom property holding the category hue. */
   colorVar: string;
   /** Which recorded batch the category belongs to. */
-  batch: 1 | 2;
+  batch: ExploreBatch;
   /** The same two names in Turkish. */
   tr: { name: string; short: string };
 }
 
-/** Display order: batch 1 then batch 2, each in the order its experiment lists them. */
+/** Display order: batch 1, 2, then 3, each in the order its experiment lists them. */
 export const CATEGORIES: readonly Category[] = [
   {
     prefix: 'D',
@@ -111,6 +112,15 @@ export const CATEGORIES: readonly Category[] = [
     colorVar: '--cat-j',
     batch: 2,
     tr: { name: 'Geleceğin meslekleri', short: 'Geleceğin meslekleri' },
+  },
+  {
+    prefix: 'X',
+    name: 'Cross-field bridges',
+    short: 'Bridges',
+    icon: 'link',
+    colorVar: '--cat-x',
+    batch: 3,
+    tr: { name: 'Alanlar arası köprüler', short: 'Köprüler' },
   },
 ];
 

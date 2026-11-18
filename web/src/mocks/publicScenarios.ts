@@ -2,9 +2,9 @@
  * What Recorded mode serves on the public site. Real runs only, and nothing
  * is ever substituted for inputs that match no recording (`fallback: null`):
  *
- *   Discover  the 46 committed Discovery runs (src/explore/data, copies of
- *             experiments/{featured,new-areas}-discoveries) plus the real
- *             Anthropic baseline-experiment runs. The OpenAI recordings are
+ *   Discover  every committed Discovery run (src/explore/data, copies of
+ *             experiments/{featured,new-areas,cross-field}-discoveries) plus
+ *             the real Anthropic baseline-experiment runs. The OpenAI recordings are
  *             left out because the public Live mode is Anthropic only.
  *   Compare   the two real baseline-experiment pairs (pair-10, pair-01).
  *   Ask       the five real questions in experiments/ask-examples (copies in
@@ -14,10 +14,10 @@
  * nowhere here: not in a picker, a fallback or the derived library.
  *
  * Loaded on demand with the mock client, so the owner's builds never pull
- * the 46 runs in through it.
+ * the recorded runs in through it.
  */
 import type { DiscoverRequest, QueryRequest } from '../api/types';
-import { EXPLORE_MANIFESTS } from '../explore/manifests';
+import { compareRunFiles, EXPLORE_MANIFESTS } from '../explore/manifests';
 import { localizeRun, type RunTranslation } from '../i18n/discoveries/localize';
 import { currentLang, pick, strings } from '../i18n/lang';
 import { formatUsd, topicLabel } from '../lib/format';
@@ -87,9 +87,9 @@ function toRecording(path: string, raw: unknown): DiscoverRecording | null {
   };
 }
 
-/** Repository order: batch 1 (A, C, D, N) and then batch 2 (F, J, P, S, W), each by id. */
+/** Repository order: batch 1 (A, C, D, N), batch 2 (F, J, P, S, W), then batch 3 (X), each by id. */
 export const exploreRecordings: DiscoverRecording[] = Object.entries(files)
-  .sort(([a], [b]) => a.localeCompare(b, 'en', { numeric: true }))
+  .sort(([a], [b]) => compareRunFiles(a, b))
   .map(([path, raw]) => toRecording(path, raw))
   .filter((r): r is DiscoverRecording => r !== null);
 

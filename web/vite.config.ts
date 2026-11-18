@@ -70,7 +70,17 @@ export default defineConfig(({ mode }) => {
       // experiment outputs. The app itself never reads outside web/ (the Docker
       // image is built from web/ alone).
       ...(mode === 'test'
-        ? { fs: { allow: ['.', '../experiments/featured-discoveries', '../experiments/new-areas-discoveries', '../experiments/ask-examples'] } }
+        ? {
+            fs: {
+              allow: [
+                '.',
+                '../experiments/featured-discoveries',
+                '../experiments/new-areas-discoveries',
+                '../experiments/cross-field-discoveries',
+                '../experiments/ask-examples',
+              ],
+            },
+          }
         : {}),
     },
     test: {

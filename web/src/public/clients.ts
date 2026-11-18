@@ -13,7 +13,7 @@ import { text } from './public.i18n';
 import { createWakeWatch, type WakeWatch } from './wakeWatch';
 
 export interface PublicClients {
-  /** The recorded-data client; a promise while its chunk (the 46 runs) loads. */
+  /** The recorded-data client; a promise while its chunk (the recorded runs) loads. */
   recorded: LibrainApi | Promise<LibrainApi>;
   live: LibrainApi;
   runStore: RunStore;

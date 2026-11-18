@@ -1,14 +1,17 @@
 /*
- * The two experiment manifests behind Explore, which are small: editor's
- * picks with their takeaways, batch 2's areas, the dropped area and the arXiv
- * titles of the papers batch 2 added. The 46 runs themselves, which carry the
- * passage text, load on demand from ./runs (see useDiscoveries.ts).
+ * The experiment manifests behind Explore, which are small: editor's picks
+ * with their takeaways, the areas of batches 2 and 3, the dropped area and
+ * the arXiv titles of the papers batch 2 added. The recorded runs themselves,
+ * which carry the passage text, load on demand from ./runs (see
+ * useDiscoveries.ts).
  *
- * ./data holds byte-for-byte copies of experiments/featured-discoveries and
- * experiments/new-areas-discoveries (explore.test.ts compares them). They are
- * copied because the web Docker image is built from web/ alone.
+ * ./data holds byte-for-byte copies of experiments/featured-discoveries,
+ * experiments/new-areas-discoveries and experiments/cross-field-discoveries
+ * (explore.test.ts compares them). They are copied because the web Docker
+ * image is built from web/ alone.
  */
 import { modelDisplayNames } from '../featured/manifest';
+import rawBatch3 from './data/cross-field-discoveries/featured.json';
 import rawBatch1 from './data/featured-discoveries/featured.json';
 import rawBatch2 from './data/new-areas-discoveries/featured.json';
 
@@ -18,8 +21,11 @@ export interface ExplorePick {
   whyFeatured: string;
 }
 
+/** The recorded batches, in the order they were run. */
+export type ExploreBatch = 1 | 2 | 3;
+
 export interface ExploreManifest {
-  batch: 1 | 2;
+  batch: ExploreBatch;
   /** Repository folder the copy mirrors, e.g. experiments/featured-discoveries. */
   sourceDir: string;
   /** Display name of the generating model, e.g. "Claude Sonnet 4.6". */
@@ -38,7 +44,7 @@ const isRecord = (v: unknown): v is Rec => typeof v === 'object' && v !== null &
 const str = (v: unknown) => (typeof v === 'string' ? v : '');
 const records = (v: unknown) => (Array.isArray(v) ? v.filter(isRecord) : []);
 
-export function parseExploreManifest(raw: unknown, batch: 1 | 2, sourceDir: string): ExploreManifest {
+export function parseExploreManifest(raw: unknown, batch: ExploreBatch, sourceDir: string): ExploreManifest {
   const r = isRecord(raw) ? raw : {};
   const model = str(r.model);
   const [generator, judge] = modelDisplayNames(model);
@@ -63,12 +69,26 @@ export function parseExploreManifest(raw: unknown, batch: 1 | 2, sourceDir: stri
 export const EXPLORE_MANIFESTS: readonly ExploreManifest[] = [
   parseExploreManifest(rawBatch1, 1, 'experiments/featured-discoveries'),
   parseExploreManifest(rawBatch2, 2, 'experiments/new-areas-discoveries'),
+  parseExploreManifest(rawBatch3, 3, 'experiments/cross-field-discoveries'),
 ];
+
+function batchOfRunFile(path: string): number {
+  const folder = /([^/]+)\/runs\/[^/]+\.json$/.exec(path)?.[1];
+  return EXPLORE_MANIFESTS.find((m) => m.sourceDir.split('/').pop() === folder)?.batch ?? Number.MAX_SAFE_INTEGER;
+}
+
+/**
+ * Repository order for run-file paths (…/<experiment folder>/runs/<id>.json):
+ * by batch, then by id (X2 before X10). The folder names do not sort by batch.
+ */
+export function compareRunFiles(a: string, b: string): number {
+  return batchOfRunFile(a) - batchOfRunFile(b) || a.localeCompare(b, 'en', { numeric: true });
+}
 
 /** Every editor's pick, batch 1 first, each batch in its manifest's order. */
 export const EDITORS_PICKS: readonly ExplorePick[] = EXPLORE_MANIFESTS.flatMap((m) => m.picks);
 
-/** The date the runs were recorded (both batches share it). */
+/** The date the runs were recorded (every batch shares it). */
 export const RECORDED_DATE = EXPLORE_MANIFESTS[0]?.date ?? '';
 
 /** arXiv id -> title, for the papers the manifests name. */

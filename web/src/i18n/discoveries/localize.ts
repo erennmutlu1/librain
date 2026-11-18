@@ -1,5 +1,5 @@
 /*
- * Turkish versions of the 46 recorded discoveries.
+ * Turkish versions of the recorded discoveries.
  *
  * The recorded runs (src/explore/data, src/featured/data) stay byte-for-byte
  * copies of the experiments folder. A translation is a separate file,

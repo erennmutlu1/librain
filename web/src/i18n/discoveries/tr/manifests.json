@@ -55,6 +55,18 @@
     "J4": {
       "takeaway": "İlaç Ar-Ge işleri, diğer mesleklerden ve politikaların uyum sağlama hızından daha hızlı biçimde, yapay zekânın neredeyse hiç kullanılmadığı durumdan yoğun kullanıldığı duruma doğrudan sıçrayabilir.",
       "whyFeatured": "Cesur ve denetlenebilir bir işgücü piyasası öngörüsü (Ar-Ge rollerinde yapay zekâ kullanım verilerini zaman içinde izleyin)."
+    },
+    "X17": {
+      "takeaway": "Bir COVID-19 tahmin graf ağına GraphCast tarzı çok katmanlı bir ağ örgüsü (multi-mesh) verin ve kenarları her düzeyde canlı hareketlilik verisine göre yeniden ağırlıklandırın; böylece salgının yayılma sinyalleri hem yerel olarak (ilçeden ilçeye) hem de uzun mesafede (eyaletler arasında) iletilir.",
+      "whyFeatured": "24 alanlar arası çalıştırmanın en yüksek notu (7,7; 70 çalıştırma içinde üçüncü) ve düşük iddia riski (0,15); aynı isteğin dört yeniden çalıştırması yalnızca 5,6 ile 6,2 arasında not aldı."
+    },
+    "X01": {
+      "takeaway": "Kod üzerinde eğitilmiş LLM’ler, HumanEval’in kodu puanladığı gibi programlama ödevlerini işlevsel doğruluğa göre notlandırabilir; ancak öğrenciler zayıf birim testlerini, arama yoluyla üretilen programların yaptığı gibi atlatabilir; bu yüzden bu tür notlandırıcılar, eğitmenlerin genellikle yazdığından çok daha güçlü testlere ihtiyaç duyar.",
+      "whyFeatured": "Grubun en yüksek ikinci notu (7,6; 70 çalıştırma içinde beşinci); iddia cümlesi, 110 cümle içinde doğrulayıcının dayanaklı olarak işaretlediği yalnızca üç cümleden biri (iddia riski 0,15). Dört yeniden çalıştırma 6,5 ile 7,2 arasında not aldı."
+    },
+    "X13": {
+      "takeaway": "Design2Code gibi ekran görüntüsünden koda kıyaslama veri kümeleri, ön yüz (front-end) mühendisleri için iş kaybının erken bir işareti olabilir; ancak doğrulayıcı, eski otomasyon ölçütlerinin açıklayamadığı %28–40’lık maruziyet varyansını çok kipli (multimodal) kod üretiminin açıkladığı iddiasını riskli olarak işaretliyor.",
+      "whyFeatured": "Denetimin işlediğini gösteriyor: getirilen hiçbir parça iddianın öne sürdüğü nedeni desteklemiyor ve doğrulayıcı cümleyi riskli olarak işaretliyor (0,75). Grubun en düşük notu (4,6)."
     }
   },
   "areas": {
@@ -62,7 +74,8 @@
     "S": "Yapay zekâ × spor",
     "W": "Yapay zekâ × web geliştirme",
     "P": "Programlama dilleri",
-    "J": "Geleceğin meslekleri"
+    "J": "Geleceğin meslekleri",
+    "X": "Alanlar arası köprüler"
   },
   "droppedAreas": [
     {

@@ -1,0 +1,20 @@
+{
+  "id": "X22",
+  "topicA": "büyük ölçekli zayıf denetimden gürbüz çok dilli konuşma tanıma",
+  "topicB": "eğitimde büyük dil modelleri",
+  "hypothesis": "Whisper’ın 96 dilde büyük ölçekli zayıf denetimle elde edilen sıfır atışlı (zero-shot) çok dilli konuşma tanıma yeteneği, LLM tabanlı eğitim platformları için evrensel bir ses ön yüzü (front-end) olarak hizmet edebilir ve veri kümesine özgü ince ayar gerektirmeden, düşük kaynaklı dil topluluklarına gerçek zamanlı sözlü dil özel dersi sunulmasını sağlayabilir. Böyle bir entegrasyon, LLM destekli akıllı özel ders sistemlerinin yalnızca metne dayalı arayüzlerin ötesine geçmesine ve ağırlıklı olarak konuşma yoluyla iletişim kuran, az temsil edilen dillerdeki öğrencilere ulaşmasına olanak tanıyarak yapay zekâ destekli eğitime hakkaniyetli erişimi küresel ölçekte dramatik biçimde genişletecektir.",
+  "novelClaim": "Böyle bir entegrasyon, LLM destekli akıllı özel ders sistemlerinin yalnızca metne dayalı arayüzlerin ötesine geçmesine ve ağırlıklı olarak konuşma yoluyla iletişim kuran, az temsil edilen dillerdeki öğrencilere ulaşmasına olanak tanıyarak yapay zekâ destekli eğitime hakkaniyetli erişimi küresel ölçekte dramatik biçimde genişletecektir.",
+  "reasoning": "Whisper, ince ayar yapılmadan 96 dilde gürbüz sıfır atışlı (zero-shot) çok dilli ASR gösterirken (whisper:1, whisper:0), eğitimde LLM’ler üzerine inceleme makalesi konuşma tanıma ve diyalog sistemlerinin LLM tabanlı özel ders platformlarına halihazırda entegre edildiğini göstermektedir (llm-education-survey:13). Bu bulguların birleştirilmesi, Whisper’ın LLM eğitmenleri için evrensel bir sözlü dil ön yüzü (front-end) olarak görev yaptığı bir hat düşündürmektedir; ancak hiçbir kaynak, düşük kaynaklı dil öğrencileri açısından hakkaniyet sonuçlarını ya da böyle bir hattın mimari entegrasyonunu ele almamaktadır; bu da küresel erişim iddiasını yeni bir ekstrapolasyon yapmaktadır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir entegrasyon, LLM destekli akıllı özel ders sistemlerinin yalnızca metne dayalı arayüzlerin ötesine geçmesine ve ağırlıklı olarak konuşma yoluyla iletişim kuran, az temsil edilen dillerdeki öğrencilere ulaşmasına olanak tanıyarak yapay zekâ destekli eğitime hakkaniyetli erişimi küresel ölçekte dramatik biçimde genişletecektir.",
+      "rationale": "Cümle, LLM’lerin az temsil edilen diller için konuşma tanımayla birleştirildiği gelecekteki bir yetenek hakkında spekülasyon yapmaktadır ('olanak tanıyarak'); bu, kesinleşmiş bir olgu değil hipotez olarak kurgulanmıştır. Getirilen parçalar LLM tabanlı özel ders sistemlerini ve çok dilli konuşma tanıma yeteneklerini ayrı ayrı desteklese de, belirli entegrasyon ve bunun hakkaniyetli erişim üzerindeki öne sürülen etkisi spekülatiftir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir entegrasyon, LLM destekli akıllı özel ders sistemlerinin yalnızca metne dayalı arayüzlerin ötesine geçmesine ve ağırlıklı olarak konuşma yoluyla iletişim kuran, az temsil edilen dillerdeki öğrencilere ulaşmasına olanak tanıyarak yapay zekâ destekli eğitime hakkaniyetli erişimi küresel ölçekte dramatik biçimde genişletecektir.",
+      "rationale": "Derleme, LLM’lerin dil öğretiminde konuşma tanıma ve diyalog için kullanıldığını belirtir; ancak bunu düşük kaynaklı dil topluluklarına yaymaz ya da az temsil edilen kesimler için bir hakkaniyet mekanizması olarak çerçevelemez."
+    }
+  ]
+}

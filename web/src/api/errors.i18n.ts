@@ -1,3 +1,4 @@
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 import { strings } from '../i18n/lang';
 
 export const text = strings({
@@ -6,7 +7,7 @@ export const text = strings({
     requestFailed: (status: number) => `Request failed with status ${status}`,
     noRecordingTitle: 'This is the recorded demo, and no recorded run matches these inputs.',
     noRecordingDetail:
-      'Recorded mode only replays real runs and never swaps in a different one. To see a result, pick a suggested topic or question, open Ideas to browse the 46 recorded ideas, or switch to Live to run your own inputs with your own Anthropic and OpenAI API keys (billed to you).',
+      `Recorded mode only replays real runs and never swaps in a different one. To see a result, pick a suggested topic or question, open Ideas to browse the ${RECORDED_IDEA_COUNT} recorded ideas, or switch to Live to run your own inputs with your own Anthropic and OpenAI API keys (billed to you).`,
     networkTitle: "Can't reach the LIBRAIN API.",
     networkDetailPublic: 'The public API may be down or starting up. Try again in a moment, or switch back to Recorded mode.',
     networkDetailLocal: 'Check that the API is running and reachable (see web/README.md), or use mock mode with VITE_USE_MOCKS=true.',
@@ -39,7 +40,7 @@ export const text = strings({
     requestFailed: (status: number) => `İstek başarısız oldu (durum kodu: ${status})`,
     noRecordingTitle: 'Hazır modda bu girdilerle eşleşen bir çalıştırma yok.',
     noRecordingDetail:
-      'Hazır mod yalnızca gerçek çalıştırmaları yeniden gösterir; yerine asla başka birini koymaz. Sonuç görmek için önerilen bir konu ya da soru seçin, kaydedilmiş 46 fikre göz atmak için Fikirler sayfasını açın ya da kendi girdilerinizi kendi Anthropic ve OpenAI API key’lerinizle çalıştırmak için Canlı moda geçin (ücret size yansır).',
+      `Hazır mod yalnızca gerçek çalıştırmaları yeniden gösterir; yerine asla başka birini koymaz. Sonuç görmek için önerilen bir konu ya da soru seçin, kaydedilmiş ${RECORDED_IDEA_COUNT} fikre göz atmak için Fikirler sayfasını açın ya da kendi girdilerinizi kendi Anthropic ve OpenAI API key’lerinizle çalıştırmak için Canlı moda geçin (ücret size yansır).`,
     networkTitle: 'LIBRAIN API’sine ulaşılamıyor.',
     networkDetailPublic: 'Herkese açık API kapalı ya da yeni başlıyor olabilir. Biraz sonra yeniden deneyin ya da Hazır moda dönün.',
     networkDetailLocal: 'API’nin çalıştığını ve erişilebilir olduğunu kontrol edin (web/README.md) ya da VITE_USE_MOCKS=true ile sahte modu kullanın.',

@@ -1,0 +1,28 @@
+{
+  "id": "X12",
+  "topicA": "futbolcuların topla oynadığı aksiyonların değerlendirilmesi",
+  "topicB": "politika gradyanı yöntemlerinde avantaj tahmini ve kırpılmış vekil amaç fonksiyonları",
+  "hypothesis": "VAEP çerçevesinin aksiyon başına avantaj sinyali (her topla oynama aksiyonunun neden olduğu gol atma/yeme olasılığındaki değişim), PPO’nun kırpılmış vekil amaç fonksiyonunda kullanılan Â_t avantaj tahmin edicisine yapısal olarak benzer; bu da VAEP aksiyon değerleri üzerinde ödül şekillendirme sinyali olarak doğrudan eğitilmiş PPO tarzı bir ajanın, kararlı ve monoton biçimde iyileşen davranışa sahip, bağlama duyarlı futbol politikaları öğrenebileceğini düşündürüyor. Özellikle olasılık oranı r_t(θ)’nın VAEP’ten türetilen avantaj etrafında kırpılması, PPO’nun avantaj tahminleri gürültülü olduğunda yıkıcı ölçüde büyük politika güncellemelerini önlemesi gibi, politikanın yüksek değerli ama nadir aksiyonları (örn. son çeyrekte ara pasları) aşırı sömürmesini önleyecektir. Bu alanlar arası aktarım, standart politika gradyanı yöntemleriyle optimize etmeyi bilinen biçimde zorlaştıran seyrek, düşük skorlu ödül yapısına karşı hem örnek verimli hem de sağlam, oyun içi futbol karar verme için bir pekiştirmeli öğrenme ajanı sağlayabilir.",
+  "novelClaim": "Olasılık oranı r_t(θ)’nın VAEP’ten türetilen avantaj etrafında kırpılması, PPO’nun avantaj tahminleri gürültülü olduğunda yıkıcı ölçüde büyük politika güncellemelerini önlemesi gibi, politikanın yüksek değerli ama nadir aksiyonları (örn. son çeyrekte ara pasları) aşırı sömürmesini önleyecektir. Bu alanlar arası aktarım, standart politika gradyanı yöntemleriyle optimize etmeyi bilinen biçimde zorlaştıran seyrek, düşük skorlu ödül yapısına karşı hem örnek verimli hem de sağlam, oyun içi futbol karar verme için bir pekiştirmeli öğrenme ajanı sağlayabilir.",
+  "reasoning": "VAEP, her topla oynama aksiyonu için yoğun, bağlama duyarlı kredi sinyalleri işlevi gören aksiyon başına olasılık farkı değerleri (ΔP_scores, ΔP_concedes) hesaplar; bu, PPO’daki Â_t’nin rolünü yapısal olarak yansıtır. PPO’nun kırpılmış vekil amaç fonksiyonu, politika oranını sınırlayarak gürültülü, yüksek varyanslı avantaj tahminlerini ele almak üzere özellikle tasarlanmıştır; VAEP aksiyon değerleri de (özellikle şut gibi nadir ve yüksek etkili aksiyonlar için) yüksek varyanslı olasılıksal tahminler olduğundan, PPO’nun kırpma mekanizmasını VAEP ödülleriyle eğitilmiş bir futbol ajanına uygulamak aynı istikrar kazancını sağlayabilir ve kıt futbol olay verisi üzerinde yıkıcı politika kaymaları olmadan çok devirli güncellemelere olanak tanıyabilir.",
+  "claims": [
+    {
+      "sentence": "Olasılık oranı r_t(θ)’nın VAEP’ten türetilen avantaj etrafında kırpılması, PPO’nun avantaj tahminleri gürültülü olduğunda yıkıcı ölçüde büyük politika güncellemelerini önlemesi gibi, politikanın yüksek değerli ama nadir aksiyonları (örn. son çeyrekte ara pasları) aşırı sömürmesini önleyecektir.",
+      "rationale": "Cümle, PPO’nun kırpma mekanizmasının futboldaki VAEP kaynaklı avantajlara varsayımsal bir uygulamasını öneriyor ve bunu yerleşik bir olgu olarak değil, spekülatif bir mekanizma ('önleyecektir') olarak çerçeveliyor; PPO kırpması getirilen makalelerde belgelenmiş olsa da futbol aksiyon değerlerine özgü uygulaması kanıtla desteklenmiyor."
+    },
+    {
+      "sentence": "Bu alanlar arası aktarım, standart politika gradyanı yöntemleriyle optimize etmeyi bilinen biçimde zorlaştıran seyrek, düşük skorlu ödül yapısına karşı hem örnek verimli hem de sağlam, oyun içi futbol karar verme için bir pekiştirmeli öğrenme ajanı sağlayabilir.",
+      "rationale": "Cümle ihtiyatlı bir dil ('sağlayabilir') kullanıyor ve sonucu spekülatif olarak çerçeveliyor; getirilen parçalar futbolun düşük skorlu doğasını ve VAEP’in aksiyonlara değer biçtiğini doğrulasa da alanlar arası aktarımın örnek verimliliği ve sağlamlık sağlayacağı yönündeki özgül iddia yerleşik değil, varsayımsaldır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Olasılık oranı r_t(θ)’nın VAEP’ten türetilen avantaj etrafında kırpılması, PPO’nun avantaj tahminleri gürültülü olduğunda yıkıcı ölçüde büyük politika güncellemelerini önlemesi gibi, politikanın yüksek değerli ama nadir aksiyonları (örn. son çeyrekte ara pasları) aşırı sömürmesini önleyecektir.",
+      "rationale": "PPO’nun kırpma mekanizması, avantaj tahminleri r_t’yi 1’den uzağa sürdüğünde politika güncellemelerini sınırlar; VAEP’in seyrek, yüksek büyüklüklü aksiyon değerleri (örn. bir gol için +0,83) de benzer şekilde kırpmanın istikrara kavuşturabileceği büyük gradyan sinyalleri yaratırdı."
+    },
+    {
+      "claimSentence": "Bu alanlar arası aktarım, standart politika gradyanı yöntemleriyle optimize etmeyi bilinen biçimde zorlaştıran seyrek, düşük skorlu ödül yapısına karşı hem örnek verimli hem de sağlam, oyun içi futbol karar verme için bir pekiştirmeli öğrenme ajanı sağlayabilir.",
+      "rationale": "Getirilen hiçbir parça VAEP değerlerinin pekiştirmeli öğrenmede ödül sinyali olarak kullanılmasını önermiyor ya da PPO’yu bir futbol karar verme ortamında değerlendirmiyor; bu, iki alan arasında spekülatif bir sentezdir."
+    }
+  ]
+}

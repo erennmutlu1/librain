@@ -232,7 +232,7 @@ function ExploreBody({ data }: { data: ExploreData }) {
             : t.statusSome(list.length, data.discoveries.length)}
           {savedOnly && !persistent ? t.noStorage : ''}
         </p>
-        <RatingExplainer range={data.noveltyRange} />
+        <RatingExplainer range={data.noveltyRange} total={data.discoveries.length} />
       </div>
 
       {list.length === 0 ? (
@@ -274,6 +274,7 @@ export default function ExplorePage() {
   const { lang } = useLang();
   const { state, retry } = useExploreData();
   const date = fmtDate(RECORDED_DATE, lang);
+  const lede = t.lede(CATEGORIES.length);
   return (
     <div className="page">
       {state.status === 'error' ? (
@@ -283,9 +284,9 @@ export default function ExplorePage() {
           <header className="page-header">
             <h1 className="page-title">{t.title}</h1>
             <p className="page-lede">
-              {t.ledeBefore}
+              {lede.before}
               <time dateTime={RECORDED_DATE}>{date}</time>
-              {t.ledeAfter}
+              {lede.after}
             </p>
           </header>
           <ExploreTabs data={state.status === 'ready' ? state.data : undefined} />

@@ -175,7 +175,7 @@ function Header({ d, data, actions }: { d: Discovery; data: ExploreData; actions
           <RiskChip discovery={d} />
         </div>
         <div className={styles.headExplain}>
-          <RatingExplainer range={data.noveltyRange} discovery={d} align="end" />
+          <RatingExplainer range={data.noveltyRange} total={data.discoveries.length} discovery={d} align="end" />
         </div>
       </div>
     </header>

@@ -1,0 +1,28 @@
+{
+  "id": "X07",
+  "topicA": "büyük ölçekli program örnekleme, filtreleme ve kümeleme (AlphaCode)",
+  "topicB": "dil modelleriyle bilimsel hipotez üretimi ve doğrulaması",
+  "hypothesis": "AlphaCode’un rekabetçi programlama için gösterdiği gibi, yinelemeli filtreleme ve kümeleme ile büyük ölçekli örnekleme, yapılandırılmış çözüm uzayları üzerinde genel amaçlı bir arama stratejisini temsil eder ve LLM tabanlı bilimsel hipotez üretimi için giderek daha fazla önerilen üret-sonra-doğrula hattına doğrudan benzer. AlphaCode tarzı davranışsal kümelemeyi (adayları yüzeysel metin benzerliğine göre değil, test girdileri üzerindeki ampirik çıktılarına göre gruplamayı) bilimsel hipotez üretimine uygulamak, LLM tarafından üretilen hipotezleri öngörülen deneysel sonuçlarına göre gruplayarak otomatik olarak ayıklamaya olanak tanıyabilir ve insan değerlendirme yükünü büyük ölçüde azaltabilir. Bu alanlar arası aktarım, bilimsel hipotezler için program yürütme izlerine benzer, hesaplanabilir bir “davranışsal imza” tanımlanmasını gerektirir; böyle bir imza henüz mevcut değildir, ancak yapılandırılmış simülasyon veya bilgi grafına dayalı sonuç çıkarımı yoluyla yaklaşık olarak elde edilebilir.",
+  "novelClaim": "AlphaCode tarzı davranışsal kümelemeyi (adayları yüzeysel metin benzerliğine göre değil, test girdileri üzerindeki ampirik çıktılarına göre gruplamayı) bilimsel hipotez üretimine uygulamak, LLM tarafından üretilen hipotezleri öngörülen deneysel sonuçlarına göre gruplayarak otomatik olarak ayıklamaya olanak tanıyabilir ve insan değerlendirme yükünü büyük ölçüde azaltabilir. Bu alanlar arası aktarım, bilimsel hipotezler için program yürütme izlerine benzer, hesaplanabilir bir “davranışsal imza” tanımlanmasını gerektirir; böyle bir imza henüz mevcut değildir, ancak yapılandırılmış simülasyon veya bilgi grafına dayalı sonuç çıkarımı yoluyla yaklaşık olarak elde edilebilir.",
+  "reasoning": "AlphaCode’un hattı, adayların %99’undan fazlasının örnek testlerle filtrelenmesinin ve ardından hayatta kalanların üretilen girdiler üzerindeki davranışsal çıktılarına göre kümelenmesinin, ölçeklenebilir ve bütçe kısıtlı aramanın temel etkenini oluşturduğunu gösterir (2203.07814:8 ve 2203.07814:18 parçaları). Hipotez üretimi derlemeleri (2504.05496:9, 2505.04651:0, 2504.05496:1), insan değerlendirme yükünü ve otomatik ayıklama eksikliğini, LLM tarafından üretilen bilimsel hipotezler için temel darboğaz olarak belirler. Yeni iddia, kod üretiminde kanıtlanmış bir mekanizma olan davranışsal kümelemenin, hipotezler için uygun bir “yürütme” vekili tanımlanabilirse bilimsel alanda yeniden uygulanabileceğini önererek bu iki bulguyu birbirine bağlar.",
+  "claims": [
+    {
+      "sentence": "AlphaCode tarzı davranışsal kümelemeyi (adayları yüzeysel metin benzerliğine göre değil, test girdileri üzerindeki ampirik çıktılarına göre gruplamayı) bilimsel hipotez üretimine uygulamak, LLM tarafından üretilen hipotezleri öngörülen deneysel sonuçlarına göre gruplayarak otomatik olarak ayıklamaya olanak tanıyabilir ve insan değerlendirme yükünü büyük ölçüde azaltabilir.",
+      "rationale": "Cümle, AlphaCode’un davranışsal kümeleme tekniğinin bilimsel hipotez üretimine varsayımsal bir uygulamasını önermekte ve bunu çekinceli bir dille (“olanak tanıyabilir”) kurgulamaktadır; AlphaCode’un kümeleme yöntemi getirilen parçalarda dayanak bulurken hipotez üretimine alanlar arası aktarım varsayımsaldır."
+    },
+    {
+      "sentence": "Bu alanlar arası aktarım, bilimsel hipotezler için program yürütme izlerine benzer, hesaplanabilir bir “davranışsal imza” tanımlanmasını gerektirir; böyle bir imza henüz mevcut değildir, ancak yapılandırılmış simülasyon veya bilgi grafına dayalı sonuç çıkarımı yoluyla yaklaşık olarak elde edilebilir.",
+      "rationale": "Cümle, önerilen “davranışsal imza” kavramının henüz mevcut olmadığını kabul etmekte ve yaklaşıklama yöntemlerini varsayımsal olarak (“yaklaşık olarak elde edilebilir”) kurgulamaktadır; bu da onu olgusal bir iddia değil, gelecekteki çalışmaya dair bir hipotez haline getirmektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "AlphaCode tarzı davranışsal kümelemeyi (adayları yüzeysel metin benzerliğine göre değil, test girdileri üzerindeki ampirik çıktılarına göre gruplamayı) bilimsel hipotez üretimine uygulamak, LLM tarafından üretilen hipotezleri öngörülen deneysel sonuçlarına göre gruplayarak otomatik olarak ayıklamaya olanak tanıyabilir ve insan değerlendirme yükünü büyük ölçüde azaltabilir.",
+      "rationale": "AlphaCode, değerlendirme maliyetini düşürmek için programları üretilen test girdileri üzerindeki davranışsal çıktılarına göre kümeler; aynı mantık, hipotezleri öngörülen deneysel sonuçlarına göre gruplayarak hipotez ayıklamaya aktarılabilir."
+    },
+    {
+      "claimSentence": "Bu alanlar arası aktarım, bilimsel hipotezler için program yürütme izlerine benzer, hesaplanabilir bir “davranışsal imza” tanımlanmasını gerektirir; böyle bir imza henüz mevcut değildir, ancak yapılandırılmış simülasyon veya bilgi grafına dayalı sonuç çıkarımı yoluyla yaklaşık olarak elde edilebilir.",
+      "rationale": "Getirilen hiçbir parça bilimsel hipotezler için bir davranışsal imzayı tanımlamamaktadır; bu, kod yürütme izleri ile hipotez sonuç tahmini arasındaki benzetmeden çıkarılan varsayımsal bir mühendislik gereksinimidir."
+    }
+  ]
+}

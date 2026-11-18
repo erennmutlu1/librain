@@ -1,0 +1,20 @@
+{
+  "id": "X17",
+  "topicA": "insan hareketliliğine ilişkin uzamsal-zamansal bir graf üzerinde COVID-19 tahmini",
+  "topicB": "küresel hava tahmini için çoklu ağ örgüsünde (multi-mesh) mesaj iletimi (GraphCast)",
+  "hypothesis": "Hem COVID-19 uzamsal-zamansal GNN’leri hem de GraphCast’in çoklu ağ örgülü (multi-mesh) mesaj iletimi mimarisi, bilgiyi heterojen uzamsal menzillere yaymak için hiyerarşik, çok ölçekli graf temsillerinden yararlanır. Bu durum, GraphCast’in ikosahedral hiyerarşisine benzer bir çoklu ağ örgülü kodla-işle-çöz (encode-process-decode) çerçevesinin, hastalık yayılımı sinyalinin hem yerel (ilçe düzeyinde) hem de uzun menzilli (eyaletler arası) olarak eşzamanlı yayılmasını sağlayarak salgın tahminini önemli ölçüde iyileştirebileceğini düşündürmektedir. Böyle bir hibrit mimari, her ağ örgüsü (mesh) çözünürlük düzeyinde dinamik, hareketliliğe göre ağırlıklandırılmış kenar güncellemelerini de içerebilir; bu sayede model, insan hareketi örüntülerindeki gerçek zamanlı değişimlere yanıt olarak etkin uzamsal alıcı alanını uyarlayabilir—her iki sistemin de şu anda sahip olmadığı bir yetenek.",
+  "novelClaim": "Böyle bir hibrit mimari, her ağ örgüsü (mesh) çözünürlük düzeyinde dinamik, hareketliliğe göre ağırlıklandırılmış kenar güncellemelerini de içerebilir; bu sayede model, insan hareketi örüntülerindeki gerçek zamanlı değişimlere yanıt olarak etkin uzamsal alıcı alanını uyarlayabilir—her iki sistemin de şu anda sahip olmadığı bir yetenek.",
+  "reasoning": "COVID-STGNN makalesi, tek çözünürlüklü bir ilçe grafı üzerinde hareketliliğe göre ağırlıklandırılmış uzamsal kenarların salgın tahminini iyileştirdiğini gösterirken (parçalar 2, 3, 6), GraphCast’in çoklu ağ örgülü mimarisi, kaba ve ince ikosahedral kenarların üst üste bindirilmesinin az sayıda mesaj iletimi adımıyla verimli çok ölçekli bilgi yayılımını sağladığını göstermektedir (parçalar 21, 2). Bu iki fikrin birleştirilmesi, kenar ağırlıkları gerçek zamanlı hareketlilik akışlarıyla dinamik olarak güncellenen çok çözünürlüklü bir ağ örgüsünün, hem yerel bulaş kümelerini hem de uzun menzilli tohumlama olaylarını aynı anda yakalayabileceğini düşündürmektedir; bu, iki makalenin de ele almadığı bir tasarımdır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir hibrit mimari, her ağ örgüsü (mesh) çözünürlük düzeyinde dinamik, hareketliliğe göre ağırlıklandırılmış kenar güncellemelerini de içerebilir; bu sayede model, insan hareketi örüntülerindeki gerçek zamanlı değişimlere yanıt olarak etkin uzamsal alıcı alanını uyarlayabilir—her iki sistemin de şu anda sahip olmadığı bir yetenek.",
+      "rationale": "Cümle, mevcut sistemlere yönelik varsayımsal bir iyileştirme hakkında spekülatif bir öneri olarak kurgulanmıştır ('daha da içerebilir'); bu ifade kesinleşmiş bir olgudan çok bir öneri olduğunu gösteren çekimser bir dil kullanmaktadır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir hibrit mimari, her ağ örgüsü (mesh) çözünürlük düzeyinde dinamik, hareketliliğe göre ağırlıklandırılmış kenar güncellemelerini de içerebilir; bu sayede model, insan hareketi örüntülerindeki gerçek zamanlı değişimlere yanıt olarak etkin uzamsal alıcı alanını uyarlayabilir—her iki sistemin de şu anda sahip olmadığı bir yetenek.",
+      "rationale": "Ne COVID-STGNN ne de GraphCast makaleleri, gerçek zamanlı hareketlilik sinyalleriyle yönlendirilen, dinamik olarak yeniden ağırlıklandırılmış çok çözünürlüklü ağ örgüsü kenarlarını tanımlamaktadır; bu, her iki sistemin güçlü yanlarını birleştiren varsayımsal bir tasarım önerisidir."
+    }
+  ]
+}

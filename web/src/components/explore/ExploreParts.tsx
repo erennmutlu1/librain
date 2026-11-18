@@ -208,13 +208,19 @@ export function ExploreTabs({ data, currentId }: { data?: ExploreData; currentId
   );
 }
 
+/** The experiment that re-ran the two best batch-3 requests to measure how much a rating moves. */
+const RERUN_EXPERIMENT_URL = 'https://github.com/erennmutlu1/librain/tree/main/experiments/cross-field-discoveries';
+
 /** The rating formula, opened from a "How ratings work" button. */
 export function RatingExplainer({
   range,
+  total,
   discovery,
   align = 'start',
 }: {
   range: NoveltyRange;
+  /** How many ideas the rating ranks (the novelty range spans them all). */
+  total: number;
   discovery?: Discovery;
   /** Which edge the button and panel line up with. */
   align?: 'start' | 'end';
@@ -244,7 +250,7 @@ export function RatingExplainer({
         </p>
         <p>
           {t.formulaNovelty}
-          <sub>norm</sub> {t.normExplain(fmtNum(range.min, 3, lang), fmtNum(range.max, 3, lang))}
+          <sub>norm</sub> {t.normExplain(fmtNum(range.min, 3, lang), fmtNum(range.max, 3, lang), total)}
         </p>
         {s && discovery ? (
           <p className={styles.formulaExample}>
@@ -279,7 +285,15 @@ export function RatingExplainer({
             <dd>{t.riskNote}</dd>
           </div>
         </dl>
-        <p className={styles.explainerNote}>{t.weightsNote}</p>
+        <p>
+          <strong>{t.noiseLead}</strong>
+          {t.noiseText}{' '}
+          <a href={RERUN_EXPERIMENT_URL} target="_blank" rel="noreferrer">
+            {t.noiseLink}{' '}
+            <span className="visually-hidden">{t.newTab}</span>
+          </a>
+        </p>
+        <p className={styles.explainerNote}>{t.weightsNote(total)}</p>
       </div>
     </div>
   );

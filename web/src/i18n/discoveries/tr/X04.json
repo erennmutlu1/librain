@@ -1,0 +1,20 @@
+{
+  "id": "X04",
+  "topicA": "antrenman yükü ve GPS verilerinden futbol sakatlıklarının tahmini",
+  "topicB": "uzun vadeli tahmin için seri ayrıştırma ve oto-korelasyon (Autoformer)",
+  "hypothesis": "Futbolcuların GPS antrenman yükü değişkenleri, seans içinde güçlü otokorelasyon ve periyodik haftalık örüntüler (ör. yüksek yoğunluklu günleri izleyen toparlanma günleri) sergilemektedir; bu da Auto-Correlation ile Autoformer tarzı aşamalı seri ayrıştırmanın, çok haftalık GPS akışlarından eğilim-döngüsel ve mevsimsel bileşenleri statik denetimli PCA’dan daha etkili biçimde çıkarabileceğini düşündürmektedir. Kronik antrenman yükü eğilimini akut haftalık dalgalanmalardan alt seri düzeyinde ayırarak, böyle bir model sakatlık riskini ilk birkaç ayla sınırlı kalmadan sezon boyunca sürekli tahmin edebilir ve mevcut GPS tabanlı sakatlık tahmini çalışmalarında belirlenen temel sınırlılığı aşabilir.",
+  "novelClaim": "Kronik antrenman yükü eğilimini akut haftalık dalgalanmalardan alt seri düzeyinde ayırarak, böyle bir model sakatlık riskini ilk birkaç ayla sınırlı kalmadan sezon boyunca sürekli tahmin edebilir ve mevcut GPS tabanlı sakatlık tahmini çalışmalarında belirlenen temel sınırlılığı aşabilir.",
+  "reasoning": "GPS tabanlı sakatlık tahmini çalışması (1609.07480) iki temel olguyu belirler: (1) GPS değişkenleri birbiriyle yüksek düzeyde ilişkilidir ve anlamlı yük bileşenleri halinde kümelenir (parça 77, 88); (2) mevcut model yalnızca sezonun ilk sakatlığını tahmin etmekle sınırlıdır (parça 76). Autoformer’ın aşamalı ayrıştırma ve Auto-Correlation mekanizması (parça 1, 2, 3), uzun çok adımlı zaman serilerindeki iç içe geçmiş periyodik örüntüleri ele almak için tam olarak tasarlanmıştır; bu, futbol antrenman programlarının haftalık periyodikliğiyle yapısal bir uyum oluşturur ve bu mekanizmaların GPS tabanlı bir sakatlık hattına yerleştirilmesinin, getirilen hiçbir kaynağın doğrudan önermediği sürekli, sezon boyu risk tahminini mümkün kılabileceğini düşündürür.",
+  "claims": [
+    {
+      "sentence": "Kronik antrenman yükü eğilimini akut haftalık dalgalanmalardan alt seri düzeyinde ayırarak, böyle bir model sakatlık riskini ilk birkaç ayla sınırlı kalmadan sezon boyunca sürekli tahmin edebilir ve mevcut GPS tabanlı sakatlık tahmini çalışmalarında belirlenen temel sınırlılığı aşabilir.",
+      "rationale": "Cümle, getirilen kanıtla doğrudan desteklenen bir sınırlılığa varsayımsal bir çözüm (“tahmin edebilir”) önermektedir; ancak kronik eğilimlerin akut dalgalanmalardan alt seri düzeyinde ayrılması şeklindeki özel mekanizma getirilen parçalarda dayanak bulmamakta ve varsayımsal bir yaklaşımı temsil etmektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Kronik antrenman yükü eğilimini akut haftalık dalgalanmalardan alt seri düzeyinde ayırarak, böyle bir model sakatlık riskini ilk birkaç ayla sınırlı kalmadan sezon boyunca sürekli tahmin edebilir ve mevcut GPS tabanlı sakatlık tahmini çalışmalarında belirlenen temel sınırlılığı aşabilir.",
+      "rationale": "Autoformer’ın iç ayrıştırma bloğu eğilim-döngüsel ve mevsimsel kısımları aşamalı olarak ayırır; benzetme yoluyla, bunun GPS yük akışlarına uygulanması kronik ve akut yükü ayrıştırarak 1609.07480:76’da belirtilen sezon başı penceresinin ötesinde kayan pencereli sakatlık riski tahminlerini mümkün kılabilir."
+    }
+  ]
+}

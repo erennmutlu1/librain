@@ -11,7 +11,7 @@ import { chunkKey } from '../lib/citations';
 import { categoryOf, type Category } from './categories';
 import { fmtNum, fmtPercent } from './fmt';
 import { modelText } from './model.i18n';
-import type { ExploreManifest, ExplorePick } from './manifests';
+import type { ExploreBatch, ExploreManifest, ExplorePick } from './manifests';
 import { normalizeNovelty, noveltyRange, rating, ratingExact, type NoveltyRange } from './rating';
 
 export interface DiscoveryScores {
@@ -28,7 +28,7 @@ export interface DiscoveryScores {
 export interface Discovery {
   id: string;
   category: Category;
-  batch: 1 | 2;
+  batch: ExploreBatch;
   /** Repository path of the recorded run. */
   source: string;
   request: DiscoverRequest;
@@ -182,7 +182,7 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
 }
 
 function categoryIndex(d: Discovery): number {
-  return 'DACNFSWPJ'.indexOf(d.category.prefix);
+  return 'DACNFSWPJX'.indexOf(d.category.prefix);
 }
 
 // ---------- Percentiles ----------
@@ -576,7 +576,7 @@ export interface ExploreTotals {
   noRisky: number;
   picks: number;
   sentences: Record<ClaimStatus, number>;
-  cost: { total: number; min: number; max: number; mean: number; byBatch: { batch: 1 | 2; runs: number; total: number }[] };
+  cost: { total: number; min: number; max: number; mean: number; byBatch: { batch: ExploreBatch; runs: number; total: number }[] };
 }
 
 export function exploreTotals(all: readonly Discovery[]): ExploreTotals {
@@ -600,7 +600,7 @@ export function exploreTotals(all: readonly Discovery[]): ExploreTotals {
       min: Math.min(...costs),
       max: Math.max(...costs),
       mean: total / Math.max(1, all.length),
-      byBatch: ([1, 2] as const).map((batch) => {
+      byBatch: ([1, 2, 3] as const).map((batch) => {
         const runs = all.filter((d) => d.batch === batch);
         return { batch, runs: runs.length, total: runs.reduce((s, d) => s + (d.costUsd ?? 0), 0) };
       }),

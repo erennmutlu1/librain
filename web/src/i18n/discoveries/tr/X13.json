@@ -1,0 +1,20 @@
+{
+  "id": "X13",
+  "topicA": "web sayfası ekran görüntülerinden otomatik ön yüz (front-end) mühendisliğinin kıyaslanması",
+  "topicB": "mesleklerin büyük dil modellerine (LLM) karşı işgücü piyasası maruziyeti",
+  "hypothesis": "LLM maruziyeti yüksek meslekler, özellikle programlama ve yazma becerilerini içerenler, ön yüz web geliştirme iş akışlarında orantısız biçimde temsil edilmektedir; bu da Design2Code gibi ekran görüntüsünden koda otomatik kıyaslamaların, ön yüz mühendisleri için yakın vadeli işgücü yer değiştirmesinin öncü bir göstergesi olarak hizmet edebileceğini düşündürüyor. LLM destekli araçlar karmaşık, gerçek dünya web sayfası üretimi görevlerinde insan düzeyinde performansa yaklaştıkça, önceki otomasyon ölçütleriyle açıklanamayan LLM maruziyeti varyansının %28–40’lık artığı, yalnızca metne dayalı işgücü maruziyeti rubriklerinde yakalanmayan çok kipli kod üretimi yeteneklerine büyük ölçüde atfedilebilir.",
+  "novelClaim": "LLM destekli araçlar karmaşık, gerçek dünya web sayfası üretimi görevlerinde insan düzeyinde performansa yaklaştıkça, önceki otomasyon ölçütleriyle açıklanamayan LLM maruziyeti varyansının %28–40’lık artığı, yalnızca metne dayalı işgücü maruziyeti rubriklerinde yakalanmayan çok kipli kod üretimi yeteneklerine büyük ölçüde atfedilebilir.",
+  "reasoning": "İşgücü maruziyeti literatürü (2303.10130), programlama ve yazma becerilerinin LLM maruziyetiyle pozitif ilişkili olduğunu ve maruziyet varyansının %28–40’ının önceki otomasyon ölçütleriyle açıklanamadığını bulurken, Design2Code kıyaslaması (2403.03163) en gelişmiş çok kipli büyük dil modellerinin (MLLM) artık ekran görüntülerinden karmaşık, gerçek dünya web sayfaları üretebildiğini, yani yalnızca metne dayalı işgücü rubriklerinde hiç bulunmayan bir çok kipli kod üretimi yeteneğini gösterir. Bu iki bulguyu birleştirmek, LLM işgücü maruziyetindeki açıklanamayan varyansın, mevcut mesleki maruziyet çerçevelerinin ölçmek üzere tasarlanmadığı, ortaya çıkmakta olan çok kipli ön yüz mühendisliği otomasyonuyla kısmen açıklanabileceğini düşündürür.",
+  "claims": [
+    {
+      "sentence": "LLM destekli araçlar karmaşık, gerçek dünya web sayfası üretimi görevlerinde insan düzeyinde performansa yaklaştıkça, önceki otomasyon ölçütleriyle açıklanamayan LLM maruziyeti varyansının %28–40’lık artığı, yalnızca metne dayalı işgücü maruziyeti rubriklerinde yakalanmayan çok kipli kod üretimi yeteneklerine büyük ölçüde atfedilebilir.",
+      "rationale": "Cümle, getirilen kanıtlarla desteklenmeyen belirli bir nedensel iddiada bulunuyor (çok kipli kod üretimi yeteneklerinin %28-40’lık açıklanamayan varyansı açıkladığı); %28-40 rakamı işgücü maruziyeti makalesine dayanıyor, ancak bunun çok kipli kod üretimine atfedilmesi spekülatif ve getirilen hiçbir parça tarafından desteklenmiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "LLM destekli araçlar karmaşık, gerçek dünya web sayfası üretimi görevlerinde insan düzeyinde performansa yaklaştıkça, önceki otomasyon ölçütleriyle açıklanamayan LLM maruziyeti varyansının %28–40’lık artığı, yalnızca metne dayalı işgücü maruziyeti rubriklerinde yakalanmayan çok kipli kod üretimi yeteneklerine büyük ölçüde atfedilebilir.",
+      "rationale": "İşgücü maruziyeti makalesi, önceki otomasyon ölçütleri kontrol edildikten sonra LLM maruziyetinde %28–40 açıklanamayan varyans bildirir; Design2Code ise çok kipli ekran görüntüsünden koda dönüşümün, yalnızca metne dayalı LLM rubriklerinde bulunmayan, yeni ortaya çıkan bir yetenek olduğunu gösterir; bu da onu açıklanamayan varyansın makul bir kaynağı kılar."
+    }
+  ]
+}

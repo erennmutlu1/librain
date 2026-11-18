@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { LangProvider } from '../i18n/lang';
+import { compareRunFiles } from '../explore/manifests';
 import { RECORDED_TOPIC_PAIRS } from './TopicCombobox.data';
 import { TopicCombobox } from './TopicCombobox';
 import {
@@ -278,7 +279,7 @@ describe('topic suggestions', () => {
       import: 'default',
     });
     const fromFiles = Object.entries(files)
-      .sort(([a], [b]) => a.localeCompare(b, 'en', { numeric: true }))
+      .sort(([a], [b]) => compareRunFiles(a, b))
       .filter(([, run]) => run.status === 200)
       .map(([, run]) => [run.request.topicA, run.request.topicB ?? null]);
     expect(RECORDED_TOPIC_PAIRS).toEqual(fromFiles);

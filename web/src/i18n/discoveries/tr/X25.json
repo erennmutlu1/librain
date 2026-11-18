@@ -1,0 +1,28 @@
+{
+  "id": "X25",
+  "topicA": "uydu verisinden belediye düzeyinde mahsul verimi tahmini",
+  "topicB": "graf evrişimli ağlarla graflar üzerinde yarı denetimli öğrenme",
+  "hypothesis": "Uydu ve hava durumu verisinden belediye düzeyinde mahsul verimi tahmini, belediyelerin coğrafi veya tarımsal-iklimsel komşulukla bağlanan düğümler olduğu bir uzamsal graf üzerinde yarı denetimli bir düğüm sınıflandırma/regresyon problemi olarak çerçevelenebilir; GCN tarzı etiket yayılımı da verim sinyallerini az sayıdaki etiketli belediyeden çok sayıdaki etiketsiz belediyeye yumuşatır. Dikkat ağırlıklı graf evrişimleri (GAT’taki gibi), modelin benzer toprak ve bitki örtüsü indeksi profillerine sahip komşu belediyelere daha yüksek önem atamasına da olanak tanıyarak verinin kıt olduğu tarım bölgelerinde genellemeyi iyileştirebilir. Bu graf tabanlı yarı denetimli formülasyon, uzaktan algılamalı verim modellerinin ölçeklenebilirliğini şu anda sınırlayan büyük ölçekli etiketli mahsul haritalarına olan bağımlılığı azaltabilir.",
+  "novelClaim": "Dikkat ağırlıklı graf evrişimleri (GAT’taki gibi), modelin benzer toprak ve bitki örtüsü indeksi profillerine sahip komşu belediyelere daha yüksek önem atamasına da olanak tanıyarak verinin kıt olduğu tarım bölgelerinde genellemeyi iyileştirebilir. Bu graf tabanlı yarı denetimli formülasyon, uzaktan algılamalı verim modellerinin ölçeklenebilirliğini şu anda sınırlayan büyük ölçekli etiketli mahsul haritalarına olan bağımlılığı azaltabilir.",
+  "reasoning": "GCN (Kipf & Welling), etiket bilgisinin graf yapısı aracılığıyla küçük bir etiketli alt kümeden etiketsiz düğümlere yayılabileceğini gösterirken, crop-yield-rs büyük ölçekli etiketli mahsul haritalarının yokluğunu başlıca ölçeklenebilirlik engeli olarak açıkça belirler. Bu bulguların birleştirilmesi, belediyeleri kenarları coğrafi veya tarımsal-iklimsel benzerliği, düğüm öznitelikleri ise hava durumu, toprak ve bitki örtüsü indekslerini kodlayan graf düğümleri olarak ele almanın, bir GCN/GAT modelinin verim denetimini iyi izlenen belediyelerden verisi kıt olanlara yaymasına izin vereceğini ve etiketleme darboğazını doğrudan hedef alacağını düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "Dikkat ağırlıklı graf evrişimleri (GAT’taki gibi), modelin benzer toprak ve bitki örtüsü indeksi profillerine sahip komşu belediyelere daha yüksek önem atamasına da olanak tanıyarak verinin kıt olduğu tarım bölgelerinde genellemeyi iyileştirebilir.",
+      "rationale": "Cümle çekimser bir dil kullanır ('iyileştirebilir') ve GAT’ın tarımsal verim tahminine spekülatif bir uygulamasını kurgular; GAT getirilen parçalarda belgelenmiş gerçek bir teknik olsa da toprak/bitki örtüsü benzerliğine sahip belediyelere özel uygulaması varsayımsaldır ve kanıtla doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu graf tabanlı yarı denetimli formülasyon, uzaktan algılamalı verim modellerinin ölçeklenebilirliğini şu anda sınırlayan büyük ölçekli etiketli mahsul haritalarına olan bağımlılığı azaltabilir.",
+      "rationale": "Cümle çekimser bir dil kullanır ('azaltabilir') ve graf tabanlı yarı denetimli öğrenmenin spekülatif bir yararını önerir; getirilen parçalar büyük ölçekli etiketli mahsul haritalarının uzaktan algılamalı verim modellerinde bir sınırlılık olduğunu ve yarı denetimli graf yöntemlerinin var olduğunu doğrulasa da bu bağımlılığın azaltılacağına ilişkin özel iddia kesinleşmiş değil, varsayımsaldır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Dikkat ağırlıklı graf evrişimleri (GAT’taki gibi), modelin benzer toprak ve bitki örtüsü indeksi profillerine sahip komşu belediyelere daha yüksek önem atamasına da olanak tanıyarak verinin kıt olduğu tarım bölgelerinde genellemeyi iyileştirebilir.",
+      "rationale": "GAT, düğüm sınıflandırmasında komşu katkılarını ağırlıklandırmak için dikkat kullanır; benzetme yoluyla, toprak/bitki örtüsü indeksi profillerini paylaşan belediyeler uzamsal bir mahsul verimi grafında daha yüksek ağırlıkla değerlendirilebilir."
+    },
+    {
+      "claimSentence": "Bu graf tabanlı yarı denetimli formülasyon, uzaktan algılamalı verim modellerinin ölçeklenebilirliğini şu anda sınırlayan büyük ölçekli etiketli mahsul haritalarına olan bağımlılığı azaltabilir.",
+      "rationale": "crop-yield-rs makalesi, etiketli mahsul haritalarının eksikliğini önemli bir ölçeklenebilirlik darboğazı olarak belirler; GCN yarı denetimli öğrenmesi ise az sayıda etiketli düğümden etiket yayılımını genelleyerek bu boşluğu doğrudan ele alır."
+    }
+  ]
+}
