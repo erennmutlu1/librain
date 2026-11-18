@@ -123,7 +123,9 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
           {DISCOVERY_AXES.map((axis) => {
             const values = systems.map((key) => evals[key]?.[axis.key]);
             const numeric = values.filter((v): v is number => typeof v === 'number');
-            const max = numeric.length > 1 ? Math.max(...numeric) : null;
+            // Only a unique maximum is marked; a tie is not a win.
+            const top = numeric.length > 1 ? Math.max(...numeric) : null;
+            const max = top !== null && numeric.filter((v) => v === top).length === 1 ? top : null;
             return (
               <tr key={axis.key}>
                 <th scope="row" className={styles.axis}>

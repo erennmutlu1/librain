@@ -143,7 +143,7 @@ export default function AskPage() {
             {formError}
           </p>
         ) : null}
-        <RecordedRuns scenarios={api.mock?.ask} onPick={pick} disabled={loading} />
+        <RecordedRuns scenarios={api.mock?.ask} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 
       <div className={styles.result}>

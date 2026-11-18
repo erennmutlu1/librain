@@ -54,6 +54,54 @@ export function parseCitationMarkers(text: string): AnswerPart[] {
   return parts;
 }
 
+export type CitePart = Extract<AnswerPart, { kind: 'cite' }>;
+export type AnswerRun = { kind: 'text'; text: string } | { kind: 'cluster'; lead: string; cites: CitePart[]; trail: string };
+
+const TRAILING_PUNCTUATION = /^[.,;:!?)\]”’"']+/;
+
+/**
+ * Groups adjacent citation markers with the word before them and any
+ * punctuation after them, so a line never breaks between "forecasting", its
+ * chips and the full stop.
+ */
+export function groupForWrapping(parts: readonly AnswerPart[]): AnswerRun[] {
+  const out: AnswerRun[] = [];
+  let i = 0;
+  while (i < parts.length) {
+    const part = parts[i]!;
+    if (part.kind === 'text') {
+      out.push({ kind: 'text', text: part.text });
+      i++;
+      continue;
+    }
+    const cites: CitePart[] = [];
+    while (i < parts.length && parts[i]!.kind === 'cite') cites.push(parts[i++] as CitePart);
+
+    let lead = '';
+    const prev = out.at(-1);
+    if (prev?.kind === 'text') {
+      const m = /\S+\s?$/.exec(prev.text);
+      if (m) {
+        lead = m[0];
+        prev.text = prev.text.slice(0, prev.text.length - lead.length);
+      }
+    }
+    let trail = '';
+    const next = parts[i];
+    if (next?.kind === 'text') {
+      trail = TRAILING_PUNCTUATION.exec(next.text)?.[0] ?? '';
+      if (trail) {
+        out.push({ kind: 'cluster', lead, cites, trail });
+        out.push({ kind: 'text', text: next.text.slice(trail.length) });
+        i++;
+        continue;
+      }
+    }
+    out.push({ kind: 'cluster', lead, cites, trail });
+  }
+  return out.filter((r) => r.kind === 'cluster' || r.text !== '');
+}
+
 // ---------- Naive-RAG fabricated citations ----------
 
 export interface CitationAudit {

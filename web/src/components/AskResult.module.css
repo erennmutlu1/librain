@@ -71,6 +71,11 @@
   vertical-align: 0.3em;
 }
 
+/* The word before the chips, the chips and the punctuation after never split. */
+.cluster {
+  white-space: nowrap;
+}
+
 .chip {
   display: inline-grid;
   place-items: center;

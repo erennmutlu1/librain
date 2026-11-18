@@ -35,7 +35,7 @@ export function CitationPanel({
   }, [onClose]);
 
   return (
-    <aside className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${uid}-title`}>
+    <div className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${uid}-title`}>
       <div className={styles.head}>
         <span className={styles.number} aria-hidden="true">
           {citation.index}
@@ -82,6 +82,6 @@ export function CitationPanel({
           )}
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

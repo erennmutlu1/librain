@@ -57,16 +57,22 @@
 }
 
 .recorded {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s2) var(--s3);
+  min-width: 0;
 }
 
 .recordedLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-height: 2rem;
   font-size: var(--fs-xs);
   font-weight: 650;
-  color: var(--ink-3);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.recordedLabel:hover {
+  color: var(--ink);
 }
 
 .recordedList {
@@ -74,6 +80,7 @@
   flex-wrap: wrap;
   gap: var(--s2);
   min-width: 0;
+  margin-top: var(--s2);
 }
 
 .recordedButton {

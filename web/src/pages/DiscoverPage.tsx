@@ -203,7 +203,7 @@ export default function DiscoverPage() {
             {formError}
           </p>
         ) : null}
-        <RecordedRuns scenarios={api.mock?.discover} onPick={pick} disabled={loading} />
+        <RecordedRuns scenarios={api.mock?.discover} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 
       <div className={styles.result}>

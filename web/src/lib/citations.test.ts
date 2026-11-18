@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeNaiveRag } from '../api/normalize';
 import { compareScenarios, contract } from '../mocks/scenarios';
-import { auditClaimedCitations, chunkKey, parseChunkKey, parseCitationMarkers, parseFreeTextCitations } from './citations';
+import { auditClaimedCitations, chunkKey, groupForWrapping, parseChunkKey, parseCitationMarkers, parseFreeTextCitations } from './citations';
 
 describe('auditClaimedCitations (fabricated-citation detection)', () => {
   it('flags citations the backend could not resolve as fabricated', () => {
@@ -66,6 +66,16 @@ describe('parseCitationMarkers', () => {
       [9],
     ]);
     expect(parts.map((p) => (p.kind === 'text' ? p.text : p.raw)).join('')).toBe('A [1]. B [2, 4]. C [5–7][9].');
+  });
+
+  it('glues the word before, the chips and trailing punctuation into one unbreakable cluster', () => {
+    const runs = groupForWrapping(parseCitationMarkers("explains GraphCast's skill at medium-range forecasting [1][2]. Then more [3]"));
+    expect(runs).toEqual([
+      { kind: 'text', text: "explains GraphCast's skill at medium-range " },
+      { kind: 'cluster', lead: 'forecasting ', cites: [expect.objectContaining({ indices: [1] }), expect.objectContaining({ indices: [2] })], trail: '.' },
+      { kind: 'text', text: ' Then ' },
+      { kind: 'cluster', lead: 'more ', cites: [expect.objectContaining({ indices: [3] })], trail: '' },
+    ]);
   });
 
   it('leaves non-numeric brackets as text', () => {

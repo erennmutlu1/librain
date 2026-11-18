@@ -1,4 +1,3 @@
-import { useId } from 'react';
 import type { MockMatch, MockScenario } from '../api/types';
 import { Icon } from './Icon';
 import styles from './FormBits.module.css';
@@ -31,23 +30,28 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Mock mode only: one-click access to every recorded run for this screen. */
+/**
+ * Mock mode only: one-click access to every recorded run for this screen.
+ * Collapses into a disclosure once a result is showing, so the result keeps
+ * the reader's attention.
+ */
 export function RecordedRuns<Req>({
   scenarios,
   onPick,
   disabled,
+  collapsed = false,
 }: {
   scenarios: readonly MockScenario<Req>[] | undefined;
   onPick: (scenario: MockScenario<Req>) => void;
   disabled?: boolean;
+  collapsed?: boolean;
 }) {
-  const uid = useId();
   if (!scenarios || scenarios.length === 0) return null;
   return (
-    <div className={styles.recorded} role="group" aria-labelledby={`${uid}-l`}>
-      <p id={`${uid}-l`} className={styles.recordedLabel}>
-        Recorded runs
-      </p>
+    <details key={collapsed ? 'closed' : 'open'} className={styles.recorded} open={!collapsed}>
+      <summary className={styles.recordedLabel}>
+        Recorded runs <span className="num">({scenarios.length})</span>
+      </summary>
       <ul role="list" className={styles.recordedList}>
         {scenarios.map((s) => (
           <li key={s.id}>
@@ -57,7 +61,7 @@ export function RecordedRuns<Req>({
           </li>
         ))}
       </ul>
-    </div>
+    </details>
   );
 }
 

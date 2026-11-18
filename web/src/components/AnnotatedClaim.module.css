@@ -46,6 +46,10 @@
   max-width: 19rem;
 }
 
+.legend[data-compact] {
+  gap: var(--s2) var(--s4);
+}
+
 .legendItem > svg {
   margin-top: 0.15em;
   flex: none;

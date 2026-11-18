@@ -31,35 +31,38 @@ export function DiscoverResult({ request, result }: { request: DiscoverRequest; 
         </div>
       </header>
 
-      <div className={styles.top}>
-        <section className={styles.hypothesis} aria-labelledby={`${uid}-hyp`}>
-          <h3 id={`${uid}-hyp`} className={styles.sectionTitle}>
-            Hypothesis
-          </h3>
-          <FencedHypothesis className={styles.lead} hypothesis={result.hypothesis} novelClaim={result.novelClaim} />
-          <p className={styles.fenceKey}>
-            <span className={styles.fenceSwatch} aria-hidden="true" /> The indented italic part is the model's novel
-            claim, examined sentence by sentence below.
-          </p>
-        </section>
+      <section aria-labelledby={`${uid}-hyp`}>
+        <h3 id={`${uid}-hyp`} className={styles.sectionTitle}>
+          Hypothesis
+        </h3>
+        <FencedHypothesis className={styles.lead} hypothesis={result.hypothesis} novelClaim={result.novelClaim} withKey />
+      </section>
 
-        <aside className={styles.scores} aria-labelledby={`${uid}-scores`}>
-          <h3 id={`${uid}-scores`} className={styles.sectionTitle}>
-            Scores
-          </h3>
+      {/* One scorecard strip under the hypothesis: no empty column beside short hypotheses. */}
+      <section className={styles.scorecard} aria-labelledby={`${uid}-scores`}>
+        <h3 id={`${uid}-scores`} className="visually-hidden">
+          Scores
+        </h3>
+        <div className={styles.cardScores}>
           {result.evaluation ? (
-            <ScoreBars label="Discovery scores" items={discoveryScoreItems(result.evaluation)} />
+            <ScoreBars label="Discovery scores" items={discoveryScoreItems(result.evaluation)} columns={2} />
           ) : (
             <p className="muted small">This run was not scored.</p>
           )}
-          {cv ? <RiskMeter value={cv.aggregateRisk} failed={cv.validationFailed === true} /> : null}
+        </div>
+        {cv ? (
+          <div className={styles.cardCell}>
+            <RiskMeter value={cv.aggregateRisk} failed={cv.validationFailed === true} />
+          </div>
+        ) : null}
+        <div className={styles.cardCell}>
           <ContractSummary
             claimed={result.claimedEvidenceCount}
             dropped={result.droppedEvidenceCount}
             kept={result.supportingEvidence.length}
           />
-        </aside>
-      </div>
+        </div>
+      </section>
 
       <section className={styles.claim} aria-labelledby={`${uid}-claim`}>
         <h3 id={`${uid}-claim`} className={styles.sectionTitle}>

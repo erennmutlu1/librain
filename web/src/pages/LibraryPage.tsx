@@ -114,6 +114,7 @@ function ConfirmDelete({
 }
 
 export default function LibraryPage() {
+  const api = useApi();
   const uid = useId();
   const { state, run } = usePapers();
   const [filter, setFilter] = useSessionState('library.filter', '');
@@ -194,6 +195,13 @@ export default function LibraryPage() {
               </div>
             ) : null}
           </div>
+
+          {api.mode === 'mock' && papers && papers.length > 0 ? (
+            <p className={styles.footnote}>
+              Mock mode: the API snapshot's paper plus every paper id the recorded runs cite. Titles are unknown for
+              those, and chunk counts are lower bounds (highest cited chunk index plus one).
+            </p>
+          ) : null}
 
           <p ref={statusRef} tabIndex={-1} className={styles.status} role="status">
             {deleted ? `Deleted ${deleted}.` : ''}

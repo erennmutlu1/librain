@@ -133,7 +133,7 @@ export default function ComparePage() {
             {formError}
           </p>
         ) : null}
-        <RecordedRuns scenarios={api.mock?.compare} onPick={pick} disabled={loading} />
+        <RecordedRuns scenarios={api.mock?.compare} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 
       <div className={styles.result}>

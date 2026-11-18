@@ -1,6 +1,6 @@
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import type { QueryRequest, QueryResponse, SynthesisCitation } from '../api/types';
-import { chunkKey, parseCitationMarkers } from '../lib/citations';
+import { chunkKey, groupForWrapping, parseCitationMarkers } from '../lib/citations';
 import { formatScore } from '../lib/format';
 import { displayTitle, usePaperIndex } from '../lib/papers';
 import { askScoreItems } from '../lib/scoreItems';
@@ -60,11 +60,14 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
               Answer
             </h3>
             <p className={styles.answer}>
-              {parts.map((part, i) =>
-                part.kind === 'text' ? (
-                  <span key={i}>{part.text}</span>
+              {groupForWrapping(parts).map((run, i) =>
+                run.kind === 'text' ? (
+                  <span key={i}>{run.text}</span>
                 ) : (
-                  <span key={i} className={styles.cites}>
+                  <span key={i} className={styles.cluster}>
+                    {run.lead}
+                    {run.cites.map((part, j) => (
+                  <span key={j} className={styles.cites}>
                     {part.indices.map((n) => {
                       const c = byIndex.get(n);
                       return c ? (
@@ -86,6 +89,9 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
                         </span>
                       );
                     })}
+                  </span>
+                    ))}
+                    {run.trail}
                   </span>
                 ),
               )}

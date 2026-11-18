@@ -13,9 +13,9 @@ export interface ScoreItem {
  * number is the data; the bar is a reading aid, so it is hidden from
  * assistive tech. Works at any container width.
  */
-export function ScoreBars({ items, label }: { items: ScoreItem[]; label: string }) {
+export function ScoreBars({ items, label, columns = 1 }: { items: ScoreItem[]; label: string; columns?: 1 | 2 }) {
   return (
-    <ul role="list" className={styles.list} aria-label={label}>
+    <ul role="list" className={styles.list} aria-label={label} data-columns={columns}>
       {items.map((item) => {
         const value = typeof item.value === 'number' ? Math.min(1, Math.max(0, item.value)) : null;
         return (

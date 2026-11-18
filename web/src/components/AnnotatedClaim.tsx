@@ -35,9 +35,9 @@ function defaultIndex(claims: readonly ClaimValidationEntry[]): number | null {
   return best;
 }
 
-export function StatusLegend({ counts }: { counts?: Record<ClaimStatus, number> }) {
+export function StatusLegend({ counts, compact = false }: { counts?: Record<ClaimStatus, number>; compact?: boolean }) {
   return (
-    <ul className={styles.legend} role="list" aria-label="Sentence status legend">
+    <ul className={styles.legend} role="list" aria-label="Sentence status legend" data-compact={compact || undefined}>
       {STATUS_ORDER.map((status) => (
         <li key={status} className={styles.legendItem}>
           <StatusIcon status={status} />
@@ -47,7 +47,7 @@ export function StatusLegend({ counts }: { counts?: Record<ClaimStatus, number> 
           <span>
             <span className={styles.legendLabel}>{STATUS_META[status].label}</span>
             {counts ? <span className={`${styles.legendCount} num`}> {counts[status]}</span> : null}
-            <span className={styles.legendDesc}>{STATUS_META[status].description}</span>
+            {compact ? null : <span className={styles.legendDesc}>{STATUS_META[status].description}</span>}
           </span>
         </li>
       ))}
@@ -138,7 +138,7 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
         </div>
       ) : null}
 
-      {hasVerdicts ? <StatusLegend counts={counts} /> : null}
+      {hasVerdicts ? <StatusLegend counts={counts} compact={compact} /> : null}
 
       <div className={styles.layout}>
         <div className={styles.textCol}>
