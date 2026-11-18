@@ -138,3 +138,16 @@
   font-size: var(--fs-xs);
   color: var(--ink-3);
 }
+
+/* ---------- Scale ---------- */
+
+.panel {
+  display: grid;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+.scale {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}

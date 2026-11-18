@@ -236,10 +236,10 @@ function compareMarkdown(run: CompareRun, ctx: Ctx): string[] {
     '## LIBRAIN',
     '',
     ...outcomeLines(librain, ctx.t, (v) => discoverBody(v, ctx, 3)),
-    '## Naive-RAG',
+    `## ${pick(kindText, ctx.lang)['naive-rag']}`,
     '',
     ...outcomeLines(naiveRag, ctx.t, (v) => naiveLines(v, ctx)),
-    '## Single-LLM',
+    `## ${pick(kindText, ctx.lang)['single-llm']}`,
     '',
     ...outcomeLines(singleLlm, ctx.t, (v) => singleLines(v, ctx)),
   ];

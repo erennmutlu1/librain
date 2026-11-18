@@ -8,9 +8,9 @@ export const text = strings({
     recordedOutput: 'Recorded output:',
   },
   tr: {
-    recordedRuns: 'Kayıtlı çalıştırmalar',
+    recordedRuns: 'Hazır çalıştırmalar',
     noMatch: 'Bu girdilerle eşleşen bir kayıt yok.',
     showingInstead: (label: string) => `Örnek veri modu bunun yerine “${label}” için kaydedilmiş çalıştırmayı gösteriyor.`,
-    recordedOutput: 'Kayıtlı çıktı:',
+    recordedOutput: 'Kaydedilmiş çıktı:',
   },
 });

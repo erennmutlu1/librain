@@ -1,21 +1,22 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Link, useInRouterContext } from 'react-router';
 import { useLang, useT } from '../i18n/lang';
 import { requestApiKey } from '../api/apiKey';
 import { describeError } from '../api/errors';
 import { requestProviderKeys } from '../api/providerKeys';
 import { usePublicDemo } from '../public/context';
-import { CopyText } from './CopyText';
 import { Icon } from './Icon';
+import { RequestId } from './TechDetails';
 import { text } from './States.i18n';
 import styles from './States.module.css';
 
 /**
- * A failure in plain language: what happened, what to do, and the correlation
- * id when the API gave one. A 401 offers the API-key setting (the visitor's
+ * A failure in plain language: what happened, what to do, and the request
+ * ID (under Technical details) when the API gave one. A 401 offers the API-key setting (the visitor's
  * own provider keys on the public site); a 429 says when the request can be
  * retried and holds the retry button until then. Outcomes that are not
  * failures, such as the public demo having no recording for the inputs, show
- * as information and offer Live mode instead of a retry.
+ * as information and offer the recorded ideas or Live mode instead of a retry.
  */
 export function ErrorNotice({
   error,
@@ -31,6 +32,7 @@ export function ErrorNotice({
   const t = useT(text);
   const { lang } = useLang();
   const demo = usePublicDemo();
+  const inRouter = useInRouterContext();
   const { title, detail, correlationId, action, tone = 'error', retryable = true } = describeError(error, undefined, {
     publicDemo: demo !== null,
     lang,
@@ -53,7 +55,7 @@ export function ErrorNotice({
       <div className={styles.body}>
         <strong>{title}</strong>
         {detail ? <p>{detail}</p> : null}
-        {id ? <CopyText value={id} label={t.correlationId} /> : null}
+        <RequestId value={id} />
         {action?.kind === 'api-key' || action?.kind === 'provider-keys' || goLive || canRetry ? (
           <div className="cluster">
             {action?.kind === 'api-key' ? (
@@ -65,6 +67,11 @@ export function ErrorNotice({
               <button type="button" className="btn btn-sm btn-primary" onClick={() => requestProviderKeys({ reason: title })}>
                 {t.enterKeys}
               </button>
+            ) : null}
+            {goLive && inRouter ? (
+              <Link to="/explore" className="btn btn-sm">
+                {t.openIdeas}
+              </Link>
             ) : null}
             {goLive ? (
               <button type="button" className="btn btn-sm btn-primary" onClick={() => goLive.switchTo('live')}>

@@ -3,11 +3,12 @@ import type { QueryRequest, QueryResponse, SynthesisCitation } from '../api/type
 import { useLang, useT } from '../i18n/lang';
 import { chunkKey, groupForWrapping, parseCitationMarkers } from '../lib/citations';
 import { formatScore } from '../lib/format';
-import { displayTitle, usePaperIndex } from '../lib/papers';
+import { displayTitle, paperTitleFor, usePaperIndex } from '../lib/papers';
 import { askScoreItems } from '../lib/scoreItems';
 import { CitationPanel } from './CitationPanel';
-import { CopyText } from './CopyText';
+import { InfoTip } from './InfoTip';
 import { ScoreBars } from './ScoreBars';
+import { RequestId } from './TechDetails';
 import { text } from './AskResult.i18n';
 import styles from './AskResult.module.css';
 
@@ -49,11 +50,14 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
         <div className={styles.meta}>
           <span className="tag">{t.topChunks(request.topK ?? 5)}</span>
           {result.synthesisConfidence !== null ? (
-            <span className="tag">
-              {t.confidence} <span className="num">{formatScore(result.synthesisConfidence, 2, lang)}</span>
+            <span className={styles.confidence}>
+              <span className="tag">
+                {t.confidence} <span className="num">{formatScore(result.synthesisConfidence, 2, lang)}</span>
+              </span>
+              <InfoTip k="confidence" label={t.confidence} />
             </span>
           ) : null}
-          <CopyText value={result.correlationId} label={t.correlationId} />
+          <RequestId value={result.correlationId} />
         </div>
       </header>
 
@@ -114,7 +118,7 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
             ) : (
               <ul role="list" className={styles.sources}>
                 {result.citations.map((c) => {
-                  const title = displayTitle(papers.get(c.paperId));
+                  const title = paperTitleFor(c.paperId, papers);
                   return (
                     <li key={c.index}>
                       <button

@@ -100,6 +100,7 @@ export function RecordedIndex({
   const groups = useMemo(() => groupRecordings(scenarios ?? [], lang), [scenarios, lang]);
   if (!scenarios || scenarios.length === 0) return null;
   const long = scenarios.length > 12;
+  const base = groups.find((g) => g.key === 'baseline')?.runs.length ?? 0;
 
   return (
     <details key={collapsed ? 'closed' : 'open'} className={styles.root} open={!collapsed}>
@@ -112,6 +113,7 @@ export function RecordedIndex({
         </span>
       </summary>
       <div className={styles.well} data-long={long || undefined}>
+        {base > 0 ? <p className={styles.countNote}>{t.countNote(scenarios.length, scenarios.length - base, base)}</p> : null}
         {groups.map((g) => (
           <div
             key={g.key}

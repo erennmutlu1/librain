@@ -10,7 +10,7 @@ export const text = strings({
       partner: 'Recorded with the other topic',
       recent: 'Your recent topics',
       recorded: 'Recorded topics',
-      paper: 'Papers in the corpus',
+      paper: 'Papers in the library',
     },
   },
   tr: {
@@ -21,8 +21,8 @@ export const text = strings({
     groups: {
       partner: 'Diğer konuyla kaydedilmiş',
       recent: 'Son konularınız',
-      recorded: 'Kayıtlı konular',
-      paper: 'Derlemdeki makaleler',
+      recorded: 'Hazır konular',
+      paper: 'Kütüphanedeki makaleler',
     },
   },
 });

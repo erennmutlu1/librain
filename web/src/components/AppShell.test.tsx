@@ -8,6 +8,7 @@ import { LangProvider } from '../i18n/lang';
 import { createPublicHistory, createPublicRunStore } from '../public/browserHistory';
 import { createLiveClient, loadRecordedClient } from '../public/clients';
 import { PublicApp } from '../public/PublicApp';
+import { text as keysText } from './ProviderKeysMenu.i18n';
 
 function renderApp(path: string, lang: 'en' | 'tr') {
   const user = userEvent.setup();
@@ -29,23 +30,57 @@ describe('app shell', () => {
     expect(screen.getByRole('link', { name: 'İçeriğe geç' })).toHaveAttribute('href', '#main');
     expect(screen.getByRole('link', { name: 'LIBRAIN ana sayfa' })).toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Bölümler' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Kütüphane', 'Sor', 'Keşfet', 'İncele', 'Karşılaştır', 'Geçmiş']);
+    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Fikirler', 'Yeni fikir', 'Sor', 'Karşılaştır', 'Makaleler', 'Geçmiş']);
+    expect(within(nav).getByRole('link', { name: 'Fikirler' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('Örnek veri')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Açık tema. Koyu temaya geç' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Ara ve istediğiniz yere gidin/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Hızlı arama/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dil ve tema' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Bağlantı ayarları/ })).toBeInTheDocument();
 
     const links = screen.getByRole('list', { name: 'Proje bağlantıları' });
     expect(within(links).getByRole('link', { name: /GitHub’da kaynak kod/ }).textContent).toBe('GitHub’da kaynak kod (yeni sekmede açılır)');
+    expect(within(links).getByRole('link', { name: /Proje makalesi \(Zenodo\)/ })).toHaveAttribute('href', 'https://doi.org/10.5281/zenodo.20745782');
     expect(screen.getByRole('link', { name: /MIT lisansıyla/ })).toBeInTheDocument();
-    await waitFor(() => expect(document.title).toBe('Keşif istatistikleri · LIBRAIN'));
+    expect(screen.getByText('Bir makale kütüphanesine soru sorun ve her cümlesi kontrol edilmiş yeni fikirler alın.')).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe('Fikir istatistikleri · LIBRAIN'));
   });
 
-  it('keeps English as it was, and titles a discovery by its id', async () => {
+  it('renders in English, and titles an idea by its id', async () => {
     renderApp('/explore/f4', 'en');
     expect(screen.getByRole('link', { name: 'Skip to content' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'LIBRAIN home' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' })).toBeInTheDocument();
-    await waitFor(() => expect(document.title).toBe('Discovery F4 · LIBRAIN'));
+    expect(screen.getByRole('button', { name: /^Quick search/ })).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe('Idea F4 · LIBRAIN'));
+  });
+
+  it('puts language and theme behind one button for phones, as a disclosure', async () => {
+    const { user } = renderApp('/explore/stats', 'en');
+    const more = screen.getByRole('button', { name: 'Language and theme' });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    await user.click(more);
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    const panel = screen.getByRole('group', { name: 'Language and theme' });
+    expect(more).toHaveAttribute('aria-controls', panel.id);
+
+    await user.click(within(panel).getByRole('button', { name: 'Switch to dark theme' }));
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(within(panel).getByRole('button', { name: 'Switch to light theme' })).toBeInTheDocument();
+
+    await user.click(within(within(panel).getByRole('group', { name: 'Language' })).getByRole('button', { name: 'Türkçe' }));
+    expect(document.documentElement.lang).toBe('tr');
+    expect(screen.getByRole('group', { name: 'Dil ve tema' })).toBeInTheDocument();
+
+    // Escape closes it and gives focus back to its button.
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('group', { name: 'Dil ve tema' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dil ve tema' })).toHaveFocus();
+
+    // A tap outside closes it too.
+    await user.click(screen.getByRole('button', { name: 'Dil ve tema' }));
+    await user.click(document.body);
+    expect(screen.queryByRole('group', { name: 'Dil ve tema' })).not.toBeInTheDocument();
   });
 
   it('cycles the theme from the header, in step with the palette', async () => {
@@ -54,14 +89,14 @@ describe('app shell', () => {
     expect(document.documentElement.dataset.theme).toBeUndefined();
     await user.click(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
-    await user.click(screen.getByRole('button', { name: /^Search and jump/ }));
+    await user.click(screen.getByRole('button', { name: /^Quick search/ }));
     await user.type(await screen.findByRole('combobox'), 'theme');
     await user.keyboard('{Enter}');
     expect(document.documentElement.dataset.theme).toBeUndefined();
     expect(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' })).toBeInTheDocument();
   });
 
-  it('translates the public build’s mode switch and keys button', async () => {
+  it('translates the public build’s mode switch and keys button, with short tooltips', async () => {
     const history = createPublicHistory({ getStorage: () => window.localStorage });
     const clients = {
       recorded: await loadRecordedClient(history, 0),
@@ -75,10 +110,15 @@ describe('app shell', () => {
       </LangProvider>,
     );
     const group = screen.getByRole('group', { name: 'Veri kaynağı' });
-    expect(within(group).getByRole('button', { name: 'Kayıtlı' })).toHaveAttribute('aria-pressed', 'true');
-    await user.click(within(group).getByRole('button', { name: /^Canlı/ }));
-    const panel = await screen.findByRole('dialog', { name: 'API anahtarlarınız' });
-    expect(within(panel).getByRole('alert')).toHaveTextContent('Canlı mod kendi Anthropic ve OpenAI anahtarlarınızla çalışır.');
-    expect(within(panel).getByRole('button', { name: 'Kaydet ve Canlı’ya geç' })).toBeInTheDocument();
+    const recorded = within(group).getByRole('button', { name: 'Hazır' });
+    expect(recorded).toHaveAttribute('aria-pressed', 'true');
+    expect(recorded).toHaveAttribute('title', 'Deneylerden kaydedilmiş çalıştırmalar. Ücretsiz, API key gerekmez.');
+    const live = within(group).getByRole('button', { name: /^Canlı/ });
+    expect(live).toHaveAttribute('title', 'Kendi konularınız, kendi API key’lerinizle.');
+    await user.click(live);
+    // The panel's own wording belongs to ProviderKeysMenu.
+    const panel = await screen.findByRole('dialog', { name: keysText.tr.title });
+    expect(within(panel).getByRole('alert')).toHaveTextContent('Canlı mod kendi Anthropic ve OpenAI API key’lerinizle çalışır.');
+    expect(within(panel).getByRole('button', { name: keysText.tr.saveLive })).toBeInTheDocument();
   });
 });

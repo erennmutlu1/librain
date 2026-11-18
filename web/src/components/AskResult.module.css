@@ -29,6 +29,12 @@
   gap: var(--s2) var(--s3);
 }
 
+.confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

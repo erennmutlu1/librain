@@ -1,4 +1,3 @@
-import type { RunKind } from '../api/types';
 import { strings } from '../i18n/lang';
 
 export const text = strings({
@@ -10,18 +9,11 @@ export const text = strings({
     backToHistory: 'Back to history',
     maybeDeleted: 'It may have been deleted.',
     maybeDeletedBrowser: 'It may have been deleted, or saved in a different browser.',
-    kind: {
-      query: 'Ask',
-      discover: 'Discover',
-      compare: 'Compare',
-      'naive-rag': 'Naive-RAG',
-      'single-llm': 'Single-LLM',
-    } as Record<RunKind, string>,
     heading: (kind: string, title: string) => `${kind} run: ${title}`,
     quality: (score: string) => `Quality ${score}`,
     mock: 'mock data',
-    remix: 'Remix',
-    remixHint: 'Open Discover with these topics, to change them and run again',
+    remix: 'Use these topics',
+    remixHint: 'Fills the New idea form with these topics. Nothing runs until you press Discover.',
     delete: 'Delete',
     deleteGroup: 'Delete this run',
     confirmServer: 'Delete this run from the API’s run database? This cannot be undone.',
@@ -38,18 +30,11 @@ export const text = strings({
     backToHistory: 'Geçmişe dön',
     maybeDeleted: 'Silinmiş olabilir.',
     maybeDeletedBrowser: 'Silinmiş ya da başka bir tarayıcıda kaydedilmiş olabilir.',
-    kind: {
-      query: 'Sor',
-      discover: 'Keşfet',
-      compare: 'Karşılaştır',
-      'naive-rag': 'Naive-RAG',
-      'single-llm': 'Single-LLM',
-    },
     heading: (kind: string, title: string) => `${kind} çalıştırması: ${title}`,
     quality: (score: string) => `Kalite ${score}`,
     mock: 'örnek veri',
-    remix: 'Düzenleyip çalıştır',
-    remixHint: 'Keşfet’i bu konularla açın; değiştirip yeniden çalıştırın',
+    remix: 'Bu konuları kullan',
+    remixHint: 'Yeni fikir formunu bu konularla doldurur. Keşfet’e basana kadar hiçbir şey çalışmaz.',
     delete: 'Sil',
     deleteGroup: 'Bu çalıştırmayı sil',
     confirmServer: 'Bu çalıştırma API’nin çalıştırma veritabanından silinsin mi? Bu işlem geri alınamaz.',

@@ -1,0 +1,44 @@
+.root {
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  cursor: pointer;
+  font-weight: 550;
+  color: var(--ink-3);
+}
+
+.summary:hover {
+  color: var(--ink);
+}
+
+.summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s3);
+  min-width: 0;
+  padding-top: var(--s1);
+}
+
+.body code {
+  overflow-wrap: anywhere;
+}
+
+@media (pointer: coarse) {
+  .summary {
+    min-height: 2.75rem;
+  }
+}

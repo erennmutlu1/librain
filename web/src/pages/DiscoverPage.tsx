@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useApi } from '../api/context';
 import { OPENAI_MODELS, type DiscoverRequest, type DiscoverResponse, type MockScenario, type OpenAiModel, type Provider } from '../api/types';
 import { DiscoverResult } from '../components/DiscoverResult';
 import { FeaturedGallery } from '../components/FeaturedGallery';
-import { MockProvenance, Segmented } from '../components/FormBits';
+import { InlineFormNotice, MockProvenance, Segmented } from '../components/FormBits';
 import { Icon } from '../components/Icon';
 import { ProgressStepper } from '../components/ProgressStepper';
 import { ErrorNotice } from '../components/States';
@@ -34,6 +34,11 @@ interface DiscoverForm {
 
 const EMPTY_FORM: DiscoverForm = { topicA: '', topicB: '', topK: '5', provider: 'anthropic', model: 'gpt-4o' };
 
+/** The inputs a recording is matched on, so a notice about them goes away once they change. */
+function formKey(form: DiscoverForm): string {
+  return JSON.stringify([form.topicA.trim().toLowerCase(), form.topicB.trim().toLowerCase(), form.topK.trim()]);
+}
+
 interface DiscoverRunData {
   request: DiscoverRequest;
   result: DiscoverResponse;
@@ -62,12 +67,20 @@ export default function DiscoverPage() {
   const record = useRecordRun();
   const demo = usePublicDemo();
   const anthropicOnly = demo !== null;
+  const recordedOnly = demo?.mode === 'recorded';
   const [form, setForm] = useSessionState<DiscoverForm>('discover.form', EMPTY_FORM);
   // A code, not a message, so it follows a language switch; and the field it belongs under.
   const [formError, setFormError] = useState<{ code: FormError; field: TopicFormField } | null>(null);
   // Set when a /discover?a=&b=&k= link filled the form; cleared by the next run.
   const [prefilled, setPrefilled] = useSessionState('discover.prefilled', false);
   const [params, setParams] = useSearchParams();
+  /*
+   * Recorded mode, after a submit whose inputs match no recording: shown right
+   * under the submit row (not below the 50 recorded runs) and focused there.
+   * `tick` moves focus again on a repeated submit; `key` hides it once the
+   * inputs change.
+   */
+  const [noRecording, setNoRecording] = useState<{ key: string; tick: number } | null>(null);
 
   /*
    * Remix links and the command palette open /discover?a=<topic A>&b=<topic B>&k=<top-K>.
@@ -126,6 +139,12 @@ export default function DiscoverPage() {
       return;
     }
     setFormError(null);
+    // The public Recorded mode never substitutes a run: say so here instead of starting one.
+    if (recordedOnly && api.mock && !api.mock.matchDiscover(request).matched) {
+      setNoRecording((n) => ({ key: formKey(form), tick: (n?.tick ?? 0) + 1 }));
+      return;
+    }
+    setNoRecording(null);
     setPrefilled(false);
     rememberTopics(request.topicA, request.topicB);
     void run(request);
@@ -141,9 +160,16 @@ export default function DiscoverPage() {
       model: r.model ?? 'gpt-4o',
     });
     setFormError(null);
+    setNoRecording(null);
     setPrefilled(false);
     void run(r);
   };
+
+  const showNoRecording = recordedOnly && noRecording !== null && noRecording.key === formKey(form);
+  // While typing in Recorded mode: a quiet word when the current inputs would not replay.
+  const candidate = recordedOnly && api.mock && form.topicA.trim() ? toDiscoverRequest(form, anthropicOnly) : null;
+  const unmatched = candidate !== null && !('error' in candidate) && api.mock?.matchDiscover(candidate).matched === false;
+  const recordedNote = unmatched && !showNoRecording ? t.noRecordingHint : t.recordedTip;
 
   return (
     <div className="page">
@@ -170,7 +196,16 @@ export default function DiscoverPage() {
 
         <div className={styles.actions}>
           {anthropicOnly ? (
-            <p className={styles.kbd}>{demo?.mode === 'recorded' ? t.recordedTip : t.anthropicOnly}</p>
+            recordedOnly ? (
+              // Polite: the text changes only when the inputs start or stop matching a recording.
+              <p className={styles.kbd} aria-live="polite" data-unmatched={unmatched || undefined}>
+                {recordedNote}
+              </p>
+            ) : (
+              <p className={styles.kbd}>
+                {t.anthropicOnly} <strong className={styles.cost}>{t.cost}</strong>
+              </p>
+            )
           ) : (
             <div className={styles.options}>
               <Segmented<Provider>
@@ -206,6 +241,24 @@ export default function DiscoverPage() {
             </button>
           </div>
         </div>
+        {showNoRecording && noRecording && demo ? (
+          <InlineFormNotice
+            title={t.noRecordingTitle}
+            focusKey={noRecording.tick}
+            actions={
+              <>
+                <button type="button" className="btn btn-sm btn-primary" onClick={() => demo.switchTo('live')}>
+                  {t.switchLive}
+                </button>
+                <Link to="/explore" className="btn btn-sm">
+                  {t.openIdeas}
+                </Link>
+              </>
+            }
+          >
+            {t.noRecordingBody}
+          </InlineFormNotice>
+        ) : null}
         <RecordedIndex scenarios={api.mock?.discover} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 

@@ -29,7 +29,7 @@ async function copy(text: string): Promise<boolean> {
   }
 }
 
-/** A small, copyable identifier such as a correlation ID. */
+/** A small, copyable identifier such as a request ID. */
 export function CopyText({ value, label }: { value: string; label: string }) {
   const t = useT(text);
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');

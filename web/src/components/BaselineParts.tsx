@@ -4,9 +4,11 @@ import { formatCount, formatDuration } from '../lib/format';
 import { useLang, useT } from '../i18n/lang';
 import { text } from './BaselineParts.i18n';
 import { Icon } from './Icon';
+import { InfoTip } from './InfoTip';
+import { PaperRef } from './PaperRef';
 import styles from './CompareView.module.css';
 
-/** Naive-RAG's claimed citations, with fabricated ones (not in the retrieved set) marked. */
+/** Naive RAG's claimed citations, with fabricated ones (not among the retrieved passages) marked and linked to their papers. */
 export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
   const t = useT(text);
   const audit = auditClaimedCitations(data.claimedCitations, data.fabricatedCitationCount);
@@ -19,7 +21,8 @@ export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
             <Icon name="warning" size={14} />
             <strong className={styles.fabCount}>
               {t.fabricated(audit.fabricated.length, audit.total)}
-            </strong>
+            </strong>{' '}
+            <InfoTip k="fabricated" />
           </>
         ) : (
           <>
@@ -36,7 +39,7 @@ export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
       <ul role="list" className={styles.citeList}>
         {data.claimedCitations.map((c, i) => (
           <li key={i} className={styles.cite} data-fabricated={!c.isResolved || undefined}>
-            <code className={styles.citeKey}>{chunkKey(c.paperId, c.chunkIndex)}</code>
+            <PaperRef chunk={chunkKey(c.paperId, c.chunkIndex)} className={styles.citeKey} />
             <span className={styles.citeStatus}>
               {c.isResolved ? t.resolved : t.unresolved}
             </span>

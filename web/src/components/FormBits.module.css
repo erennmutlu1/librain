@@ -181,3 +181,25 @@
 .provenance code {
   overflow-wrap: anywhere;
 }
+
+/* Under the submit row: focused when it appears, so it is never off-screen. */
+.inlineNotice {
+  scroll-margin-block: var(--s6);
+}
+
+.inlineNotice:focus {
+  outline: none;
+}
+
+.inlineNotice:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.inlineNotice p {
+  margin-top: var(--s1);
+}
+
+.inlineNotice :global(.cluster) {
+  margin-top: var(--s3);
+}

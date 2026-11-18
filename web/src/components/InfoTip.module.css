@@ -1,0 +1,76 @@
+.root {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* A 24px target that does not push the line apart. */
+.button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.3rem -0.15rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.button:hover,
+.button[data-open] {
+  color: var(--ink);
+  background: var(--surface-sunken);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.tip {
+  position: absolute;
+  z-index: 30;
+  left: -0.25rem;
+  top: calc(100% + 0.45rem);
+  display: grid;
+  gap: var(--s1);
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2rem));
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  font-weight: 450;
+  font-style: normal;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: normal;
+}
+
+.tip[hidden] {
+  display: none;
+}
+
+.definition,
+.example {
+  display: block;
+}
+
+.example {
+  color: var(--ink-2);
+}
+
+.exampleLabel {
+  font-weight: 650;
+  color: var(--ink);
+}

@@ -24,13 +24,16 @@ describe('format (Turkish)', () => {
   it('localizes dates and relative times via the language table', () => {
     // Module state follows the provider in the app; here we call through the tables directly.
     expect(statusMeta('grounded', 'tr').label).toBe('Dayanaklı');
-    expect(statusMeta('extrapolated', 'tr').label).toBe('Çıkarımsal');
+    expect(statusMeta('extrapolated', 'tr').label).toBe('Varsayımsal');
     expect(statusMeta('risky', 'tr').label).toBe('Riskli');
     expect(basisMeta('analogy', 'tr').label).toBe('Analoji');
     expect(riskBand(0.8, 'tr').label).toBe('Yüksek');
     expect(discoveryScoreItems(null, 'tr')[1]?.label).toBe('Özgünlük');
-    expect(buildSteps(DISCOVER_STAGES, [], 0, false, 'tr')[0]?.label).toBe('Derlemde ara');
-    expect(progressMessage('Found 3 distinct passages', 'tr')).toBe('3 farklı pasaj bulundu');
+    expect(buildSteps(DISCOVER_STAGES, [], 0, false, 'tr')[0]?.label).toBe('Makale kütüphanesinde ara');
+    expect(progressMessage('Found 3 distinct passages', 'tr')).toBe('3 farklı parça bulundu');
+    expect(progressMessage('Citation contract kept 2 of 3 cited sources', 'tr')).toBe('Atıf denetimi, atıf yapılan 3 kaynaktan 2 tanesini tuttu');
+    expect(discoveryScoreItems(null, 'tr')[3]?.label).toBe('Tutarlılık');
+    expect(discoveryScoreItems(null, 'en')[3]?.label).toBe('Coherence');
     expect(formatDate('2026-03-05T12:00:00Z')).toMatch(/Mar/);
   });
 });

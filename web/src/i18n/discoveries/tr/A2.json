@@ -8,7 +8,7 @@
   "claims": [
     {
       "sentence": "Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı.",
-      "rationale": "Cümle, temel modellerin doğal dil istemiyle ürün verimi tahminine hipotetik bir uygulamasını öneriyor; bu, yerleşik bir olgu olarak değil, 'mümkün kılardı' diyen bir yetenek olarak çerçevelenmiş ve spekülatiftir. CLIP'in doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı gösterdiği doğru olsa da (clip:9, clip:2), bunun görülmemiş coğrafyalarda ürün verimi tahminine uygulanması getirilen parçalarca doğrudan desteklenmiyor."
+      "rationale": "Cümle, temel modellerin doğal dil istemiyle ürün verimi tahminine hipotetik bir uygulamasını öneriyor; bu, yerleşik bir olgu olarak değil, 'mümkün kılardı' diyen bir yetenek olarak çerçevelenmiş ve spekülatiftir. CLIP’in doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı gösterdiği doğru olsa da (clip:9, clip:2), bunun görülmemiş coğrafyalarda ürün verimi tahminine uygulanması getirilen parçalarca doğrudan desteklenmiyor."
     },
     {
       "sentence": "Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",
@@ -18,7 +18,7 @@
   "extrapolationBasis": [
     {
       "claimSentence": "Böyle ön eğitimli bir temel model, görüntü kodlayıcısına beklenen ürün koşullarının doğal dille tanımları verilerek, etiketli verim haritalarına ihtiyaç duymadan, görülmemiş ürün türleri ve coğrafyalar genelinde sıfır atışlı (zero-shot) verim tahminini mümkün kılardı.",
-      "rationale": "CLIP'in sınıf adlarının doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı, uzaktan algılama kodlayıcısına etiketli örnek olmadan verimi sınıflandırmak/tahmin etmek için tarımsal metin verilmesine doğrudan benzer."
+      "rationale": "CLIP’in sınıf adlarının doğal dil istemiyle sıfır atışlı (zero-shot) aktarımı, uzaktan algılama kodlayıcısına etiketli örnek olmadan verimi sınıflandırmak/tahmin etmek için tarımsal metin verilmesine doğrudan benzer."
     },
     {
       "claimSentence": "Bu yaklaşım, hassas tarımda ek açıklamalı eğitim verisinin kıt olması şeklindeki mevcut darboğazı ortadan kaldırabilir ve aynı zamanda ürüne ve bölgeye özgü modellerden oluşan parçalı yapıyı birleştirebilir.",

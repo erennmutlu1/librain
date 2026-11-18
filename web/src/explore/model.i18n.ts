@@ -27,8 +27,8 @@ export const modelText = strings({
     },
   },
   tr: {
-    evidence: (passages: number, papers: number) => `${papers} makaleden ${passages} pasajla destekleniyor:`,
-    noEvidence: 'Alıntı sözleşmesinden hiçbir destekleyici pasaj geçemedi.',
+    evidence: (passages: number, papers: number) => `${papers} makaleden ${passages} parçayla destekleniyor:`,
+    noEvidence: 'Atıf sözleşmesinden hiçbir destekleyici parça geçemedi.',
     plausibility: 'Akla yatkınlık',
     novelty: 'Özgünlük',
     coherence: 'Tutarlılık',
@@ -43,7 +43,7 @@ export const modelText = strings({
     noRisky: (checked: number) => `Hiçbir cümle desteklenmeyen bir şeyi olgu gibi sunmuyor (${checked} cümle denetlendi).`,
     someRisky: (n: number) => `${n} cümle riskli olarak işaretlendi, aşağıya bakın.`,
     sorts: {
-      rating: 'En yüksek puan',
+      rating: 'En yüksek not',
       novelty: 'En özgün',
       plausibility: 'En akla yatkın',
       risk: 'En düşük iddia riski',

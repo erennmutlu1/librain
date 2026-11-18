@@ -40,7 +40,7 @@ function setup(path: string, api: LibrainApi = createMockApi({ latency: 0 })) {
 }
 
 async function cards() {
-  const list = await screen.findByRole('list', { name: 'Discoveries' });
+  const list = await screen.findByRole('list', { name: 'Ideas' });
   return within(list).getAllByRole('listitem');
 }
 
@@ -63,8 +63,11 @@ describe('Explore', () => {
     setup('/explore');
     const items = await cards();
     expect(items).toHaveLength(46);
-    expect(screen.getByRole('link', { name: 'Explore' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('heading', { level: 2, name: 'Discovery of the day' })).toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'Sections' })).getByRole('link', { name: 'Ideas' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('heading', { level: 2, name: 'Idea of the day' })).toBeInTheDocument();
 
     // S3 and W5 share the top rating (7.8); W5 is an editor's pick with the lowest claim risk.
     const w5 = items.find((li) => within(li).queryByText(/Turn screenshot-to-code benchmarks/))!;
@@ -181,7 +184,7 @@ describe('Explore detail', () => {
     expect(screen.getByRole('img', { name: 'Rated 7.6 out of 10' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent('Recorded run · 2026-11-18 · $0.06');
     expect(screen.getByRole('region', { name: 'The evidence' }).querySelectorAll('blockquote').length).toBe(3);
-    expect(screen.getByRole('region', { name: 'How the generator reasoned' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'How the hypothesis was reasoned' })).toBeInTheDocument();
     expect(within(screen.getByRole('region', { name: 'Related ideas' })).getAllByRole('link')).toHaveLength(3);
   });
 
@@ -230,14 +233,14 @@ describe('Explore detail', () => {
 
   it('answers an unknown id with a not-found', async () => {
     setup('/explore/ZZ9');
-    expect(await screen.findByText('There is no recorded discovery called “ZZ9”')).toBeInTheDocument();
+    expect(await screen.findByText('There is no recorded idea called “ZZ9”')).toBeInTheDocument();
   });
 });
 
-describe('Explore statistics', () => {
+describe('Idea statistics', () => {
   it('reports the totals and links every scatter dot to its idea', async () => {
     setup('/explore/stats');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Explore statistics' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Idea statistics' })).toBeInTheDocument();
     const glance = await screen.findByRole('list', { name: 'At a glance' });
     expect(glance).toHaveTextContent('$3.05');
     expect(glance).toHaveTextContent('46');
@@ -246,7 +249,7 @@ describe('Explore statistics', () => {
     const scatter = screen.getByRole('group', { name: 'Scatter plot: one link per idea' });
     const dots = within(scatter).getAllByRole('link');
     expect(dots).toHaveLength(46);
-    expect(within(scatter).getByRole('link', { name: /^D1, Drug & materials discovery × agents: .*rated 5\.1 out of 10\.$/ })).toHaveAttribute('href', '/explore/D1');
+    expect(within(scatter).getByRole('link', { name: /^D1, Drug & materials discovery × agents: .*rating 5\.1 out of 10\.$/ })).toHaveAttribute('href', '/explore/D1');
     const held = screen.getByRole('region', { name: 'How the runs held up' });
     expect(held).toHaveTextContent('Completed46/46');
     expect(held).toHaveTextContent('No risky sentence42/46');

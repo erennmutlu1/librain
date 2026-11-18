@@ -3,17 +3,19 @@ import type { DiscoverRequest, DiscoverResponse, PaperSummary } from '../api/typ
 import { useLang, useT } from '../i18n/lang';
 import { downloadDiscovery, type DiscoveryExport } from '../lib/exportDiscovery';
 import { topicLabel } from '../lib/format';
-import { displayTitle, usePaperIndex } from '../lib/papers';
+import { paperTitleFor, usePaperIndex } from '../lib/papers';
 import { discoveryScoreItems } from '../lib/scoreItems';
 import { basisMeta } from '../lib/vocabulary';
 import { AnnotatedClaim } from './AnnotatedClaim';
 import { ContractSummary } from './ContractSummary';
-import { CopyText } from './CopyText';
 import { text } from './DiscoverResult.i18n';
 import { EvidenceList } from './EvidenceList';
 import { ExportButtons } from './ExportButtons';
 import { FencedHypothesis } from './FencedHypothesis';
+import { InfoTip } from './InfoTip';
+import { PaperRef } from './PaperRef';
 import { RiskMeter, ScoreBars } from './ScoreBars';
+import { RequestId } from './TechDetails';
 import styles from './DiscoverResult.module.css';
 
 interface Props {
@@ -58,7 +60,7 @@ export function DiscoverResultView({
   const provider = request.provider ?? 'anthropic';
 
   const download = (format: 'markdown' | 'json') =>
-    downloadDiscovery({ request, response: result, ...exportMeta, paperTitle: (id) => displayTitle(papers.get(id)) }, format, lang);
+    downloadDiscovery({ request, response: result, ...exportMeta, paperTitle: (id) => paperTitleFor(id, papers) }, format, lang);
 
   return (
     <article className={styles.root} aria-labelledby={`${uid}-title`}>
@@ -69,7 +71,7 @@ export function DiscoverResultView({
         <div className={styles.meta}>
           <span className="tag">{provider === 'openai' ? `OpenAI${request.model ? ` ${request.model}` : ''}` : 'Anthropic'}</span>
           <span className="tag">{t.topK(request.topK ?? 5)}</span>
-          <CopyText value={result.correlationId} label={t.correlationId} />
+          <RequestId value={result.correlationId} />
           {exportable ? <ExportButtons className={styles.export} onMarkdown={() => download('markdown')} onJson={() => download('json')} /> : null}
         </div>
       </header>
@@ -132,7 +134,9 @@ export function DiscoverResultView({
           <h3 id={`${uid}-basis`} className={styles.sectionTitle}>
             {t.basis}
           </h3>
-          <p className={styles.sectionNote}>{t.basisNote}</p>
+          <p className={styles.sectionNote}>
+            {t.basisNote} <InfoTip k="basis" />
+          </p>
           {result.extrapolationBasis.length === 0 ? (
             <p className="muted small">{t.noBasis}</p>
           ) : (
@@ -146,7 +150,7 @@ export function DiscoverResultView({
                     </span>
                     {b.groundedInChunkId ? (
                       <span>
-                        {t.from} <code className="mono">{b.groundedInChunkId}</code>
+                        {t.from} <PaperRef chunk={b.groundedInChunkId} />
                       </span>
                     ) : (
                       <span className="muted">{t.noSource}</span>

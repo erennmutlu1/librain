@@ -134,10 +134,10 @@ describe('NumberStepper', () => {
   it('speaks Turkish', () => {
     render(
       <LangProvider initial="tr">
-        <NumberStepper label="Konu başına pasaj" value="5" onChange={() => {}} min={1} max={20} />
+        <NumberStepper label="Konu başına parça" value="5" onChange={() => {}} min={1} max={20} />
       </LangProvider>,
     );
-    expect(screen.getByRole('button', { name: 'Konu başına pasaj: artır' })).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: 'Konu başına pasaj' })).toHaveAccessibleDescription('1 ile 20 arası');
+    expect(screen.getByRole('button', { name: 'Konu başına parça: artır' })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: 'Konu başına parça' })).toHaveAccessibleDescription('1 ile 20 arası');
   });
 });

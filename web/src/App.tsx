@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react';
-import { BrowserRouter, MemoryRouter, Navigate, useLocation, useRoutes, type RouteObject } from 'react-router';
+import { BrowserRouter, matchRoutes, MemoryRouter, useLocation, useRoutes, type RouteObject } from 'react-router';
 import { ApiProvider } from './api/context';
 import type { LibrainApi } from './api/types';
 import { AppShell } from './components/AppShell';
@@ -11,6 +11,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { text } from './App.i18n';
 
 // Each screen is its own chunk, loaded on first visit.
+const HomePage = lazy(() => import('./pages/HomePage'));
 const LibraryPage = lazy(() => import('./pages/LibraryPage'));
 const AskPage = lazy(() => import('./pages/AskPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
@@ -23,20 +24,47 @@ const ExploreDetailPage = lazy(() => import('./pages/ExploreDetailPage'));
 const ExploreStatsPage = lazy(() => import('./pages/ExploreStatsPage'));
 const ExploreQuizPage = lazy(() => import('./pages/ExploreQuizPage'));
 
+type Titles = (typeof text)['en'];
+type SectionKey = keyof Titles['sections'];
+
+/** Route path (as written in `routes`) to the section its title names. */
+const SECTION_BY_PATH: Record<string, SectionKey> = {
+  library: 'library',
+  ask: 'ask',
+  discover: 'discover',
+  'discover/featured': 'featured',
+  explore: 'explore',
+  'explore/stats': 'stats',
+  'explore/quiz': 'quiz',
+  compare: 'compare',
+  history: 'history',
+  'history/:id': 'run',
+};
+
+/**
+ * The title for a path, read from the route it matches, so "/discover" and
+ * "/discover/" agree and any path that falls through to the not-found screen
+ * says so.
+ */
+function documentTitle(pathname: string, t: Titles): string {
+  const match = matchRoutes(routes, pathname)?.at(-1);
+  if (match?.route.index) return t.home;
+  const path = match?.route.path ?? '*';
+  const id = (match?.params.id ?? '').toUpperCase();
+  const section =
+    path === 'explore/:id' || path === 'explore/:id/full'
+      ? t.idea(id)
+      : path === 'discover/featured/:id'
+        ? t.featuredOne
+        : t.sections[SECTION_BY_PATH[path] ?? 'notFound'];
+  return `${section} · LIBRAIN`;
+}
+
 function DocumentTitle() {
   const { pathname } = useLocation();
   const t = useT(text);
   useEffect(() => {
-    const section =
-      t.titles[pathname] ??
-      (pathname.startsWith('/history/')
-        ? t.run
-        : pathname.startsWith('/discover/featured/')
-          ? t.featured
-          : pathname.startsWith('/explore/')
-            ? t.discovery(decodeURIComponent(pathname.split('/')[2] ?? '').toUpperCase())
-            : null);
-    document.title = section ? `${section} · LIBRAIN` : 'LIBRAIN';
+    document.title = documentTitle(pathname, t);
   }, [pathname, t]);
   return null;
 }
@@ -70,7 +98,7 @@ const routes: RouteObject[] = [
     path: '/',
     element: <Shell />,
     children: [
-      { index: true, element: <Navigate to="/discover" replace /> },
+      { index: true, element: <Screen><HomePage /></Screen> },
       { path: 'library', element: <Screen><LibraryPage /></Screen> },
       { path: 'ask', element: <Screen><AskPage /></Screen> },
       { path: 'discover', element: <Screen><DiscoverPage /></Screen> },

@@ -104,6 +104,8 @@
 
 .axisHead {
   width: 30%;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--rule-strong);
 }
 
 .sysHead {
@@ -280,7 +282,7 @@
   color: var(--ink-3);
 }
 
-/* ---------- Naive-RAG citations ---------- */
+/* ---------- Naive RAG citations ---------- */
 
 .citations {
   display: grid;
@@ -321,12 +323,10 @@
 }
 
 .citeKey {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
   overflow-wrap: anywhere;
 }
 
-.cite[data-fabricated] .citeKey {
+.cite[data-fabricated] .citeKey code {
   color: var(--danger);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
@@ -340,4 +340,47 @@
 .cite[data-fabricated] .citeStatus {
   color: var(--danger);
   font-weight: 650;
+}
+
+/* ---------- What this pair shows ---------- */
+
+.takeaway {
+  display: grid;
+  gap: var(--s2);
+  padding: var(--s4) var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.takeawayTitle {
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.takeawayList {
+  display: grid;
+  gap: var(--s1);
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+  max-width: 60rem;
+}
+
+.scale {
+  display: block;
+  text-align: left;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--ink-3);
+  padding-bottom: var(--s3);
+}
+
+@media (max-width: 30rem) {
+  .takeaway {
+    padding: var(--s3);
+  }
 }

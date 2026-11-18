@@ -46,27 +46,38 @@ afterEach(() => {
 describe('command palette', () => {
   it('is a modal dialog with a combobox that owns a grouped listbox', async () => {
     const { input } = renderPalette();
-    const dialog = screen.getByRole('dialog', { name: 'Command palette' });
+    const dialog = screen.getByRole('dialog', { name: 'Quick search' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(input).toHaveFocus();
-    expect(input).toHaveAccessibleName('Search sections, actions and discoveries');
+    expect(input).toHaveAccessibleName('Search sections, actions and ideas');
     const listbox = screen.getByRole('listbox', { name: 'Results' });
     expect(input).toHaveAttribute('aria-controls', listbox.id);
     expect(within(listbox).getByRole('group', { name: 'Go to' })).toBeInTheDocument();
     expect(within(listbox).getByRole('group', { name: 'Actions' })).toBeInTheDocument();
     // Editor's picks arrive once the recorded runs (a lazy chunk) have loaded.
     expect(await within(listbox).findByRole('group', { name: 'Editor’s picks' })).toBeInTheDocument();
-    for (const name of ['Library', 'Featured discoveries', 'Explore statistics', 'Spot the risk', 'History']) {
-      expect(within(listbox).getByRole('option', { name: new RegExp(`^${name}`) })).toBeInTheDocument();
-    }
+    // The header's sections in its order, each sub-page after its section, and Home first.
+    const go = within(listbox).getByRole('group', { name: 'Go to' });
+    expect(within(go).getAllByRole('option').map((o) => o.querySelector('span > span')?.textContent)).toEqual([
+      'Home',
+      'Ideas',
+      'Featured ideas',
+      'Idea statistics',
+      'Spot the risk',
+      'New idea',
+      'Ask',
+      'Compare',
+      'Papers',
+      'History',
+    ]);
     expect(activeOption(input)).toHaveAttribute('aria-selected', 'true');
   });
 
   it('filters fuzzily and Enter opens the active match', async () => {
     const { user, input, onClose, where } = renderPalette();
-    await user.type(input, 'expl stat');
+    await user.type(input, 'idea stat');
     const first = within(screen.getByRole('listbox')).getAllByRole('option')[0]!;
-    expect(first).toHaveAccessibleName(/^Explore statistics/);
+    expect(first).toHaveAccessibleName(/^Idea statistics/);
     expect(activeOption(input)).toBe(first);
     await user.keyboard('{Enter}');
     expect(where()).toBe('/explore/stats');
@@ -84,19 +95,27 @@ describe('command palette', () => {
     expect(input).toHaveFocus();
   });
 
-  it('finds the 46 recorded discoveries by id and opens one', async () => {
+  it('goes home', async () => {
+    const { user, input, where } = renderPalette();
+    await user.type(input, 'home');
+    await user.keyboard('{Enter}');
+    expect(where()).toBe('/');
+  });
+
+  it('finds the 46 recorded ideas by id and opens one', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'F4');
     const option = await screen.findByRole('option', { name: /^F4 · corner kick tactic generation/ });
-    expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'Discoveries' })).toContainElement(option);
+    expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'Ideas' })).toContainElement(option);
     await user.click(option);
     expect(where()).toBe('/explore/F4');
   });
 
-  it('offers any typed text as a new discovery, with the topic encoded in the link', async () => {
+  it('offers any typed text as a new idea, with the topic encoded in the link', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'tidal energy & coral reefs');
-    const option = screen.getByRole('option', { name: /^Discover: tidal energy & coral reefs/ });
+    const option = screen.getByRole('option', { name: /^New idea: tidal energy & coral reefs/ });
+    expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'New idea' })).toContainElement(option);
     // The last option: ArrowUp from the first wraps to it.
     await user.keyboard('{ArrowUp}');
     expect(activeOption(input)).toBe(option);
@@ -114,7 +133,8 @@ describe('command palette', () => {
     await user.type(input, 'turkish');
     await user.click(screen.getByRole('option', { name: /^Switch to Turkish/ }));
     expect(document.documentElement.lang).toBe('tr');
-    expect(screen.getByRole('combobox')).toHaveAccessibleName('Bölüm, eylem ve keşif arayın');
+    expect(screen.getByRole('combobox')).toHaveAccessibleName('Bölüm, eylem ve fikir arayın');
+    expect(screen.getByRole('dialog', { name: 'Hızlı arama' })).toBeInTheDocument();
   });
 
   it('Escape closes it', async () => {
@@ -135,33 +155,36 @@ describe('command palette', () => {
 
   it('speaks Turkish and matches without Turkish letters', async () => {
     const { user, input } = renderPalette('tr');
-    expect(input).toHaveAttribute('placeholder', 'Arayın ya da keşfetmek için konu yazın…');
+    expect(input).toHaveAttribute('placeholder', 'Arayın ya da yeni fikir için bir konu yazın…');
     expect(screen.getByRole('group', { name: 'Git' })).toBeInTheDocument();
-    await user.type(input, 'kesfet');
-    expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Keşfet/);
-    expect(screen.getByRole('option', { name: /^Keşfet: kesfet/ })).toBeInTheDocument();
+    await user.type(input, 'makaleler');
+    expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Makaleler/);
+    await user.clear(input);
+    await user.type(input, 'karsilastir');
+    expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Karşılaştır/);
+    expect(screen.getByRole('option', { name: /^Yeni fikir: karsilastir/ })).toBeInTheDocument();
   });
 });
 
 describe('command palette in the app shell', () => {
   it('opens with Ctrl+K, closes with Escape and gives focus back', async () => {
     const { user } = renderApp();
-    const button = screen.getByRole('button', { name: /^Search and jump to anything/ });
+    const button = screen.getByRole('button', { name: /^Quick search/ });
     button.focus();
     await user.keyboard('{Control>}k{/Control}');
-    const dialog = await screen.findByRole('dialog', { name: 'Command palette' });
+    const dialog = await screen.findByRole('dialog', { name: 'Quick search' });
     expect(within(dialog).getByRole('combobox')).toHaveFocus();
     await user.keyboard('{Escape}');
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Quick search' })).not.toBeInTheDocument());
     expect(button).toHaveFocus();
   });
 
   it('opens from the header button and navigates on Enter', async () => {
     const { user } = renderApp();
-    await user.click(screen.getByRole('button', { name: /^Search and jump to anything/ }));
+    await user.click(screen.getByRole('button', { name: /^Quick search/ }));
     await user.type(await screen.findByRole('combobox'), 'spot the risk');
     await user.keyboard('{Enter}');
-    expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Quick search' })).not.toBeInTheDocument();
     expect(await screen.findByRole('heading', { level: 2, name: /^Sentence 1 of/ })).toBeInTheDocument();
   });
 
@@ -171,11 +194,11 @@ describe('command palette in the app shell', () => {
     const field = screen.getByLabelText('API key');
     await user.type(field, 'a/b');
     expect(field).toHaveValue('a/b');
-    expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Quick search' })).not.toBeInTheDocument();
 
     await user.keyboard('{Escape}');
     await user.keyboard('/');
-    expect(await screen.findByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Quick search' })).toBeInTheDocument();
   });
 });
 

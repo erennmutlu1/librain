@@ -9,6 +9,7 @@ import { ExportButtons } from '../components/ExportButtons';
 import { EmptyState, ErrorNotice, SkeletonLines } from '../components/States';
 import { useRunStore } from '../history/context';
 import { runToMarkdown, runsToJson } from '../history/exporters';
+import { kindText } from '../history/kinds.i18n';
 import type { RunDetail } from '../history/types';
 import { useLang, useT } from '../i18n/lang';
 import { compareStates } from '../lib/compare';
@@ -60,6 +61,7 @@ function remixPath(run: RunDetail): string | null {
 
 export default function HistoryDetailPage() {
   const t = useT(text);
+  const kinds = useT(kindText);
   const { lang } = useLang();
   const { id = '' } = useParams();
   const store = useRunStore();
@@ -160,13 +162,14 @@ export default function HistoryDetailPage() {
       {back}
       <header className={styles.header}>
         <p className={styles.meta}>
-          <span className={styles.kind}>{t.kind[run.kind]}</span>
+          <span className={styles.kind}>{kinds[run.kind]}</span>
           <time dateTime={run.createdAt}>{formatDateTime(run.createdAt)}</time>
           {run.quality !== null ? <span>{t.quality(formatScore(run.quality, 2, lang))}</span> : null}
           {run.mock ? <span className="tag">{t.mock}</span> : null}
         </p>
         <div className={styles.actions}>
           {remix ? (
+            // Fills the New idea form; nothing runs (or is billed) until the visitor presses Discover.
             <Link to={remix} className="btn btn-sm" title={t.remixHint}>
               <Icon name="shuffle" size={14} /> {t.remix}
             </Link>
@@ -196,7 +199,8 @@ export default function HistoryDetailPage() {
           {deleteError ? <ErrorNotice error={deleteError} /> : null}
         </div>
       ) : null}
-      <h1 className="visually-hidden">{t.heading(t.kind[run.kind], run.title)}</h1>
+      <h1 className="visually-hidden">{t.heading(kinds[run.kind], run.title)}</h1>
+      {/* Each result view ends with its request ID under "Technical details" (components/TechDetails). */}
       <RunBody run={run} />
     </div>
   );

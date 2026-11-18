@@ -46,10 +46,22 @@ afterEach(() => {
 });
 
 describe('History detail', () => {
-  it('remixes a discovery: Discover prefilled with its topics and passage count', async () => {
+  it('offers the run’s topics for a new idea: the New idea form prefilled, nothing run', async () => {
     await setup();
-    const remix = await screen.findByRole('link', { name: 'Remix' });
+    const remix = await screen.findByRole('link', { name: 'Use these topics' });
     expect(remix).toHaveAttribute('href', '/discover?a=tidal%20energy&b=coral%20reefs&k=7');
+    expect(remix).toHaveAttribute('title', 'Fills the New idea form with these topics. Nothing runs until you press Discover.');
+  });
+
+  it('keeps the request ID inside a closed Technical details disclosure', async () => {
+    await setup();
+    await screen.findByRole('link', { name: 'Use these topics' });
+    expect(screen.queryByText(/correlation/i)).not.toBeInTheDocument();
+    const value = screen.getByText(RUN.response.correlationId);
+    const details = value.closest('details')!;
+    expect(details).not.toHaveAttribute('open');
+    expect(within(details).getByText('Technical details')).toBeInTheDocument();
+    expect(within(details).getByText('Request ID')).toBeInTheDocument();
   });
 
   it('exports a discovery with the shared Markdown, once, from the page header', async () => {
@@ -57,7 +69,7 @@ describe('History detail', () => {
     Object.assign(URL, { createObjectURL: vi.fn((b: Blob) => ((blob = b), 'blob:test')), revokeObjectURL: vi.fn() });
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     const { user } = await setup();
-    await screen.findByRole('link', { name: 'Remix' });
+    await screen.findByRole('link', { name: 'Use these topics' });
     // The result view's own buttons are off here: one export group on the page.
     expect(screen.getAllByRole('group', { name: 'Export' })).toHaveLength(1);
     await user.click(screen.getByRole('button', { name: 'Download Markdown' }));
@@ -69,7 +81,7 @@ describe('History detail', () => {
 
   it('speaks Turkish', async () => {
     await setup('tr');
-    expect(await screen.findByRole('link', { name: 'Düzenleyip çalıştır' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Bu konuları kullan' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Tüm çalıştırmalar/ })).toBeInTheDocument();
     expect(screen.getByText('Kalite 0,66')).toBeInTheDocument();
     const exports = screen.getByRole('group', { name: 'Dışa aktar' });

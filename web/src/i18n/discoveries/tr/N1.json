@@ -8,17 +8,17 @@
   "claims": [
     {
       "sentence": "Zamansal spike kodlu temsilleri zaman serisi tahminine içkin seyrek, asenkron çıkarım örüntülerine (örn. LSTM veya transformer türevi modeller) eşleyerek, nöromorfik çipler geleneksel GPU tabanlı uç çıkarıma kıyasla büyüklük mertebeleri düzeyinde enerji tasarrufu sağlayabilir.",
-      "rationale": "Cümle ihtiyatlı bir dil kullanıyor ('sağlayabilir') ve spike kodlu temsilleri enerji verimliliği kazanımlarına bağlayan spekülatif bir mekanizma kuruyor; ancak erişilen hiçbir parça bu belirli eşlemeyi doğrudan desteklemiyor ya da iddia edilen enerji tasarruflarını nicel olarak ortaya koymuyor."
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor ('sağlayabilir') ve spike kodlu temsilleri enerji verimliliği kazanımlarına bağlayan spekülatif bir mekanizma kuruyor; ancak getirilen hiçbir parça bu belirli eşlemeyi doğrudan desteklemiyor ya da iddia edilen enerji tasarruflarını nicel olarak ortaya koymuyor."
     },
     {
       "sentence": "Bu yakınsama, bulut süper bilgisayar altyapısına bağımlı olmadan, kaynakları kısıtlı saha cihazlarında sürekli açık, gerçek zamanlı PV ve mikro hava durumu tahminini mümkün kılar.",
-      "rationale": "Cümle, nöromorfik donanımı PV ve hava durumu tahmini uygulamalarıyla birleştiren gelecekteki bir yetenek üzerine spekülasyon yapıyor ('mümkün kılar'); ancak erişilen hiçbir parça bu bütünleşik uygulamayı göstermiyor ya da fizibilite iddiasını doğrulamıyor."
+      "rationale": "Cümle, nöromorfik donanımı PV ve hava durumu tahmini uygulamalarıyla birleştiren gelecekteki bir yetenek üzerine spekülasyon yapıyor ('mümkün kılar'); ancak getirilen hiçbir parça bu bütünleşik uygulamayı göstermiyor ya da fizibilite iddiasını doğrulamıyor."
     }
   ],
   "extrapolationBasis": [
     {
       "claimSentence": "Zamansal spike kodlu temsilleri zaman serisi tahminine içkin seyrek, asenkron çıkarım örüntülerine (örn. LSTM veya transformer türevi modeller) eşleyerek, nöromorfik çipler geleneksel GPU tabanlı uç çıkarıma kıyasla büyüklük mertebeleri düzeyinde enerji tasarrufu sağlayabilir.",
-      "rationale": "Diehl ve ark. (parça 77), özyinelemeli YSA'ların düşük güçlü nöromorfik donanım için spike tabanlı sinir ağlarına dönüştürülmesini gösteriyor; bu, LSTM tabanlı PV tahmin modellerinin spike tabanlı biçime dönüştürülmesine benzerdir."
+      "rationale": "Diehl ve ark. (parça 77), özyinelemeli YSA’ların düşük güçlü nöromorfik donanım için spike tabanlı sinir ağlarına dönüştürülmesini gösteriyor; bu, LSTM tabanlı PV tahmin modellerinin spike tabanlı biçime dönüştürülmesine benzerdir."
     },
     {
       "claimSentence": "Bu yakınsama, bulut süper bilgisayar altyapısına bağımlı olmadan, kaynakları kısıtlı saha cihazlarında sürekli açık, gerçek zamanlı PV ve mikro hava durumu tahminini mümkün kılar.",

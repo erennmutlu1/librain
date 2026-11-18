@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
 import { MAX_QUERY_CHARS, type MockScenario, type QueryRequest, type QueryResponse } from '../api/types';
 import { AskResult } from '../components/AskResult';
-import { MockProvenance, RecordedRuns } from '../components/FormBits';
+import { InlineFormNotice, MockProvenance, RecordedRuns } from '../components/FormBits';
 import { Icon } from '../components/Icon';
 import { NumberStepper } from '../components/NumberStepper';
 import { ProgressStepper } from '../components/ProgressStepper';
@@ -50,6 +50,12 @@ export default function AskPage() {
   const demo = usePublicDemo();
   // The only Ask recording is an API contract snapshot (placeholder text), which the public site never shows.
   const noRecordings = demo?.mode === 'recorded';
+  /*
+   * Recorded mode, after a submit: nothing can replay, so the message sits
+   * right under the submit row and takes focus. `tick` moves focus again on a
+   * repeated submit; `query` hides it once the question changes.
+   */
+  const [noRecording, setNoRecording] = useState<{ query: string; tick: number } | null>(null);
   const [form, setForm] = useSessionState<AskForm>('ask.form', { query: '', topK: '5' });
   const [formError, setFormError] = useState<FormError | null>(null);
   const [errorTick, setErrorTick] = useState(0);
@@ -84,7 +90,7 @@ export default function AskPage() {
 
   const submit = (event?: FormEvent) => {
     event?.preventDefault();
-    if (noRecordings || loading) return;
+    if (loading) return;
     const request = toRequest(form);
     if ('error' in request) {
       // A new value each time, so a repeated error still moves focus (effect below).
@@ -93,6 +99,11 @@ export default function AskPage() {
       return;
     }
     setFormError(null);
+    if (noRecordings) {
+      setNoRecording((n) => ({ query: form.query, tick: (n?.tick ?? 0) + 1 }));
+      return;
+    }
+    setNoRecording(null);
     rememberQuestion(request.query);
     setRecent(recentQuestions());
     void run(request);
@@ -105,6 +116,8 @@ export default function AskPage() {
   };
 
   const remaining = MAX_QUERY_CHARS - form.query.length;
+  const showNoRecording = noRecordings && noRecording !== null && noRecording.query === form.query;
+  const hint = noRecordings && form.query.trim() && !showNoRecording ? t.noRecordingHint : '';
   // Recent questions other than the one already in the field.
   const otherRecent = noRecordings ? [] : recent.filter((q) => q !== form.query.trim());
 
@@ -138,19 +151,24 @@ export default function AskPage() {
           <textarea
             id={`${uid}-q`}
             className="input"
-            disabled={noRecordings}
             rows={3}
             value={form.query}
             maxLength={MAX_QUERY_CHARS}
             onChange={(e) => setForm((f) => ({ ...f, query: e.target.value }))}
             placeholder={t.placeholder}
             aria-invalid={(formError !== null && !topKError) || undefined}
-            aria-describedby={formError && !topKError ? `${uid}-err` : `${uid}-kbd`}
+            aria-describedby={formError && !topKError ? `${uid}-err` : noRecordings ? `${uid}-hint` : `${uid}-kbd`}
           />
           {formError && !topKError ? (
             <p id={`${uid}-err`} className={styles.formError} role="alert">
               {formErrorText(ft, formError)}
             </p>
+          ) : null}
+          {noRecordings ? (
+            // Polite: the text changes only when the field goes from empty to filled and back.
+            <span id={`${uid}-hint`} className={`field-hint ${styles.unmatchedHint}`} aria-live="polite">
+              {hint}
+            </span>
           ) : null}
           {remaining < 200 ? (
             <span className="field-hint" aria-live="polite">
@@ -193,17 +211,34 @@ export default function AskPage() {
             onChange={(v) => setForm((f) => ({ ...f, topK: v }))}
             min={TOPK_MIN}
             max={TOPK_MAX}
-            disabled={noRecordings}
           />
           <div className="cluster">
             <span id={`${uid}-kbd`} className={styles.kbd}>
               {ft.modEnter(t.modEnterAction)}
             </span>
-            <button type="submit" className="btn btn-primary" disabled={loading || noRecordings}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? t.submitting : t.submit}
             </button>
           </div>
         </div>
+        {demo?.mode === 'live' ? (
+          <p className={`${styles.kbd} ${styles.liveNote}`}>
+            <strong className={styles.cost}>{t.liveCost}</strong>
+          </p>
+        ) : null}
+        {showNoRecording && noRecording && demo ? (
+          <InlineFormNotice
+            title={t.noRecordingTitle}
+            focusKey={noRecording.tick}
+            actions={
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => demo.switchTo('live')}>
+                {t.switchLive}
+              </button>
+            }
+          >
+            {t.noRecordingBody}
+          </InlineFormNotice>
+        ) : null}
         <RecordedRuns scenarios={api.mock?.ask} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 

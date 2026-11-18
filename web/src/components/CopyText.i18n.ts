@@ -7,8 +7,8 @@ export const text = strings({
     failed: 'Copy failed',
   },
   tr: {
-    // Not lower-cased: JS lower-casing mangles Turkish "I" and "İ".
-    copy: (label: string) => `${label} kopyala`,
+    // "Etiket: değer" keeps suffixes off the label (and JS lower-casing would mangle "I"/"İ").
+    copy: (label: string) => `Kopyala: ${label}`,
     copied: 'Kopyalandı',
     failed: 'Kopyalanamadı',
   },

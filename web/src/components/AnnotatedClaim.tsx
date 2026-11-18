@@ -10,10 +10,13 @@ import type {
 import { useLang, useT } from '../i18n/lang';
 import { chunkKey, parseChunkKey } from '../lib/citations';
 import { formatPercent } from '../lib/format';
-import { displayTitle } from '../lib/papers';
+import { paperTitleFor } from '../lib/papers';
 import { annotate } from '../lib/sentences';
 import { basisMeta, STATUS_ORDER, statusMeta } from '../lib/vocabulary';
+import { HowChecked } from './HowChecked';
 import { Icon, StatusIcon } from './Icon';
+import { InfoTip } from './InfoTip';
+import { PaperRef } from './PaperRef';
 import { Passage } from './Passage';
 import { text } from './AnnotatedClaim.i18n';
 import styles from './AnnotatedClaim.module.css';
@@ -37,25 +40,34 @@ function defaultIndex(claims: readonly ClaimValidationEntry[]): number | null {
   return best;
 }
 
+/**
+ * The three verdicts, each with its ⓘ definition, and "How a sentence is
+ * checked" folded underneath (shown wherever verdicts are: results, idea
+ * pages, the featured gallery).
+ */
 export function StatusLegend({ counts, compact = false }: { counts?: Record<ClaimStatus, number>; compact?: boolean }) {
   const t = useT(text);
   const { lang } = useLang();
   return (
-    <ul className={styles.legend} role="list" aria-label={t.legend} data-compact={compact || undefined}>
-      {STATUS_ORDER.map((status) => (
-        <li key={status} className={styles.legendItem}>
-          <StatusIcon status={status} />
-          <span className={`${styles.legendSample} ${styles[status]}`} aria-hidden="true">
-            Aa
-          </span>
-          <span>
-            <span className={styles.legendLabel}>{statusMeta(status, lang).label}</span>
-            {counts ? <span className={`${styles.legendCount} num`}> {counts[status]}</span> : null}
-            {compact ? null : <span className={styles.legendDesc}>{statusMeta(status, lang).description}</span>}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <div className={styles.legendWrap} data-compact={compact || undefined}>
+      <ul className={styles.legend} role="list" aria-label={t.legend} data-compact={compact || undefined}>
+        {STATUS_ORDER.map((status) => (
+          <li key={status} className={styles.legendItem}>
+            <StatusIcon status={status} />
+            <span className={`${styles.legendSample} ${styles[status]}`} aria-hidden="true">
+              Aa
+            </span>
+            <span>
+              <span className={styles.legendLabel}>{statusMeta(status, lang).label}</span>
+              {counts ? <span className={`${styles.legendCount} num`}> {counts[status]}</span> : null}{' '}
+              <InfoTip k={status} label={statusMeta(status, lang).label} />
+              {compact ? null : <span className={styles.legendDesc}>{statusMeta(status, lang).description}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <HowChecked />
+    </div>
   );
 }
 
@@ -255,11 +267,11 @@ function ChunkRef({
   const t = useT(text);
   const { paperId } = parseChunkKey(chunk);
   const ev = evidenceByKey.get(chunk);
-  const title = displayTitle(papers.get(paperId));
+  const title = paperTitleFor(paperId, papers);
   const where = [ev?.section, ev?.pageNumber != null ? t.page(ev.pageNumber) : null].filter(Boolean).join(', ');
   return (
     <li className={styles.chunk}>
-      <code className={styles.chunkKey}>{chunk}</code>
+      <PaperRef chunk={chunk} />
       {title ? <span className={styles.chunkTitle}>{title}</span> : null}
       {where ? <span className={styles.chunkWhere}>{where}</span> : null}
       {ev?.content ? <Passage text={ev.content} compact /> : null}
@@ -311,7 +323,9 @@ function ClaimNote({
 
       <div className={styles.prob}>
         <span className={`${styles.probValue} num`}>{formatPercent(p, lang)}</span>
-        <span className={styles.probLabel}>{t.probLabel}</span>
+        <span className={styles.probLabel}>
+          {t.probLabel} <InfoTip k="hallucinationProbability" />
+        </span>
         <span className={styles.probTrack} aria-hidden="true">
           <span className={styles.probFill} style={{ width: `${p * 100}%` }} />
         </span>
@@ -337,7 +351,9 @@ function ClaimNote({
 
       {basis ? (
         <section className={styles.noteSection}>
-          <p className={styles.noteTitle}>{t.ownBasis}</p>
+          <p className={styles.noteTitle}>
+            {t.ownBasis} <InfoTip k="basis" />
+          </p>
           <p>
             <span className="tag" title={basisMeta(basis.basisType, lang).description}>
               {basisMeta(basis.basisType, lang).label}
@@ -345,7 +361,7 @@ function ClaimNote({
             {basis.groundedInChunkId ? (
               <>
                 {' '}
-                {t.from} <code className={styles.chunkKey}>{basis.groundedInChunkId}</code>
+                {t.from} <PaperRef chunk={basis.groundedInChunkId} />
               </>
             ) : null}
           </p>

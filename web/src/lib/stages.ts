@@ -104,15 +104,15 @@ export function progressMessage(message: string, lang: Lang = currentLang()): st
 }
 
 const PROGRESS_TR: [RegExp, (m: RegExpExecArray) => string][] = [
-  [/^Searching the corpus for both topics$/, () => 'Derlemde her iki konu aranıyor'],
-  [/^Searching the corpus$/, () => 'Derlemde aranıyor'],
-  [/^Found (\d+) distinct passages$/, (m) => `${m[1]} farklı pasaj bulundu`],
-  [/^Found (\d+) passages$/, (m) => `${m[1]} pasaj bulundu`],
-  [/^Asking Claude for a hypothesis that goes beyond the sources$/, () => 'Claude\'dan kaynakların ötesine geçen bir hipotez isteniyor'],
-  [/^Writing a citation-grounded answer$/, () => 'Atıf dayanaklı bir yanıt yazılıyor'],
-  [/^(\d+) citation\(s\) resolved to retrieved passages$/, (m) => `${m[1]} atıf getirilen pasajlarla eşleşti`],
-  [/^Citation contract kept (\d+) of (\d+) cited sources$/, (m) => `Atıf sözleşmesi, atıf yapılan ${m[2]} kaynaktan ${m[1]} tanesini tuttu`],
+  [/^Searching the corpus for both topics$/, () => 'Makale kütüphanesinde her iki konu aranıyor'],
+  [/^Searching the corpus$/, () => 'Makale kütüphanesinde aranıyor'],
+  [/^Found (\d+) distinct passages$/, (m) => `${m[1]} farklı parça bulundu`],
+  [/^Found (\d+) passages$/, (m) => `${m[1]} parça bulundu`],
+  [/^Asking Claude for a hypothesis that goes beyond the sources$/, () => 'Claude’dan kaynakların ötesine geçen bir hipotez isteniyor'],
+  [/^Writing a citation-grounded answer$/, () => 'Atıflara dayanan bir yanıt yazılıyor'],
+  [/^(\d+) citation\(s\) resolved to retrieved passages$/, (m) => `${m[1]} atıf getirilen parçalarla eşleşti`],
+  [/^Citation contract kept (\d+) of (\d+) cited sources$/, (m) => `Atıf denetimi, atıf yapılan ${m[2]} kaynaktan ${m[1]} tanesini tuttu`],
   [/^Scoring novelty, plausibility and per-sentence claim risk$/, () => 'Özgünlük, akla yatkınlık ve cümle başına iddia riski puanlanıyor'],
-  [/^Judging groundedness, relevance and completeness$/, () => 'Dayanaklılık, alaka ve bütünlük değerlendiriliyor'],
-  [/^Re-ranking passages$/, () => 'Pasajlar yeniden sıralanıyor'],
+  [/^Judging groundedness, relevance and completeness$/, () => 'Dayanaklılık, ilgililik ve eksiksizlik puanlanıyor'],
+  [/^Re-ranking passages$/, () => 'Parçalar yeniden sıralanıyor'],
 ];

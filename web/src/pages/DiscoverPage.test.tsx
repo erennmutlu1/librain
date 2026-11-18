@@ -1,8 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../App';
 import { createMockApi } from '../api/mockClient';
+import { clearProviderKeys, setProviderKeys } from '../api/providerKeys';
+import type { DemoMode } from '../public/context';
 import { createLocalRunStore } from '../history/localRunStore';
 import { LangProvider } from '../i18n/lang';
 import { createPublicHistory, createPublicRunStore } from '../public/browserHistory';
@@ -55,7 +57,7 @@ describe('Discover: prefill from the URL', () => {
     expect(await screen.findByRole('combobox', { name: 'Konu A' })).toHaveValue('protein folding');
     expect(screen.getByText('Bağlantıdaki değerlerle dolduruldu. Keşfet’e basana kadar hiçbir şey çalışmaz.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Konuların yerini değiştir' })).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', { name: 'Konu başına pasaj' })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: 'Konu başına parça' })).toBeInTheDocument();
   });
 });
 
@@ -187,7 +189,7 @@ describe('Discover: Recorded mode (public build)', () => {
     ]);
     // Only recorded topics: no recent topics or paper titles in this mode.
     expect(screen.queryByRole('group', { name: 'Your recent topics' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: 'Papers in the corpus' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Papers in the library' })).not.toBeInTheDocument();
 
     await user.keyboard('{ArrowDown}{Enter}');
     expect(a).toHaveValue('corner kick tactic generation and player positioning');
@@ -203,5 +205,88 @@ describe('Discover: Recorded mode (public build)', () => {
       await screen.findByRole('heading', { name: 'corner kick tactic generation and player positioning × learned physics simulators with graph networks' }),
     ).toBeInTheDocument();
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+async function setupPublic(path: string, { lang, mode }: { lang?: 'tr'; mode?: DemoMode } = {}) {
+  const history = createPublicHistory({ getStorage: () => window.localStorage });
+  const fetchImpl = vi.fn(() => Promise.reject(new Error('no network in this test')));
+  const clients = {
+    recorded: await loadRecordedClient(history, 0),
+    live: createLiveClient(history, { baseUrl: 'https://api.librain.test', fetchImpl }),
+    runStore: createPublicRunStore(history),
+  };
+  const user = userEvent.setup();
+  const app = <PublicApp clients={clients} initialPath={path} initialMode={mode} />;
+  render(lang ? <LangProvider initial={lang}>{app}</LangProvider> : app);
+  return { user, fetchImpl, runStore: clients.runStore };
+}
+
+afterEach(() => clearProviderKeys());
+
+describe('New idea: no recording in Recorded mode', () => {
+  it('says so quietly while typing, and right under the submit row (focused) on submit', async () => {
+    const { user, fetchImpl } = await setupPublic('/discover');
+    expect(await screen.findByRole('heading', { level: 1, name: 'New idea' })).toBeInTheDocument();
+    const hint = 'No recording for these topics — pick a suggestion, open Ideas, or switch to Live.';
+    expect(screen.queryByText(hint)).not.toBeInTheDocument();
+
+    await user.type(await topicA(), 'weather forecasting');
+    await user.type(topicB(), 'protein folding');
+    expect(topicB()).toHaveValue('protein folding');
+    expect(screen.getByText(hint)).toBeInTheDocument();
+
+    const submit = screen.getByRole('button', { name: 'Discover' });
+    await user.click(submit);
+    const title = await screen.findByText('No recording matches these topics.');
+    const notice = title.closest('[role="status"]') as HTMLElement;
+    expect(notice).toHaveFocus();
+    // Directly under the submit row, not below the list of recorded runs.
+    expect(notice.previousElementSibling).toContainElement(submit);
+    expect(within(notice).getByRole('button', { name: 'Switch to Live' })).toBeInTheDocument();
+    expect(within(notice).getByRole('link', { name: 'Open Ideas' })).toHaveAttribute('href', '/explore');
+    // The quiet hint steps back while the notice says it.
+    expect(screen.queryByText(hint)).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'weather forecasting × protein folding' })).not.toBeInTheDocument();
+    expect(fetchImpl).not.toHaveBeenCalled();
+
+    // A repeated submit focuses it again; changing the topics clears it.
+    (document.activeElement as HTMLElement).blur();
+    await user.keyboard('{Control>}{Enter}{/Control}');
+    await user.click(submit);
+    expect(screen.getByText('No recording matches these topics.').closest('[role="status"]')).toHaveFocus();
+    await user.type(topicB(), ' in cells');
+    expect(screen.queryByText('No recording matches these topics.')).not.toBeInTheDocument();
+    expect(screen.getByText(hint)).toBeInTheDocument();
+  });
+
+  it('shows no hint once the topics match a recording', async () => {
+    const { user } = await setupPublic('/discover');
+    await user.type(await topicA(), 'corner kick');
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(topicB()).toHaveValue('learned physics simulators with graph networks');
+    expect(screen.queryByText(/^No recording for these topics/)).not.toBeInTheDocument();
+    expect(screen.getByText(/^Recorded mode replays a run only for its exact topics/)).toBeInTheDocument();
+  });
+
+  it('says it in Turkish', async () => {
+    const { user } = await setupPublic('/discover', { lang: 'tr' });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Yeni fikir' })).toBeInTheDocument();
+    await user.type(await screen.findByRole('combobox', { name: 'Konu A' }), 'hava tahmini');
+    expect(screen.getByText('Bu konular için hazır çalıştırma yok. Bir öneri seçin, Fikirler’i açın ya da Canlı moda geçin.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Keşfet' }));
+    const notice = screen.getByText('Bu konularla eşleşen hazır çalıştırma yok.').closest('[role="status"]');
+    expect(notice).toHaveFocus();
+    expect(within(notice as HTMLElement).getByRole('button', { name: 'Canlı moda geç' })).toBeInTheDocument();
+    expect(within(notice as HTMLElement).getByRole('link', { name: 'Fikirler’i aç' })).toBeInTheDocument();
+  });
+});
+
+describe('New idea: the cost before a Live run', () => {
+  it('states the cost next to the submit button in Live mode', async () => {
+    setProviderKeys({ anthropic: 'sk-ant-test', openai: 'sk-test' }, false);
+    await setupPublic('/discover', { mode: 'live' });
+    await topicA();
+    expect(screen.getByText('About US$0.07 per new idea, billed to your Anthropic and OpenAI accounts.')).toBeInTheDocument();
   });
 });

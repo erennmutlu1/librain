@@ -44,14 +44,14 @@ describe('Library table', () => {
     expect(screen.getByText(`1 of ${total} papers`)).toBeInTheDocument();
     await user.clear(screen.getByRole('searchbox', { name: 'Search papers by ID, title or author' }));
 
-    const chunks = within(table).getByRole('columnheader', { name: 'Chunks' });
+    const chunks = within(table).getByRole('columnheader', { name: 'Passages' });
     await user.click(within(chunks).getByRole('button'));
     expect(chunks).toHaveAttribute('aria-sort', 'descending');
 
     await user.click(screen.getByRole('button', { name: `Export the ${total} rows shown as CSV` }));
     const [filename, header, rows] = vi.mocked(downloadCsv).mock.calls[0]!;
     expect(filename).toMatch(/^librain-papers-.*\.csv$/);
-    expect(header).toEqual(['Paper ID', 'Title', 'Authors', 'Year', 'Chunks', 'Added (UTC)', 'arXiv link']);
+    expect(header).toEqual(['Paper ID', 'Title', 'Authors', 'Year', 'Passages', 'Added (UTC)', 'arXiv link']);
     expect(rows).toHaveLength(total);
     expect(rows).toContainEqual(expect.arrayContaining(['2005.11401', 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks']));
   });
@@ -62,7 +62,7 @@ describe('Library table', () => {
 
   it('speaks Turkish', async () => {
     setup('/library', 'tr');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Kütüphane' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Makaleler' })).toBeInTheDocument();
     const table = await screen.findByRole('table', { name: /^Kütüphanedeki makaleler/ });
     expect(within(table).getByRole('columnheader', { name: 'Parça' })).toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toBeInTheDocument();
@@ -126,7 +126,7 @@ describe('History table', () => {
     const { user, runStore } = setup('/history', 'tr');
     expect(await screen.findByRole('heading', { level: 1, name: 'Geçmiş' })).toBeInTheDocument();
     expect(await screen.findByText('Henüz çalıştırma yok')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Kayıtlı çalıştırmaları yükle' }));
+    await user.click(screen.getByRole('button', { name: 'Hazır çalıştırmaları yükle' }));
     const table = await screen.findByRole('table', { name: 'Kaydedilmiş çalıştırmalar, Zaman sütununa göre azalan sıralı' });
     expect(within(table).getByRole('link', { name: 'Sor: Why does GraphCast forecast well?' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Tüm çalıştırmaları dışa aktar' })).toBeInTheDocument();

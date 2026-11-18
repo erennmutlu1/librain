@@ -2,22 +2,23 @@ import { strings } from '../i18n/lang';
 
 export const text = strings({
   en: {
-    title: 'Citation contract',
+    title: 'Citation check',
     legacy: (kept: number) =>
-      `${kept} supporting ${kept === 1 ? 'chunk' : 'chunks'} kept. This run predates the claimed/dropped counters, so the number dropped is not recorded.`,
-    heading: (dropped: number) => `Citation contract ${dropped > 0 ? `dropped ${dropped}` : 'dropped none'}`,
-    claimed: (claimed: number) => `The model claimed ${claimed} supporting ${claimed === 1 ? 'chunk' : 'chunks'};`,
+      `${kept} supporting ${kept === 1 ? 'passage' : 'passages'} kept. The number of dropped citations was not recorded for this run.`,
+    legacyTechnical: 'This run predates the claimed/dropped counters.',
+    heading: (dropped: number) => `Citation check ${dropped > 0 ? `dropped ${dropped}` : 'dropped none'}`,
+    claimed: (claimed: number) => `The model cited ${claimed} supporting ${claimed === 1 ? 'passage' : 'passages'};`,
     removed: (n: number) =>
-      `${n} ${n === 1 ? 'was' : 'were'} not in the retrieved set and ${n === 1 ? 'was' : 'were'} removed before you saw them.`,
-    allIn: 'every one was in the retrieved set.',
+      `${n} ${n === 1 ? 'was' : 'were'} not among the retrieved passages and ${n === 1 ? 'was' : 'were'} dropped before you saw ${n === 1 ? 'it' : 'them'}.`,
+    allIn: 'every one was among the retrieved passages.',
   },
   tr: {
-    title: 'Atıf sözleşmesi',
-    legacy: (kept: number) =>
-      `${kept} destekleyici parça tutuldu. Bu çalıştırma, öne sürülen/atılan sayaçlarından önce kaydedildiği için atılan sayısı bilinmiyor.`,
-    heading: (dropped: number) => (dropped > 0 ? `Atıf sözleşmesi ${dropped} atıf attı` : 'Atıf sözleşmesi hiçbir atıf atmadı'),
-    claimed: (claimed: number) => `Model ${claimed} destekleyici parça öne sürdü;`,
-    removed: (n: number) => `${n} tanesi getirilen kümede yoktu ve siz görmeden kaldırıldı.`,
-    allIn: 'hepsi getirilen kümedeydi.',
+    title: 'Atıf denetimi',
+    legacy: (kept: number) => `${kept} destekleyici parça tutuldu. Bu çalıştırmada silinen atıf sayısı kaydedilmedi.`,
+    legacyTechnical: 'Bu çalıştırma, öne sürülen/silinen atıf sayaçlarından önce kaydedildi.',
+    heading: (dropped: number) => (dropped > 0 ? `Atıf denetimi ${dropped} atfı sildi` : 'Atıf denetimi hiçbir atfı silmedi'),
+    claimed: (claimed: number) => `Model ${claimed} destekleyici parçaya atıf yaptı;`,
+    removed: (n: number) => `${n} tanesi getirilen parçalar arasında yoktu ve siz görmeden silindi.`,
+    allIn: 'hepsi getirilen parçalar arasındaydı.',
   },
 });

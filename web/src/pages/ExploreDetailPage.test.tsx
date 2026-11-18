@@ -51,10 +51,10 @@ afterEach(() => {
 describe('Explore detail: new flows', () => {
   it('remixes the run: Discover prefilled with its recorded topics', async () => {
     setup('/explore/F4');
-    const remix = await screen.findByRole('link', { name: 'Remix' });
+    const remix = await screen.findByRole('link', { name: 'Use these topics' });
     const { topicA, topicB, topK } = raw('F4').request;
     expect(remix).toHaveAttribute('href', `/discover?a=${encodeURIComponent(topicA)}&b=${encodeURIComponent(topicB)}&k=${topK ?? 5}`);
-    expect(remix).toHaveAccessibleDescription(/Open Discover with this run’s topics/);
+    expect(remix).toHaveAccessibleDescription(/Fills the New idea form with this idea’s topics/);
   });
 
   it('exports the discovery as Markdown and the recorded run as JSON', async () => {
@@ -80,37 +80,40 @@ describe('Explore detail: new flows', () => {
 
   it('has no translation notice in English', async () => {
     setup('/explore/F4');
-    await screen.findByRole('link', { name: 'Remix' });
-    expect(screen.queryByRole('button', { name: 'Show original' })).not.toBeInTheDocument();
+    await screen.findByRole('link', { name: 'Use these topics' });
+    expect(screen.queryByRole('button', { name: 'Show the English original' })).not.toBeInTheDocument();
   });
 });
 
 describe('Explore detail in Turkish', () => {
   it('says the text is translated, shows the English original on request, and keeps the choice across discoveries', async () => {
     const { user } = setup('/explore/F4', 'tr');
-    expect(await screen.findByText('Bu keşif İngilizceden çevrildi. Makale pasajları özgün dilinde.')).toBeInTheDocument();
+    expect(await screen.findByText('Bu fikir İngilizceden çevrildi. Makale parçaları özgün dilinde.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('korner vuruşu taktik üretimi');
     expect(screen.getByRole('region', { name: 'Neden umut verici' })).toBeInTheDocument();
 
     // Remix always uses the recorded English topics.
-    expect(screen.getByRole('link', { name: 'Düzenleyip çalıştır' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Bu konuları kullan' })).toHaveAttribute(
       'href',
       expect.stringContaining(`a=${encodeURIComponent(raw('F4').request.topicA)}`),
     );
 
-    const toggle = screen.getByRole('button', { name: 'Özgün metni göster' });
+    const toggle = screen.getByRole('button', { name: 'İngilizce aslını göster' });
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
     await user.click(toggle);
-    expect(screen.getByRole('button', { name: 'Özgün metni göster' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'İngilizce aslını göster' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(raw('F4').request.topicA);
-    expect(screen.getByText('Bu keşfin özgün İngilizce metnini okuyorsunuz.')).toBeInTheDocument();
+    expect(screen.getByText('Bu fikrin İngilizce aslını okuyorsunuz.')).toBeInTheDocument();
     // The interface itself stays Turkish.
     expect(screen.getByRole('region', { name: 'Neden umut verici' })).toBeInTheDocument();
+
+    expect(screen.getByText(/Puanlar 0–1 aralığındadır/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Bu konuları kullan' })).toHaveAccessibleDescription(/Hiçbir şey çalıştırmaz/);
 
     const related = within(screen.getByRole('region', { name: 'İlgili fikirler' })).getAllByRole('link')[0]!;
     const nextId = related.getAttribute('href')!.split('/').pop()!;
     await user.click(related);
     expect(await screen.findByRole('heading', { level: 1, name: new RegExp(raw(nextId).request.topicA.slice(0, 20)) })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Özgün metni göster' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'İngilizce aslını göster' })).toHaveAttribute('aria-pressed', 'true');
   });
 });

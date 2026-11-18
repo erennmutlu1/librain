@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/errors';
 import { ANTHROPIC_KEY_HEADER, OPENAI_KEY_HEADER, clearProviderKeys } from '../api/providerKeys';
+import { text as keysText } from '../components/ProviderKeysMenu.i18n';
 import { LangProvider } from '../i18n/lang';
 import { createPublicHistory, createPublicRunStore } from './browserHistory';
 import { checkProviderKeys, createLiveClient, loadRecordedClient, type KeyCheckResult, type PublicClients } from './clients';
@@ -190,13 +191,15 @@ describe('"Check my keys" in the keys panel', () => {
   it('speaks Turkish', async () => {
     const fetchImpl = vi.fn(async () => json(200, result({ status: 'valid', detail: null }, { status: 'invalid', detail: null })));
     const { user } = await setup(fetchImpl, { lang: 'tr' });
-    const panel = await openPanel(user, /^API anahtarlarınız/);
-    expect(within(panel).getByRole('heading', { name: 'API anahtarlarınız' })).toBeInTheDocument();
-    await user.type(within(panel).getByLabelText('Anthropic API anahtarı'), KEYS.anthropic);
-    await user.click(within(panel).getByRole('button', { name: 'Anahtarlarımı denetle' }));
-    const list = await within(panel).findByRole('list', { name: 'Anahtar denetimi' });
-    expect(list).toHaveTextContent('Anthropic: Kabul edildi');
-    expect(list).toHaveTextContent('OpenAI: Reddedildi');
-    expect(within(panel).getByText(/kredi olup olmadığını değil/)).toBeInTheDocument();
+    // The panel's wording belongs to ProviderKeysMenu; this checks it is the Turkish one.
+    const tr = keysText.tr;
+    const panel = await openPanel(user, new RegExp(`^${tr.title}`));
+    expect(within(panel).getByRole('heading', { name: tr.title })).toBeInTheDocument();
+    await user.type(within(panel).getByLabelText(tr.anthropic.label), KEYS.anthropic);
+    await user.click(within(panel).getByRole('button', { name: tr.check.button }));
+    const list = await within(panel).findByRole('list', { name: tr.check.results });
+    expect(list).toHaveTextContent(`Anthropic: ${tr.check.status.valid}`);
+    expect(list).toHaveTextContent(`OpenAI: ${tr.check.status.invalid}`);
+    expect(within(panel).getByText(tr.check.note)).toBeInTheDocument();
   });
 });

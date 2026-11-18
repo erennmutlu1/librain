@@ -1,0 +1,53 @@
+.root {
+  min-width: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 1.75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+}
+
+.summary:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.summary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.steps {
+  display: grid;
+  gap: var(--s1);
+  max-width: 42rem;
+  margin: var(--s2) 0 0;
+  padding: var(--s3) var(--s4) var(--s3) calc(var(--s4) + 1.1em);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.steps li::marker {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (pointer: coarse) {
+  .summary {
+    min-height: 2.75rem;
+  }
+}

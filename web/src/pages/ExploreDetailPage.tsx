@@ -45,7 +45,7 @@ import styles from './ExploreDetailPage.module.css';
  * (arXiv titles for the papers batch 2 added) or, for the full view, from a
  * library list this tab already loaded.
  *
- * In Turkish the run's prose is a translation; "Show original" swaps in the
+ * In Turkish the run's prose is a translation; "Show the English original" swaps in the
  * recorded English for every discovery until it is turned off again. Remix
  * and the JSON download always use the recorded English run: the corpus and
  * the recorded-run matching are English.
@@ -193,6 +193,8 @@ function Promising({ d, data }: { d: Discovery; data: ExploreData }) {
       note={
         <p className={styles.candidate}>
           <strong>{t.candidateLabel}</strong> {t.candidate}
+          <br />
+          {t.scaleNote}
         </p>
       }
     >

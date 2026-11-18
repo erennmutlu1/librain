@@ -22,17 +22,17 @@ function setup(path: string) {
 describe('Explore in Turkish', () => {
   it('shows the Turkish heading, filters, translated notice and Turkish discovery text', async () => {
     const { user } = setup('/explore');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Keşifleri incele' })).toBeInTheDocument();
-    const list = await screen.findByRole('list', { name: 'Keşifler' });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Fikirler' })).toBeInTheDocument();
+    const list = await screen.findByRole('list', { name: 'Fikirler' });
     expect(within(list).getAllByRole('listitem')).toHaveLength(46);
-    expect(screen.getByText(/Keşifler İngilizceden çevrildi; makale pasajları özgün dilinde/)).toBeInTheDocument();
-    expect(screen.getByRole('search', { name: 'Keşifleri filtrele' })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Sırala' })).toHaveDisplayValue('En yüksek puan');
+    expect(screen.getByText(/Fikirler İngilizceden çevrildi; makale parçaları özgün dilinde/)).toBeInTheDocument();
+    expect(screen.getByRole('search', { name: 'Fikirleri filtrele' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Sırala' })).toHaveDisplayValue('En yüksek not');
     expect(screen.getByRole('status')).toHaveTextContent('Tüm 46 fikir');
 
     // Search works on the translated text.
     await user.type(screen.getByRole('searchbox', { name: 'Konularda ve iddialarda ara' }), 'PharmAgents');
-    const titles = within(await screen.findByRole('list', { name: 'Keşifler' }))
+    const titles = within(await screen.findByRole('list', { name: 'Fikirler' }))
       .getAllByRole('heading')
       .map((h) => h.textContent?.replace(/\s+/g, ' ').trim());
     expect(titles).toContain(`${trD1.topicA} × ${trD1.topicB}`);
@@ -40,9 +40,9 @@ describe('Explore in Turkish', () => {
 
   it('translates the statistics page', async () => {
     setup('/explore/stats');
-    expect(await screen.findByRole('heading', { level: 1, name: 'İnceleme istatistikleri' })).toBeInTheDocument();
-    expect(await screen.findByText('Ortalama puan')).toBeInTheDocument();
-    expect(screen.getByText('Puan dağılımı')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Fikir istatistikleri' })).toBeInTheDocument();
+    expect(await screen.findByText('Ortalama not (/10)')).toBeInTheDocument();
+    expect(screen.getByText('Not dağılımı')).toBeInTheDocument();
   });
 
   it('translates the quiz', async () => {

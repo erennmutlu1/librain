@@ -23,7 +23,7 @@ function setup({ lang, runStore }: { lang?: 'tr'; runStore?: RunStore } = {}) {
 
 async function seeded(lang?: 'tr') {
   const ctx = setup({ lang });
-  await ctx.user.click(await screen.findByRole('button', { name: lang ? 'Kayıtlı çalıştırmaları yükle' : 'Load the recorded runs' }));
+  await ctx.user.click(await screen.findByRole('button', { name: lang ? 'Hazır çalıştırmaları yükle' : 'Load the recorded runs' }));
   const table = await screen.findByRole('table');
   return { ...ctx, table };
 }

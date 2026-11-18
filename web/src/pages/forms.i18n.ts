@@ -22,18 +22,18 @@ export const text = strings({
   tr: {
     topicA: 'Konu A',
     topicB: 'Konu B',
-    passagesPerTopic: 'Konu başına pasaj',
-    passagesToRetrieve: 'Getirilecek pasaj',
+    passagesPerTopic: 'Konu başına parça',
+    passagesToRetrieve: 'Getirilecek parça',
     swap: 'Konuların yerini değiştir',
     modEnter: (action: string) => `${action} için Ctrl ya da ⌘ + Enter`,
     errors: {
       topicRequired: 'En azından Konu A’yı girin.',
       topicTooLong: (max: number) => `Konular en fazla ${max} karakter olabilir.`,
       topicsSame: 'Konu B, Konu A’dan farklı olmalı.',
-      topKRange: 'Konu başına pasaj sayısı 1 ile 20 arasında bir tam sayı olmalı.',
+      topKRange: 'Konu başına parça sayısı 1 ile 20 arasında bir tam sayı olmalı.',
       queryRequired: 'Önce bir soru yazın.',
       queryTooLong: (max: number) => `Sorular en fazla ${max} karakter olabilir.`,
-      queryTopKRange: 'Getirilecek pasaj sayısı 1 ile 20 arasında bir tam sayı olmalı.',
+      queryTopKRange: 'Getirilecek parça sayısı 1 ile 20 arasında bir tam sayı olmalı.',
     },
   },
 });

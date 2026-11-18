@@ -100,6 +100,7 @@ function FeaturedCard({ run, level }: { run: FeaturedRun; level: 2 | 3 }) {
       </ul>
       {run.paperIds.length > 0 ? (
         <p className={styles.bridges}>
+          {/* Plain ids here: the card is one link, and each idea's page links every paper. */}
           <span className={styles.bridgesLabel}>{t.bridges}</span> {run.paperIds.join(', ')}
         </p>
       ) : null}

@@ -2,27 +2,27 @@
   "id": "W1",
   "topicA": "web ön yüzleri için ekran görüntüsünden kod üretimi (Design2Code)",
   "topicB": "karşıtsal görüntü-metin ön eğitimi (CLIP)",
-  "hypothesis": "CLIP'in, görsel ve dilsel temsilleri web ölçeğinde hizalamayı öğrenen karşıtsal görüntü-metin gömme (embedding) uzayı, Design2Code değerlendirme metrikleri için güçlü bir görsel benzerlik omurgası olarak hizmet edebilir ve mevcut piksel düzeyindeki ve sınırlayıcı kutu tabanlı metriklerin yerini alabilir ya da onları tamamlayabilir; böylece anlamsal olarak dayanaklı benzerlik puanları sağlar. Böyle bir CLIP tabanlı değerlendirici, üretilen web sayfalarının yalnızca yüzeysel görünümünü değil, referans ekran görüntüsünün amaçlanan görsel anlamını da yakalayıp yakalamadığını değerlendirmek için daha iyi donanımlı olacaktır. Bu bütünleştirme ayrıca, göreve özgü etiketli veri gerektirmeden yeni arayüz bileşeni kategorilerinin sıfır atışlı (zero-shot) değerlendirilmesine olanak tanıyabilir.",
+  "hypothesis": "CLIP’in, görsel ve dilsel temsilleri web ölçeğinde hizalamayı öğrenen karşıtsal görüntü-metin gömme (embedding) uzayı, Design2Code değerlendirme metrikleri için güçlü bir görsel benzerlik omurgası olarak hizmet edebilir ve mevcut piksel düzeyindeki ve sınırlayıcı kutu tabanlı metriklerin yerini alabilir ya da onları tamamlayabilir; böylece anlamsal olarak dayanaklı benzerlik puanları sağlar. Böyle bir CLIP tabanlı değerlendirici, üretilen web sayfalarının yalnızca yüzeysel görünümünü değil, referans ekran görüntüsünün amaçlanan görsel anlamını da yakalayıp yakalamadığını değerlendirmek için daha iyi donanımlı olacaktır. Bu bütünleştirme ayrıca, göreve özgü etiketli veri gerektirmeden yeni arayüz bileşeni kategorilerinin sıfır atışlı (zero-shot) değerlendirilmesine olanak tanıyabilir.",
   "novelClaim": "Böyle bir CLIP tabanlı değerlendirici, üretilen web sayfalarının yalnızca yüzeysel görünümünü değil, referans ekran görüntüsünün amaçlanan görsel anlamını da yakalayıp yakalamadığını değerlendirmek için daha iyi donanımlı olacaktır. Bu bütünleştirme ayrıca, göreve özgü etiketli veri gerektirmeden yeni arayüz bileşeni kategorilerinin sıfır atışlı (zero-shot) değerlendirilmesine olanak tanıyabilir.",
-  "reasoning": "Design2Code'un mevcut otomatik metrikleri sınırlayıcı kutu eşleşmelerine, metin içeriğine, konuma ve renge dayanır (2403.03163, parça 1); bunlar yüzeysel düzeydedir ve anlamsal aslına uygunluğu kaçırabilir. CLIP'in ortak gömme uzayı (clip, parça 5) ve sıfır atışlı (zero-shot) aktarım mekanizması (clip, parça 9), referans ve üretilen web sayfası ekran görüntülerinin CLIP gömmeleri arasındaki kosinüs benzerliğinin anlamsal olarak daha zengin, etiketsiz bir değerlendirme sinyali sağlayabileceğini düşündürmektedir; bu birleşim iki kaynak makalede de önerilmemiştir.",
+  "reasoning": "Design2Code’un mevcut otomatik metrikleri sınırlayıcı kutu eşleşmelerine, metin içeriğine, konuma ve renge dayanır (2403.03163, parça 1); bunlar yüzeysel düzeydedir ve anlamsal aslına uygunluğu kaçırabilir. CLIP’in ortak gömme uzayı (clip, parça 5) ve sıfır atışlı (zero-shot) aktarım mekanizması (clip, parça 9), referans ve üretilen web sayfası ekran görüntülerinin CLIP gömmeleri arasındaki kosinüs benzerliğinin anlamsal olarak daha zengin, etiketsiz bir değerlendirme sinyali sağlayabileceğini düşündürmektedir; bu birleşim iki kaynak makalede de önerilmemiştir.",
   "claims": [
     {
       "sentence": "Böyle bir CLIP tabanlı değerlendirici, üretilen web sayfalarının yalnızca yüzeysel görünümünü değil, referans ekran görüntüsünün amaçlanan görsel anlamını da yakalayıp yakalamadığını değerlendirmek için daha iyi donanımlı olacaktır.",
-      "rationale": "Cümle, CLIP'in web sayfası değerlendirmesine varsayımsal bir uygulamasını üstü kapalı bir dille ('olacaktır') öneriyor; ancak erişilen parçalar web sayfaları için CLIP tabanlı değerlendiricileri ya da bu bağlamda görsel anlam ile yüzeysel görünümün karşılaştırılmasını ele almamaktadır."
+      "rationale": "Cümle, CLIP’in web sayfası değerlendirmesine varsayımsal bir uygulamasını üstü kapalı bir dille ('olacaktır') öneriyor; ancak getirilen parçalar web sayfaları için CLIP tabanlı değerlendiricileri ya da bu bağlamda görsel anlam ile yüzeysel görünümün karşılaştırılmasını ele almamaktadır."
     },
     {
       "sentence": "Bu bütünleştirme ayrıca, göreve özgü etiketli veri gerektirmeden yeni arayüz bileşeni kategorilerinin sıfır atışlı (zero-shot) değerlendirilmesine olanak tanıyabilir.",
-      "rationale": "Cümle spekülatif bir dil ('olanak tanıyabilir') kullanıyor ve potansiyel bir yetenek öneriyor; ancak CLIP'in sıfır atışlı arayüz bileşeni değerlendirmesine bu özgül uygulaması, CLIP tabanlı değerlendirme yöntemlerine değil Design2Code kıyaslamasına odaklanan erişilen parçalarda ele alınmamıştır."
+      "rationale": "Cümle spekülatif bir dil ('olanak tanıyabilir') kullanıyor ve potansiyel bir yetenek öneriyor; ancak CLIP’in sıfır atışlı arayüz bileşeni değerlendirmesine bu özgül uygulaması, CLIP tabanlı değerlendirme yöntemlerine değil Design2Code kıyaslamasına odaklanan getirilen parçalarda ele alınmamıştır."
     }
   ],
   "extrapolationBasis": [
     {
       "claimSentence": "Böyle bir CLIP tabanlı değerlendirici, üretilen web sayfalarının yalnızca yüzeysel görünümünü değil, referans ekran görüntüsünün amaçlanan görsel anlamını da yakalayıp yakalamadığını değerlendirmek için daha iyi donanımlı olacaktır.",
-      "rationale": "CLIP'in karşıtsal amacı, piksel düzeyinde eşleştirmenin ötesine geçen anlamlı görüntü-metin gömmeleri öğrenir; bu da benzer biçimde referans ve üretilen web sayfası ekran görüntüleri arasında daha zengin bir anlamsal karşılaştırma sağlar."
+      "rationale": "CLIP’in karşıtsal amacı, piksel düzeyinde eşleştirmenin ötesine geçen anlamlı görüntü-metin gömmeleri öğrenir; bu da benzer biçimde referans ve üretilen web sayfası ekran görüntüleri arasında daha zengin bir anlamsal karşılaştırma sağlar."
     },
     {
       "claimSentence": "Bu bütünleştirme ayrıca, göreve özgü etiketli veri gerektirmeden yeni arayüz bileşeni kategorilerinin sıfır atışlı (zero-shot) değerlendirilmesine olanak tanıyabilir.",
-      "rationale": "CLIP'in sıfır atışlı aktarım yeteneği, yani göreve özgü eğitim olmadan en olası görüntü-metin çiftini tahmin etmesi, Design2Code'da etiketli örnek olmadan görülmemiş arayüz bileşeni sınıflarının değerlendirilmesine genellenir."
+      "rationale": "CLIP’in sıfır atışlı aktarım yeteneği, yani göreve özgü eğitim olmadan en olası görüntü-metin çiftini tahmin etmesi, Design2Code’da etiketli örnek olmadan görülmemiş arayüz bileşeni sınıflarının değerlendirilmesine genellenir."
     }
   ]
 }

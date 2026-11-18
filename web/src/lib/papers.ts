@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useApi } from '../api/context';
 import type { PaperSummary } from '../api/types';
+import { paperInfo } from './paperCatalog';
 import { getSession, useSessionState } from './sessionStore';
 import { useRequest, type RequestState } from './useRequest';
 
@@ -47,4 +48,13 @@ export function displayTitle(paper: PaperSummary | undefined): string | null {
   if (!paper?.title) return null;
   const title = paper.title.trim();
   return title && title !== paper.paperId ? title : null;
+}
+
+/**
+ * The best title for a paper id: the library list's title when this tab has
+ * loaded one, else the static catalogue's (paperCatalog), else null.
+ */
+export function paperTitleFor(paperId: string, papers?: Map<string, PaperSummary>): string | null {
+  const known = paperInfo(paperId).title?.trim();
+  return displayTitle(papers?.get(paperId)) ?? (known && known !== paperId ? known : null);
 }

@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
 import { isAbortError } from '../api/errors';
 import type { IngestResult } from '../api/types';
-import { CopyText } from '../components/CopyText';
+import { RequestId } from '../components/TechDetails';
 import { Icon } from '../components/Icon';
 import { ErrorNotice } from '../components/States';
 import { useLang, useT } from '../i18n/lang';
@@ -118,7 +118,7 @@ export function ArxivPanel({ existing, onIngested }: { existing: (id: string) =>
               {state.result.title && state.result.title !== state.result.paperId ? <>: {state.result.title}</> : null}
               {t.asChunks(formatCount(state.result.chunkCount, lang))}
             </p>
-            <CopyText value={state.result.correlationId} label={t.correlationId} />
+            <RequestId value={state.result.correlationId} />
           </div>
         </div>
       ) : null}

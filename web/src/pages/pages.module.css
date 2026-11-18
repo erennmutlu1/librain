@@ -375,3 +375,31 @@
 .queryBar:focus-within {
   z-index: 2;
 }
+
+/* ---------- Recorded and Live notes in the submit row ---------- */
+
+/* The price of a Live run, stated before it starts. */
+.cost {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* Recorded mode: the inputs match no recording. Quiet, but a step darker than the usual tip. */
+.kbd[data-unmatched] {
+  color: var(--ink-2);
+}
+
+/* Ask, Live mode: the cost line sits close under the submit row (the form's gap is wider). */
+.liveNote {
+  margin-top: calc(-1 * var(--s2));
+  max-width: none;
+}
+
+.unmatchedHint {
+  color: var(--ink-2);
+}
+
+/* Empty but kept in the page, so screen readers announce the hint when it appears; this cancels the field's gap. */
+.unmatchedHint:empty {
+  margin-top: calc(-1 * var(--s1));
+}

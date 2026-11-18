@@ -1,6 +1,8 @@
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { MockMatch, MockScenario } from '../api/types';
 import { useT } from '../i18n/lang';
 import { Icon } from './Icon';
+import { TechDetails } from './TechDetails';
 import { text } from './FormBits.i18n';
 import styles from './FormBits.module.css';
 
@@ -82,10 +84,46 @@ export function MockProvenance({ match }: { match: MockMatch | undefined }) {
             <strong>{t.noMatch}</strong> {t.showingInstead(match.label)}
           </p>
         )}
-        <p>
-          {t.recordedOutput} <code className="mono">{match.source}</code>
-        </p>
         {match.note ? <p className="muted">{match.note}</p> : null}
+        {/* Where the recording lives in the repository: useful, but not what a visitor reads first. */}
+        <TechDetails>
+          <p>
+            {t.recordedOutput} <code className="mono">{match.source}</code>
+          </p>
+        </TechDetails>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A message that belongs right under a form's submit row, such as "no
+ * recording matches these topics" in Recorded mode. It takes focus when it
+ * appears and again each time `focusKey` changes (a repeated submit), so it
+ * is never left off-screen below a long list.
+ */
+export function InlineFormNotice({
+  title,
+  children,
+  actions,
+  focusKey,
+}: {
+  title: string;
+  children?: ReactNode;
+  actions?: ReactNode;
+  focusKey: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.focus();
+  }, [focusKey]);
+  return (
+    <div ref={ref} tabIndex={-1} className={`notice notice-info ${styles.inlineNotice}`} role="status">
+      <Icon name="info" />
+      <div>
+        <strong>{title}</strong>
+        {children ? <p>{children}</p> : null}
+        {actions ? <div className="cluster">{actions}</div> : null}
       </div>
     </div>
   );

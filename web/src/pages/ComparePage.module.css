@@ -1,0 +1,15 @@
+/* The Recorded-mode "no recording" notice, right under the Compare button; it takes focus. */
+.inlineNotice {
+  min-width: 0;
+  margin-top: var(--s3);
+  border-radius: var(--r-md);
+}
+
+.inlineNotice:focus {
+  outline: none;
+}
+
+.inlineNotice:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

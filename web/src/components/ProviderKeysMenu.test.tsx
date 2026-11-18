@@ -72,9 +72,33 @@ describe('ProviderKeysMenu fields', () => {
         <ProviderKeysMenu />
       </LangProvider>,
     );
-    await user.click(screen.getByRole('button', { name: 'API anahtarlarınız' }));
-    const field = screen.getByLabelText('Anthropic API anahtarı');
-    expect(field).toHaveAccessibleDescription('Anthropic anahtarları genellikle sk-ant- ile başlar.');
-    expect(screen.getByRole('link', { name: /console.anthropic.com adresinden anahtar alın/ })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'API key’ler' }));
+    const panel = screen.getByRole('dialog', { name: 'API key’ler' });
+    const field = within(panel).getByLabelText('Anthropic API key');
+    expect(field).toHaveAccessibleDescription('Anthropic API key’leri genellikle sk-ant- ile başlar.');
+    expect(within(panel).getByLabelText('OpenAI API key')).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: /console.anthropic.com adresinden API key alın/ })).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: 'API key’leri kaydet' })).toBeInTheDocument();
+    expect(
+      within(panel).getByText(
+        'Yeni fikir başına yaklaşık 0,07 ABD doları; ücret Anthropic ve OpenAI hesaplarınıza yansır. Sor daha ucuzdur; Karşılaştır üç sistemi çalıştırır ve daha pahalıdır.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(panel).getByText(/^Hazır mod API key gerektirmez\./)).toBeInTheDocument();
+    // Owner's terminology: "API key", never "anahtar".
+    expect(panel.textContent).not.toMatch(/anahtar/i);
+  });
+});
+
+describe('ProviderKeysMenu cost', () => {
+  it('states the cost first, right under the title and before any key field', async () => {
+    const { panel } = await openPanel();
+    const cost = within(panel).getByText(
+      'About US$0.07 per new idea, billed to your Anthropic and OpenAI accounts. Ask costs less; Compare runs three systems and costs more.',
+    );
+    const heading = within(panel).getByRole('heading', { name: 'Your API keys' });
+    expect(heading.nextElementSibling).toBe(cost);
+    const firstField = within(panel).getByLabelText('Anthropic API key');
+    expect(cost.compareDocumentPosition(firstField) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

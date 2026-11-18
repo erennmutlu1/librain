@@ -1,17 +1,18 @@
 import { useId, type ReactNode } from 'react';
 import type { DiscoveryEvaluation } from '../api/types';
-import { useLang, useT } from '../i18n/lang';
+import { locale, useLang, useT, type Lang } from '../i18n/lang';
 import { auditClaimedCitations } from '../lib/citations';
-import type { CompareStates, SystemState } from '../lib/compare';
+import { compareTakeaway, type CompareStates, type ScoreKey, type SystemState } from '../lib/compare';
 import { formatScore } from '../lib/format';
 import { usePaperIndex } from '../lib/papers';
 import { discoveryAxes } from '../lib/scoreItems';
 import { SYSTEMS, systemMeta, type SystemKey } from '../lib/vocabulary';
 import { AnnotatedClaim } from './AnnotatedClaim';
 import { NaiveCitations, RunStats } from './BaselineParts';
-import { CopyText } from './CopyText';
 import { FencedHypothesis } from './FencedHypothesis';
+import { InfoTip } from './InfoTip';
 import { ErrorNotice, SkeletonLines } from './States';
+import { RequestId } from './TechDetails';
 import { text } from './CompareView.i18n';
 import styles from './CompareView.module.css';
 
@@ -117,7 +118,7 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
         <thead>
           <tr>
             <th scope="col" className={styles.axisHead}>
-              <span className="visually-hidden">{t.axis}</span>
+              <span className={styles.scale}>{t.axis}</span>
             </th>
             {systems.map((key) => (
               <th key={key} scope="col" className={styles.sysHead}>
@@ -137,7 +138,7 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
             return (
               <tr key={axis.key}>
                 <th scope="row" className={styles.axis}>
-                  {axis.label}
+                  {axis.label} <InfoTip k={axis.info} label={axis.label} />
                   <span className={styles.axisHint}>{axis.hint}</span>
                 </th>
                 {systems.map((key, i) => (
@@ -148,7 +149,7 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
           })}
           <tr>
             <th scope="row" className={styles.axis}>
-              {t.risk}
+              {t.risk} <InfoTip k="risk" label={t.risk} />
               <span className={styles.axisHint}>{t.riskHint}</span>
             </th>
             <td className={styles.cell}>
@@ -163,12 +164,21 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
                 <span className="muted">—</span>
               )}
             </td>
-            <td className={`${styles.cell} muted`}>{t.notMeasured}</td>
-            <td className={`${styles.cell} muted`}>{t.notMeasured}</td>
+            {(['naiveRag', 'singleLlm'] as const).map((key) => (
+              <td key={key} className={`${styles.cell} ${styles.textCell} muted`}>
+                {states[key].status === 'loading' ? (
+                  <span className={styles.cellSkeleton} aria-hidden="true" />
+                ) : (
+                  <>
+                    {t.notMeasured} <InfoTip k="notMeasured" label={t.notMeasured} />
+                  </>
+                )}
+              </td>
+            ))}
           </tr>
           <tr>
             <th scope="row" className={styles.axis}>
-              {t.citations}
+              {t.citations} <InfoTip k="fabricated" />
             </th>
             {systems.map((key) => (
               <td key={key} className={`${styles.cell} ${styles.textCell}`}>
@@ -183,7 +193,6 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
 }
 
 function Column({ system, state, children }: { system: SystemKey; state: SystemState<{ correlationId: string }>; children: ReactNode }) {
-  const t = useT(text);
   const { lang } = useLang();
   const uid = useId();
   return (
@@ -197,9 +206,63 @@ function Column({ system, state, children }: { system: SystemKey; state: SystemS
       {state.status === 'success' ? (
         <>
           {children}
-          <CopyText value={state.data.correlationId} label={t.correlationId} />
+          <RequestId value={state.data.correlationId} />
         </>
       ) : null}
+    </section>
+  );
+}
+
+/** "a, b and c" in the interface language. */
+function list(items: string[], lang: Lang): string {
+  return new Intl.ListFormat(locale(lang), { style: 'long', type: 'conjunction' }).format(items);
+}
+
+/**
+ * "What this pair shows": two or three plain lines computed from the three
+ * results (which system leads which score, what happened to citations, and
+ * whose claim risk was measured). Nothing in it is written in advance.
+ */
+export function CompareTakeaway(states: Props) {
+  const t = useT(text);
+  const { lang } = useLang();
+  const uid = useId();
+  const facts = compareTakeaway(states);
+  if (!facts) return null;
+  const axes = discoveryAxes(lang);
+  const scoreName = (key: ScoreKey) => (axes.find((a) => a.key === key)?.label ?? key).toLocaleLowerCase(locale(lang));
+  const names = (keys: ScoreKey[]) => list(keys.map(scoreName), lang);
+
+  const lines: string[] = [];
+  if (facts.leads.length > 0) {
+    lines.push(t.leads(facts.leads.map((l) => ({ name: systemMeta(l.system, lang).name, scores: names(l.scores) }))) + (facts.ties.length > 0 ? ` ${t.ties(names(facts.ties))}` : ''));
+  } else if (facts.ties.length > 0) {
+    lines.push(t.allTied(names(facts.ties)));
+  }
+  const citations = [
+    facts.naiveCitations ? t.naiveCitations(facts.naiveCitations.fabricated, facts.naiveCitations.total) : null,
+    facts.librainCitations ? t.librainCitations(facts.librainCitations.dropped) : null,
+  ].filter((x): x is string => x !== null);
+  if (citations.length > 0) lines.push(citations.join(' '));
+  if (facts.librainRisk) {
+    lines.push(
+      facts.librainRisk.failed
+        ? t.riskFailed
+        : t.riskOnlyLibrain(formatScore(facts.librainRisk.value, 2, lang), facts.baselinesShown),
+    );
+  }
+  if (lines.length === 0) return null;
+
+  return (
+    <section className={styles.takeaway} aria-labelledby={`${uid}-h`}>
+      <h2 id={`${uid}-h`} className={styles.takeawayTitle}>
+        {t.takeawayTitle}
+      </h2>
+      <ul className={styles.takeawayList}>
+        {lines.map((line, i) => (
+          <li key={i}>{line}</li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -209,6 +272,7 @@ export function CompareView({ librain, naiveRag, singleLlm }: Props) {
   const papers = usePaperIndex();
   return (
     <div className={styles.root}>
+      <CompareTakeaway librain={librain} naiveRag={naiveRag} singleLlm={singleLlm} />
       <ScoreTable librain={librain} naiveRag={naiveRag} singleLlm={singleLlm} />
 
       <div className={styles.columns}>

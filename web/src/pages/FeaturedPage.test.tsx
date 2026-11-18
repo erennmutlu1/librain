@@ -56,7 +56,7 @@ function setup(path: string, api: LibrainApi = createMockApi({ latency: 0 })) {
 }
 
 async function gallery() {
-  const region = await screen.findByRole('region', { name: 'Featured discoveries' });
+  const region = await screen.findByRole('region', { name: 'Featured ideas' });
   await within(region).findAllByRole('link');
   return region;
 }
@@ -73,7 +73,7 @@ describe('Featured discoveries', () => {
     expect(within(region).getAllByRole('link').map((a) => a.textContent?.replace(/\s+/g, ' ').trim())).toEqual(expectedTitles);
     expect(within(region).getAllByRole('heading', { level: 3 })).toHaveLength(6);
     expect(region).toHaveTextContent(
-      'Candidate hypotheses: the highlighted novel claim is the part the retrieved papers do not support, checked sentence by sentence. Novelty is measured against this 41-paper corpus.',
+      'Candidate hypotheses: the highlighted novel claim is the part the retrieved papers do not support, checked sentence by sentence. Novelty is measured against this library of 41 papers.',
     );
     expect(within(region).getByRole('list', { name: 'Sentence status legend' })).toBeInTheDocument();
   });
@@ -84,7 +84,7 @@ describe('Featured discoveries', () => {
 
     const d1 = card(region, 'D1');
     expect(within(d1).getByText(rawManifest.featured.find((f) => f.id === 'D1')!.takeaway)).toBeInTheDocument();
-    const chips = within(d1).getByRole('list', { name: 'Scores' });
+    const chips = within(d1).getByRole('list', { name: 'Scores (0–1)' });
     expect(within(chips).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
       'Quality 0.58',
       'Novelty 0.33',
@@ -127,7 +127,7 @@ describe('Featured discoveries', () => {
     await user.click(within(region).getByRole('link', { name: titleOf('D7') }));
     expect(await screen.findByText('Recorded run, not generated now.')).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: 'Back to featured' }));
-    await screen.findByRole('heading', { level: 1, name: 'Featured discoveries' });
+    await screen.findByRole('heading', { level: 1, name: 'Featured ideas' });
     expect(calls).toEqual([]);
   });
 
@@ -145,20 +145,20 @@ describe('Featured discoveries', () => {
   it('serves a featured run at /discover/featured/:id and the gallery at /discover/featured', async () => {
     const { user } = setup('/discover/featured/N3');
     expect(await screen.findByRole('heading', { level: 2, name: titleOf('N3') })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: `Featured discovery: ${titleOf('N3')}` })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: `Featured idea: ${titleOf('N3')}` })).toBeInTheDocument();
 
     await user.click(screen.getByRole('link', { name: 'Back to featured' }));
-    const region = await screen.findByRole('region', { name: 'Featured discoveries' });
-    expect(within(region).getByRole('heading', { level: 1, name: 'Featured discoveries' })).toBeInTheDocument();
+    const region = await screen.findByRole('region', { name: 'Featured ideas' });
+    expect(within(region).getByRole('heading', { level: 1, name: 'Featured ideas' })).toBeInTheDocument();
     expect(await within(region).findAllByRole('heading', { level: 2 })).toHaveLength(6);
   });
 
   it('shows a friendly not-found for an unknown id', async () => {
     const { user } = setup('/discover/featured/ZZ9');
-    expect(await screen.findByText('There is no featured discovery called “ZZ9”')).toBeInTheDocument();
+    expect(await screen.findByText('There is no featured idea called “ZZ9”')).toBeInTheDocument();
     expect(screen.getByText(/The featured runs are D7, C1, N3, A2, D5, D1\./)).toBeInTheDocument();
-    await user.click(screen.getByRole('link', { name: 'See the featured discoveries' }));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Featured discoveries' })).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'See the featured ideas' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Featured ideas' })).toBeInTheDocument();
   });
 
   it('keeps the gallery under a failed discovery, so recorded runs stay one click away', async () => {

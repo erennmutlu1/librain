@@ -19,13 +19,13 @@ function setup(path: string) {
 describe('Featured discoveries in Turkish', () => {
   it('shows the gallery with Turkish text and translated runs', async () => {
     setup('/discover/featured');
-    const title = await screen.findByRole('heading', { level: 1, name: 'Öne çıkan keşifler' });
+    const title = await screen.findByRole('heading', { level: 1, name: 'Öne çıkan fikirler' });
     const region = title.closest('section')!;
     const links = await within(region).findAllByRole('link');
     expect(links).toHaveLength(6);
     expect(await within(region).findByText(`${trD1.topicA}`, { exact: false })).toBeInTheDocument();
     expect(region).toHaveTextContent('Aday hipotezler:');
-    expect(within(region).getAllByRole('list', { name: 'Puanlar' })).toHaveLength(6);
+    expect(within(region).getAllByRole('list', { name: 'Puanlar (0–1)' })).toHaveLength(6);
   });
 
   it('opens one run with the Turkish banner', async () => {

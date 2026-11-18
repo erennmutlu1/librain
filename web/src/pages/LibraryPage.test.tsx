@@ -1,9 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { App } from '../App';
 import { createMockApi } from '../api/mockClient';
 import { createLocalRunStore } from '../history/localRunStore';
 import { LangProvider } from '../i18n/lang';
+import { createPublicHistory, createPublicRunStore } from '../public/browserHistory';
+import { createLiveClient, loadRecordedClient } from '../public/clients';
+import { PublicApp } from '../public/PublicApp';
 
 /*
  * The Library screen's accessibility details: empty cells say nothing to a
@@ -40,7 +43,7 @@ describe('Library table', () => {
 describe('Library loading', () => {
   it('announces loading in a status region, then clears it', async () => {
     setup({ latency: 1 });
-    await screen.findByRole('heading', { level: 1, name: 'Library' });
+    await screen.findByRole('heading', { level: 1, name: 'Papers' });
     const status = screen.getAllByRole('status').find((el) => el.textContent === 'Loading papers…');
     expect(status).toBeDefined();
     expect(status).toHaveClass('visually-hidden');
@@ -50,7 +53,77 @@ describe('Library loading', () => {
 
   it('announces it in Turkish', async () => {
     setup({ lang: 'tr', latency: 1 });
-    await screen.findByRole('heading', { level: 1, name: 'Kütüphane' });
+    await screen.findByRole('heading', { level: 1, name: 'Makaleler' });
     expect(screen.getAllByRole('status').some((el) => el.textContent === 'Makaleler yükleniyor…')).toBe(true);
+  });
+});
+
+/** The public build in Recorded mode: the Papers page lists the ids the recorded runs cite. */
+async function setupRecorded(path: string, lang?: 'tr') {
+  const history = createPublicHistory({ getStorage: () => window.localStorage });
+  const fetchImpl = vi.fn(() => Promise.reject(new Error('no network in Recorded mode')));
+  const clients = {
+    recorded: await loadRecordedClient(history, 0),
+    live: createLiveClient(history, { baseUrl: 'https://api.librain.test', fetchImpl }),
+    runStore: createPublicRunStore(history),
+  };
+  const app = <PublicApp clients={clients} initialPath={path} />;
+  render(lang ? <LangProvider initial={lang}>{app}</LangProvider> : app);
+  return { fetchImpl };
+}
+
+describe('Papers in Recorded mode (public build)', () => {
+  it('shows titles, authors, years and arXiv links from the catalogue, not bare ids', async () => {
+    const { fetchImpl } = await setupRecorded('/library');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Papers' })).toBeInTheDocument();
+    const table = await screen.findByRole('table', { name: /^Papers in the library/ });
+    const selfRag = within(table).getByRole('rowheader', { name: /self-rag/ });
+    expect(selfRag).toHaveTextContent('Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection');
+    const row = selfRag.closest('tr')!;
+    expect(within(row).getByRole('link', { name: 'self-rag on arXiv (opens in a new tab)' })).toHaveAttribute('href', 'https://arxiv.org/abs/2310.11511');
+    expect(row).toHaveTextContent('Akari Asai');
+    expect(row).toHaveTextContent('2023');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('explains the counts in one sentence', async () => {
+    await setupRecorded('/library');
+    await screen.findByRole('table', { name: /^Papers in the library/ });
+    expect(
+      screen.getByText(
+        'Today’s library has 55 papers; the recorded runs cite 54 paper IDs: 48 from today’s library and 6 from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('54 papers')).toBeInTheDocument();
+  });
+
+  it('prefills the search from ?q= (the link other screens use for a paper)', async () => {
+    await setupRecorded('/library?q=04-graphcast');
+    const table = await screen.findByRole('table', { name: /^Papers in the library/ });
+    expect(screen.getByRole('searchbox', { name: 'Search papers by ID, title or author' })).toHaveValue('04-graphcast');
+    const rows = within(table).getAllByRole('rowheader');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveTextContent('GraphCast: Learning skillful medium-range global weather forecasting');
+    // Not in today's library: tagged, and still linked to arXiv.
+    expect(within(rows[0]!).getByText('earlier library')).toBeInTheDocument();
+    expect(within(table).getByRole('link', { name: '04-graphcast on arXiv (opens in a new tab)' })).toHaveAttribute(
+      'href',
+      'https://arxiv.org/abs/2212.12794',
+    );
+    expect(screen.getByText('1 of 54 papers')).toBeInTheDocument();
+  });
+
+  it('says it in Turkish', async () => {
+    await setupRecorded('/library?q=gat', 'tr');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Makaleler' })).toBeInTheDocument();
+    await screen.findByRole('table', { name: /^Kütüphanedeki makaleler/ });
+    expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toHaveValue('gat');
+    expect(
+      screen.getByText(
+        'Bugünkü makale kütüphanesinde 55 makale var; hazır çalıştırmalar 54 makale kimliğine atıf yapıyor: bugünkü kütüphaneden 48 makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) 6 kimlik.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Herkese açık makale kütüphanesi salt okunurdur: 55 makale, 2.210 parça.')).toBeInTheDocument();
+    expect(screen.getByText(/^Hazır mod, hazır çalıştırmaların atıf yaptığı/)).toBeInTheDocument();
   });
 });

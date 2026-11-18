@@ -1,4 +1,4 @@
-/* Supporting evidence: chunk key (mono, the citation itself), support type, paper, where, then the passage. */
+/* Supporting evidence: the citation (linked to its paper), support type, paper title, where, then the passage. */
 
 .list {
   display: grid;
@@ -23,16 +23,6 @@
   margin-bottom: var(--s1);
 }
 
-.key {
-  padding: 0.1em 0.45em;
-  border-radius: var(--r-sm);
-  background: var(--bg-deep, var(--surface-sunken));
-  border: 1px solid var(--rule);
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  overflow-wrap: anywhere;
-}
 
 .top :global(.tag) {
   text-transform: none;

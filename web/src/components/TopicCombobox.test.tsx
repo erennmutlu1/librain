@@ -64,7 +64,7 @@ describe('TopicCombobox', () => {
     const list = screen.getByRole('listbox', { name: 'Suggestions for Topic A' });
     expect(within(list).getByRole('group', { name: 'Your recent topics' })).toBeInTheDocument();
     expect(within(list).getByRole('group', { name: 'Recorded topics' })).toBeInTheDocument();
-    expect(within(list).getByRole('group', { name: 'Papers in the corpus' })).toBeInTheDocument();
+    expect(within(list).getByRole('group', { name: 'Papers in the library' })).toBeInTheDocument();
 
     // ↓ highlights the first option; focus stays in the field.
     const options = within(list).getAllByRole('option');
@@ -208,7 +208,7 @@ describe('TopicCombobox', () => {
     await user.click(input);
     expect(screen.getByRole('listbox', { name: 'Konu B için öneriler' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Son konularınız' })).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Derlemdeki makaleler' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Kütüphanedeki makaleler' })).toBeInTheDocument();
   });
 });
 

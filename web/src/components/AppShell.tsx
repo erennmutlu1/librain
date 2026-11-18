@@ -1,5 +1,5 @@
-import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router';
+import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { useApi } from '../api/context';
 import type { LibrainApi } from '../api/types';
 import { LanguageSwitch } from '../i18n/LanguageSwitch';
@@ -18,11 +18,11 @@ import styles from './AppShell.module.css';
 const CommandPalette = lazy(() => import('./CommandPalette').then((m) => ({ default: m.CommandPalette })));
 
 const NAV = [
-  { to: '/library', key: 'library' },
-  { to: '/ask', key: 'ask' },
-  { to: '/discover', key: 'discover' },
   { to: '/explore', key: 'explore' },
+  { to: '/discover', key: 'discover' },
+  { to: '/ask', key: 'ask' },
   { to: '/compare', key: 'compare' },
+  { to: '/library', key: 'library' },
   { to: '/history', key: 'history' },
 ] as const;
 
@@ -43,6 +43,161 @@ function ThemeToggle() {
     <button type="button" className={styles.iconButton} onClick={() => cycleTheme()} aria-label={t.themeButton[theme]} title={t.theme[theme]}>
       <Icon name={theme === 'light' ? 'sun' : theme === 'dark' ? 'moon' : 'auto'} />
     </button>
+  );
+}
+
+/**
+ * Phones only (the stylesheet hides it elsewhere): language and theme behind
+ * one button, so the header keeps to two rows. A disclosure, not a modal:
+ * Tab walks into it, Escape or a tap outside closes it.
+ */
+function MoreMenu() {
+  const t = useT(text);
+  const theme = useTheme();
+  const uid = useId();
+  const [open, setOpen] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        button.current?.focus();
+      }
+    };
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!panel.current?.contains(target) && !button.current?.contains(target)) setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+    };
+  }, [open]);
+
+  return (
+    <div className={styles.more}>
+      <button
+        ref={button}
+        type="button"
+        className={styles.iconButton}
+        aria-expanded={open}
+        aria-controls={`${uid}-panel`}
+        aria-label={t.more.button}
+        title={t.more.button}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <Icon name="more" />
+      </button>
+      {open ? (
+        <div ref={panel} id={`${uid}-panel`} className={styles.morePanel} role="group" aria-label={t.more.button}>
+          <div className={styles.moreRow}>
+            <span className={styles.moreLabel} aria-hidden="true">
+              {t.more.language}
+            </span>
+            <LanguageSwitch />
+          </div>
+          <div className={styles.moreRow}>
+            <span className={styles.moreLabel} aria-hidden="true">
+              {t.more.theme}
+            </span>
+            <button type="button" className="btn btn-sm" onClick={() => cycleTheme()}>
+              <Icon name={theme === 'light' ? 'moon' : 'sun'} />
+              {t.themeAction[theme]}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Which ends of a horizontal scroller have more to show. */
+function useScrollEdges(ref: RefObject<HTMLElement | null>) {
+  const [edges, setEdges] = useState({ start: false, end: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      const start = max > 1 && el.scrollLeft > 1;
+      const end = max > 1 && el.scrollLeft < max - 1;
+      setEdges((e) => (e.start === start && e.end === end ? e : { start, end }));
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    // The items too: a language switch changes their widths but not the row's.
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(el);
+    for (const child of el.children) observer?.observe(child);
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      observer?.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [ref]);
+
+  return edges;
+}
+
+/**
+ * The six sections. Where they do not fit (phones, long Turkish names) the
+ * row scrolls sideways; a solid edge with a chevron, not a fade, says there is
+ * more, and the current section is scrolled into view.
+ */
+function SectionNav() {
+  const t = useT(text);
+  const { pathname } = useLocation();
+  const list = useRef<HTMLUListElement>(null);
+  const edges = useScrollEdges(list);
+
+  useEffect(() => {
+    const ul = list.current;
+    const current = ul?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!ul || !current || ul.scrollWidth <= ul.clientWidth) return;
+    const room = 32;
+    const start = current.offsetLeft;
+    const end = start + current.offsetWidth;
+    if (start < ul.scrollLeft + room) ul.scrollLeft = Math.max(0, start - room);
+    else if (end > ul.scrollLeft + ul.clientWidth - room) ul.scrollLeft = end - ul.clientWidth + room;
+  }, [pathname]);
+
+  const scrollBy = (direction: 1 | -1) => {
+    const ul = list.current;
+    if (!ul) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    ul.scrollBy?.({ left: direction * ul.clientWidth * 0.6, behavior: reduce ? 'auto' : 'smooth' });
+  };
+
+  return (
+    <nav className={styles.nav} aria-label={t.sections}>
+      <ul ref={list} role="list">
+        {NAV.map((item) => (
+          <li key={item.to}>
+            <NavLink to={item.to} className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}>
+              {t.nav[item.key]}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+      {/* Pointer-only helpers: Tab already scrolls each link into view, so they stay out of the tab order and the tree. */}
+      {edges.start ? (
+        <button type="button" className={styles.edge} data-side="start" tabIndex={-1} aria-hidden="true" onClick={() => scrollBy(-1)}>
+          <Icon name="back" size={14} />
+        </button>
+      ) : null}
+      {edges.end ? (
+        <button type="button" className={styles.edge} data-side="end" tabIndex={-1} aria-hidden="true" onClick={() => scrollBy(1)}>
+          <Icon name="back" size={14} />
+        </button>
+      ) : null}
+    </nav>
   );
 }
 
@@ -243,26 +398,19 @@ export function AppShell() {
       </a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <NavLink to="/discover" className={styles.home} aria-label={t.home}>
+          <Link to="/" className={styles.home} aria-label={t.home}>
             <LibrainLogo variant="wordmark" height={28} decorative />
-          </NavLink>
-          <nav className={styles.nav} aria-label={t.sections}>
-            <ul role="list">
-              {NAV.map((item) => (
-                <li key={item.to}>
-                  <NavLink to={item.to} className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}>
-                    {t.nav[item.key]}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          </Link>
+          <SectionNav />
           <PaletteButton onOpen={palette.show} />
           <div className={styles.tools}>
             {demo ? <ModeSwitch /> : <ApiStatus />}
             {demo ? <ProviderKeysMenu /> : <SettingsMenu />}
-            <LanguageSwitch />
-            <ThemeToggle />
+            <div className={styles.inlineTools}>
+              <LanguageSwitch />
+              <ThemeToggle />
+            </div>
+            <MoreMenu />
           </div>
         </div>
       </header>

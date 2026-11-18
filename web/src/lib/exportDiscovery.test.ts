@@ -62,14 +62,14 @@ describe('discoveryToMarkdown', () => {
     expect(md).toContain('- Run: `F4` (recorded run, 2026-11-18)');
     expect(md).toContain('- Source: `experiments/new-areas-discoveries/runs/F4.json`');
     expect(md).toContain('- Link: <https://librain.example/explore/F4>');
-    expect(md).toContain('- Model: Anthropic, top 5 passages per topic');
+    expect(md).toContain('- Model: Anthropic, 5 passages per topic');
   });
 
   it('has the hypothesis, and the novel claim with each sentence’s verdict', () => {
     expect(md).toContain('## Hypothesis\n\nCorner-kick routines can be planned with a learned simulator of player motion.');
     expect(md).toContain('## Novel claim, sentence by sentence');
     expect(md).toContain('1. **Extrapolated** (hallucination probability 18%): A graph network trained on tracking data predicts the ball’s path.');
-    expect(md).toContain('   - Validator: Plausible transfer, not shown for football.');
+    expect(md).toContain('   - Validator model: Plausible transfer, not shown for football.');
     expect(md).toContain('   - Sources: `gns:3`');
     expect(md).toContain('2. **Risky** (hallucination probability 81%): Teams that use it score 40% more.');
     expect(md).toContain('Claim risk: 0.81');
@@ -105,11 +105,13 @@ describe('discoveryToMarkdown', () => {
     const tr = discoveryToMarkdown({ ...recorded, translated: true }, 'tr');
     expect(tr).toContain('- Konu A: corner kicks');
     expect(tr).toContain('## Hipotez');
-    expect(tr).toContain('## Özgün iddia, cümle cümle');
-    expect(tr).toContain('1. **Çıkarımsal** (halüsinasyon olasılığı %18)');
+    expect(tr).toContain('## Yeni iddia, cümle cümle');
+    expect(tr).toContain('1. **Varsayımsal** (uydurma olasılığı %18)');
     expect(tr).toContain('| İddia riski | 0,81 |');
-    expect(tr).toContain('## Kanıt (2 pasaj)');
-    expect(tr).toContain('_İngilizceden çevrildi. Makale pasajları özgün dilinde alıntılanmıştır._');
+    expect(tr).toContain('## Kanıt (2 parça)');
+    expect(tr).toContain('- Model: Anthropic, konu başına 5 parça');
+    expect(tr).not.toMatch(/pasaj|özgün iddia|halüsinasyon|Korelasyon/i);
+    expect(tr).toContain('_İngilizceden çevrildi. Makale parçaları İngilizce asıllarıyla verilmiştir._');
   });
 });
 

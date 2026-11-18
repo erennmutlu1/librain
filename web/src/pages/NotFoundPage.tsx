@@ -15,11 +15,18 @@ export function NotFoundPage() {
         <EmptyState
           title={t.empty}
           action={
-            <Link to="/discover" className="btn btn-primary">
-              {t.go}
-            </Link>
+            <>
+              <Link to="/" className="btn btn-primary">
+                {t.home}
+              </Link>
+              <Link to="/explore" className="btn">
+                {t.ideas}
+              </Link>
+            </>
           }
-        />
+        >
+          <p>{t.body}</p>
+        </EmptyState>
       </div>
     </div>
   );

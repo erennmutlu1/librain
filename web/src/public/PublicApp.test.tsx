@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ANTHROPIC_KEY_HEADER, OPENAI_KEY_HEADER, clearProviderKeys, setProviderKeys } from '../api/providerKeys';
+import { text as askText } from '../pages/AskPage.i18n';
+import { text as discoverText } from '../pages/DiscoverPage.i18n';
 import { PUBLIC_CORPUS_NOTE } from '../pages/LibraryPage';
 import { contract } from '../mocks/scenarios';
 import { createPublicHistory, createPublicRunStore } from './browserHistory';
@@ -109,7 +111,8 @@ describe('public build: Recorded mode', () => {
     await user.type(screen.getByRole('combobox', { name: /Topic B/ }), 'protein folding');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
 
-    const notice = await screen.findByText('This is the recorded demo, and no recorded run matches these inputs.');
+    // The notice's wording belongs to the Discover page; what matters is that it says so and offers Live.
+    const notice = await screen.findByText(discoverText.en.noRecordingTitle);
     expect(notice.closest('[role="status"]')).not.toBeNull();
     expect(screen.getByRole('button', { name: 'Switch to Live' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
@@ -129,7 +132,7 @@ describe('public build: Recorded mode', () => {
 
   it('offers only the two real Compare pairs', async () => {
     const { user } = await setup({ path: '/compare' });
-    const list = (await screen.findByText(/Recorded runs/)).closest('details')!;
+    const list = (await screen.findByText(/^Recorded runs/, { selector: 'summary' })).closest('details')!;
     expect(within(list).getAllByRole('button').map((b) => b.textContent)).toEqual([
       'Drug discovery × climate adaptation',
       'Large language models × drug-target interaction prediction',
@@ -140,9 +143,7 @@ describe('public build: Recorded mode', () => {
 
   it('explains that Ask has no recorded runs and points to Live', async () => {
     await setup({ path: '/ask' });
-    expect(await screen.findByText('Ask has no recorded runs.')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Question' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Ask' })).toBeDisabled();
+    expect(await screen.findByText(askText.en.noRecordingsTitle)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Why does GraphCast forecast well?' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Switch to Live' })).toBeInTheDocument();
   });
@@ -154,7 +155,7 @@ describe('public build: keys and the mode switch', () => {
     await user.click(modeButton('Live'));
 
     const panel = await screen.findByRole('dialog', { name: 'Your API keys' });
-    expect(within(panel).getByRole('alert')).toHaveTextContent('Live mode runs on your own Anthropic and OpenAI keys');
+    expect(within(panel).getByRole('alert')).toHaveTextContent('Live mode runs on your own Anthropic and OpenAI API keys');
     expect(modeButton('Recorded')).toHaveAttribute('aria-pressed', 'true');
     expect(within(panel).getByText(/Your keys are sent only with your own requests to the LIBRAIN API/)).toBeInTheDocument();
     expect(within(panel).getByRole('link', { name: /github.com\/erennmutlu1\/librain/ })).toHaveAttribute('href', 'https://github.com/erennmutlu1/librain');
@@ -273,7 +274,7 @@ describe('public build: Library and History', () => {
     const { user, calls } = await setup({ path: '/library' });
     expect(await screen.findByRole('table')).toBeInTheDocument();
     expect(screen.getByText(PUBLIC_CORPUS_NOTE)).toBeInTheDocument();
-    expect(PUBLIC_CORPUS_NOTE).toBe('The public corpus is read-only: 55 papers, 2,210 chunks.');
+    expect(PUBLIC_CORPUS_NOTE).toMatch(/read-only: 55 papers, 2,210 passages\.$/);
     expect(screen.queryByRole('textbox', { name: 'arXiv id or link' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Ingest' })).not.toBeInTheDocument();
     expect(screen.queryByText(/Choose a PDF|Drop a PDF/i)).not.toBeInTheDocument();

@@ -50,3 +50,15 @@
     min-height: 2.75rem;
   }
 }
+
+/* The price of Live mode, first in the panel: visible without scrolling. */
+.cost {
+  margin-top: calc(-1 * var(--s2));
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+}

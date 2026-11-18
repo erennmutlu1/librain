@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useSearchParams } from 'react-router';
 import { useApi } from '../api/context';
 import type { PaperSummary } from '../api/types';
 import { DataTable, type CsvColumn, type DataColumn } from '../components/DataTable';
@@ -8,6 +9,7 @@ import { useLang, useT, type Lang } from '../i18n/lang';
 import { normalizeArxivId } from '../lib/arxiv';
 import { fileStamp } from '../lib/download';
 import { formatAuthors, formatCount, formatDate } from '../lib/format';
+import { fromEarlierLibrary, paperAuthors, paperExternalUrl, paperInfo, TODAYS_LIBRARY_SIZE } from '../lib/paperCatalog';
 import { displayTitle, usePapers } from '../lib/papers';
 import { useSessionState } from '../lib/sessionStore';
 import { usePublicDemo } from '../public/context';
@@ -16,8 +18,30 @@ import { text } from './LibraryPage.i18n';
 import pageStyles from './pages.module.css';
 import styles from './LibraryPage.module.css';
 
-/** The corpus the public API serves (experiments/new-areas-discoveries/featured.json). English; the screen shows the reader's language. */
-export const PUBLIC_CORPUS_NOTE = 'The public corpus is read-only: 55 papers, 2,210 chunks.';
+/** The library the public API serves (experiments/new-areas-discoveries/featured.json). English; the screen shows the reader's language. */
+export const PUBLIC_CORPUS_NOTE = 'The public paper library is read-only: 55 papers, 2,210 passages.';
+
+/** Values the backend fills in from empty PDF metadata: not a title, not an author. */
+const PLACEHOLDER_TITLES = new Set(['Manuscript - Arxiv']);
+const PLACEHOLDER_AUTHORS = new Set(['Anonymous Submission']);
+
+/**
+ * A paper as the API or the recordings list it, completed from the static
+ * catalogue (src/lib/paperCatalog.ts): the catalogue's cleaned title, authors
+ * and year win for the ids it knows; the API's own values fill the rest.
+ * Recorded mode lists bare ids, so this is where their titles come from.
+ */
+function withCatalogue(p: PaperSummary): PaperSummary {
+  const info = paperInfo(p.paperId);
+  const ownTitle = displayTitle(p);
+  const ownAuthors = p.authors?.filter((a) => a.trim() && !PLACEHOLDER_AUTHORS.has(a.trim())) ?? [];
+  return {
+    ...p,
+    title: info.title ?? (ownTitle && !PLACEHOLDER_TITLES.has(ownTitle) ? ownTitle : null),
+    authors: paperAuthors(p.paperId) ?? (ownAuthors.length > 0 ? ownAuthors : null),
+    year: info.year ?? p.year,
+  };
+}
 
 type Text = (typeof text)['en'];
 
@@ -33,7 +57,10 @@ const EMPTY_CELL = (
   </span>
 );
 
+/** The catalogue's arXiv link, else one for an arXiv-style id. */
 function arxivUrl(paperId: string): string | null {
+  const known = paperExternalUrl(paperId);
+  if (known) return known;
   const id = normalizeArxivId(paperId);
   return id ? `https://arxiv.org/abs/${id}` : null;
 }
@@ -123,6 +150,11 @@ function paperColumns(
             {title ? <span className={styles.title}>{title}</span> : null}
             <span className={styles.idLine}>
               <code className={title ? styles.id : styles.idOnly}>{p.paperId}</code>
+              {fromEarlierLibrary(p.paperId) ? (
+                <span className="tag" title={t.earlierTitle}>
+                  {t.earlier}
+                </span>
+              ) : null}
               {arxiv ? (
                 <a className={styles.arxivLink} href={arxiv} target="_blank" rel="noopener noreferrer" aria-label={t.onArxiv(p.paperId)}>
                   arXiv <Icon name="external" size={11} />
@@ -217,12 +249,34 @@ export default function LibraryPage() {
   const recordedOnly = demo?.mode === 'recorded';
   const { state, run } = usePapers();
   const [filter, setFilter] = useSessionState('library.filter', '');
+  const [params, setParams] = useSearchParams();
   const [confirming, setConfirming] = useState<string | null>(null);
   const [deleted, setDeleted] = useState<string | null>(null);
   const triggers = useRef(new Map<string, HTMLButtonElement>());
   const statusRef = useRef<HTMLParagraphElement>(null);
 
-  const papers = state.status === 'success' ? state.data : null;
+  /*
+   * Citations elsewhere link to /library?q=<paper id>. The id fills the
+   * search box and leaves the address, so a later visit keeps what the
+   * visitor typed since.
+   */
+  useEffect(() => {
+    const q = params.get('q');
+    if (q === null) return;
+    setFilter(q.trim());
+    setParams(
+      (p) => {
+        const next = new URLSearchParams(p);
+        next.delete('q');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [params, setFilter, setParams]);
+
+  const loaded = state.status === 'success' ? state.data : null;
+  const papers = useMemo(() => loaded?.map(withCatalogue) ?? null, [loaded]);
+  const olderIds = papers?.filter((p) => fromEarlierLibrary(p.paperId)).length ?? 0;
   const loading = state.status === 'loading' || state.status === 'idle';
   const totalChunks = papers?.reduce((sum, p) => sum + p.chunkCount, 0) ?? 0;
   const maxChunks = papers?.reduce((max, p) => Math.max(max, p.chunkCount), 0) ?? 0;
@@ -276,7 +330,7 @@ export default function LibraryPage() {
             ? papers.length === 0
               ? t.ledeEmpty
               : recordedOnly
-                ? t.ledeRecorded(formatN(papers.length))
+                ? t.ledeRecorded(formatN(TODAYS_LIBRARY_SIZE), formatN(papers.length), formatN(papers.length - olderIds), formatN(olderIds))
                 : t.ledeLive(formatN(papers.length), formatN(totalChunks))
             : t.ledeIdle}
         </p>

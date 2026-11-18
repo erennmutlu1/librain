@@ -6,8 +6,9 @@ import { discoveryScoreItems } from '../lib/scoreItems';
 import { systemMeta } from '../lib/vocabulary';
 import { text } from './BaselineResult.i18n';
 import { NaiveCitations, RunStats } from './BaselineParts';
-import { CopyText } from './CopyText';
+import { InfoTip } from './InfoTip';
 import { ScoreBars } from './ScoreBars';
+import { RequestId } from './TechDetails';
 import styles from './DiscoverResult.module.css';
 
 /** A single baseline run (POST /api/naive-rag or /api/single-llm), as saved in /api/runs. */
@@ -28,8 +29,11 @@ export function BaselineResult(
           {topicLabel(props.topicA, props.topicB)}
         </h2>
         <div className={styles.meta}>
-          <span className="tag">{t.baseline(system.name)}</span>
-          <CopyText value={r.correlationId} label={t.correlationId} />
+          <span className="cluster">
+            <span className="tag">{t.baseline(system.name)}</span>
+            <InfoTip k="baseline" />
+          </span>
+          <RequestId value={r.correlationId} />
         </div>
         <p className={styles.sectionNote}>{system.summary}</p>
       </header>

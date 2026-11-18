@@ -4,8 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { createHttpApi } from './api/httpClient';
 import { createMockApi } from './api/mockClient';
+import { text as contractText } from './components/ContractSummary.i18n';
 import type { LibrainApi } from './api/types';
 import { createLocalRunStore } from './history/localRunStore';
+import { LangProvider } from './i18n/lang';
 import { contract } from './mocks/scenarios';
 
 function setup(path: string, api: LibrainApi = createMockApi({ latency: 0 })) {
@@ -16,10 +18,18 @@ function setup(path: string, api: LibrainApi = createMockApi({ latency: 0 })) {
 }
 
 describe('App (mock mode, no network)', () => {
-  it('shows the shell with the mock badge and five sections', async () => {
+  it('shows the shell with the mock badge and six sections', async () => {
     setup('/library');
     const nav = screen.getByRole('navigation', { name: 'Sections' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Library', 'Ask', 'Discover', 'Explore', 'Compare', 'History']);
+    expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['Ideas', '/explore'],
+      ['New idea', '/discover'],
+      ['Ask', '/ask'],
+      ['Compare', '/compare'],
+      ['Papers', '/library'],
+      ['History', '/history'],
+    ]);
+    expect(within(nav).getByRole('link', { name: 'Papers' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('Mock data')).toBeInTheDocument();
     // The captured papers list plus ids cited by the recordings (never invented titles).
     expect(await screen.findByRole('table')).toBeInTheDocument();
@@ -71,7 +81,8 @@ describe('App (mock mode, no network)', () => {
   it('replays the captured discover stream and shows passage text from the API', async () => {
     const { user } = setup('/discover');
     await user.click(await screen.findByRole('button', { name: /API snapshot/ }));
-    expect(await screen.findByText('Citation contract dropped 1')).toBeInTheDocument();
+    // The summary's wording belongs to ContractSummary; the count is what this checks.
+    expect(await screen.findByText(contractText.en.heading(1))).toBeInTheDocument();
     expect(screen.getAllByText('Message passing over a multi-mesh.').length).toBeGreaterThan(0);
   });
 
@@ -117,7 +128,7 @@ describe('App (mock mode, no network)', () => {
     const { user } = setup('/history');
     await user.click(await screen.findByRole('button', { name: 'Load the recorded runs' }));
     const link = await screen.findByRole('link', { name: /Why does GraphCast forecast well\?/ });
-    expect(screen.getAllByRole('link', { name: /Naive-RAG/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /Naive[- ]RAG/ }).length).toBeGreaterThan(0);
     await user.click(link);
     expect(await screen.findByRole('heading', { name: 'Why does GraphCast forecast well?' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Markdown/ })).toBeInTheDocument();
@@ -148,6 +159,68 @@ describe('App (mock mode, no network)', () => {
     await user.click(screen.getByRole('link', { name: 'History' }));
     expect(await screen.findByText('Runs are not being saved.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /drug discovery × climate adaptation/i })).toBeInTheDocument();
+  });
+});
+
+describe('App routes and titles', () => {
+  it('opens on the home page, and the logo leads back to it', async () => {
+    const { user } = setup('/');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe('LIBRAIN · Research ideas, every sentence checked'));
+    const logo = screen.getByRole('link', { name: 'LIBRAIN home' });
+    expect(logo).toHaveAttribute('href', '/');
+    // No section is current on the home page.
+    expect(within(screen.getByRole('navigation', { name: 'Sections' })).queryByRole('link', { current: 'page' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('link', { name: 'Try your own topics' }));
+    expect(await screen.findByRole('combobox', { name: 'Topic A' })).toBeInTheDocument();
+    await user.click(logo);
+    expect(await screen.findByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['/explore', 'Ideas · LIBRAIN'],
+    ['/explore/stats', 'Idea statistics · LIBRAIN'],
+    ['/explore/quiz', 'Spot the risk · LIBRAIN'],
+    ['/explore/d1', 'Idea D1 · LIBRAIN'],
+    ['/explore/D1/full', 'Idea D1 · LIBRAIN'],
+    ['/discover', 'New idea · LIBRAIN'],
+    ['/discover/', 'New idea · LIBRAIN'],
+    ['/discover/featured', 'Featured ideas · LIBRAIN'],
+    ['/discover/featured/pair-10', 'Featured idea · LIBRAIN'],
+    ['/ask', 'Ask · LIBRAIN'],
+    ['/compare', 'Compare · LIBRAIN'],
+    ['/library', 'Papers · LIBRAIN'],
+    ['/history', 'History · LIBRAIN'],
+    ['/history/abc', 'Run · LIBRAIN'],
+    ['/no/such/page', 'Page not found · LIBRAIN'],
+  ])('titles %s as "%s"', async (path, title) => {
+    setup(path);
+    await waitFor(() => expect(document.title).toBe(title));
+  });
+
+  it('titles in Turkish', async () => {
+    const runStore = createLocalRunStore({ getStorage: () => window.localStorage });
+    const { unmount } = render(
+      <LangProvider initial="tr">
+        <App api={createMockApi({ latency: 0 })} runStore={runStore} initialPath="/explore/D1" />
+      </LangProvider>,
+    );
+    await waitFor(() => expect(document.title).toBe('Fikir D1 · LIBRAIN'));
+    unmount();
+    render(
+      <LangProvider initial="tr">
+        <App api={createMockApi({ latency: 0 })} runStore={runStore} initialPath="/" />
+      </LangProvider>,
+    );
+    await waitFor(() => expect(document.title).toBe('LIBRAIN · Her cümlesi kontrol edilmiş araştırma fikirleri'));
+  });
+
+  it('offers the home page and the ideas from an unknown address', async () => {
+    setup('/no/such/page');
+    expect(screen.getByRole('heading', { level: 1, name: 'Page not found' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Go to the home page' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'See the ideas' })).toHaveAttribute('href', '/explore');
   });
 });
 

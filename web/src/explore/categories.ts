@@ -56,7 +56,7 @@ export const CATEGORIES: readonly Category[] = [
     icon: 'pulse',
     colorVar: '--cat-c',
     batch: 1,
-    tr: { name: 'Klinik araştırmalar × nedensel ve çizge yöntemleri', short: 'Klinik araştırmalar' },
+    tr: { name: 'Klinik araştırmalar × nedensel ve graf yöntemleri', short: 'Klinik araştırmalar' },
   },
   {
     prefix: 'N',

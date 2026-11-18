@@ -7,10 +7,10 @@ export type RunListItem = RunSummary & { mock?: boolean };
 
 export const RUN_KIND_LABEL: Record<RunKind, string> = {
   query: 'Ask',
-  discover: 'Discover',
+  discover: 'New idea',
   compare: 'Compare',
-  'naive-rag': 'Naive-RAG',
-  'single-llm': 'Single-LLM',
+  'naive-rag': 'Naive RAG',
+  'single-llm': 'Single LLM',
 };
 
 export function toListItem(run: RunDetail): RunListItem {

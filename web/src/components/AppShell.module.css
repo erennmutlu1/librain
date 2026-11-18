@@ -146,6 +146,19 @@
   border-color: color-mix(in srgb, var(--accent) 55%, var(--rule-strong));
 }
 
+/* 40 px to the eye, 44 px to a finger: the hit area reaches into the gap beside it. */
+.iconButton,
+.paletteButton {
+  position: relative;
+}
+
+.iconButton::before,
+.paletteButton::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+
 /*
  * The command palette's button. Phones: an icon. Two-row header (tablets and
  * small laptops): "Search ⌘K". One-row header: the icon and the shortcut,
@@ -225,13 +238,63 @@
 
 .nav {
   grid-area: nav;
+  position: relative;
   min-width: 0;
 }
 
+/*
+ * Where the six sections do not fit, the row scrolls sideways (no scrollbar:
+ * touch, trackpad and Tab all scroll it). The 1 px of padding keeps the active
+ * bar inside the scroll box while it still sits on the header's rule.
+ */
 .nav ul {
+  position: relative;
   display: flex;
   gap: var(--s1);
-  margin: 0;
+  margin: 0 0 -1px;
+  padding-bottom: 1px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-padding-inline: var(--s6);
+}
+
+.nav ul::-webkit-scrollbar {
+  display: none;
+}
+
+/* "More this way": a solid edge with a chevron (no fade), shown only while the row has more to show. */
+.edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--s6);
+  padding: 0;
+  border: 0;
+  background: var(--bg);
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.edge:hover {
+  color: var(--ink);
+}
+
+.edge[data-side='start'] {
+  left: 0;
+  border-right: 1px solid var(--rule);
+}
+
+.edge[data-side='end'] {
+  right: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.edge[data-side='end'] > svg {
+  transform: scaleX(-1);
 }
 
 .link {
@@ -302,11 +365,12 @@
 
   .nav {
     align-self: stretch;
-    margin-inline: var(--s5);
+    margin-inline: var(--s4);
   }
 
+  /* The extra pixel is the bottom padding that lets the active bar sit on the header's rule. */
   .nav ul {
-    height: 100%;
+    height: calc(100% + 1px);
   }
 
   .link {
@@ -316,36 +380,23 @@
 }
 
 @media (max-width: 40rem) {
-  /* Six sections share the row: each link takes an equal part of the spare width. */
+  /* While they fit, the six sections share the row's spare width; past that, it scrolls. */
   .nav ul {
-    justify-content: space-between;
     gap: 0;
   }
 
   .nav li {
-    flex: 1 1 auto;
+    flex: 1 0 auto;
   }
 
   .link {
-    padding-inline: var(--s1);
+    padding-inline: var(--s2);
     text-align: center;
   }
 
   .link::after {
     left: var(--s2);
     right: var(--s2);
-  }
-}
-
-@media (max-width: 26rem) {
-  .link {
-    padding-inline: 0;
-    font-size: var(--fs-xs);
-  }
-
-  .link::after {
-    left: var(--s1);
-    right: var(--s1);
   }
 }
 
@@ -416,24 +467,96 @@
   box-shadow: 0 0 0 1.5px var(--surface);
 }
 
+/* Language and theme sit in the header on wider screens, behind the "more" button on phones. */
+.inlineTools {
+  display: contents;
+}
+
+.more {
+  display: none;
+}
+
+.morePanel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + var(--s2));
+  right: 0;
+  min-width: 16rem;
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-pop);
+}
+
+.moreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+}
+
+.moreLabel {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* Finger-sized targets inside the menu. */
+.morePanel button {
+  min-height: 2.75rem;
+}
+
+.morePanel button[aria-pressed] {
+  min-width: 2.75rem;
+}
+
 /*
- * Too narrow for logo and tools side by side: the tools get their own row and
- * the palette button stays beside the logo. The widest rows are the public
- * build's (mode switch, keys, language, theme) and the owner's Turkish
- * "API unreachable" badge.
+ * Phones: two rows, about 100 px in all (it was 157 px at 360 px wide). The
+ * logo and the data-source tools share the first; the sections (scrolling
+ * sideways) and search the second. The last column is exactly the search
+ * button, so the tools above it borrow the middle column and the sections
+ * keep all the width search leaves them.
  */
 @media (max-width: 35rem) {
   .headerInner {
-    grid-template-columns: minmax(0, 1fr) auto;
+    padding-top: var(--s2);
+    row-gap: var(--s1);
+    grid-template-columns: minmax(0, 1fr) auto 2.5rem;
     grid-template-areas:
-      'brand search'
-      'tools tools'
-      'nav nav';
+      'brand tools tools'
+      'nav nav search';
   }
 
-  /* Full width, so the keys panel (anchored to this row) meets both gutters. */
-  .tools {
-    justify-self: stretch;
+  .home {
+    justify-self: start;
+  }
+
+  .home > svg {
+    width: auto;
+    height: 20px;
+  }
+
+  .inlineTools {
+    display: none;
+  }
+
+  .more {
+    display: block;
+  }
+
+  .mode {
+    padding: 0 0.65em;
+  }
+
+  /* The owner build's longest badge ("API’ye ulaşılamıyor") gives way before the buttons do. */
+  .status {
+    min-width: 0;
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

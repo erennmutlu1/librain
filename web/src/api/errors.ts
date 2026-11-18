@@ -11,7 +11,7 @@ export const NO_RECORDING = 'no recorded run';
 
 /**
  * Every failure the client surfaces. HTTP failures carry the problem+json
- * title/detail and, when the API includes it, the correlation id so the run
+ * title/detail and, when the API includes it, the correlation (request) id so the run
  * can be found in the logs and in /api/runs.
  */
 export class ApiError extends Error {
@@ -44,6 +44,11 @@ export class ApiError extends Error {
     this.retryAfterSeconds = init.retryAfterSeconds;
     this.provider = init.provider;
   }
+}
+
+/** The public build's Recorded mode had no recording for these inputs (an outcome, not a failure). */
+export function isNoRecording(error: unknown): boolean {
+  return error instanceof ApiError && error.title === NO_RECORDING;
 }
 
 export function isAbortError(error: unknown): boolean {
@@ -158,7 +163,7 @@ export function describeError(error: unknown, now: number = Date.now(), options:
   const lang = options.lang ?? currentLang();
   const t = pick(text, lang);
   if (error instanceof ApiError) {
-    if (error.title === NO_RECORDING) {
+    if (isNoRecording(error)) {
       return {
         title: t.noRecordingTitle,
         detail: t.noRecordingDetail,

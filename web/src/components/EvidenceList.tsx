@@ -1,6 +1,7 @@
 import type { PaperSummary, SupportingEvidence } from '../api/types';
 import { chunkKey } from '../lib/citations';
-import { displayTitle } from '../lib/papers';
+import { paperTitleFor } from '../lib/papers';
+import { PaperRef } from './PaperRef';
 import { Passage } from './Passage';
 import { useT } from '../i18n/lang';
 import { text } from './EvidenceList.i18n';
@@ -14,11 +15,12 @@ export function EvidenceList({ evidence, papers }: { evidence: readonly Supporti
   return (
     <ul role="list" className={styles.list}>
       {evidence.map((e) => {
-        const title = displayTitle(papers.get(e.paperId));
+        const key = chunkKey(e.paperId, e.chunkIndex);
+        const title = paperTitleFor(e.paperId, papers);
         return (
-          <li key={chunkKey(e.paperId, e.chunkIndex)} className={styles.item}>
+          <li key={key} className={styles.item}>
             <div className={styles.top}>
-              <code className={styles.key}>{chunkKey(e.paperId, e.chunkIndex)}</code>
+              <PaperRef chunk={key} />
               <span className="tag" title={e.supportType === 'direct' ? t.direct : t.other}>
                 {t.supportTypes[e.supportType] ?? e.supportType}
               </span>

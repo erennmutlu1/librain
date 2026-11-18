@@ -184,12 +184,12 @@ describe('exporters', () => {
 
   it('exports Markdown with the sentence verdicts', () => {
     const md = runToMarkdown(run);
-    expect(md).toMatch(/^# Discover: Drug discovery × climate adaptation/);
+    expect(md).toMatch(/^# New idea: Drug discovery × climate adaptation/);
     expect(md).toContain('| 2 | Risky | 75% |');
     expect(md).toContain('were not recorded for this run');
   });
 
-  it('exports a compare run with a failed system and its correlation id', () => {
+  it('exports a compare run with a failed system and its request id', () => {
     const compare = normalizeRunDetail({
       id: 'c',
       kind: 'compare',
@@ -201,7 +201,7 @@ describe('exporters', () => {
       response: { ...(contract.compare as object), librain: { result: null, error: 'LIBRAIN failed: HttpRequestException', correlationId: 'lib-123' } },
     });
     const md = runToMarkdown(compare);
-    expect(md).toContain('_Failed: LIBRAIN failed: HttpRequestException_ (correlation ID `lib-123`)');
+    expect(md).toContain('_Failed: LIBRAIN failed: HttpRequestException_ (request ID `lib-123`)');
     expect(md).toContain('**FABRICATED**');
   });
 });

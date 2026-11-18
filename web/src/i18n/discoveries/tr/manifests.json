@@ -2,15 +2,15 @@
   "picks": {
     "D7": {
       "takeaway": "Çok ajanlı bir sistem bir sonraki hangi DFT hesaplamalarının çalıştırılacağını seçer; böylece OC20 üzerinde eğitilmiş katalizör modelleri, veri kümesinin dışarıda bıraktığı çoklu adsorbat ve çözünme rejimlerine genişler.",
-      "whyFeatured": "Belirli ve nicel bir boşluk (OC20 yapılandırmaların yaklaşık %0,07'sini kapsıyor) ile bu boşluğu kapatmak için somut bir mekanizma sunuyor; sınanabilir."
+      "whyFeatured": "Belirli ve nicel bir boşluk (OC20 yapılandırmaların yaklaşık %0,07’sini kapsıyor) ile bu boşluğu kapatmak için somut bir mekanizma sunuyor; sınanabilir."
     },
     "C1": {
       "takeaway": "Salgın ODE kısıtları, bir LLM ajanının üzerinde arama yapabileceği özniteliklere dönüşür; böylece bulaşıcı hastalık klinik deney sonucu modelleri, deneye özgü üreme sayıları gibi mekanistik niceliklerden tahmin yapar.",
       "whyFeatured": "Kümedeki en az bariz köprü: bir LLM ajanının öznitelik aramasının içinde kompartman modeli fiziği."
     },
     "N3": {
-      "takeaway": "Fizik için kullanılan ağ örgüsü (mesh) tabanlı bir grafik simülatör, salgın dinamikleri üzerinde eğitilir; böylece enfeksiyon başlangıç noktaları, nüfus yoğunlukları ve müdahaleler arasında genelleme yapar ve gerçek zamanlı karşıolgusal politika denemelerini destekler.",
-      "whyFeatured": "GNS'in bilinen bir özelliğini (başlangıç koşulları arasında genelleme) salgınlara aktarıyor; üç makaleden yararlanıyor."
+      "takeaway": "Fizik için kullanılan ağ örgüsü (mesh) tabanlı bir graf simülatörü, salgın dinamikleri üzerinde eğitilir; böylece enfeksiyon başlangıç noktaları, nüfus yoğunlukları ve müdahaleler arasında genelleme yapar ve gerçek zamanlı karşıolgusal politika denemelerini destekler.",
+      "whyFeatured": "GNS’in bilinen bir özelliğini (başlangıç koşulları arasında genelleme) salgınlara aktarıyor; üç makaleden yararlanıyor."
     },
     "A2": {
       "takeaway": "Eşleştirilmiş uydu görüntüleri ve metinler üzerinde önceden eğitilmiş CLIP tarzı bir model, ürün koşullarının doğal dille tanımlarıyla yönlendirilerek sıfır atışlı (zero-shot) biçimde ürün verimini tahmin eder.",
@@ -21,7 +21,7 @@
       "whyFeatured": "Adı belli bir vekil model içeren somut bir döngü tasarımı; malzeme bilimi ile ajan tabanlı yapay zekâ alanlarından üç makaleye dayanıyor."
     },
     "D1": {
-      "takeaway": "Self-RAG eleştiri belirteçleri her PharmAgents ajanının içine yerleştirilir; böylece her aşama ihtiyaç duyduğunda erişim yapar ve belirteç düzeyindeki kalite sinyallerini sonraki aşamalara iletir. Doğrulayıcı, PharmAgents'ın %37,94'lük başarı oranını geçme iddiasını riskli olarak işaretliyor.",
+      "takeaway": "Self-RAG eleştiri belirteçleri her PharmAgents ajanının içine yerleştirilir; böylece her aşama ihtiyaç duyduğunda erişim yapar ve belirteç düzeyindeki kalite sinyallerini sonraki aşamalara iletir. Doğrulayıcı, PharmAgents’ın %37,94’lük başarı oranını geçme iddiasını riskli olarak işaretliyor.",
       "whyFeatured": "Denetimin işlediğini gösteriyor: kanıtın ötesine geçen, kendinden emin bir sayısal iddia RİSKLİ (0,72) olarak işaretleniyor."
     },
     "F4": {
@@ -37,7 +37,7 @@
       "whyFeatured": "Dört makaleye dayanıyor; sakatlık tahminini bireyden takıma taşıyarak yeniden çerçeveliyor."
     },
     "S1": {
-      "takeaway": "Sinirsel (spiking) ağları nöromorfik çiplerle eşleştirin; böylece pille çalışan giyilebilir bir cihaz kas yorgunluğunu günlerce kesintisiz izleyebilir.",
+      "takeaway": "Darbeli (spiking) sinir ağlarını nöromorfik çiplerle eşleştirin; böylece pille çalışan giyilebilir bir cihaz kas yorgunluğunu günlerce kesintisiz izleyebilir.",
       "whyFeatured": "Ölçülebilen (pil ömrü, doğruluk) somut bir mühendislik iddiası."
     },
     "P5": {
@@ -45,8 +45,8 @@
       "whyFeatured": "Belirli bir mimari ve işe yaraması beklenen belirli bir zor durum."
     },
     "W5": {
-      "takeaway": "Ekran görüntüsünden koda kıyaslama veri kümelerini otomatik olarak denetlenen web geliştirme derslerine dönüştürün; sınır şu ki modeller karmaşık düzenlerde sayfa bloklarının %30–40'ını hâlâ kaçırıyor.",
-      "whyFeatured": "46 koşunun en düşük iddia riski (0,05) ve yerleşik, dürüst bir sınırlılık."
+      "takeaway": "Ekran görüntüsünden koda kıyaslama veri kümelerini otomatik olarak denetlenen web geliştirme derslerine dönüştürün; sınır şu ki modeller karmaşık düzenlerde sayfa bloklarının %30–40’ını hâlâ kaçırıyor.",
+      "whyFeatured": "46 çalıştırmanın en düşük iddia riski (0,05) ve yerleşik, dürüst bir sınırlılık."
     },
     "J5": {
       "takeaway": "AlphaCode tarzı “çok sayıda üret, sına, en iyisini tut” yaklaşımını eşli programlama araçlarına getirin; bu, en çok acemi geliştiricilere yardımcı olabilir.",
@@ -67,7 +67,7 @@
   "droppedAreas": [
     {
       "area": "İnsanlar para ve iş olmadan nasıl yaşayacak",
-      "reason": "Tutulmadı. (1) “Parasız” ifadesi söylendiği hâliyle mantıklı değil: her toplumun yiyecek, barınma ve bakımı dağıtmanın bir yoluna ihtiyacı var ve evrensel temel gelir bile paradır. (2) İnsanların iş olmadan nasıl yaşaması gerektiği, literatüre dayalı bir hipotez motorunun çözemeyeceği bir değerler ve politika sorusudur; üstelik arXiv kanıtı sınırlıdır, dolayısıyla çıktı, LIBRAIN'in işaretlemek için var olduğu türden dayanaksız spekülasyon olurdu. Araştırılabilir kısım (yapay zekânın işleri nasıl değiştirdiği) “Geleceğin meslekleri” alanında ele alınıyor."
+      "reason": "Tutulmadı. (1) “Parasız” ifadesi söylendiği hâliyle mantıklı değil: her toplumun yiyecek, barınma ve bakımı dağıtmanın bir yoluna ihtiyacı var ve evrensel temel gelir bile paradır. (2) İnsanların iş olmadan nasıl yaşaması gerektiği, literatüre dayalı bir hipotez motorunun çözemeyeceği bir değerler ve politika sorusudur; üstelik arXiv kanıtı sınırlıdır, dolayısıyla çıktı, LIBRAIN’in işaretlemek için var olduğu türden dayanaksız spekülasyon olurdu. Araştırılabilir kısım (yapay zekânın işleri nasıl değiştirdiği) “Geleceğin meslekleri” alanında ele alınıyor."
     }
   ]
 }

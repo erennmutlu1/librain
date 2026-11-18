@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
-import type { CompareRequest, CompareResponse, MockScenario } from '../api/types';
+import { isNoRecording } from '../api/errors';
+import type { CompareRequest, CompareResponse, MockMatch, MockScenario } from '../api/types';
 import { CompareView, SystemsExplainer } from '../components/CompareView';
-import { CopyText } from '../components/CopyText';
 import { PairTitle } from '../components/DiscoverResult';
 import { MockProvenance, RecordedRuns } from '../components/FormBits';
 import { EmptyState, ErrorNotice, RunningState } from '../components/States';
+import { RequestId, TechDetails } from '../components/TechDetails';
 import { rememberTopics, type TopicForm } from '../components/topicSuggestions';
 import { useRecordRun } from '../history/context';
 import { useT } from '../i18n/lang';
@@ -20,6 +21,7 @@ import { text } from './ComparePage.i18n';
 import { text as formText, type FormError } from './forms.i18n';
 import { checkTopicForm, formErrorText, topicErrorField, topicFieldId, type TopicFormField } from './topicForm';
 import styles from './pages.module.css';
+import own from './ComparePage.module.css';
 
 interface CompareRunData {
   request: CompareRequest;
@@ -30,13 +32,29 @@ function toRequest(form: TopicForm): CompareRequest | { error: FormError } {
   return checkTopicForm(form);
 }
 
+/**
+ * Where a recorded comparison came from (file paths, the API envelope note):
+ * developer detail, so it sits under Technical details. A substitution is
+ * news, not detail, and stays in view.
+ */
+function Provenance({ match }: { match: MockMatch | undefined }) {
+  if (!match) return null;
+  if (!match.matched) return <MockProvenance match={match} />;
+  return (
+    <TechDetails>
+      <MockProvenance match={match} />
+    </TechDetails>
+  );
+}
+
 export default function ComparePage() {
   const api = useApi();
   const uid = useId();
   const t = useT(text);
   const ft = useT(formText);
   const record = useRecordRun();
-  const recordedOnly = usePublicDemo()?.mode === 'recorded';
+  const demoMode = usePublicDemo()?.mode;
+  const recordedOnly = demoMode === 'recorded';
   const [form, setForm] = useSessionState<TopicForm>('compare.form', { topicA: '', topicB: '', topK: '5' });
   // A code, not a message, so it follows a language switch; and the field it belongs under.
   const [formError, setFormError] = useState<{ code: FormError; field: TopicFormField } | null>(null);
@@ -61,6 +79,12 @@ export default function ComparePage() {
   );
   const { state, run, cancel } = useRequest<CompareRequest, CompareRunData>('compare.run', compare);
   const loading = state.status === 'loading';
+  // Recorded mode with no recording for these topics: said right under the button, not far below.
+  const noRecording = state.status === 'error' && isNoRecording(state.error) ? state.error : null;
+  const noRecordingRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (noRecording) noRecordingRef.current?.focus();
+  }, [noRecording]);
 
   // Each failed submit (a new object, even for the same error) takes focus to the field at fault.
   useEffect(() => {
@@ -118,7 +142,7 @@ export default function ComparePage() {
           error={formError ? { field: formError.field, message: formErrorText(ft, formError.code) } : null}
         />
         <div className={styles.actions}>
-          <p className={styles.kbd}>{recordedOnly ? t.recordedTip : t.serverModel}</p>
+          <p className={styles.kbd}>{recordedOnly ? t.recordedTip : demoMode === 'live' ? t.liveCost : t.serverModel}</p>
           <div className="cluster">
             <span className={`${styles.kbd} ${styles.kbdHint}`}>{ft.modEnter(t.modEnterAction)}</span>
             <button type="submit" className="btn btn-primary" disabled={loading}>
@@ -126,6 +150,11 @@ export default function ComparePage() {
             </button>
           </div>
         </div>
+        {noRecording ? (
+          <div ref={noRecordingRef} tabIndex={-1} className={own.inlineNotice}>
+            <ErrorNotice error={noRecording} />
+          </div>
+        ) : null}
         <RecordedRuns scenarios={api.mock?.compare} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 
@@ -141,10 +170,10 @@ export default function ComparePage() {
             <CompareView {...ALL_LOADING} />
           </>
         ) : null}
-        {state.status === 'error' ? <ErrorNotice error={state.error} onRetry={retry} /> : null}
+        {state.status === 'error' && !noRecording ? <ErrorNotice error={state.error} onRetry={retry} /> : null}
         {state.status === 'success' ? (
           <>
-            {api.mock ? <MockProvenance match={api.mock.matchCompare(state.data.request)} /> : null}
+            {api.mock ? <Provenance match={api.mock.matchCompare(state.data.request)} /> : null}
             <div className={styles.runMeta}>
               <h2 className={styles.runTitle}>
                 <PairTitle label={topicLabel(state.data.result.topicA, state.data.result.topicB)} />
@@ -154,7 +183,7 @@ export default function ComparePage() {
                 {state.data.result.totalElapsedMs !== undefined ? (
                   <span className="tag">{t.inTotal(formatDuration(state.data.result.totalElapsedMs))}</span>
                 ) : null}
-                <CopyText value={state.data.result.correlationId} label={t.correlationId} />
+                <RequestId value={state.data.result.correlationId} />
               </div>
             </div>
             <CompareView {...compareStates(state.data.result)} />

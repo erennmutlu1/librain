@@ -359,6 +359,8 @@ export function ProviderKeysMenu() {
           <h2 id={`${uid}-title`} className={styles.title}>
             {t.title}
           </h2>
+          {/* What Live mode costs comes first, before any key is typed. */}
+          <p className={own.cost}>{t.cost}</p>
           {reason ? (
             <p className={styles.reason} role="alert">
               <Icon name="warning" size={14} /> {reason}

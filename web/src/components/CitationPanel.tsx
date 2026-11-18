@@ -1,10 +1,11 @@
 import { useEffect, useId, useRef } from 'react';
 import type { PaperSummary, SynthesisCitation } from '../api/types';
 import { chunkKey } from '../lib/citations';
-import { displayTitle } from '../lib/papers';
+import { displayTitle, paperTitleFor } from '../lib/papers';
 import { useT } from '../i18n/lang';
 import { text } from './CitationPanel.i18n';
 import { Icon } from './Icon';
+import { PaperRef } from './PaperRef';
 import styles from './CitationPanel.module.css';
 
 /**
@@ -23,7 +24,7 @@ export function CitationPanel({
   const t = useT(text);
   const uid = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const title = displayTitle(paper);
+  const title = displayTitle(paper) ?? paperTitleFor(citation.paperId);
 
   useEffect(() => {
     headingRef.current?.focus();
@@ -69,7 +70,7 @@ export function CitationPanel({
           <div>
             <dt>{t.chunk}</dt>
             <dd>
-              <code className="mono">{chunkKey(citation.paperId, citation.chunkIndex)}</code>
+              <PaperRef chunk={chunkKey(citation.paperId, citation.chunkIndex)} />
             </dd>
           </div>
         </dl>

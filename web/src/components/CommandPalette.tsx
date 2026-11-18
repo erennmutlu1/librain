@@ -15,8 +15,9 @@ import { Icon, type IconName } from './Icon';
 import styles from './CommandPalette.module.css';
 
 /*
- * ⌘K / Ctrl+K: jump to any section, run a header action, or open one of the
- * 46 recorded discoveries; anything else typed becomes "Discover: <text>".
+ * Quick search (⌘K / Ctrl+K): jump to any section, run a header action, or
+ * open one of the 46 recorded ideas; anything else typed becomes
+ * "New idea: <text>".
  *
  * A modal dialog holding an ARIA 1.2 combobox: focus stays in the input,
  * the arrow keys move the active option (aria-activedescendant), Enter runs
@@ -45,15 +46,17 @@ interface Group {
   items: Item[];
 }
 
+/** In the header's order, with each section's sub-pages after it. */
 const SECTIONS: readonly { key: PaletteSection; path: string; icon: IconName }[] = [
-  { key: 'library', path: '/library', icon: 'list' },
-  { key: 'ask', path: '/ask', icon: 'question' },
-  { key: 'discover', path: '/discover', icon: 'shuffle' },
-  { key: 'featured', path: '/discover/featured', icon: 'star' },
+  { key: 'home', path: '/', icon: 'info' },
   { key: 'explore', path: '/explore', icon: 'grid' },
+  { key: 'featured', path: '/discover/featured', icon: 'star' },
   { key: 'stats', path: '/explore/stats', icon: 'chart' },
   { key: 'quiz', path: '/explore/quiz', icon: 'warning' },
+  { key: 'discover', path: '/discover', icon: 'shuffle' },
+  { key: 'ask', path: '/ask', icon: 'question' },
   { key: 'compare', path: '/compare', icon: 'venn' },
+  { key: 'library', path: '/library', icon: 'list' },
   { key: 'history', path: '/history', icon: 'doc' },
 ];
 

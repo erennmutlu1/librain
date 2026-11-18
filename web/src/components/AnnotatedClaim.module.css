@@ -31,6 +31,12 @@
 
 /* ---------- Legend ---------- */
 
+.legendWrap {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -406,16 +412,6 @@
   gap: 0.1em;
 }
 
-.chunkKey {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--ink);
-  background: var(--bg-deep, var(--surface-sunken));
-  padding: 0.05em 0.35em;
-  border-radius: 3px;
-  overflow-wrap: anywhere;
-  justify-self: start;
-}
 
 .chunkTitle {
   font-size: var(--fs-xs);
