@@ -7,6 +7,7 @@
  * Run one file while translating:  npx vitest run src/i18n/discoveries -t A1
  */
 import { describe, expect, it } from 'vitest';
+import { RECORDED_IDEA_COUNT } from '../../explore/ideaCount';
 import { localizeManifest, localizeRun, type ManifestTranslation, type RunTranslation } from './localize';
 
 const runs = import.meta.glob<Record<string, unknown>>('../../explore/data/*/runs/*.json', { eager: true, import: 'default' });
@@ -21,8 +22,8 @@ const trById = new Map(Object.entries(translations).map(([path, t]) => [path.spl
 const nonEmpty = (s: unknown) => typeof s === 'string' && s.trim().length > 0;
 
 describe('Turkish discovery translations', () => {
-  it('covers all 70 recorded runs and nothing else', () => {
-    expect(byId.size).toBe(70);
+  it('covers every recorded run and nothing else', () => {
+    expect(byId.size).toBe(RECORDED_IDEA_COUNT);
     expect([...trById.keys()].sort()).toEqual([...byId.keys()].sort());
   });
 

@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router';
 import rawD1 from '../explore/data/featured-discoveries/runs/D1.json';
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 import trD1 from '../i18n/discoveries/tr/D1.json';
 import { LangProvider, type Lang } from '../i18n/lang';
+import { LIBRARY } from '../lib/library';
 import { PublicDemoContext, type PublicDemo } from '../public/context';
 import HomePage from './HomePage';
 
@@ -28,9 +30,9 @@ const riskyIndex = claims.findIndex((c) => c.status === 2);
 describe('home page', () => {
   it('says what LIBRAIN is and routes to the ideas and to a new idea', () => {
     renderHome();
-    expect(screen.getByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: `Research ideas from ${LIBRARY.papers} papers, with every sentence checked` })).toBeInTheDocument();
     expect(screen.getByText(/^LIBRAIN answers questions with the exact passages it used/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'See 70 checked ideas' })).toHaveAttribute('href', '/explore');
+    expect(screen.getByRole('link', { name: `See ${RECORDED_IDEA_COUNT} checked ideas` })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Try your own topics' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Free to browse. No account, no key.')).toBeInTheDocument();
     // Plain HTML structure: one h1, then sections with h2 headings.
@@ -102,8 +104,8 @@ describe('home page', () => {
 
   it('speaks Turkish, with the translated example and its reason', () => {
     renderHome('tr');
-    expect(screen.getByRole('heading', { level: 1, name: '55 makaleden araştırma fikirleri, her cümlesi kontrol edilmiş' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Kontrol edilmiş 70 fikri görün' })).toHaveAttribute('href', '/explore');
+    expect(screen.getByRole('heading', { level: 1, name: `${LIBRARY.papers} makaleden araştırma fikirleri, her cümlesi kontrol edilmiş` })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: `Kontrol edilmiş ${RECORDED_IDEA_COUNT} fikri görün` })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Kendi konularınızı deneyin' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Göz atmak ücretsiz. Hesap ya da API key gerekmez.')).toBeInTheDocument();
 

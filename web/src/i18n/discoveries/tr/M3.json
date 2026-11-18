@@ -1,0 +1,28 @@
+{
+  "topicA": "onset ve frame yaklaşımıyla çok sesli piyano transkripsiyonu (Onsets and Frames)",
+  "topicB": "eğitimde büyük dil modelleri",
+  "hypothesis": "Akustik derin öğrenmeyi yapılandırılmış sembolik çıktıyla (MIDI) zaten birleştiren Onsets and Frames gibi çok sesli piyano transkripsiyonu modelleri, sembolik müzik bilgi erişimi (MIR) ve müzik üretimi gibi aşağı akış uygulamalarını mümkün kılmanın eşiğindedir; bu tür transkripsiyon hatlarını sembolik müzik veri kümeleri üzerinde eğitilmiş büyük dil modelleriyle (LLM) bütünleştirmek, öğrenci piyano icralarına gerçek zamanlı, algısal olarak temellendirilmiş geri bildirim sağlayan LLM destekli akıllı müzik öğretim sistemlerini mümkün kılabilir. Böyle bir sistem, ses icrası, sembolik transkripsiyon ve pedagojik rehberlik arasındaki döngüyü kapatmak için LLM’lerin eğitimde kişiselleştirilmiş geri bildirim ve soru yanıtlama konusunda gösterilmiş kapasitesinden yararlanabilir; bu, mevcut hiçbir LLMEdu uygulamasında henüz gerçekleştirilmemiş bir yetenektir.",
+  "novelClaim": "Bu tür transkripsiyon hatlarını sembolik müzik veri kümeleri üzerinde eğitilmiş büyük dil modelleriyle (LLM) bütünleştirmek, öğrenci piyano icralarına gerçek zamanlı, algısal olarak temellendirilmiş geri bildirim sağlayan LLM destekli akıllı müzik öğretim sistemlerini mümkün kılabilir. Böyle bir sistem, ses icrası, sembolik transkripsiyon ve pedagojik rehberlik arasındaki döngüyü kapatmak için LLM’lerin eğitimde kişiselleştirilmiş geri bildirim ve soru yanıtlama konusunda gösterilmiş kapasitesinden yararlanabilir; bu, mevcut hiçbir LLMEdu uygulamasında henüz gerçekleştirilmemiş bir yetenektir.",
+  "reasoning": "Onsets and Frames makalesi, sembolik MIR’ı ve müzik üretimini yüksek kaliteli piyano transkripsiyonunun yakın aşağı akış uygulamaları olarak tanımlarken; LLMEdu inceleme makalesi, LLM’lerin alanlar genelinde akıllı öğretim ve kişiselleştirilmiş geri bildirimdeki artan rolünü belgelemektedir. Bu iki gidişatı birleştirmek, transkribe edilen MIDI’nin bir LLM öğretmene yapılandırılmış girdi olarak hizmet ettiği, müzikal olarak bilgilendirilmiş, gerçek zamanlı pedagojik geri bildirim sağlayan yeni bir mimari düşündürmektedir; bu, iki kaynakta da tanımlanmamış alanlar arası bir bütünleşmedir.",
+  "claims": [
+    {
+      "sentence": "Bu tür transkripsiyon hatlarını sembolik müzik veri kümeleri üzerinde eğitilmiş büyük dil modelleriyle (LLM) bütünleştirmek, öğrenci piyano icralarına gerçek zamanlı, algısal olarak temellendirilmiş geri bildirim sağlayan LLM destekli akıllı müzik öğretim sistemlerini mümkün kılabilir.",
+      "rationale": "Cümle, transkripsiyon ve LLM’leri birleştiren spekülatif bir uygulama önermek için ihtiyatlı bir dil kullanıyor (“mümkün kılabilir”); transkripsiyon hatları mevcut olsa da (1710.11153 ile desteklenir) ve LLM’lerin eğitsel uygulamaları bulunsa da (llm-education-survey ile desteklenir), müzik öğretimi için özel bütünleşme varsayımsaldır ve getirilen kanıtta gösterilmemiştir."
+    },
+    {
+      "sentence": "Böyle bir sistem, ses icrası, sembolik transkripsiyon ve pedagojik rehberlik arasındaki döngüyü kapatmak için LLM’lerin eğitimde kişiselleştirilmiş geri bildirim ve soru yanıtlama konusunda gösterilmiş kapasitesinden yararlanabilir; bu, mevcut hiçbir LLMEdu uygulamasında henüz gerçekleştirilmemiş bir yetenektir.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor (“yararlanabilir”) ve yeteneğin “henüz gerçekleştirilmediğini” kabul ederek bunu spekülatif gelecek çalışma olarak çerçeveliyor; LLM’lerin eğitimdeki geri bildirim kapasitesi llm-education-survey ile desteklenmektedir, ancak müzik alanına özel bütünleşme varsayımsaldır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu tür transkripsiyon hatlarını sembolik müzik veri kümeleri üzerinde eğitilmiş büyük dil modelleriyle (LLM) bütünleştirmek, öğrenci piyano icralarına gerçek zamanlı, algısal olarak temellendirilmiş geri bildirim sağlayan LLM destekli akıllı müzik öğretim sistemlerini mümkün kılabilir.",
+      "rationale": "Onsets and Frames makalesi, modelin “sembolik MIR ve otomatik müzik üretimi gibi aşağı akış uygulamalarını mümkün kılmanın eşiğinde” olduğunu açıkça belirtmekte; bu da LLM’ler gibi üst düzey akıl yürütme sistemleriyle bütünleşmeye hazır olduğunu düşündürmektedir."
+    },
+    {
+      "claimSentence": "Böyle bir sistem, ses icrası, sembolik transkripsiyon ve pedagojik rehberlik arasındaki döngüyü kapatmak için LLM’lerin eğitimde kişiselleştirilmiş geri bildirim ve soru yanıtlama konusunda gösterilmiş kapasitesinden yararlanabilir; bu, mevcut hiçbir LLMEdu uygulamasında henüz gerçekleştirilmemiş bir yetenektir.",
+      "rationale": "LLMEdu inceleme makalesi, geri bildirim ve soru yanıtlama için LLM’leri kullanan akıllı öğretim sistemlerini (örn. MathGPT) anlatmakta, ancak hiçbir müzik alanı uygulamasından söz etmemektedir; bu da piyano pedagojisine genişletmeyi mevcut uygulamaların ötesinde bir genelleme haline getirmektedir."
+    }
+  ],
+  "id": "M3"
+}

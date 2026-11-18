@@ -1,4 +1,5 @@
 import { strings } from '../i18n/lang';
+import { libraryCounts } from '../lib/library';
 
 /*
  * Each step is checked against the backend:
@@ -13,7 +14,7 @@ export const text = strings({
   en: {
     title: 'How a sentence is checked',
     steps: [
-      'LIBRAIN searches the paper library (55 papers today) for the passages closest to each topic.',
+      `LIBRAIN searches the paper library (${libraryCounts('en').papers} papers today) for the passages closest to each topic.`,
       'The model that wrote the hypothesis may cite only those passages. A citation to any other passage is dropped before you see the result.',
       'It sets its most speculative part apart as the novel claim.',
       'A second model, the validator (Claude Haiku 4.5 for the recorded runs), reads each sentence of the novel claim next to the passages.',
@@ -25,7 +26,7 @@ export const text = strings({
   tr: {
     title: 'Bir cümle nasıl denetlenir?',
     steps: [
-      'LIBRAIN, makale kütüphanesinde (bugün 55 makale) her konuya en yakın metin parçalarını arar.',
+      `LIBRAIN, makale kütüphanesinde (bugün ${libraryCounts('tr').papers} makale) her konuya en yakın metin parçalarını arar.`,
       'Hipotezi yazan model yalnızca bu parçalara atıf yapabilir. Başka bir parçaya yapılan atıf, siz sonucu görmeden silinir.',
       'Model, hipotezin en spekülatif kısmını yeni iddia olarak ayırır.',
       'İkinci bir model, yani doğrulayıcı model (kaydedilen çalıştırmalarda Claude Haiku 4.5), yeni iddianın her cümlesini parçalarla yan yana okur.',

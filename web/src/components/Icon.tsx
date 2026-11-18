@@ -74,6 +74,12 @@ const PATHS: Record<IconName, string> = {
   browser: 'M1.5 2.5h13v11h-13zM1.5 5.5h13M3.5 4h.4M5.3 4h.4',
   code: 'M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5M9.2 2.5l-2.4 11',
   briefcase: 'M1.8 5h12.4v8.5H1.8zM5.5 5V2.8h5V5M1.8 8.8h12.4M7 8.8v1.4h2V8.8',
+  // Two beamed eighth notes (music)
+  note: 'M6 12V3.5l7.5-1.5v8.5M6 6l7.5-1.5M4.2 13.8a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6zM11.7 12.3a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z',
+  // A balance (law)
+  scales: 'M8 2v11.5M5 13.5h6M3.5 4.5h9M3.5 4.5 1.5 9M3.5 4.5 5.5 9M12.5 4.5 10.5 9M12.5 4.5 14.5 9M1.5 9h4a2 2 0 0 1-4 0zM10.5 9h4a2 2 0 0 1-4 0z',
+  // A paw print (wildlife)
+  paw: 'M8 8.5c-2.2 0-4 2.4-4 4 0 1.1.9 1.5 2 1.5h4c1.1 0 2-.4 2-1.5 0-1.6-1.8-4-4-4zM2.9 8.6a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zM5.6 5.2a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zM10.4 5.2a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zM13.1 8.6a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z',
 };
 
 export function Icon({ name, size = 16, label, filled = false }: { name: IconName; size?: number; label?: string; filled?: boolean }) {

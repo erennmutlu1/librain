@@ -7,8 +7,7 @@ import { runToMarkdown, runsToCsv } from '../history/exporters';
 import { createLocalRunStore } from '../history/localRunStore';
 import { LangProvider } from '../i18n/lang';
 import { downloadCsv, downloadText } from '../lib/download';
-import { text as libraryText } from './LibraryPage.i18n';
-import { PUBLIC_CORPUS_NOTE } from './LibraryPage';
+import { PUBLIC_CORPUS_NOTE, text as libraryText } from './LibraryPage.i18n';
 
 vi.mock('../lib/download', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/download')>()),

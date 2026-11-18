@@ -1,0 +1,28 @@
+{
+  "topicA": "saha kayıtlarından hayvan popülasyonlarının pasif akustik izlemesi",
+  "topicB": "otoregresif yinelemeli ağlarla olasılıksal zaman serisi tahmini (DeepAR)",
+  "hypothesis": "Pasif akustik izleme (PAM) ağları, DeepAR’ın tasarlandığı büyük ölçekli ilişkili zaman serisi problemlerine yapısal olarak benzeyen, çok büyük hacimli ve uzamsal-zamansal olarak ilişkili tür tespit olayı zaman serileri üretir; dolayısıyla birçok PAM sensör düğümü üzerinde birlikte eğitilen DeepAR tarzı otoregresif bir yinelemeli ağ, türlerin etkinlik düzeylerine ilişkin kalibre edilmiş olasılıksal tahminler üretebilir ve belirsizlik altında proaktif koruma kararlarını mümkün kılabilir. Böyle bir sistem, yaban hayatı akustik verilerinde doğal olarak bulunan güçlü zamansal otokorelasyondan ve mevsimsel periyodiklikten (DeepAR’ın LSTM omurgasının ve olabilirlik tabanlı çıktılarının yakalamaya çok uygun olduğu özellikler) yararlanarak, seyrek tespit geçmişine sahip sensörlerde bile nadir veya aralıklı seslenme olaylarını tahmin edebilir.",
+  "novelClaim": "DeepAR tarzı otoregresif bir yinelemeli ağ, birçok PAM sensör düğümü üzerinde birlikte eğitildiğinde türlerin etkinlik düzeylerine ilişkin kalibre edilmiş olasılıksal tahminler üretebilir ve belirsizlik altında proaktif koruma kararlarını mümkün kılabilir. Böyle bir sistem, yaban hayatı akustik verilerinde doğal olarak bulunan güçlü zamansal otokorelasyondan ve mevsimsel periyodiklikten (DeepAR’ın LSTM omurgasının ve olabilirlik tabanlı çıktılarının yakalamaya çok uygun olduğu özellikler) yararlanarak, seyrek tespit geçmişine sahip sensörlerde bile nadir veya aralıklı seslenme olaylarını tahmin edebilir.",
+  "reasoning": "PAM ağları, birçok sensör düğümü boyunca sürekli, yüksek hacimli ve uzamsal-zamansal olarak ilişkili tespit zaman serileri üretir (2110.12951:5); bu da DeepAR’ın üzerine kurulduğu büyük ölçekli ilişkili zaman serisi düzenini yansıtır (deepar:0, deepar:1). DeepAR’ın ilişkili seriler arasında istatistiksel gücü paylaşabilmesi ve esnek olabilirlik fonksiyonlarıyla aralıklı/ani artışlı verileri ele alabilmesi (deepar:2), çok alanlı PAM’in seyrek tespit ve ölçek heterojenliği sorunlarına doğrudan çözüm getirir. Bu durum, sensör ağları genelinde türlerin etkinliğine ilişkin birlikte olasılıksal tahmin yapılmasının, biyoakustik literatüründe henüz araştırılmamış, uygulanabilir ve yüksek değerli bir uygulama olduğunu düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "DeepAR tarzı otoregresif bir yinelemeli ağ, birçok PAM sensör düğümü üzerinde birlikte eğitildiğinde türlerin etkinlik düzeylerine ilişkin kalibre edilmiş olasılıksal tahminler üretebilir ve belirsizlik altında proaktif koruma kararlarını mümkün kılabilir.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor (“üretebilir”) ve DeepAR’ın PAM sensör ağlarına varsayımsal bir uygulamasını öne sürüyor; DeepAR’ın olasılıksal tahmin yetenekleri belgelenmiş olsa da bunun yaban hayatı akustik izlemeye özel uygulaması varsayımsaldır."
+    },
+    {
+      "sentence": "Böyle bir sistem, yaban hayatı akustik verilerinde doğal olarak bulunan güçlü zamansal otokorelasyondan ve mevsimsel periyodiklikten (DeepAR’ın LSTM omurgasının ve olabilirlik tabanlı çıktılarının yakalamaya çok uygun olduğu özellikler) yararlanarak, seyrek tespit geçmişine sahip sensörlerde bile nadir veya aralıklı seslenme olaylarını tahmin edebilir.",
+      "rationale": "Cümle koşullu bir dil kullanıyor (“yararlanabilir”) ve varsayımsal bir yeteneği anlatıyor; DeepAR’ın LSTM mimarisi ve olabilirlik tabanlı yaklaşımı belgelenmiş olsa da seyrek geçmişe sahip nadir seslenme olaylarının tahmini için özel uygulaması spekülatiftir ve getirilen parçalarca doğrudan desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "DeepAR tarzı otoregresif bir yinelemeli ağ, birçok PAM sensör düğümü üzerinde birlikte eğitildiğinde türlerin etkinlik düzeylerine ilişkin kalibre edilmiş olasılıksal tahminler üretebilir ve belirsizlik altında proaktif koruma kararlarını mümkün kılabilir.",
+      "rationale": "DeepAR’ın ilişkili zaman serilerinden öğrenerek az geçmişi olan öğeleri tahmin edebilme avantajı, birçok düğümün tür düzeyinde zamansal örüntüleri paylaştığı ancak tek tek düğümlerde tespitlerin seyrek olabildiği PAM sensör ağlarıyla doğrudan örtüşmektedir."
+    },
+    {
+      "claimSentence": "Böyle bir sistem, yaban hayatı akustik verilerinde doğal olarak bulunan güçlü zamansal otokorelasyondan ve mevsimsel periyodiklikten (DeepAR’ın LSTM omurgasının ve olabilirlik tabanlı çıktılarının yakalamaya çok uygun olduğu özellikler) yararlanarak, seyrek tespit geçmişine sahip sensörlerde bile nadir veya aralıklı seslenme olaylarını tahmin edebilir.",
+      "rationale": "PAM sensörlerinin, günler/haftalar boyunca güçlü zamansal otokorelasyon içeren, yüksek düzeyde uzamsal-zamansal olarak ilişkili veriler ürettiği belirtilmektedir; bu, DeepAR’ın LSTM’inin ve olasılıksal olabilirliğinin tam olarak modellemek üzere tasarlandığı yapısal bağımlılıktır."
+    }
+  ],
+  "id": "E1"
+}

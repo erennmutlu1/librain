@@ -5,6 +5,7 @@ import { MemoryRouter, useLocation } from 'react-router';
 import { App } from '../App';
 import { createMockApi } from '../api/mockClient';
 import { createLocalRunStore } from '../history/localRunStore';
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 import { LangProvider } from '../i18n/lang';
 import { fold, matchScore } from '../lib/fuzzy';
 import { discoverPath } from '../lib/remix';
@@ -102,7 +103,7 @@ describe('command palette', () => {
     expect(where()).toBe('/');
   });
 
-  it('finds the 70 recorded ideas by id and opens one', async () => {
+  it('finds the recorded ideas by id and opens one', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'F4');
     const option = await screen.findByRole('option', { name: /^F4 · corner kick tactic generation/ });
@@ -111,15 +112,19 @@ describe('command palette', () => {
     expect(where()).toBe('/explore/F4');
   });
 
-  it('finds batch-3 ideas too, and counts all 70 in the Ideas hint', async () => {
+  it('finds later batches’ ideas too, and counts them all in the Ideas hint', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'checked sentence');
-    expect(screen.getByRole('option', { name: /All 70 recorded ideas, checked sentence by sentence/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: new RegExp(`All ${RECORDED_IDEA_COUNT} recorded ideas, checked sentence by sentence`) })).toBeInTheDocument();
     await user.clear(input);
     await user.type(input, 'X17');
     const option = await screen.findByRole('option', { name: /^X17 · COVID-19 forecasting on a spatio-temporal graph/ });
-    await user.click(option);
-    expect(where()).toBe('/explore/X17');
+    expect(option).toBeInTheDocument();
+    await user.clear(input);
+    await user.type(input, 'E5');
+    const e5 = await screen.findByRole('option', { name: /^E5 · animal movement tracking with bio-logging devices and drones/ });
+    await user.click(e5);
+    expect(where()).toBe('/explore/E5');
   });
 
   it('offers any typed text as a new idea, with the topic encoded in the link', async () => {

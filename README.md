@@ -13,7 +13,7 @@
 
 LIBRAIN ingests open-access scientific papers from arXiv, builds a semantically-searchable knowledge base using vector embeddings, and uses a multi-agent reasoning pipeline to generate citation-grounded research hypotheses. Every output is auditable: from the retrieved excerpts to the LLM-as-a-Judge evaluation scores.
 
-**Try it: [librain.erenmutlu.me](https://librain.erenmutlu.me).** The recorded runs (46 discoveries in nine fields) replay with no account and no key. Live runs use your own Anthropic and OpenAI keys, which are sent only with your own requests and never stored; the public API is read-only and keeps nothing (see [deploy/README.md](deploy/README.md)).
+**Try it: [librain.erenmutlu.me](https://librain.erenmutlu.me).** The recorded runs (88 discoveries in thirteen fields) replay with no account and no key. Live runs use your own Anthropic and OpenAI keys, which are sent only with your own requests and never stored; the public API is read-only and keeps nothing (see [deploy/README.md](deploy/README.md)).
 
 ---
 
@@ -272,7 +272,7 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ## Performance
 
-- Papers ingested: 55 (2,210 chunks). The original 5-paper seed, a multi-domain expansion to 41 papers (RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, cognition/neuroscience), and 14 arXiv papers added on 2026-11-18 for football, sport, web development, programming languages and labour-market studies. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
+- Papers ingested: 67 (2,470 chunks). The original 5-paper seed, a multi-domain expansion to 41 papers (RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, cognition/neuroscience), 14 arXiv papers added on 2026-11-18 for football, sport, web development, programming languages and labour-market studies, and 12 more the same day for music, law and wildlife conservation ([`experiments/new-domains-discoveries/`](experiments/new-domains-discoveries/)). (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
 - Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration, a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
@@ -308,7 +308,7 @@ Every numeric claim in the companion paper is backed by a runnable command + a c
 
 - LIBRAIN dev server running locally: `dotnet run --project LIBRAIN`
 - Anthropic + OpenAI + Qdrant Cloud keys configured via `dotnet user-secrets` (see [Quick Start](#quick-start)).
-- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 41-paper live corpus. The §7.10 robustness sweep ran against a 5-paper weather/energy slice (the only PDFs present at run time, per the committed `experiments/robustness/results.csv`). The committed paper numbers below are tied to the original 13-paper set.
+- The **pre-registered 13-paper Phase B corpus** ingested into the Qdrant collection (Phase 1 seed + Phase 2.5 expansion). This is distinct from the 67-paper live corpus. The §7.10 robustness sweep ran against a 5-paper weather/energy slice (the only PDFs present at run time, per the committed `experiments/robustness/results.csv`). The committed paper numbers below are tied to the original 13-paper set.
 
 ### Full reproduction sequence + cost estimate (~$1.24)
 

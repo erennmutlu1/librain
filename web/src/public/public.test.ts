@@ -14,6 +14,7 @@ import {
   setProviderKeys,
 } from '../api/providerKeys';
 import type { DiscoverRequest, LibrainApi } from '../api/types';
+import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
 import { exploreRecordings, publicRecordings } from '../mocks/publicScenarios';
 import { contract } from '../mocks/scenarios';
 import { PUBLIC_HISTORY_KEY, PUBLIC_HISTORY_LIMIT, createPublicHistory, withBrowserHistory } from './browserHistory';
@@ -215,12 +216,13 @@ describe('Recorded mode on the public site (strict recordings)', () => {
   const api = () => createMockApi({ latency: 0, recordings: publicRecordings });
   const f4 = exploreRecordings.find((r) => r.id === 'explore-F4')!;
 
-  it('offers the 70 committed runs and the real Anthropic pairs, and no API snapshot or OpenAI run', () => {
-    expect(exploreRecordings).toHaveLength(70);
+  it('offers every committed run and the real Anthropic pairs, and no API snapshot or OpenAI run', () => {
+    expect(exploreRecordings).toHaveLength(RECORDED_IDEA_COUNT);
     const catalog = api().mock!;
-    expect(catalog.discover).toHaveLength(74);
+    const baseline = catalog.discover.filter((s) => s.id.startsWith('anthropic-pair-'));
+    expect(baseline).toHaveLength(4);
+    expect(catalog.discover).toHaveLength(exploreRecordings.length + baseline.length);
     expect(catalog.discover.map((s) => s.id)).not.toContainEqual(expect.stringMatching(/^(contract-|openai-)/));
-    expect(catalog.discover.filter((s) => s.id.startsWith('anthropic-pair-'))).toHaveLength(4);
     expect(catalog.compare.map((s) => s.id)).toEqual(['pair-10', 'pair-01']);
     // The five real questions from experiments/ask-examples, never the API contract snapshot.
     expect(catalog.ask.map((s) => s.id)).toEqual(['ask-1', 'ask-2', 'ask-3', 'ask-4', 'ask-5']);
@@ -228,11 +230,17 @@ describe('Recorded mode on the public site (strict recordings)', () => {
     expect(f4.label).toBe('F4 · corner kick tactic generation and player positioning × learned physics simulators with graph networks');
     expect(f4.source).toBe('experiments/new-areas-discoveries/runs/F4.json');
     expect(exploreRecordings[0]?.source).toBe('experiments/featured-discoveries/runs/A1.json');
-    // Batch 3 follows batches 1 and 2, in id order.
-    expect(exploreRecordings.slice(-24).map((r) => r.id)).toEqual(
+    // Batch 3 follows batches 1 and 2, and batch 4 comes last, each in id order.
+    const batch4 = exploreRecordings.filter((r) => r.source.startsWith('experiments/new-domains-discoveries/'));
+    expect(batch4.length).toBeGreaterThan(0);
+    expect(exploreRecordings.slice(-batch4.length)).toEqual(batch4);
+    const batch4Ids = batch4.map((r) => r.id);
+    expect(batch4Ids).toEqual([...batch4Ids].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })));
+    expect(exploreRecordings.slice(-batch4.length - 24, -batch4.length).map((r) => r.id)).toEqual(
       [...Array.from({ length: 23 }, (_, i) => i + 1), 25].map((n) => `explore-X${String(n).padStart(2, '0')}`),
     );
     expect(exploreRecordings.find((r) => r.id === 'explore-X17')?.source).toBe('experiments/cross-field-discoveries/runs/X17.json');
+    expect(exploreRecordings.find((r) => r.id === 'explore-E5')?.source).toBe('experiments/new-domains-discoveries/runs/E5.json');
   });
 
   it('serves a recording only for its own topics, either order, any case', async () => {

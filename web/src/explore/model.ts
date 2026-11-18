@@ -182,7 +182,7 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
 }
 
 function categoryIndex(d: Discovery): number {
-  return 'DACNFSWPJX'.indexOf(d.category.prefix);
+  return 'DACNFSWPJXMLE'.indexOf(d.category.prefix);
 }
 
 // ---------- Percentiles ----------
@@ -600,7 +600,7 @@ export function exploreTotals(all: readonly Discovery[]): ExploreTotals {
       min: Math.min(...costs),
       max: Math.max(...costs),
       mean: total / Math.max(1, all.length),
-      byBatch: ([1, 2, 3] as const).map((batch) => {
+      byBatch: ([1, 2, 3, 4] as const).map((batch) => {
         const runs = all.filter((d) => d.batch === batch);
         return { batch, runs: runs.length, total: runs.reduce((s, d) => s + (d.costUsd ?? 0), 0) };
       }),

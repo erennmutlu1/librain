@@ -76,7 +76,7 @@ export default function DiscoverPage() {
   const [params, setParams] = useSearchParams();
   /*
    * Recorded mode, after a submit whose inputs match no recording: shown right
-   * under the submit row (not below the 50 recorded runs) and focused there.
+   * under the submit row (not below the list of recorded runs) and focused there.
    * `tick` moves focus again on a repeated submit; `key` hides it once the
    * inputs change.
    */

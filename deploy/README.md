@@ -4,7 +4,7 @@
 |---|---|---|
 | Web UI (public build) | GitHub Pages, `librain.erenmutlu.me` | free |
 | API (public mode), https://librain.onrender.com | Render free web service, built from this repo (`render.yaml`) | free, no card |
-| Corpus (55 papers, 2,210 chunks) | Qdrant Cloud free cluster, Frankfurt | free |
+| Corpus (67 papers, 2,470 chunks) | Qdrant Cloud free cluster, Frankfurt | free |
 | Keep-alive | GitHub Actions, one read every 3 days (`qdrant-keepalive.yml`) | free |
 | Claude and OpenAI | **the visitor's own keys** | billed to the visitor |
 
@@ -79,7 +79,7 @@ else). Render's own on-commit trigger did not fire for this repository. The Publ
 
 ```sh
 curl -s https://librain.onrender.com/health                         # {"status":"ok"} (may take a minute to wake)
-curl -s https://librain.onrender.com/api/papers | jq length         # 55
+curl -s https://librain.onrender.com/api/papers | jq length         # 67
 curl -s -X POST -H 'content-type: application/json' -d '{"topicA":"a","topicB":"b"}' \
   https://librain.onrender.com/api/discover | jq .title             # "provider keys required"
 curl -s -o /dev/null -w '%{http_code}\n' https://librain.onrender.com/api/runs   # 403

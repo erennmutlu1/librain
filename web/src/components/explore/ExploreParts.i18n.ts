@@ -34,7 +34,7 @@ export const partsText = strings({
       `The weights rank these ${total} recorded ideas against each other. They are this page’s reading aid, not a score from the paper, and a high rating is still a candidate to test.`,
     noiseLead: 'A rating is not exact.',
     noiseText:
-      ' Each one comes from a single run, and running the same request again gives a different idea. Two of the best pairs were re-run four times each: they rated 6.5–7.2 and 5.6–6.2, against 7.6 and 7.7 the first time. So a rating can be off by about a point either way. Treat close ratings as ties.',
+      ' Each one comes from a single run, and running the same request again gives a different idea. Two of the best pairs were re-run four times each: they rated 6.5–7.2 and 5.6–6.2, against 7.6 and 7.7 the first time (on the scale of the 70 ideas recorded by then). So a rating can be off by about a point either way. Treat close ratings as ties.',
     noiseLink: 'See the re-run experiment on GitHub',
     newTab: '(opens in a new tab)',
     loadErrorTitle: 'The recorded ideas did not load.',
@@ -76,7 +76,7 @@ export const partsText = strings({
       `Ağırlıklar, kayıtlı ${total} fikri birbirine göre sıralar. Bu sayfanın okuma yardımcısıdır, makaleden gelen bir puan değildir; yüksek not da yine sınanması gereken bir adaydır.`,
     noiseLead: 'Not kesin değildir.',
     noiseText:
-      ' Her not tek bir çalıştırmadan gelir ve aynı istek yeniden çalıştırıldığında başka bir fikir çıkar. En iyi konu çiftlerinden ikisi dörder kez yeniden çalıştırıldı: ilk seferdeki 7,6 ve 7,7 yerine 6,5–7,2 ve 5,6–6,2 arasında not aldılar. Yani bir not, iki yönde de yaklaşık 1 birim şaşabilir. Birbirine yakın notları eşit sayın.',
+      ' Her not tek bir çalıştırmadan gelir ve aynı istek yeniden çalıştırıldığında başka bir fikir çıkar. En iyi konu çiftlerinden ikisi dörder kez yeniden çalıştırıldı: ilk seferdeki 7,6 ve 7,7 yerine (o güne kadar kaydedilen 70 fikrin ölçeğinde) 6,5–7,2 ve 5,6–6,2 arasında not aldılar. Yani bir not, iki yönde de yaklaşık 1 birim şaşabilir. Birbirine yakın notları eşit sayın.',
     noiseLink: 'GitHub’daki yeniden çalıştırma deneyine bakın',
     newTab: '(yeni sekmede açılır)',
     loadErrorTitle: 'Kayıtlı fikirler yüklenemedi.',

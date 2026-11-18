@@ -8,6 +8,7 @@ import { text as contractText } from './components/ContractSummary.i18n';
 import type { LibrainApi } from './api/types';
 import { createLocalRunStore } from './history/localRunStore';
 import { LangProvider } from './i18n/lang';
+import { LIBRARY } from './lib/library';
 import { contract } from './mocks/scenarios';
 
 function setup(path: string, api: LibrainApi = createMockApi({ latency: 0 })) {
@@ -165,7 +166,7 @@ describe('App (mock mode, no network)', () => {
 describe('App routes and titles', () => {
   it('opens on the home page, and the logo leads back to it', async () => {
     const { user } = setup('/');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: `Research ideas from ${LIBRARY.papers} papers, with every sentence checked` })).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('LIBRAIN · Research ideas, every sentence checked'));
     const logo = screen.getByRole('link', { name: 'LIBRAIN home' });
     expect(logo).toHaveAttribute('href', '/');
@@ -175,7 +176,7 @@ describe('App routes and titles', () => {
     await user.click(screen.getByRole('link', { name: 'Try your own topics' }));
     expect(await screen.findByRole('combobox', { name: 'Topic A' })).toBeInTheDocument();
     await user.click(logo);
-    expect(await screen.findByRole('heading', { level: 1, name: 'Research ideas from 55 papers, with every sentence checked' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: `Research ideas from ${LIBRARY.papers} papers, with every sentence checked` })).toBeInTheDocument();
   });
 
   it.each([

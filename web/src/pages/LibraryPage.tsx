@@ -9,7 +9,8 @@ import { useLang, useT, type Lang } from '../i18n/lang';
 import { normalizeArxivId } from '../lib/arxiv';
 import { fileStamp } from '../lib/download';
 import { formatAuthors, formatCount, formatDate } from '../lib/format';
-import { fromEarlierLibrary, paperAuthors, paperExternalUrl, paperInfo, TODAYS_LIBRARY_SIZE } from '../lib/paperCatalog';
+import { LIBRARY } from '../lib/library';
+import { fromEarlierLibrary, paperAuthors, paperExternalUrl, paperInfo } from '../lib/paperCatalog';
 import { displayTitle, usePapers } from '../lib/papers';
 import { useSessionState } from '../lib/sessionStore';
 import { usePublicDemo } from '../public/context';
@@ -17,9 +18,6 @@ import { UploadPanel } from './UploadPanel';
 import { text } from './LibraryPage.i18n';
 import pageStyles from './pages.module.css';
 import styles from './LibraryPage.module.css';
-
-/** The library the public API serves (experiments/new-areas-discoveries/featured.json). English; the screen shows the reader's language. */
-export const PUBLIC_CORPUS_NOTE = 'The public paper library is read-only: 55 papers, 2,210 passages.';
 
 /** Values the backend fills in from empty PDF metadata: not a title, not an author. */
 const PLACEHOLDER_TITLES = new Set(['Manuscript - Arxiv']);
@@ -330,7 +328,7 @@ export default function LibraryPage() {
             ? papers.length === 0
               ? t.ledeEmpty
               : recordedOnly
-                ? t.ledeRecorded(formatN(TODAYS_LIBRARY_SIZE), formatN(papers.length), formatN(papers.length - olderIds), formatN(olderIds))
+                ? t.ledeRecorded(formatN(LIBRARY.papers), formatN(papers.length), formatN(papers.length - olderIds), formatN(olderIds))
                 : t.ledeLive(formatN(papers.length), formatN(totalChunks))
             : t.ledeIdle}
         </p>

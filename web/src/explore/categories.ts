@@ -1,6 +1,6 @@
 /*
  * Explore categories. A run's category comes from the letter its id starts
- * with (D1, F4, J5, X17, …), the naming every experiment batch used.
+ * with (D1, F4, J5, X17, E5, …), the naming every experiment batch used.
  *
  * Each category has a hue (a --cat-* token in styles/tokens.css, light and
  * dark steps from the same categorical palette as the Compare systems) and an
@@ -12,7 +12,20 @@ import type { CSSProperties } from 'react';
 import { currentLang, type Lang } from '../i18n/lang';
 import type { ExploreBatch } from './manifests';
 
-export type CategoryIcon = 'pill' | 'leaf' | 'pulse' | 'venn' | 'ball' | 'stopwatch' | 'browser' | 'code' | 'briefcase' | 'link';
+export type CategoryIcon =
+  | 'pill'
+  | 'leaf'
+  | 'pulse'
+  | 'venn'
+  | 'ball'
+  | 'stopwatch'
+  | 'browser'
+  | 'code'
+  | 'briefcase'
+  | 'link'
+  | 'note'
+  | 'scales'
+  | 'paw';
 
 export interface Category {
   /** The id prefix, e.g. "D". */
@@ -30,7 +43,7 @@ export interface Category {
   tr: { name: string; short: string };
 }
 
-/** Display order: batch 1, 2, then 3, each in the order its experiment lists them. */
+/** Display order: batch 1, 2, 3, then 4, each in the order its experiment lists them. */
 export const CATEGORIES: readonly Category[] = [
   {
     prefix: 'D',
@@ -121,6 +134,33 @@ export const CATEGORIES: readonly Category[] = [
     colorVar: '--cat-x',
     batch: 3,
     tr: { name: 'Alanlar arası köprüler', short: 'Köprüler' },
+  },
+  {
+    prefix: 'M',
+    name: 'AI × music',
+    short: 'Music',
+    icon: 'note',
+    colorVar: '--cat-m',
+    batch: 4,
+    tr: { name: 'Yapay zekâ × müzik', short: 'Müzik' },
+  },
+  {
+    prefix: 'L',
+    name: 'AI × law',
+    short: 'Law',
+    icon: 'scales',
+    colorVar: '--cat-l',
+    batch: 4,
+    tr: { name: 'Yapay zekâ × hukuk', short: 'Hukuk' },
+  },
+  {
+    prefix: 'E',
+    name: 'AI × wildlife and nature conservation',
+    short: 'Wildlife',
+    icon: 'paw',
+    colorVar: '--cat-e',
+    batch: 4,
+    tr: { name: 'Yapay zekâ × yaban hayatı ve doğa koruma', short: 'Yaban hayatı' },
   },
 ];
 

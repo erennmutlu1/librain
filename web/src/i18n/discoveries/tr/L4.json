@@ -1,0 +1,28 @@
+{
+  "id": "L4",
+  "topicA": "benzer dava eşleştirme ve hukuki soru yanıtlama",
+  "topicB": "parametrik olmayan bellekle erişim destekli üretim",
+  "hypothesis": "Hukuki yapay zekâda Benzer Dava Eşleştirme (SCM) şu anda terim düzeyinde ve anlamsal düzeyde benzerliğe dayanmakta, ancak unsur düzeyinde hukuki bilgi temellendirmesinden yoksun olduğu için yetersiz kalmaktadır. Ham dava metni yerine yapılandırılmış hukuki unsur temsilleri üzerinde kurulmuş, parametrik olmayan bir bellek dizinine sahip bir RAG mimarisi, hukuki açıdan anlamlı birimlere koşullandırılmış erişimi mümkün kılabilir ve SCM performansını belirgin biçimde artırabilir. Ayrıca, hukuki dava erişimine uygulanan SELF-RAG tarzı bir öz yansıtma mekanizması, modelin unsur düzeyinde erişimin ne zaman gerekli olduğuna uyarlanabilir biçimde karar vermesine olanak tanıyarak daha yorumlanabilir ve hukuken daha sağlam temellere dayanan bir dava eşleştirmesi sağlayabilir.",
+  "novelClaim": "Ham dava metni yerine yapılandırılmış hukuki unsur temsilleri üzerinde kurulmuş, parametrik olmayan bir bellek dizinine sahip bir RAG mimarisi, hukuki açıdan anlamlı birimlere koşullandırılmış erişimi mümkün kılabilir ve SCM performansını belirgin biçimde artırabilir. Ayrıca, hukuki dava erişimine uygulanan SELF-RAG tarzı bir öz yansıtma mekanizması, modelin unsur düzeyinde erişimin ne zaman gerekli olduğuna uyarlanabilir biçimde karar vermesine olanak tanıyarak daha yorumlanabilir ve hukuken daha sağlam temellere dayanan bir dava eşleştirmesi sağlayabilir.",
+  "reasoning": "SCM’nin anlamsal benzerliğin ötesinde unsur düzeyinde hukuki bilgi gerektirdiği açıkça belirtilmekte (2004.12158:8), RAG’ın parametrik olmayan belleğinin ise bilgi yoğun görevler için güncellenebilir ve yorumlanabilir erişimi desteklediği gösterilmektedir (2005.11401:0, 2005.11401:9). Bu bulguların birleştirilmesi, yapılandırılmış hukuki unsurların parametrik olmayan bellek olarak dizinlenmesinin ve SELF-RAG’ın uyarlanabilir yansıtma mekanizmasının uygulanmasının, SCM’nin unsur düzeyinde temellendirme ve yorumlanabilirlik konusundaki bilinen eksikliklerini doğrudan giderebileceğini düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "Ham dava metni yerine yapılandırılmış hukuki unsur temsilleri üzerinde kurulmuş, parametrik olmayan bir bellek dizinine sahip bir RAG mimarisi, hukuki açıdan anlamlı birimlere koşullandırılmış erişimi mümkün kılabilir ve SCM performansını belirgin biçimde artırabilir.",
+      "rationale": "Cümle, ihtiyatlı bir dille (“mümkün kılabilir”) spekülatif bir mimari tasarım önermekte ve yerleşik RAG kavramlarını hukuki unsur temsilleriyle birleştirmektedir; RAG ve hukuki unsurlar getirilen parçalarda belgelenmiş olsa da bu özel birleşim ve iddia edilen performans artışı varsayımsaldır."
+    },
+    {
+      "sentence": "Ayrıca, hukuki dava erişimine uygulanan SELF-RAG tarzı bir öz yansıtma mekanizması, modelin unsur düzeyinde erişimin ne zaman gerekli olduğuna uyarlanabilir biçimde karar vermesine olanak tanıyarak daha yorumlanabilir ve hukuken daha sağlam temellere dayanan bir dava eşleştirmesi sağlayabilir.",
+      "rationale": "Cümle, SELF-RAG’ın öz yansıtma mekanizmasının hukuki dava erişimine uygulanmasını ihtiyatlı bir dille (“olanak tanıyarak … sağlayabilir”) spekülatif biçimde ele almakta, belgelenmiş teknikleri yeni bir biçimde birleştirmekte ve bunu yerleşik bir olgu olarak öne sürmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Ham dava metni yerine yapılandırılmış hukuki unsur temsilleri üzerinde kurulmuş, parametrik olmayan bir bellek dizinine sahip bir RAG mimarisi, hukuki açıdan anlamlı birimlere koşullandırılmış erişimi mümkün kılabilir ve SCM performansını belirgin biçimde artırabilir.",
+      "rationale": "RAG’ın parametrik olmayan belleğinin güncellenebilir ve incelenebilir olduğu gösterilmiştir (2005.11401:0); benzetme yoluyla, Wikipedia parçaları yerine hukuki unsurların dizinlenmesi, erişimi 2004.12158:8’e göre SCM’nin gerektirdiği hukuki açıdan anlamlı birimlere dayandıracaktır."
+    },
+    {
+      "claimSentence": "Ayrıca, hukuki dava erişimine uygulanan SELF-RAG tarzı bir öz yansıtma mekanizması, modelin unsur düzeyinde erişimin ne zaman gerekli olduğuna uyarlanabilir biçimde karar vermesine olanak tanıyarak daha yorumlanabilir ve hukuken daha sağlam temellere dayanan bir dava eşleştirmesi sağlayabilir.",
+      "rationale": "SELF-RAG’ın yansıtma token’larıyla yönlendirilen uyarlanabilir, talep üzerine erişimi (self-rag:2), unsur düzeyinde kanıtın ne zaman gerektiğine karar vermenin esnek erişim sıklığı ayarına benzediği hukuki SCM ortamına benzetme yoluyla aktarılmaktadır."
+    }
+  ]
+}

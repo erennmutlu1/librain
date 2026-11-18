@@ -1,13 +1,17 @@
 import { strings } from '../i18n/lang';
 import type { ClaimStatus } from '../api/types';
 import { RECORDED_IDEA_COUNT } from '../explore/ideaCount';
+import { libraryCounts } from '../lib/library';
 
 type Verdict = { label: string; line: string };
 
+const en = libraryCounts('en');
+const tr = libraryCounts('tr');
+
 /*
- * The home page. Every number here is checked against the repository: 55
- * papers, the recorded ideas (counted from src/explore/data at build time,
- * see explore/ideaCount.ts), about US$0.07 an idea
+ * The home page. Every number here is checked against the repository: the
+ * library size (src/lib/library.ts), the recorded ideas (counted from
+ * src/explore/data at build time, see explore/ideaCount.ts), about US$0.07 an idea
  * (README: $0.066 on average), and the human-rating figures from
  * experiments/hallucination-pilot/combined-n30-per-system.csv. The example's
  * sentences, verdicts and reason are read from the recorded run itself.
@@ -16,7 +20,7 @@ export const text = strings({
   en: {
     hero: {
       eyebrow: 'Open-source research demo',
-      title: 'Research ideas from 55 papers, with every sentence checked',
+      title: `Research ideas from ${en.papers} papers, with every sentence checked`,
       lede: 'LIBRAIN answers questions with the exact passages it used, and suggests ideas that link two topics. A second AI then marks each sentence: backed by the papers, a reasoned guess, or risky.',
       primary: `See ${RECORDED_IDEA_COUNT} checked ideas`,
       secondary: 'Try your own topics',
@@ -43,7 +47,7 @@ export const text = strings({
         { title: 'Pick two topics, or ask a question', body: 'Choose from the suggestions or type your own.' },
         {
           title: 'LIBRAIN finds passages and suggests an idea',
-          body: 'It searches the 55 papers for the passages that matter. Every source it cites is a real passage you can open.',
+          body: `It searches the ${en.papers} papers for the passages that matter. Every source it cites is a real passage you can open.`,
         },
         { title: 'A second AI checks every sentence', body: 'It marks each sentence of the new claim and gives its reason.' },
       ],
@@ -74,7 +78,7 @@ export const text = strings({
         go: 'Switch to Live',
       },
       caveat:
-        'This is a research demo, not a finished product: the checker can be wrong too, and 55 papers cover a limited set of topics.',
+        `This is a research demo, not a finished product: the checker can be wrong too, and ${en.papers} papers cover a limited set of topics.`,
     },
     inside: {
       title: 'What’s inside',
@@ -94,7 +98,7 @@ export const text = strings({
   tr: {
     hero: {
       eyebrow: 'Açık kaynaklı araştırma demosu',
-      title: '55 makaleden araştırma fikirleri, her cümlesi kontrol edilmiş',
+      title: `${tr.papers} makaleden araştırma fikirleri, her cümlesi kontrol edilmiş`,
       lede: 'LIBRAIN sorularınızı dayandığı parçaları göstererek yanıtlar ve iki konuyu birbirine bağlayan fikirler önerir. Ardından ikinci bir yapay zekâ her cümleyi işaretler: makalelerde dayanağı var, makul bir tahmin ya da riskli.',
       primary: `Kontrol edilmiş ${RECORDED_IDEA_COUNT} fikri görün`,
       secondary: 'Kendi konularınızı deneyin',
@@ -121,7 +125,7 @@ export const text = strings({
         { title: 'İki konu seçin ya da bir soru sorun', body: 'Önerilerden seçin ya da kendiniz yazın.' },
         {
           title: 'LIBRAIN parçaları bulur ve bir fikir önerir',
-          body: '55 makalede ilgili metin parçalarını arar. Gösterdiği her kaynak, açıp okuyabileceğiniz gerçek bir parçadır.',
+          body: `${tr.papers} makalede ilgili metin parçalarını arar. Gösterdiği her kaynak, açıp okuyabileceğiniz gerçek bir parçadır.`,
         },
         { title: 'İkinci bir yapay zekâ her cümleyi kontrol eder', body: 'Yeni iddianın her cümlesini işaretler ve gerekçesini yazar.' },
       ],
@@ -152,7 +156,7 @@ export const text = strings({
         go: 'Canlı moda geç',
       },
       caveat:
-        'Bu bir araştırma demosu, bitmiş bir ürün değil: denetleyici de yanılabilir ve 55 makale yalnızca sınırlı sayıda konuyu kapsar.',
+        `Bu bir araştırma demosu, bitmiş bir ürün değil: denetleyici de yanılabilir ve ${tr.papers} makale yalnızca sınırlı sayıda konuyu kapsar.`,
     },
     inside: {
       title: 'Neler var?',

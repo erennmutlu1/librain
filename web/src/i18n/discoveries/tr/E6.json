@@ -1,0 +1,20 @@
+{
+  "topicA": "bir rezervdeki yaban hayatını izlemek için kamera tuzağı ağları",
+  "topicB": "uzamsal-zamansal graf sinir ağları",
+  "hypothesis": "Bir yaban hayatı rezervine yayılmış kamera tuzağı ağları, düğümlerin tekil kamera istasyonlarına, kenarların ise hem coğrafi yakınlığı hem de hayvan tespitlerinin zamansal birlikte oluşumunu kodladığı bir uzamsal-zamansal graf olarak doğal biçimde temsil edilebilen, uzamsal-zamansal olarak ilişkili gözlemler üretir. Dikkat ağırlıklı kenarlara sahip bir uzamsal-zamansal GNN, hayvan hareketi sinyallerini kamera ağı boyunca yayabilir ve tek bir kameranın veya bağımsız zaman serisi modelinin başarabileceğinin ötesinde, rezerv genelinde tür varlığı ve yoğunluğu tahmini yapılmasını sağlayabilir. Bu mimari, modelin bir kamera istasyonundaki tespit olayının mekânsal olarak bitişik istasyonlardaki tespitlerin öncü göstergesi olduğunu öğrenmesine olanak tanıyabilir ve böylece rezerv genelinde hayvan hareketi yörüngelerini neredeyse gerçek zamanlı olarak etkili biçimde izleyebilir.",
+  "novelClaim": "Bu mimari, modelin bir kamera istasyonundaki tespit olayının mekânsal olarak bitişik istasyonlardaki tespitlerin öncü göstergesi olduğunu öğrenmesine olanak tanıyabilir ve böylece rezerv genelinde hayvan hareketi yörüngelerini neredeyse gerçek zamanlı olarak etkili biçimde izleyebilir.",
+  "reasoning": "Kamera tuzağı verilerinin istasyonlar arasında yüksek düzeyde uzamsal-zamansal olarak ilişkili olduğu açıkça belirtilmektedir (2110.12951:5) ve derin öğrenme görüntü başına tür tanımayı zaten geniş ölçekte otomatikleştirmektedir (1703.05830:0). COVID-19 ST-GNN, uzamsal düğümlerin (konumlar) zamansal kenarlarla ve hareketliliğe göre ağırlıklandırılmış uzamsal kenarlarla kodlanmasının, bir graf üzerinde yayılan olguların tahminini mümkün kıldığını göstermektedir (covid-stgnn:0, covid-stgnn:2); aynı paradigmanın, insan hareketliliğinin yerini hayvan hareketinin aldığı bir kamera tuzağı ağına uygulanması, kameralar arası tespit olaylarının bitişik istasyonlar için öncü göstergeler olarak hizmet edebileceği yeni iddiasını doğurmaktadır; bu da getirilen hiçbir tekil kaynağın desteklemediği yörünge düzeyinde izlemeyi mümkün kılar.",
+  "claims": [
+    {
+      "sentence": "Bu mimari, modelin bir kamera istasyonundaki tespit olayının mekânsal olarak bitişik istasyonlardaki tespitlerin öncü göstergesi olduğunu öğrenmesine olanak tanıyabilir ve böylece rezerv genelinde hayvan hareketi yörüngelerini neredeyse gerçek zamanlı olarak etkili biçimde izleyebilir.",
+      "rationale": "Cümle, ihtiyatlı bir dil kullanarak (“olanak tanıyacak”) spekülatif bir yetenek (öncü göstergeleri öğrenme ve yörüngeleri izleme) öne sürüyor, ancak böyle bir mimarinin bunu başardığının gösterildiğine dair belirli bir kanıt sunmuyor; getirilen parçalar kamera tuzağı teknolojisini ve graf sinir ağlarını ayrı ayrı ele alıyor, hayvan yörüngesi izleme için bütünleşmelerini ele almıyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu mimari, modelin bir kamera istasyonundaki tespit olayının mekânsal olarak bitişik istasyonlardaki tespitlerin öncü göstergesi olduğunu öğrenmesine olanak tanıyabilir ve böylece rezerv genelinde hayvan hareketi yörüngelerini neredeyse gerçek zamanlı olarak etkili biçimde izleyebilir.",
+      "rationale": "COVID-19 ST-GNN, bir konumdaki tespit olaylarını zamansal kenarlar aracılığıyla komşu konumlar için öncü göstergeler olarak kullanır; aynı mesaj iletimi mantığı, bir kamera tuzağı grafı boyunca yayılan hayvan tespitlerine aktarılabilir."
+    }
+  ],
+  "id": "E6"
+}

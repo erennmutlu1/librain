@@ -67,6 +67,18 @@
     "X13": {
       "takeaway": "Design2Code gibi ekran görüntüsünden koda kıyaslama veri kümeleri, ön yüz (front-end) mühendisleri için iş kaybının erken bir işareti olabilir; ancak doğrulayıcı, eski otomasyon ölçütlerinin açıklayamadığı %28–40’lık maruziyet varyansını çok kipli (multimodal) kod üretiminin açıkladığı iddiasını riskli olarak işaretliyor.",
       "whyFeatured": "Denetimin işlediğini gösteriyor: getirilen hiçbir parça iddianın öne sürdüğü nedeni desteklemiyor ve doğrulayıcı cümleyi riskli olarak işaretliyor (0,75). Grubun en düşük notu (4,6)."
+    },
+    "E5": {
+      "takeaway": "Cihaz takılmış hayvanları birbiriyle etkileşen parçacıklar gibi ele alın ve grupların nasıl hareket ettiğini öngörmesi için hayvanlara takılan veri kaydedicilerin (bio-logger) ve dronların kaydettiği izler üzerinde bir graf ağı simülatörü eğitin; böylece cihaz yalnızca hayvanın öngörüden saptığı yerleri gönderebilir ve iletmesi gereken veri azalır.",
+      "whyFeatured": "88 çalıştırmanın en yüksek notu (8,1) ve 7,8’in üzerinde not alan tek çalıştırma; iddia riski 0,25. Özgünlüğü de şimdiye kadarki en yüksek değer. Tek bir çalıştırmadır ve yeniden çalıştırılmadı: 3. grubun yeniden çalıştırmaları, tek bir notun iki yönde de yaklaşık 1 birim şaşabileceğini gösterdi."
+    },
+    "M5": {
+      "takeaway": "Bir müzik transkripsiyonu (sesi notaya dökme) modelini, wav2vec 2.0’ın konuşmayı öğrendiği gibi sinyalin bazı kısımlarını maskeleyerek etiketsiz ses üzerinde önceden eğitin, sonra az sayıdaki etiketli kayıtla ince ayar yapın; kazanç, gitar gibi etiketli verisi az olan enstrümanlarda en büyük olabilir.",
+      "whyFeatured": "Müzik çalıştırmalarının en iyisi (6,9; 88 çalıştırma içinde sekizinci; iddia riski 0,25). Bildirilmiş bir sonuca dayanıyor: MT3’ün GuitarSet ve URMP gibi küçük veri kümelerindeki büyük kazanımları. Doğrulayıcı iddiayı dayanaklı değil varsayımsal olarak işaretliyor, çünkü öne sürdüğü neden makalelerde yok."
+    },
+    "E3": {
+      "takeaway": "Hayvan seslerini algılayan modelleri, pille çalışan saha kaydedicilerinin içindeki nöromorfik çiplerde çalıştırın; böylece kaydediciler sürekli dinleyebilir. Ancak doğrulayıcı, bunun algılama duyarlılığı ile pil ömrü arasında iki alanın da çözemediği bir ödünleşimi ortadan kaldıracağı iddiasını riskli olarak işaretliyor.",
+      "whyFeatured": "İki denetimin birbirinden ayrı olduğunu gösteriyor: değerlendirici model fikri E5 kadar akla yatkın ve tutarlı buldu (0,72 ve 0,78), ama doğrulayıcı son cümlesini riskli olarak işaretliyor (0,72); çünkü parçalar düşük güçlü çipleri ve pil sınırlarını ayrı ayrı ele alıyor ve hiçbiri bu ödünleşimin çözülmediğini söylemiyor. Not 5,8; 88 çalıştırma içinde 48. sırada."
     }
   },
   "areas": {
@@ -75,7 +87,10 @@
     "W": "Yapay zekâ × web geliştirme",
     "P": "Programlama dilleri",
     "J": "Geleceğin meslekleri",
-    "X": "Alanlar arası köprüler"
+    "X": "Alanlar arası köprüler",
+    "M": "Yapay zekâ × müzik",
+    "L": "Yapay zekâ × hukuk",
+    "E": "Yapay zekâ × yaban hayatı ve doğa koruma"
   },
   "droppedAreas": [
     {

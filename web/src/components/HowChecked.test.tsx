@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { LangProvider } from '../i18n/lang';
+import { LIBRARY } from '../lib/library';
 import { HowChecked } from './HowChecked';
 
 describe('HowChecked', () => {
@@ -16,7 +17,7 @@ describe('HowChecked', () => {
 
     const steps = screen.getAllByRole('listitem').map((li) => li.textContent);
     expect(steps).toHaveLength(7);
-    expect(steps[0]).toMatch(/paper library \(55 papers today\).*each topic/);
+    expect(steps[0]).toMatch(new RegExp(`paper library \\(${LIBRARY.papers} papers today\\).*each topic`));
     expect(steps[1]).toMatch(/may cite only those passages.*dropped before you see the result/);
     expect(steps[3]).toMatch(/validator \(Claude Haiku 4\.5 for the recorded runs\)/);
     expect(steps[4]).toMatch(/Grounded \(≈ 0\), Extrapolated \(≈ 0\.1–0\.3\) or Risky \(≈ 0\.6–1\.0\).*hallucination probability.*reason/);

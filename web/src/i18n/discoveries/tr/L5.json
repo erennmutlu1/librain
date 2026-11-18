@@ -1,0 +1,28 @@
+{
+  "id": "L5",
+  "topicA": "hukuk profesyonelleri tarafından makine vurgulamasıyla sözleşme incelemesi",
+  "topicB": "yapay zekâ eş programcısıyla geliştirici verimliliği üzerine kontrollü deney",
+  "hypothesis": "Yapay zekâ destekli vurgulama araçları, bilgi çalışanlarının yapılandırılmış inceleme görevlerini tamamlamasını gözle görülür biçimde hızlandırmaktadır; GitHub Copilot kullanan geliştiricilerde görülen %55,8’lik hız artışı bunu göstermektedir. Canlı hukuki sözleşme incelemesi sırasında (CUAD’daki gibi) transformer tabanlı madde vurgulamayı uygulayan paralel bir kontrollü deney, özellikle düşük düzeyli “samanlıkta iğne arama” türü sözleşme analizi işinde, genç avukatlar için karşılaştırılabilir ya da daha büyük verimlilik kazançlarını büyük olasılıkla ortaya koyacaktır. Ayrıca, daha az deneyimli geliştiriciler için gözlemlenen heterojen fayda örüntüsü, yapay zekâ destekli vurgulama yardımının sözleşme incelemesinde genç avukatlar ile kıdemli avukatlar arasındaki yetkinlik farkını orantısız biçimde kapatacağını ve hukuki durum tespitinin kadro ekonomisini olası biçimde yeniden yapılandırabileceğini düşündürmektedir.",
+  "novelClaim": "Canlı hukuki sözleşme incelemesi sırasında transformer tabanlı madde vurgulamayı uygulayan paralel bir kontrollü deney, özellikle düşük düzeyli “samanlıkta iğne arama” türü sözleşme analizi işinde, genç avukatlar için karşılaştırılabilir ya da daha büyük verimlilik kazançlarını büyük olasılıkla ortaya koyacaktır. Ayrıca, daha az deneyimli geliştiriciler için gözlemlenen heterojen fayda örüntüsü, yapay zekâ destekli vurgulama yardımının sözleşme incelemesinde genç avukatlar ile kıdemli avukatlar arasındaki yetkinlik farkını orantısız biçimde kapatacağını ve hukuki durum tespitinin kadro ekonomisini olası biçimde yeniden yapılandırabileceğini düşündürmektedir.",
+  "reasoning": "Copilot deneyi, yapay zekâ eş desteğinin yapılandırılmış bilgi görevlerinde büyük ve heterojen verimlilik kazançları sağladığını, bundan en çok daha az deneyimli çalışanların yararlandığını ortaya koymaktadır. CUAD ise transformer modellerinin hukuken önemli maddeleri zaten vurgulayabildiğini göstermektedir; bu, genç avukatların yürüttüğü “samanlıkta iğne arama” işinin tam da kendisidir. Böylece hukuk alanı, kontrollü bir verimlilik deneyinin hem uygulanabilir hem de benzer ya da daha büyük kazançlar ortaya koyması muhtemel olduğu yapısal olarak benzer bir ortam haline gelmekte, bunun hukuk bürolarının kadro hiyerarşileri açısından da sonuçları olmaktadır.",
+  "claims": [
+    {
+      "sentence": "Canlı hukuki sözleşme incelemesi sırasında transformer tabanlı madde vurgulamayı uygulayan paralel bir kontrollü deney, özellikle düşük düzeyli “samanlıkta iğne arama” türü sözleşme analizi işinde, genç avukatlar için karşılaştırılabilir ya da daha büyük verimlilik kazançlarını büyük olasılıkla ortaya koyacaktır.",
+      "rationale": "Cümle, henüz yürütülmemiş varsayımsal bir deney hakkında spekülatif bir hipotez olarak kurgulanmıştır (“büyük olasılıkla ortaya koyacaktır”); CUAD veri kümesinden ve GitHub Copilot çalışmasından hukuki sözleşme incelemesine uzanmakta, ancak belirli olgusal iddiaları yerleşik olarak öne sürmemektedir."
+    },
+    {
+      "sentence": "Ayrıca, daha az deneyimli geliştiriciler için gözlemlenen heterojen fayda örüntüsü, yapay zekâ destekli vurgulama yardımının sözleşme incelemesinde genç avukatlar ile kıdemli avukatlar arasındaki yetkinlik farkını orantısız biçimde kapatacağını ve hukuki durum tespitinin kadro ekonomisini olası biçimde yeniden yapılandırabileceğini düşündürmektedir.",
+      "rationale": "Bu cümle, ihtiyatlı bir dille (“düşündürmektedir”, “kapatacağını”, “olası biçimde”) GitHub Copilot heterojen etki çalışmasından varsayımsal bir hukuki uygulamaya spekülatif bir çıkarım kurgulamakta, belirli olgusal iddiaları yerleşik bilgi olarak öne sürmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Canlı hukuki sözleşme incelemesi sırasında transformer tabanlı madde vurgulamayı uygulayan paralel bir kontrollü deney, özellikle düşük düzeyli “samanlıkta iğne arama” türü sözleşme analizi işinde, genç avukatlar için karşılaştırılabilir ya da daha büyük verimlilik kazançlarını büyük olasılıkla ortaya koyacaktır.",
+      "rationale": "Yapılandırılmış bir kodlama görevinde geliştiricilerde görülen %55,8’lik hız artışı, eşit derecede yapılandırılmış ve tekrarlayıcı madde bulma işi yapan genç avukatlara benzetme yoluyla aktarılmaktadır; CUAD modelleri bu alanda zaten ilk düzeyde vurgulama yeteneği göstermektedir."
+    },
+    {
+      "claimSentence": "Ayrıca, daha az deneyimli geliştiriciler için gözlemlenen heterojen fayda örüntüsü, yapay zekâ destekli vurgulama yardımının sözleşme incelemesinde genç avukatlar ile kıdemli avukatlar arasındaki yetkinlik farkını orantısız biçimde kapatacağını ve hukuki durum tespitinin kadro ekonomisini olası biçimde yeniden yapılandırabileceğini düşündürmektedir.",
+      "rationale": "Copilot’ın daha az deneyimli programcılara sağladığı daha büyük fayda, madde belirlemedeki daha düşük uzmanlığı yapay zekâ yardımından en çok yararlanan acemi programcı profiline benzeyen genç hukuk çalışanlarına benzetme yoluyla aktarılmaktadır."
+    }
+  ]
+}

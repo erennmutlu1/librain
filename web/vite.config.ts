@@ -77,6 +77,7 @@ export default defineConfig(({ mode }) => {
                 '../experiments/featured-discoveries',
                 '../experiments/new-areas-discoveries',
                 '../experiments/cross-field-discoveries',
+                '../experiments/new-domains-discoveries',
                 '../experiments/ask-examples',
               ],
             },

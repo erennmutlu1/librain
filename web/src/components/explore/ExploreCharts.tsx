@@ -269,11 +269,12 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
   const m = { top: 14, right: 14, bottom: 42, left: 44 };
   const plotW = Math.max(120, width - m.left - m.right);
   const plotH = height - m.top - m.bottom;
-  const xDomain = [0.25, 0.55] as const;
+  // Novelty of the recorded runs spans about 0.256 (E4) to 0.555 (E5).
+  const xDomain = [0.25, 0.6] as const;
   const yDomain = [0.2, 0.8] as const;
   const x = (v: number) => m.left + ((v - xDomain[0]) / (xDomain[1] - xDomain[0])) * plotW;
   const y = (v: number) => m.top + plotH - ((v - yDomain[0]) / (yDomain[1] - yDomain[0])) * plotH;
-  const xTicks = [0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55];
+  const xTicks = [0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6];
   const yTicks = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
   const present = CATEGORIES.filter((c) => discoveries.some((d) => d.category === c));
   // Draw the highlighted category last, so it sits on top.

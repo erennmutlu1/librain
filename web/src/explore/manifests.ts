@@ -1,19 +1,20 @@
 /*
  * The experiment manifests behind Explore, which are small: editor's picks
- * with their takeaways, the areas of batches 2 and 3, the dropped area and
- * the arXiv titles of the papers batch 2 added. The recorded runs themselves,
+ * with their takeaways, the areas of batches 2 to 4, the dropped area and
+ * the arXiv titles of the papers batches 2 and 4 added. The recorded runs themselves,
  * which carry the passage text, load on demand from ./runs (see
  * useDiscoveries.ts).
  *
  * ./data holds byte-for-byte copies of experiments/featured-discoveries,
- * experiments/new-areas-discoveries and experiments/cross-field-discoveries
- * (explore.test.ts compares them). They are copied because the web Docker
+ * experiments/new-areas-discoveries, experiments/cross-field-discoveries and
+ * experiments/new-domains-discoveries (explore.test.ts compares them). They are copied because the web Docker
  * image is built from web/ alone.
  */
 import { modelDisplayNames } from '../featured/manifest';
 import rawBatch3 from './data/cross-field-discoveries/featured.json';
 import rawBatch1 from './data/featured-discoveries/featured.json';
 import rawBatch2 from './data/new-areas-discoveries/featured.json';
+import rawBatch4 from './data/new-domains-discoveries/featured.json';
 
 export interface ExplorePick {
   id: string;
@@ -22,7 +23,7 @@ export interface ExplorePick {
 }
 
 /** The recorded batches, in the order they were run. */
-export type ExploreBatch = 1 | 2 | 3;
+export type ExploreBatch = 1 | 2 | 3 | 4;
 
 export interface ExploreManifest {
   batch: ExploreBatch;
@@ -70,6 +71,7 @@ export const EXPLORE_MANIFESTS: readonly ExploreManifest[] = [
   parseExploreManifest(rawBatch1, 1, 'experiments/featured-discoveries'),
   parseExploreManifest(rawBatch2, 2, 'experiments/new-areas-discoveries'),
   parseExploreManifest(rawBatch3, 3, 'experiments/cross-field-discoveries'),
+  parseExploreManifest(rawBatch4, 4, 'experiments/new-domains-discoveries'),
 ];
 
 function batchOfRunFile(path: string): number {

@@ -8,6 +8,7 @@ import { localizeManifest, localizeRun, type ManifestTranslation, type RunTransl
 import rawBatch3 from './data/cross-field-discoveries/featured.json';
 import rawBatch1 from './data/featured-discoveries/featured.json';
 import rawBatch2 from './data/new-areas-discoveries/featured.json';
+import rawBatch4 from './data/new-domains-discoveries/featured.json';
 import { parseExploreManifest } from './manifests';
 import { buildExploreData, type ExploreData } from './model';
 
@@ -23,6 +24,7 @@ export const TR_MANIFESTS = [
   parseExploreManifest(localizeManifest(rawBatch1, manifestTr), 1, 'experiments/featured-discoveries'),
   parseExploreManifest(localizeManifest(rawBatch2, manifestTr), 2, 'experiments/new-areas-discoveries'),
   parseExploreManifest(localizeManifest(rawBatch3, manifestTr), 3, 'experiments/cross-field-discoveries'),
+  parseExploreManifest(localizeManifest(rawBatch4, manifestTr), 4, 'experiments/new-domains-discoveries'),
 ] as const;
 
 export const exploreData: ExploreData = buildExploreData(

@@ -104,6 +104,40 @@
     "current": true,
     "source": "api"
   },
+  "1703.05830": {
+    "title": "Automatically identifying, counting, and describing wild animals in camera-trap images with deep learning",
+    "authors": [
+      "Mohammed Sadegh Norouzzadeh",
+      "Anh Nguyen",
+      "Margaret Kosmala",
+      "Ali Swanson",
+      "Meredith Palmer",
+      "Craig Packer",
+      "Jeff Clune"
+    ],
+    "year": 2017,
+    "arxivId": "1703.05830",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "1710.11153": {
+    "title": "Onsets and Frames: Dual-Objective Piano Transcription",
+    "authors": [
+      "Curtis Hawthorne",
+      "Erich Elsen",
+      "Jialin Song",
+      "Adam Roberts",
+      "Ian Simon",
+      "Colin Raffel",
+      "Jesse Engel",
+      "Sageev Oore",
+      "Douglas Eck"
+    ],
+    "year": 2017,
+    "arxivId": "1710.11153",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
   "1802.07127": {
     "title": "Actions Speak Louder Than Goals: Valuing Player Actions in Soccer",
     "authors": [
@@ -116,6 +150,49 @@
     "arxivId": "1802.07127",
     "current": true,
     "source": "api"
+  },
+  "1807.04975": {
+    "title": "Recognition in Terra Incognita",
+    "authors": [
+      "Sara Beery",
+      "Grant van Horn",
+      "Pietro Perona"
+    ],
+    "year": 2018,
+    "arxivId": "1807.04975",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "1809.04281": {
+    "title": "Music Transformer",
+    "authors": [
+      "Cheng-Zhi Anna Huang",
+      "Ashish Vaswani",
+      "Jakob Uszkoreit",
+      "Noam Shazeer",
+      "Ian Simon",
+      "Curtis Hawthorne",
+      "Andrew M. Dai",
+      "Matthew D. Hoffman",
+      "Monica Dinculescu",
+      "Douglas Eck"
+    ],
+    "year": 2018,
+    "arxivId": "1809.04281",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "1906.02059": {
+    "title": "Neural Legal Judgment Prediction in English",
+    "authors": [
+      "Ilias Chalkidis",
+      "Ion Androutsopoulos",
+      "Nikolaos Aletras"
+    ],
+    "year": 2019,
+    "arxivId": "1906.02059",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
   },
   "1907.11180": {
     "title": "Google Research Football: A Novel Reinforcement Learning Environment",
@@ -136,6 +213,36 @@
     "arxivId": "1907.11180",
     "current": true,
     "source": "api"
+  },
+  "2004.12158": {
+    "title": "How Does NLP Benefit Legal System: A Summary of Legal Artificial Intelligence",
+    "authors": [
+      "Haoxi Zhong",
+      "Chaojun Xiao",
+      "Cunchao Tu",
+      "Tianyang Zhang",
+      "Zhiyuan Liu",
+      "Maosong Sun"
+    ],
+    "year": 2020,
+    "arxivId": "2004.12158",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "2005.00341": {
+    "title": "Jukebox: A Generative Model for Music",
+    "authors": [
+      "Prafulla Dhariwal",
+      "Heewoo Jun",
+      "Christine Payne",
+      "Jong Wook Kim",
+      "Alec Radford",
+      "Ilya Sutskever"
+    ],
+    "year": 2020,
+    "arxivId": "2005.00341",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
   },
   "2005.11401": {
     "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
@@ -170,6 +277,19 @@
     "arxivId": "2006.03511",
     "current": true,
     "source": "api"
+  },
+  "2103.06268": {
+    "title": "CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review",
+    "authors": [
+      "Dan Hendrycks",
+      "Collin Burns",
+      "Anya Chen",
+      "Spencer Ball"
+    ],
+    "year": 2021,
+    "arxivId": "2103.06268",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
   },
   "2107.03374": {
     "title": "Evaluating Large Language Models Trained on Code",
@@ -237,6 +357,73 @@
     "arxivId": "2107.03374",
     "current": true,
     "source": "api"
+  },
+  "2110.00976": {
+    "title": "LexGLUE: A Benchmark Dataset for Legal Language Understanding in English",
+    "authors": [
+      "Ilias Chalkidis",
+      "Abhik Jana",
+      "Dirk Hartung",
+      "Michael Bommarito",
+      "Ion Androutsopoulos",
+      "Daniel Martin Katz",
+      "Nikolaos Aletras"
+    ],
+    "year": 2021,
+    "arxivId": "2110.00976",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "2110.12951": {
+    "title": "Seeing biodiversity: perspectives in machine learning for wildlife conservation",
+    "authors": [
+      "Devis Tuia",
+      "Benjamin Kellenberger",
+      "Sara Beery",
+      "Blair R. Costelloe",
+      "Silvia Zuffi",
+      "Benjamin Risse",
+      "Alexander Mathis",
+      "Mackenzie W. Mathis",
+      "Frank van Langevelde",
+      "Tilo Burghardt",
+      "Roland Kays",
+      "Holger Klinck",
+      "Martin Wikelski",
+      "Iain D. Couzin",
+      "Grant van Horn",
+      "Margaret C. Crofoot",
+      "Charles V. Stewart",
+      "Tanya Berger-Wolf"
+    ],
+    "year": 2021,
+    "arxivId": "2110.12951",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "2111.03017": {
+    "title": "MT3: Multi-Task Multitrack Music Transcription",
+    "authors": [
+      "Josh Gardner",
+      "Ian Simon",
+      "Ethan Manilow",
+      "Curtis Hawthorne",
+      "Jesse Engel"
+    ],
+    "year": 2021,
+    "arxivId": "2111.03017",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
+  },
+  "2112.06725": {
+    "title": "Computational bioacoustics with deep learning: a review and roadmap",
+    "authors": [
+      "Dan Stowell"
+    ],
+    "year": 2021,
+    "arxivId": "2112.06725",
+    "current": true,
+    "source": "api; title and year as in experiments/new-domains-discoveries/papers-added.json"
   },
   "2203.07814": {
     "title": "Competition-Level Code Generation with AlphaCode",

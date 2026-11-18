@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { EXPLORE_MANIFESTS } from '../explore/manifests';
+import { LIBRARY } from './library';
 import catalogue from './paperCatalog.data.json';
 import { fromEarlierLibrary, inTodaysLibrary, paperAuthors, paperExternalUrl, paperHref, paperInfo, TODAYS_LIBRARY_SIZE } from './paperCatalog';
 
@@ -58,12 +60,25 @@ describe('paperCatalog', () => {
     expect(paperHref('a b')).toBe('/library?q=a%20b');
   });
 
-  it('holds today’s 55 papers, and no title that is only the id', () => {
-    expect(TODAYS_LIBRARY_SIZE).toBe(55);
+  it('holds today’s papers (as many as src/lib/library.ts says), and no title that is only the id', () => {
+    expect(TODAYS_LIBRARY_SIZE).toBe(LIBRARY.papers);
     for (const [id, e] of Object.entries(catalogue)) {
       expect(e.title, id).not.toBe(id);
       expect(e.title, id).not.toBe('Manuscript - Arxiv');
       expect(e.source, id).not.toBe('');
     }
+  });
+
+  it('lists the papers batch 4 added as today’s, with the titles its manifest records', () => {
+    const added = EXPLORE_MANIFESTS.find((m) => m.batch === 4)!.newPapers;
+    expect(added.length).toBeGreaterThan(0);
+    for (const p of added) {
+      expect(inTodaysLibrary(p.arxivId), p.arxivId).toBe(true);
+      // From the catalogue itself, not the manifest fallback paperInfo also uses.
+      const known = (catalogue as Record<string, { title: string | null; year: number | null; arxivId: string | null }>)[p.arxivId];
+      expect(known, p.arxivId).toMatchObject({ title: p.title, arxivId: p.arxivId });
+      expect(known?.year, p.arxivId).not.toBeNull();
+    }
+    expect(paperInfo('2112.06725').authors).toBe('Dan Stowell');
   });
 });

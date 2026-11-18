@@ -1,0 +1,20 @@
+{
+  "id": "L2",
+  "topicA": "uzman açıklamalı sözleşme incelemesi ve madde çıkarımı",
+  "topicB": "graf evrişimli ağlarla yarı denetimli sınıflandırma",
+  "hypothesis": "Hukuki sözleşmeler, maddelerin düğüm, bunların anlamsal veya yapısal ilişkilerinin (ör. çapraz atıflar, ortak taraflar, uygulanacak hukuk bağımlılıkları) kenar oluşturduğu heterojen graflar olarak doğal biçimde temsil edilebilir; bu da GCN tabanlı yarı denetimli öğrenmenin, CUAD’daki uzman açıklamalı maddelerin küçük kesiminden etiket bilgisini açıklamasız sözleşme metninin çok daha büyük havuzuna yaymasını mümkün kılar. Her etiket kategorisi için bir sözleşmenin ortalama yalnızca yaklaşık %0,25’i işaretlendiğinden, CUAD’daki aşırı etiket seyrekliği GCN’lerin tasarlandığı yarı denetimli düğüm sınıflandırma rejimini yansıtmaktadır; bu da madde düzeyinde bir sözleşme grafı üzerinde eğitilen bir GCN’nin, Transformer’ların şu anda göz ardı ettiği maddeler arası ilişkisel yapıdan yararlanarak yalnızca ardışık çalışan Transformer temel modellerinden belirgin biçimde daha iyi performans gösterebileceğini düşündürmektedir.",
+  "novelClaim": "Madde düzeyinde bir sözleşme grafı üzerinde eğitilen bir GCN, Transformer’ların şu anda göz ardı ettiği maddeler arası ilişkisel yapıdan yararlanarak yalnızca ardışık çalışan Transformer temel modellerinden belirgin biçimde daha iyi performans gösterebilir.",
+  "reasoning": "CUAD, her kategori için bir sözleşmenin yalnızca yaklaşık %0,25’inin etiketlendiğini belgelemekte (yarı denetimli rejimle örtüşen aşırı etiket seyrekliği), GCN makalesi ise graf komşuluğuna koşullanmanın etiket bilgisini küçük bir etiketli alt kümeden etiketsiz düğümlere yaydığını göstermektedir. Bu bulguların birleştirilmesi, madde düzeyinde bir sözleşme grafı kurmayı ve GCN tarzı yayılımı uygulamayı motive etmektedir; bu, iki makalenin de önermediği ya da değerlendirmediği bir birleşimdir.",
+  "claims": [
+    {
+      "sentence": "Madde düzeyinde bir sözleşme grafı üzerinde eğitilen bir GCN, Transformer’ların şu anda göz ardı ettiği maddeler arası ilişkisel yapıdan yararlanarak yalnızca ardışık çalışan Transformer temel modellerinden belirgin biçimde daha iyi performans gösterebilir.",
+      "rationale": "İddia, olası bir mimari avantaja dair spekülatif bir hipotez (“gösterebilir”) olarak kurgulanmıştır; GCN’ler ve Transformer’lar hakkındaki yerleşik olguları, getirilen kanıtın ötesine geçen, sınanmamış karşılaştırmalı bir öngörüyle birleştirmektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Madde düzeyinde bir sözleşme grafı üzerinde eğitilen bir GCN, Transformer’ların şu anda göz ardı ettiği maddeler arası ilişkisel yapıdan yararlanarak yalnızca ardışık çalışan Transformer temel modellerinden belirgin biçimde daha iyi performans gösterebilir.",
+      "rationale": "GCN’lerin, yalnızca düğüm özniteliklerinde bulunmayan bilgiyi içeren komşuluk yapısından (ör. atıf bağlantıları) yararlandığı gösterilmiştir; bu, sözleşmelerdeki maddeler arası referansların ham token dizilerinde bulunmayan ilişkisel sinyal taşımasına benzer."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "L1",
+  "topicA": "İngilizce hukuki doğal dil işleme görevlerinde hukuki dil anlama kıyaslaması (LexGLUE)",
+  "topicB": "eğitim için büyük dil modelleri",
+  "hypothesis": "Hukuk alanında ön eğitilmiş dil modelleri LexGLUE görevlerinde genel modellerden tutarlı biçimde daha iyi performans göstermekte, LLM’ler de akıllı özel ders ve soru yanıtlama dahil geniş eğitim uygulamalarında yaygın fayda sağladığını göstermiştir; dolayısıyla LexGLUE tarzı, büyük dil modellerini (LLM) hukuk eğitimi görevlerinde (hukuki kavramları sıradan insanlara açıklamak, hukuki soruları pedagojik açıdan uygun biçimde yanıtlamak ve öğrenci yanıtlarındaki hukuki akıl yürütmeyi değerlendirmek gibi) değerlendirmek üzere özel olarak tasarlanmış bir kıyaslama, hukuki doğal dil işleme ile eğitim yapay zekâsı arasında kritik bir köprü işlevi görebilir ve hem hukuken doğru hem de pedagojik açıdan etkili LLM’lerin gelişimini hızlandırabilir.",
+  "novelClaim": "LexGLUE tarzı, büyük dil modellerini (LLM) hukuk eğitimi görevlerinde (hukuki kavramları sıradan insanlara açıklamak, hukuki soruları pedagojik açıdan uygun biçimde yanıtlamak ve öğrenci yanıtlarındaki hukuki akıl yürütmeyi değerlendirmek gibi) değerlendirmek üzere özel olarak tasarlanmış bir kıyaslama, hukuki doğal dil işleme ile eğitim yapay zekâsı arasında kritik bir köprü işlevi görebilir ve hem hukuken doğru hem de pedagojik açıdan etkili LLM’lerin gelişimini hızlandırabilir.",
+  "reasoning": "LexGLUE, birleşik kıyaslamaların hukuki doğal dil işlemede ilerlemeyi hızlandırdığını (sıradan insanlar için hukuki soru yanıtlama dahil) gösterirken, LLM-eğitim inceleme makalesi LLM’lerin akıllı özel ders, soru yanıtlama ve geri bildirim sistemlerinde etkin biçimde kullanıldığını göstermektedir. Hiçbir kaynak hukuki doğruluğu ve pedagojik kaliteyi birlikte değerlendiren bir kıyaslama önermemektedir; bu da “hukuk eğitimi için LexGLUE” fikrini her iki alanı birbirine bağlayan yeni bir varsayım haline getirmektedir.",
+  "claims": [
+    {
+      "sentence": "LexGLUE tarzı, büyük dil modellerini (LLM) hukuk eğitimi görevlerinde (hukuki kavramları sıradan insanlara açıklamak, hukuki soruları pedagojik açıdan uygun biçimde yanıtlamak ve öğrenci yanıtlarındaki hukuki akıl yürütmeyi değerlendirmek gibi) değerlendirmek üzere özel olarak tasarlanmış bir kıyaslama, hukuki doğal dil işleme ile eğitim yapay zekâsı arasında kritik bir köprü işlevi görebilir ve hem hukuken doğru hem de pedagojik açıdan etkili LLM’lerin gelişimini hızlandırabilir.",
+      "rationale": "Cümle, varsayımsal bir kıyaslama tasarımını ve olası faydalarını ihtiyatlı bir dille (“işlevi görebilir”) sunmakta, bu da onu yerleşik bir olgu olarak değil spekülatif olarak çerçevelemektedir; LexGLUE mevcut olsa ve hukuki soru yanıtlama getirilen parçalarda belgelenmiş olsa da belirli eğitim görevleri ve köprü kurma rolü kanıtla doğrudan desteklenmemektedir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "LexGLUE tarzı, büyük dil modellerini (LLM) hukuk eğitimi görevlerinde (hukuki kavramları sıradan insanlara açıklamak, hukuki soruları pedagojik açıdan uygun biçimde yanıtlamak ve öğrenci yanıtlarındaki hukuki akıl yürütmeyi değerlendirmek gibi) değerlendirmek üzere özel olarak tasarlanmış bir kıyaslama, hukuki doğal dil işleme ile eğitim yapay zekâsı arasında kritik bir köprü işlevi görebilir ve hem hukuken doğru hem de pedagojik açıdan etkili LLM’lerin gelişimini hızlandırabilir.",
+      "rationale": "LexGLUE’nin hukuki soru yanıtlama görevi, sıradan insanların hukuki haklarını anlamasına yardımcı olma potansiyeline zaten değinmektedir; LLM-eğitim inceleme makalesi ise LLM’lerin akıllı özel ders ve soru yanıtlamada kullanıldığını göstermektedir; bu ikisinin birleştirilmesi özel bir hukuk eğitimi kıyaslamasını motive etmektedir."
+    }
+  ]
+}

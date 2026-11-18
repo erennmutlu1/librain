@@ -1,7 +1,7 @@
 /*
  * The topic pairs of every recorded Explore discovery
  * (src/explore/data/<batch>/runs/<id>.json), in repository order (batch 1,
- * 2, 3, each by id), all at topK 5. A tiny copy, so the topic suggestions in
+ * 2, 3, 4, each by id), all at topK 5. A tiny copy, so the topic suggestions in
  * Live mode never pull the runs (and their passage text) into the bundle.
  * TopicCombobox.test.tsx checks it against the run files, so a new or
  * changed run fails a test until this list follows. Its length is the
@@ -81,6 +81,24 @@ export const RECORDED_TOPIC_PAIRS: readonly (readonly [string, string | null])[]
   ['robust multilingual speech recognition from large-scale weak supervision', 'large language models for education'],
   ['predicting forces and relaxed energies for catalyst adsorption (OC20)', 'learned particle simulators with message passing and noise-robust rollouts'],
   ['municipality-level crop yield estimation from satellite data', 'semi-supervised learning on graphs with graph convolutional networks'],
+  ['passive acoustic monitoring of animal populations from field recordings', 'probabilistic time-series forecasting with autoregressive recurrent networks (DeepAR)'],
+  ['generalising animal recognition to new camera-trap locations', 'pretraining photovoltaic forecasting models on synthetic data then fine-tuning'],
+  ['detecting animal vocalisations on battery-powered field recorders', 'neuromorphic hardware energy efficiency'],
+  ['identifying and counting wild animals in camera-trap images', 'contrastive image-text pretraining (CLIP)'],
+  ['animal movement tracking with bio-logging devices and drones', 'learned physics simulators with graph networks'],
+  ['camera-trap networks for monitoring wildlife across a reserve', 'spatio-temporal graph neural networks'],
+  ['benchmarking legal language understanding across English legal NLP tasks (LexGLUE)', 'large language models for education'],
+  ['expert-annotated contract review and clause extraction', 'semi-supervised classification with graph convolutional networks'],
+  ['predicting court judgments from case facts', 'graph attention networks'],
+  ['similar case matching and legal question answering', 'retrieval-augmented generation with a non-parametric memory'],
+  ['contract review by legal professionals with machine highlighting', 'controlled experiment on developer productivity with an AI pair programmer'],
+  ['legal text classification tasks from court cases, statutes and contracts in a legal NLP benchmark', 'which economic tasks people perform with AI assistants'],
+  ['symbol-based legal reasoning with law articles as explicit rules', 'physics-informed neural networks'],
+  ['multi-instrument music transcription as sequence-to-sequence over note events', 'unsupervised translation of programming languages'],
+  ['long-term structure and repeated motifs in symbolic music generation', 'graph attention networks'],
+  ['polyphonic piano transcription from onsets and frames', 'large language models for education'],
+  ['generating music with singing in the raw audio domain (Jukebox)', 'contrastive image-text pretraining (CLIP)'],
+  ['low-resource multi-instrument music transcription', 'self-supervised learning of speech representations by masking latent features'],
 ];
 
 /** Every recorded Explore run asked for five passages per topic. */

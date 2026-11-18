@@ -102,8 +102,8 @@ cancels any running request, clears every result and remounts the screen.
 
 - **Recorded** (default): the owner's real runs, replayed by the mock client
   from `src/mocks/publicScenarios.ts`, with no network. Discover offers the
-  46 committed runs from `src/explore/data/` plus the Anthropic
-  baseline-experiment pairs; Compare the two real pairs. Matching is strict
+  88 committed runs from `src/explore/data/` plus the four Anthropic
+  baseline-experiment runs; Compare the two real pairs. Matching is strict
   (topics in either order, and passages per topic): inputs that match no
   recording get a notice and nothing is substituted. The API contract
   snapshots and the OpenAI recordings never appear. Ask has no real
@@ -212,21 +212,24 @@ See `.env.example`.
     `experiments/featured-discoveries/featured.json`, then copy it and the run
     files it names into `src/featured/data/`.
 - **Explore** (`/explore`, no API call in either mode): every Discovery run
-  recorded on 2026-11-18, all 46 of them, from `experiments/featured-discoveries`
-  (21 runs) and `experiments/new-areas-discoveries` (25).
+  recorded on 2026-11-18, all 88 of them, from `experiments/featured-discoveries`
+  (21 runs), `experiments/new-areas-discoveries` (25),
+  `experiments/cross-field-discoveries` (24) and
+  `experiments/new-domains-discoveries` (18).
   - Each run has a category from its id prefix (D drug & materials
     discovery × agents, A agriculture & energy, C clinical trials × causal &
     graph methods, N new cross-field pairings, F football, S sport, W web
-    development, P programming languages, J future jobs), shown as an icon,
+    development, P programming languages, J future jobs, X cross-field
+    bridges, M music, L law, E wildlife and nature conservation), shown as an icon,
     a name and a hue (`--cat-*` tokens, light and dark). The hue is never
     the only cue.
   - **Rating out of 10** (`explore/rating.ts`, a pure function):
     `10 × (0.35·plausibility + 0.25·coherence + 0.25·noveltyNorm + 0.15·(1 − claim risk))`,
-    one decimal, where `noveltyNorm = (novelty − min) / (max − min)` over the 46
-    runs (0.281 to 0.541). For example S3 and W5 rate 7.8, F2 7.6, D1 5.1
-    and C2 4.1. It shows as "7.8 / 10" with five stars, read as "Rated 7.8 out
+    one decimal, where `noveltyNorm = (novelty − min) / (max − min)` over the 88
+    runs (0.256 to 0.555). For example E5 rates 8.1, W5 7.8, S3 7.7, F2 7.5,
+    D1 5.3 and M2 4.1. It shows as "7.8 / 10" with five stars, read as "Rated 7.8 out
     of 10"; "How ratings work" opens the formula, and on an idea's page the
-    sum with its own numbers. The 14 editor's picks carry a badge.
+    sum with its own numbers. The 20 editor's picks carry a badge.
   - `/explore`: the discovery of the day (an editor's pick, the same all day,
     the next one tomorrow), category chips with counts that follow the
     search, sort by rating, novelty, plausibility or lowest claim risk, a
@@ -237,8 +240,8 @@ See `.env.example`.
     and "Recorded run · 2026-11-18 · $0.06"; the idea in one line (the
     editor's takeaway, or the hypothesis's first sentence, trimmed); **Why
     it's promising**, bullets computed from the data, never written by
-    hand (passages and papers, using the arXiv titles batch 2 recorded,
-    percentile ranks such as "top 5% of all 46 ideas", whether any sentence
+    hand (passages and papers, using the arXiv titles batches 2 and 4 recorded,
+    percentile ranks such as "top 5% of all 88 ideas", whether any sentence
     was flagged risky), under the note "Candidate hypothesis: the evidence
     supports its starting points; the novel part still needs a real test";
     the top three passages, quoted; the generator's basis for each novel
@@ -250,15 +253,15 @@ See `.env.example`.
   - `/explore/stats`: inline-SVG charts (rating histogram, average rating
     per category, novelty against plausibility with one link per dot and a
     legend that picks out a category), each with a table view; completed
-    46/46, claim checks 46/46, plausibility ≥ 0.6 34/46, no risky sentence
-    42/46, editor's picks 14/46; 246 citations claimed, 0 dropped, 0
-    fabricated; $3.05 in all ($0.057 to $0.075 a run); and the area left
+    88/88, claim checks 88/88, plausibility ≥ 0.6 69/88, no risky sentence
+    79/88, editor's picks 20/88; 468 citations claimed, 0 dropped, 0
+    fabricated; $5.88 in all ($0.057 to $0.078 a run); and the area left
     out ("how people will live without money or work") with its reason.
   - `/explore/quiz`, **Spot the risk**: a real novel-claim sentence; guess
     Grounded, Extrapolated or Risky; see the validator's verdict, its
     probability and rationale, and a link to the idea. A round has every
-    risky (D1, D4, P1, P3) and grounded sentence plus eight extrapolated
-    ones, because 67 of the 73 sentences are extrapolated. `?q=D1.2` starts
+    risky (D1, D4, E3, M2, P1, P3, X05, X06, X13) and grounded sentence plus
+    eight extrapolated ones, because 126 of the 138 sentences are extrapolated. `?q=D1.2` starts
     on a given sentence. Score and streak are kept in `localStorage`.
   - "Surprise me" opens a random idea rated 6 or more. Novelty,
     plausibility, coherence, claim risk and the three verdicts have glossary
@@ -267,8 +270,8 @@ See `.env.example`.
     for the visit, and the page says so.
   - The Featured gallery on Discover and an empty History link to Explore.
   - The runs ship with the app: `src/explore/data/` is a byte-for-byte copy
-    of both experiment folders (a test fails if they drift). They load as
-    their own lazy chunk (1.16 MB, 385 kB gzip, almost all of it passage
+    of the four experiment folders (a test fails if they drift). They load as
+    their own lazy chunk (2.16 MB, 718 kB gzip, almost all of it passage
     text) when an Explore screen opens; Vite's "larger than 500 kB" warning
     is about that data chunk. The six batch-1 picks are also in the Featured
     gallery's smaller chunk.
@@ -316,7 +319,7 @@ src/
                 stages.ts      progress events -> stepper steps
   featured/     data/          copies of experiments/featured-discoveries (manifest + six runs)
                 manifest.ts    the manifest; runs.ts the runs (lazy chunk); useFeatured.ts loads them once
-  explore/      data/          copies of both discovery experiment folders (2 manifests + 46 runs)
+  explore/      data/          copies of the four discovery experiment folders (4 manifests + 88 runs)
                 rating.ts      the rating out of 10 (pure); categories.ts the id-prefix categories
                 model.ts       takeaways, percentiles, evidence bullets, related ideas, filter/sort/search,
                                day pick, quiz rounds, stats; runs.ts builds it (lazy chunk)
@@ -360,11 +363,13 @@ to it, the nav link, routes and icons; its four screens share a 31 kB
   client, and with the real client and the API offline only the header's
   `/health` check reaches `fetch`; the routes and the not-found.
 - **Explore** (`explore/explore.test.ts`, `pages/ExplorePage.test.tsx`), on
-  the real bundled data: the copies match both experiment folders byte for
-  byte; all 46 runs map to the nine categories; the rating for W5 (7.8) and
-  D1 (5.1) worked by hand, novelty 0 and 1 at the extremes, and range
-  checks; filter, sort and search; F2's page shows the arXiv title "Actions
-  Speak Louder Than Goals: …" and "top 5% of all 46 ideas"; the quiz
+  the real bundled data: the copies match the four experiment folders byte
+  for byte; every run maps to one of the 13 categories; the rating for W5
+  (7.8) and D1 (5.3) worked by hand, batch 4's ratings against its
+  `ranking.csv`, novelty 0 and 1 at the extremes, and range checks; filter,
+  sort and search; F2's page shows the arXiv title "Actions Speak Louder
+  Than Goals: …" and "top 5% of all 88 ideas" (counts are worked out from
+  the run files, so a new batch needs no new numbers in the tests); the quiz
   reveals RISKY for D1's 37.94% sentence; bookmarks and the quiz work when
   `localStorage` throws; no Explore screen calls the API (injected client),
   and in real mode only the header's `/health` reaches `fetch`; no page

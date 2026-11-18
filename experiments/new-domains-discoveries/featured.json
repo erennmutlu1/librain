@@ -1,0 +1,91 @@
+{
+  "model": "claude-sonnet-4-6 (generation), claude-haiku-4-5 (judge, claim validator)",
+  "corpus": "67 papers, 2,470 chunks (55 + 12 added from arXiv for these areas)",
+  "date": "2026-11-18",
+  "topK": 5,
+  "areas": [
+    {
+      "prefix": "M",
+      "name": "AI × music"
+    },
+    {
+      "prefix": "L",
+      "name": "AI × law"
+    },
+    {
+      "prefix": "E",
+      "name": "AI × wildlife and nature conservation"
+    }
+  ],
+  "droppedAreas": [],
+  "newPapers": [
+    {
+      "arxivId": "1906.02059",
+      "title": "Neural Legal Judgment Prediction in English"
+    },
+    {
+      "arxivId": "2004.12158",
+      "title": "How Does NLP Benefit Legal System: A Summary of Legal Artificial Intelligence"
+    },
+    {
+      "arxivId": "2103.06268",
+      "title": "CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review"
+    },
+    {
+      "arxivId": "2110.00976",
+      "title": "LexGLUE: A Benchmark Dataset for Legal Language Understanding in English"
+    },
+    {
+      "arxivId": "1710.11153",
+      "title": "Onsets and Frames: Dual-Objective Piano Transcription"
+    },
+    {
+      "arxivId": "1809.04281",
+      "title": "Music Transformer"
+    },
+    {
+      "arxivId": "2005.00341",
+      "title": "Jukebox: A Generative Model for Music"
+    },
+    {
+      "arxivId": "2111.03017",
+      "title": "MT3: Multi-Task Multitrack Music Transcription"
+    },
+    {
+      "arxivId": "1703.05830",
+      "title": "Automatically identifying, counting, and describing wild animals in camera-trap images with deep learning"
+    },
+    {
+      "arxivId": "1807.04975",
+      "title": "Recognition in Terra Incognita"
+    },
+    {
+      "arxivId": "2110.12951",
+      "title": "Seeing biodiversity: perspectives in machine learning for wildlife conservation"
+    },
+    {
+      "arxivId": "2112.06725",
+      "title": "Computational bioacoustics with deep learning: a review and roadmap"
+    }
+  ],
+  "featured": [
+    {
+      "id": "E5",
+      "takeaway": "Treat tagged animals as interacting particles and train a graph-network simulator on bio-logger and drone tracks to predict how groups move; a tag could then send only where its animal departs from the prediction, cutting the data it has to transmit.",
+      "whyFeatured": "Highest rating of all 88 runs (8.1) and the only one above 7.8, with claim risk 0.25; its novelty is the highest yet. It is one run and was not re-run: batch 3's re-runs showed that a single rating can be off by about a point either way.",
+      "file": "runs/E5.json"
+    },
+    {
+      "id": "M5",
+      "takeaway": "Pretrain a music transcription model on unlabelled audio the way wav2vec 2.0 learns speech, by masking parts of the signal, then fine-tune it on the few labelled recordings; the gain may be largest for instruments with little labelled data, such as guitar.",
+      "whyFeatured": "Best of the music runs (6.9, eighth of 88; claim risk 0.25). It builds on a reported result, MT3's large gains on small datasets such as GuitarSet and URMP; the validator marks the claim extrapolated, not grounded, because the reason it gives is not in the papers.",
+      "file": "runs/M5.json"
+    },
+    {
+      "id": "E3",
+      "takeaway": "Run animal-call detectors on neuromorphic chips inside battery-powered field recorders so they can listen all the time; but the validator flags as risky the claim that this ends a trade-off between detection sensitivity and battery life that neither field has solved.",
+      "whyFeatured": "Shows that the two checks are separate: the judge model rated it as plausible and coherent as E5 (0.72 and 0.78), yet the validator marks its last sentence risky (0.72), because the passages discuss low-power chips and battery limits separately and none says the trade-off is unsolved. Rated 5.8, 48th of 88.",
+      "file": "runs/E3.json"
+    }
+  ]
+}

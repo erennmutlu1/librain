@@ -1,0 +1,20 @@
+{
+  "topicA": "biyolog cihazlarla izleme (bio-logging) ve dronlarla hayvan hareketi takibi",
+  "topicB": "graf ağlarıyla öğrenilmiş fizik simülatörleri",
+  "hypothesis": "Bio-logging cihazları ve drone tabanlı takip sistemleri, parçacık grafları olarak temsil edilebilen yüksek frekanslı, çok ajanlı yörünge verileri üretir; bu da onları, toplu hayvan hareketi dinamiklerinin öngörücü modellerini öğrenmek üzere Graf Ağı tabanlı Simülatörler (GNS) için doğal bir zemin haline getirir. Bireysel hayvanları, kenarları yakınlığı ve sosyal ilişkileri kodlayan etkileşimli parçacıklar olarak ele alarak bir GNS, kısa gözlenmiş yörüngelerden yeni çevresel koşullar altında grup davranışının uzun ufuklu tahminlerine genelleşebilir. Bu alanlar arası uygulama, yalnızca GNS’in öngördüğü yörüngeden sapmaların iletilmesinin yeterli olduğu cihaz üstü öngörücü sıkıştırmayı mümkün kılarak bio-logger cihazların veri iletimi yükünü de aynı anda azaltabilir.",
+  "novelClaim": "Bu alanlar arası uygulama, yalnızca GNS’in öngördüğü yörüngeden sapmaların iletilmesinin yeterli olduğu cihaz üstü öngörücü sıkıştırmayı mümkün kılarak bio-logger cihazların veri iletimi yükünü de aynı anda azaltabilir.",
+  "reasoning": "Bio-logging cihazları davranışları sınıflandırmak ve veri iletimini azaltmak için zaten cihaz üstü makine öğrenmesi kullanmaktadır (2110.12951:6); GNS çerçeveleri ise çok ajanlı durumları etkileşimli parçacık grafları olarak temsil eder ve eğitim koşullarının ötesindeki uzun açılımlara genelleşir (gns-physics:0, gns-physics:2). Bunları birleştirince, toplu hayvan yörüngeleri üzerinde eğitilen bir GNS cihaz üstü öngörücü model olarak hizmet edebilir ve yalnızca artıkların iletilmesini sağlayabilir; bu, iki kaynak alanda da önerilmemiş bir sıkıştırma stratejisidir.",
+  "claims": [
+    {
+      "sentence": "Bu alanlar arası uygulama, yalnızca GNS’in öngördüğü yörüngeden sapmaların iletilmesinin yeterli olduğu cihaz üstü öngörücü sıkıştırmayı mümkün kılarak bio-logger cihazların veri iletimi yükünü de aynı anda azaltabilir.",
+      "rationale": "Cümle, GNS yörünge tahminini bio-logger veri sıkıştırmasıyla birleştiren spekülatif bir uygulama öneriyor; getirilen parçalar bio-logger cihazların veri iletimi kısıtlarıyla karşılaştığını ve cihaz üstü algoritmaların iletim hacmini azaltabildiğini desteklese de sıkıştırma için GNS öngörülerini kullanma mekanizması doğrudan desteklenmiyor ve varsayımsal bir alanlar arası uygulama olarak sunuluyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu alanlar arası uygulama, yalnızca GNS’in öngördüğü yörüngeden sapmaların iletilmesinin yeterli olduğu cihaz üstü öngörücü sıkıştırmayı mümkün kılarak bio-logger cihazların veri iletimi yükünü de aynı anda azaltabilir.",
+      "rationale": "Bio-logger cihazlar iletilen veri hacmini azaltmak için zaten cihaz üstü algoritmalar kullanmaktadır; GNS tabanlı bir öngörücü model, öngörücü kodlama sıkıştırma şemalarına benzer biçimde yalnızca öngörülen yörüngelerden kalan artıkları ileterek bunu genişletebilir."
+    }
+  ],
+  "id": "E5"
+}

@@ -1,0 +1,28 @@
+{
+  "topicA": "pille çalışan saha kayıt cihazlarında hayvan seslerini tespit etme",
+  "topicB": "nöromorfik donanımda enerji verimliliği",
+  "hypothesis": "Nöromorfik donanımın aşırı düşük güç tüketimi ve küçük cihaz boyutu, mevcut derin öğrenme tabanlı hayvan sesi dedektörlerinin gömülü sistemlerin enerji bütçeleriyle kısıtlandığı pille çalışan biyoakustik saha kayıt cihazlarında cihaz üstü çıkarım için çekici bir aday olmasını sağlar. Sivri uçlu sinir ağı çıkarımını saha kayıt cihazlarındaki nöromorfik yongalarda çalıştırmak, uzun süreli pasif akustik izlemeyi şu anda sınırlayan görev döngülü çalışma veya buluta aktarım gerekmeden sürekli, gerçek zamanlı tür tespitini mümkün kılabilir. Bu yakınsama, tespit duyarlılığını pil ömründen etkili biçimde ayırır; bu, iki alanın da henüz tek başına çözemediği bir ödünleşimdir.",
+  "novelClaim": "Sivri uçlu sinir ağı çıkarımını saha kayıt cihazlarındaki nöromorfik yongalarda çalıştırmak, uzun süreli pasif akustik izlemeyi şu anda sınırlayan görev döngülü çalışma veya buluta aktarım gerekmeden sürekli, gerçek zamanlı tür tespitini mümkün kılabilir. Bu yakınsama, tespit duyarlılığını pil ömründen etkili biçimde ayırır; bu, iki alanın da henüz tek başına çözemediği bir ödünleşimdir.",
+  "reasoning": "Nöromorfik donanıma ilişkin inceleme makalesi (parça 3), düşük güç tüketimi ve küçük boyutun nöromorfik donanım için bugün baskın motivasyonlar olduğunu ortaya koyarken; biyoakustik inceleme makalesi (parça 3, makale 2112.06725), derin CNN tabanlı ses tespit edicilerinin en gelişmiş yöntem olduğunu ancak örtük olarak gömülü olmayan, güç bakımından zengin ortamlarla sınırlı kaldığını göstermektedir. Bu iki bulguyu bir araya getirmek, nöromorfik çıkarım motorlarının pille çalışan kayıt cihazlarının (örn. parça 33’te atıf yapılan AudioMoth) enerji kısıtlarını karşılarken derin öğrenme modellerinin tespit performansını da koruyabileceğini düşündürmektedir; bu, iki makalenin de doğrudan önermediği bir birleşimdir.",
+  "claims": [
+    {
+      "sentence": "Sivri uçlu sinir ağı çıkarımını saha kayıt cihazlarındaki nöromorfik yongalarda çalıştırmak, uzun süreli pasif akustik izlemeyi şu anda sınırlayan görev döngülü çalışma veya buluta aktarım gerekmeden sürekli, gerçek zamanlı tür tespitini mümkün kılabilir.",
+      "rationale": "Cümle ihtiyatlı bir dil kullanıyor (“mümkün kılabilir”) ve nöromorfik donanımı biyoakustik izlemeyle birleştiren spekülatif bir uygulama öne sürüyor; nöromorfik yongalar ve pasif akustik izleme getirilen literatürde ayrı ayrı belgelenmiş olsa da bu özel amaç için entegrasyonları doğrudan desteklenmemektedir."
+    },
+    {
+      "sentence": "Bu yakınsama, tespit duyarlılığını pil ömründen etkili biçimde ayırır; bu, iki alanın da henüz tek başına çözemediği bir ödünleşimdir.",
+      "rationale": "Bu cümle, hem nöromorfik hesaplama hem de biyoakustik alanlarında çözülmemiş bir ödünleşime dair ihtiyatlı dil veya getirme desteği olmaksızın belirli bir olgusal iddiada bulunuyor; getirilen parçalar düşük güçlü nöromorfik sistemleri ve akustik izlemedeki pil kısıtlarını ayrı ayrı ele alıyor, ancak bu belirli ödünleşim iddiasını bir olgu olarak ortaya koymuyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Sivri uçlu sinir ağı çıkarımını saha kayıt cihazlarındaki nöromorfik yongalarda çalıştırmak, uzun süreli pasif akustik izlemeyi şu anda sınırlayan görev döngülü çalışma veya buluta aktarım gerekmeden sürekli, gerçek zamanlı tür tespitini mümkün kılabilir.",
+      "rationale": "Nöromorfik donanıma ilişkin inceleme makalesi, gerçek zamanlı performansı ve düşük güç tüketimini nöromorfik donanımın başlıca motivasyonları olarak belgelemektedir; bunun saha kayıt cihazlarına aktarılması, iki kaynakta da belirtilmeyen analojik bir genişletmedir."
+    },
+    {
+      "claimSentence": "Bu yakınsama, tespit duyarlılığını pil ömründen etkili biçimde ayırır; bu, iki alanın da henüz tek başına çözemediği bir ödünleşimdir.",
+      "rationale": "Getirilen hiçbir parça, nöromorfik enerji verimliliğini biyoakustik saha kayıt cihazlarındaki duyarlılık ile pil ömrü ödünleşiminin çözümüyle açıkça ilişkilendirmemektedir; bu, iki alan arasında spekülatif bir sentezdir."
+    }
+  ],
+  "id": "E3"
+}

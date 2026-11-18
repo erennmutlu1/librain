@@ -9,9 +9,10 @@
  *   paperExternalUrl(id) -> arXiv (or the paper's own page) when known, else null.
  *
  * The data is a static catalogue, ./paperCatalog.data.json, built without
- * inventing anything: today's 55 papers as the public API lists them
- * (GET /api/papers), then repository sources where the API only has a
- * placeholder (the API snapshot of an arXiv ingest, the reference list of
+ * inventing anything: today's papers as the public API lists them
+ * (GET /api/papers; how many is LIBRARY.papers in ./library.ts), then
+ * repository sources where the API only has a placeholder (the API
+ * snapshot of an arXiv ingest, the reference list of
  * docs/paper-source/architecture.html, and the papers' own title pages and
  * arXiv stamps as the recorded passages quote them), else null. Each entry's
  * `source` says where it came from. Entries with `current: false` are ids

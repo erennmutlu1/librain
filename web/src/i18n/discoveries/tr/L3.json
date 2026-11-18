@@ -1,0 +1,20 @@
+{
+  "id": "L3",
+  "topicA": "dava olgularından mahkeme kararlarını tahmin etme (yargı kararı tahmini)",
+  "topicB": "graf dikkat ağları",
+  "hypothesis": "Hukuki davalar, olguların, atıf yapılan kanun maddelerinin ve önceki kararların ilişkisel kenarlarla bağlı düğümler oluşturduğu graflar olarak doğal biçimde temsil edilebilir; graf dikkat ağlarının (GAT) bu yapıya uygulanması, modelin tek tek olgulara ve bunların hukuki ilişkilerine farklı önem ağırlıkları atamasına olanak tanıyarak HIER-BERT gibi hiyerarşik ardışık modelleri geçme potansiyeli taşır. Böyle bir GAT tabanlı yargı kararı tahmincisi, dava grafı üzerinde mevcut ardışık dikkat mekanizmalarına kıyasla daha yorumlanabilir dikkat katsayıları da sağlayabilir ve gömme (embedding) tabanlı hukuki tahmin sistemlerinin bilinen kara kutu sınırlılığını doğrudan giderebilir.",
+  "novelClaim": "Böyle bir GAT tabanlı yargı kararı tahmincisi, dava grafı üzerinde mevcut ardışık dikkat mekanizmalarına kıyasla daha yorumlanabilir dikkat katsayıları da sağlayabilir ve gömme (embedding) tabanlı hukuki tahmin sistemlerinin bilinen kara kutu sınırlılığını doğrudan giderebilir.",
+  "reasoning": "Yargı kararı tahmini literatürü, yorumlanabilirliği ve ilişkisel kaynakların (önceki davalar, atıf yapılan kanun maddeleri) bütünleştirilmesini açık temel sorunlar olarak belirtmekte (1906.02059 parça 5–6; 2004.12158 parça 7); GAT’ların ise graf komşulukları boyunca ayırt edici, incelenebilir dikkat ağırlıkları atadığı gösterilmekte ve yorumlanabilirlik analizi için umut verici bir yön olarak işaret edilmektedir (gat parça 2, 10). Bu iki çalışma hattını birleştirmek, bir davayı graf olarak modellemenin ve GAT’ları uygulamanın, olgular üzerinde ilişkisel akıl yürütmeyi iyileştirirken mevcut ardışık modellere göre daha şeffaf ve denetlenebilir tahminler vereceğini düşündürmektedir.",
+  "claims": [
+    {
+      "sentence": "Böyle bir GAT tabanlı yargı kararı tahmincisi, dava grafı üzerinde mevcut ardışık dikkat mekanizmalarına kıyasla daha yorumlanabilir dikkat katsayıları da sağlayabilir ve gömme (embedding) tabanlı hukuki tahmin sistemlerinin bilinen kara kutu sınırlılığını doğrudan giderebilir.",
+      "rationale": "Cümle ihtiyatlı bir dil (“sağlayabilir”) kullanmakta ve hukuki tahmin için GAT tabanlı ve ardışık dikkat mekanizmaları arasında spekülatif bir karşılaştırma kurgulamaktadır; getirilen parçalar hem GAT’ların yorumlanabilir dikkat katsayıları sağladığını hem de gömme tabanlı hukuki sistemlerin kara kutu sınırlılıkları olduğunu doğrulasa da GAT’ların bu belirli hukuki uygulama alanında ardışık mekanizmalardan daha iyi olacağını ortaya koymamaktadır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir GAT tabanlı yargı kararı tahmincisi, dava grafı üzerinde mevcut ardışık dikkat mekanizmalarına kıyasla daha yorumlanabilir dikkat katsayıları da sağlayabilir ve gömme (embedding) tabanlı hukuki tahmin sistemlerinin bilinen kara kutu sınırlılığını doğrudan giderebilir.",
+      "rationale": "GAT’ın graf komşulukları üzerindeki dikkat katsayıları, model yorumlanabilirliği için umut verici bir yön olarak belirtilmektedir; bu, kara kutu opaklığının belgelenmiş açık bir sorun olduğu hukuk alanına aktarılmaktadır (2004.12158:7, 1906.02059:5)."
+    }
+  ]
+}

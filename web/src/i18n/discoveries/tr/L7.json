@@ -1,0 +1,20 @@
+{
+  "id": "L7",
+  "topicA": "kanun maddelerini açık kural olarak kullanan sembol tabanlı hukuki akıl yürütme",
+  "topicB": "fizik bilgili sinir ağları",
+  "hypothesis": "Fizik bilgili sinir ağları (PINN), alan bilgisini kayıp fonksiyonlarında diferansiyel denklem kısıtları olarak kodlar; bu, sembol tabanlı hukuki akıl yürütmenin kanun kurallarını çıkarım üzerinde açık sembolik kısıtlar olarak kodlamasına benzer. Bu yapısal paralellik, hibrit bir hukuki yapay zekâ mimarisinin kanun maddelerini bir sinir ağının eğitim hedefine doğrudan türevlenebilir mantıksal kısıtlar olarak gömebileceğini ve kurallara uyumu sonradan değil öğrenme sırasında zorunlu kılabileceğini düşündürmektedir. Böyle bir sistem, sembol tabanlı hukuki yöntemlerin yorumlanabilirliğini ve gömme tabanlı modellerin öngörü gücünü eş zamanlı olarak sağlayacak, böylece LegalAI’da performans ile yorumlanabilirlik arasında belirlenen temel gerilimi olası biçimde çözecektir.",
+  "novelClaim": "Böyle bir sistem, sembol tabanlı hukuki yöntemlerin yorumlanabilirliğini ve gömme tabanlı modellerin öngörü gücünü eş zamanlı olarak sağlayacak, böylece LegalAI’da performans ile yorumlanabilirlik arasında belirlenen temel gerilimi olası biçimde çözecektir.",
+  "reasoning": "PINN’ler, önceden bilinen alan bilgisini (ODE/PDE) artık kayıp terimleri aracılığıyla sinir ağı eğitimine doğrudan bütünleştirir (epi-pinn:4); LegalAI araştırması ise yorumlanabilir sembol tabanlı yöntemler ile yüksek performanslı ancak opak gömme tabanlı yöntemler arasındaki çözülmemiş gerilimi açıkça belirtmektedir (2004.12158:1, 2004.12158:7). Fiziksel yasalar ile türevlenebilir kısıtlar ve kanun hükümleri ile mantıksal kısıtlar arasındaki yapısal benzerlik, kanun maddelerinin bir sinir ağı eğitim hedefinde türevlenebilir ceza terimleri olarak kodlanabileceği yönündeki varsayımı motive etmekte; bu da hem kurallara uyumlu hem de veri güdümlü bir sistem sağlamaktadır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir sistem, sembol tabanlı hukuki yöntemlerin yorumlanabilirliğini ve gömme tabanlı modellerin öngörü gücünü eş zamanlı olarak sağlayacak, böylece LegalAI’da performans ile yorumlanabilirlik arasında belirlenen temel gerilimi olası biçimde çözecektir.",
+      "rationale": "İddia, sembol tabanlı ve gömme tabanlı yaklaşımları birleştirecek varsayımsal bir sistemi betimlemektedir; getirilen parçalar bu geriliminin LegalAI’da var olduğunu ve her iki yöntem türünün tamamlayıcı güçlü yönlere sahip olduğunu ortaya koysa da böyle bir sistemin her iki özelliği “eş zamanlı olarak sağlayacağı” ve gerilimi “çözeceği” iddiası spekülatiftir ve yerleşik bir olgu değil, olası bir sonuç olarak kurgulanmıştır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir sistem, sembol tabanlı hukuki yöntemlerin yorumlanabilirliğini ve gömme tabanlı modellerin öngörü gücünü eş zamanlı olarak sağlayacak, böylece LegalAI’da performans ile yorumlanabilirlik arasında belirlenen temel gerilimi olası biçimde çözecektir.",
+      "rationale": "PINN’ler, veri güdümlü esneklik ile alan yasalarına uyum arasındaki gerilimi kayıp terimi kısıtlarıyla çözmektedir; benzetme yoluyla, kanun hükümlerinin türevlenebilir kısıtlar olarak kodlanması 2004.12158:1’de belirlenen LegalAI yorumlanabilirlik-performans ödünleşimini çözebilir."
+    }
+  ]
+}

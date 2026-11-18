@@ -3,8 +3,8 @@
  * is ever substituted for inputs that match no recording (`fallback: null`):
  *
  *   Discover  every committed Discovery run (src/explore/data, copies of
- *             experiments/{featured,new-areas,cross-field}-discoveries) plus
- *             the real Anthropic baseline-experiment runs. The OpenAI recordings are
+ *             experiments/{featured,new-areas,cross-field,new-domains}-discoveries)
+ *             plus the real Anthropic baseline-experiment runs. The OpenAI recordings are
  *             left out because the public Live mode is Anthropic only.
  *   Compare   the two real baseline-experiment pairs (pair-10, pair-01).
  *   Ask       the five real questions in experiments/ask-examples (copies in
@@ -87,7 +87,7 @@ function toRecording(path: string, raw: unknown): DiscoverRecording | null {
   };
 }
 
-/** Repository order: batch 1 (A, C, D, N), batch 2 (F, J, P, S, W), then batch 3 (X), each by id. */
+/** Repository order: batch 1 (A, C, D, N), batch 2 (F, J, P, S, W), batch 3 (X), then batch 4 (E, L, M), each by id. */
 export const exploreRecordings: DiscoverRecording[] = Object.entries(files)
   .sort(([a], [b]) => compareRunFiles(a, b))
   .map(([path, raw]) => toRecording(path, raw))

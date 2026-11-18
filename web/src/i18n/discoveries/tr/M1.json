@@ -1,0 +1,28 @@
+{
+  "topicA": "nota olayları üzerinde diziden diziye öğrenme olarak çoklu enstrüman müzik transkripsiyonu (nota çıkarma)",
+  "topicB": "programlama dillerinin denetimsiz çevirisi",
+  "hypothesis": "TransCoder’ın, paralel veri olmadan programlama dilleri arasında ortak bir örtük uzay öğrenmek için tek dilli kaynak kod üzerinde diller arası ön eğitimden yararlanması gibi, etiketsiz ses üzerinde eğitilmiş çoklu enstrüman müzik transkripsiyonu (nota çıkarma) modeli de, farklı enstrümanların akustik temsillerini ortak bir gömme (embedding) uzayında hizalamak için alanlar arası ön eğitimden yararlanabilir. Bu denetimsiz hizalama, transkripsiyon modelinin görülmemiş enstrüman kombinasyonlarına ve düşük kaynaklı enstrüman sınıflarına, pahalı etiketli çoklu enstrüman kayıtlarına ihtiyaç duymadan genelleşmesine olanak tanıyacaktır. Dolayısıyla, etiketsiz çok sesli ses kayıtları üzerinde geri çeviri tarzı öz eğitim (modelin sözde transkripsiyonlar üretip bunları eğitim hedefi olarak kullandığı yöntem), düşük kaynaklı ve yüksek kaynaklı enstrüman transkripsiyonu arasındaki performans farkını önemli ölçüde kapatabilir.",
+  "novelClaim": "Bu denetimsiz hizalama, transkripsiyon modelinin görülmemiş enstrüman kombinasyonlarına ve düşük kaynaklı enstrüman sınıflarına, pahalı etiketli çoklu enstrüman kayıtlarına ihtiyaç duymadan genelleşmesine olanak tanıyacaktır. Dolayısıyla, etiketsiz çok sesli ses kayıtları üzerinde geri çeviri tarzı öz eğitim (modelin sözde transkripsiyonlar üretip bunları eğitim hedefi olarak kullandığı yöntem), düşük kaynaklı ve yüksek kaynaklı enstrüman transkripsiyonu arasındaki performans farkını önemli ölçüde kapatabilir.",
+  "reasoning": "MT3 makalesi (2111.03017), etiketli çoklu enstrüman verisinin azlığını temel bir darboğaz olarak açıkça belirtmekte ve etiketsiz veri üzerinde öz veya yarı denetimli eğitimi gelecekteki bir yön olarak önermektedir. TransCoder (2006.03511), tek dilli (eşlenmemiş) veri üzerinde geri çeviri ve diller arası maskeli dil modeli ön eğitiminin, hiçbir paralel veri olmadan yüksek kaliteli diziden diziye çeviri sağlayabileceğini göstermektedir. Bu iki gözlemi birleştirmek, aynı denetimsiz mekanizmanın (alanlar arası ön eğitim artı geri çeviri) programlama dili çevirisinden çoklu enstrüman müzik transkripsiyonuna aktarılabileceği ve pahalı etiketleme olmadan düşük kaynaklı enstrümanlara genellemeyi mümkün kılabileceği hipotezini güdülemektedir.",
+  "claims": [
+    {
+      "sentence": "Bu denetimsiz hizalama, transkripsiyon modelinin görülmemiş enstrüman kombinasyonlarına ve düşük kaynaklı enstrüman sınıflarına, pahalı etiketli çoklu enstrüman kayıtlarına ihtiyaç duymadan genelleşmesine olanak tanıyacaktır.",
+      "rationale": "Cümle, denetimsiz hizalamanın olası bir yararı hakkında koşullu bir dille (“olanak tanıyacaktır”) spekülasyon yapıyor; yerleşik bir olguyu öne sürmek yerine hipotez çerçevesindedir."
+    },
+    {
+      "sentence": "Dolayısıyla, etiketsiz çok sesli ses kayıtları üzerinde geri çeviri tarzı öz eğitim (modelin sözde transkripsiyonlar üretip bunları eğitim hedefi olarak kullandığı yöntem), düşük kaynaklı ve yüksek kaynaklı enstrüman transkripsiyonu arasındaki performans farkını önemli ölçüde kapatabilir.",
+      "rationale": "Cümle, spekülatif bir sonucu çerçevelemek için ihtiyatlı bir dil kullanıyor (“önemli ölçüde kapatabilir”); getirilen çalışmada geri çeviri gelecekteki bir yön olarak anılsa da bunun enstrüman transkripsiyonuna özel uygulaması yerleşik bir olgu olarak ortaya konmamıştır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu denetimsiz hizalama, transkripsiyon modelinin görülmemiş enstrüman kombinasyonlarına ve düşük kaynaklı enstrüman sınıflarına, pahalı etiketli çoklu enstrüman kayıtlarına ihtiyaç duymadan genelleşmesine olanak tanıyacaktır.",
+      "rationale": "TransCoder’ın diller arası ön eğitimi, paralel veri olmadan programlama dilleri arasında temsilleri hizalar; benzetme yoluyla, etiketsiz ses üzerinde enstrümanlar arası ön eğitim, akustik gömmeleri enstrümanlar arasında hizalayabilir ve etiketli çiftler olmadan genellemeyi mümkün kılabilir."
+    },
+    {
+      "claimSentence": "Dolayısıyla, etiketsiz çok sesli ses kayıtları üzerinde geri çeviri tarzı öz eğitim (modelin sözde transkripsiyonlar üretip bunları eğitim hedefi olarak kullandığı yöntem), düşük kaynaklı ve yüksek kaynaklı enstrüman transkripsiyonu arasındaki performans farkını önemli ölçüde kapatabilir.",
+      "rationale": "TransCoder, geri çeviriyi temel bir denetimsiz eğitim ilkesi olarak kullanır; bunu, etiketsiz sesten sözde MIDI üreterek müzik transkripsiyonuna uygulamak doğrudan analojik bir aktarımdır, ancak hiçbir kaynak bunu çoklu enstrüman otomatik müzik transkripsiyonu için açıkça önermemekte veya doğrulamamaktadır."
+    }
+  ],
+  "id": "M1"
+}

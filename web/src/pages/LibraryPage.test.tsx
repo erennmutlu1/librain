@@ -4,6 +4,9 @@ import { App } from '../App';
 import { createMockApi } from '../api/mockClient';
 import { createLocalRunStore } from '../history/localRunStore';
 import { LangProvider } from '../i18n/lang';
+import { libraryCounts } from '../lib/library';
+import { fromEarlierLibrary, inTodaysLibrary } from '../lib/paperCatalog';
+import { publicRecordings } from '../mocks/publicScenarios';
 import { createPublicHistory, createPublicRunStore } from '../public/browserHistory';
 import { createLiveClient, loadRecordedClient } from '../public/clients';
 import { PublicApp } from '../public/PublicApp';
@@ -72,6 +75,10 @@ async function setupRecorded(path: string, lang?: 'tr') {
   return { fetchImpl };
 }
 
+/** What Recorded mode lists: every paper id the recorded runs cite, some from the earlier 13-paper library. */
+const citedIds = (publicRecordings.library() as { paperId: string }[]).map((p) => p.paperId);
+const olderIds = citedIds.filter(fromEarlierLibrary);
+
 describe('Papers in Recorded mode (public build)', () => {
   it('shows titles, authors, years and arXiv links from the catalogue, not bare ids', async () => {
     const { fetchImpl } = await setupRecorded('/library');
@@ -87,14 +94,18 @@ describe('Papers in Recorded mode (public build)', () => {
   });
 
   it('explains the counts in one sentence', async () => {
+    // Every cited id is either in today's library or in the earlier one, so the two parts add up.
+    expect(citedIds.every((id) => inTodaysLibrary(id) !== fromEarlierLibrary(id))).toBe(true);
+    expect(olderIds).toHaveLength(6);
     await setupRecorded('/library');
     await screen.findByRole('table', { name: /^Papers in the library/ });
+    const today = libraryCounts('en').papers;
     expect(
       screen.getByText(
-        'Today’s library has 55 papers; the recorded runs cite 58 paper IDs: 52 from today’s library and 6 from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.',
+        `Today’s library has ${today} papers; the recorded runs cite ${citedIds.length} paper IDs: ${citedIds.length - olderIds.length} from today’s library and ${olderIds.length} from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.`,
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('58 papers')).toBeInTheDocument();
+    expect(screen.getByText(`${citedIds.length} papers`)).toBeInTheDocument();
   });
 
   it('prefills the search from ?q= (the link other screens use for a paper)', async () => {
@@ -110,7 +121,7 @@ describe('Papers in Recorded mode (public build)', () => {
       'href',
       'https://arxiv.org/abs/2212.12794',
     );
-    expect(screen.getByText('1 of 58 papers')).toBeInTheDocument();
+    expect(screen.getByText(`1 of ${citedIds.length} papers`)).toBeInTheDocument();
   });
 
   it('says it in Turkish', async () => {
@@ -118,12 +129,13 @@ describe('Papers in Recorded mode (public build)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Makaleler' })).toBeInTheDocument();
     await screen.findByRole('table', { name: /^Kütüphanedeki makaleler/ });
     expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toHaveValue('gat');
+    const tr = libraryCounts('tr');
     expect(
       screen.getByText(
-        'Bugünkü makale kütüphanesinde 55 makale var; hazır çalıştırmalar 58 makale kimliğine atıf yapıyor: bugünkü kütüphaneden 52 makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) 6 kimlik.',
+        `Bugünkü makale kütüphanesinde ${tr.papers} makale var; hazır çalıştırmalar ${citedIds.length} makale kimliğine atıf yapıyor: bugünkü kütüphaneden ${citedIds.length - olderIds.length} makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) ${olderIds.length} kimlik.`,
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText('Herkese açık makale kütüphanesi salt okunurdur: 55 makale, 2.210 parça.')).toBeInTheDocument();
+    expect(screen.getByText(`Herkese açık makale kütüphanesi salt okunurdur: ${tr.papers} makale, ${tr.passages} parça.`)).toBeInTheDocument();
     expect(screen.getByText(/^Hazır mod, hazır çalıştırmaların atıf yaptığı/)).toBeInTheDocument();
   });
 });

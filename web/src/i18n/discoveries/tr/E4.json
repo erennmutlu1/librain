@@ -1,0 +1,28 @@
+{
+  "topicA": "kamera tuzağı görüntülerinde yabani hayvanları belirleme ve sayma",
+  "topicB": "karşıtsal görüntü-metin ön eğitimi (CLIP)",
+  "hypothesis": "CLIP’in sıfır atışlı (zero-shot) transfer mekanizması (görüntü gömmelerini hiçbir etiketli örnek olmadan serbest biçimli metin tanımlarıyla eşleştirme), tür adlarını ve davranış tanımlayıcılarını (örn. “geceleyin uzun otlar arasında dinlenen bir zebra”) metin istemleri olarak kodlayarak kamera tuzağı yaban hayatı sınıflandırmasına doğrudan uygulanabilir ve denetimli derin öğrenme hatlarının şu anda gerektirdiği milyonlarca kitle kaynaklı etiket ihtiyacını ortadan kaldırabilir. Bu yaklaşım, Snapshot Serengeti gibi veri kümelerindeki nadir veya uzun kuyruklu türler için, denetimli modellerin ciddi sınıf dengesizliğinden muzdarip olduğu bir durumda özellikle güçlü olur; çünkü CLIP’in ortak gömme (embedding) uzayı, sabit bir eğitim sınıfları kümesiyle sınırlı kalmak yerine doğal dille tanımlanan görsel kavramlar arasında genelleşir. Dahası, CLIP’in sıfır atışlı (zero-shot) genellemesi konumlar arası ortamlara da uzanabilir (kamera tuzağı modelleri, coğrafi alanlar arasındaki alan kayması nedeniyle bu ortamlarda sıkça başarısız olur); çünkü metin kodlayıcı, tahminleri konuma özgü görsel istatistiklere değil anlamsal tür tanımlarına dayandırır.",
+  "novelClaim": "Bu yaklaşım, Snapshot Serengeti gibi veri kümelerindeki nadir veya uzun kuyruklu türler için, denetimli modellerin ciddi sınıf dengesizliğinden muzdarip olduğu bir durumda özellikle güçlü olur; çünkü CLIP’in ortak gömme (embedding) uzayı, sabit bir eğitim sınıfları kümesiyle sınırlı kalmak yerine doğal dille tanımlanan görsel kavramlar arasında genelleşir. Dahası, CLIP’in sıfır atışlı (zero-shot) genellemesi konumlar arası ortamlara da uzanabilir (kamera tuzağı modelleri, coğrafi alanlar arasındaki alan kayması nedeniyle bu ortamlarda sıkça başarısız olur); çünkü metin kodlayıcı, tahminleri konuma özgü görsel istatistiklere değil anlamsal tür tanımlarına dayandırır.",
+  "reasoning": "CLIP, görüntü gömmelerini hiçbir etiketli eğitim örneği olmadan doğal dildeki sınıf tanımlarıyla eşleştirerek sıfır atışlı sınıflandırma yapar (clip:9, clip:2); kamera tuzağı hatları ise kitle kaynaklı etiketlerin maliyetiyle darboğaza girer (1703.05830:0) ve görsel alan kayması nedeniyle coğrafi konumlar arasında genelleşemez (1807.04975:5). Bu bulguları birleştirmek, CLIP’in dile dayalı gömmesinin nadir türler için etiket kıtlığını ve konumlar arası genellemeyi (otomatik yaban hayatı izlemenin en zor iki açık sorunu) aynı anda ele alabileceğini düşündürmektedir; bunların hiçbiri iki kaynak makalede de öne sürülmemiştir.",
+  "claims": [
+    {
+      "sentence": "Bu yaklaşım, Snapshot Serengeti gibi veri kümelerindeki nadir veya uzun kuyruklu türler için, denetimli modellerin ciddi sınıf dengesizliğinden muzdarip olduğu bir durumda özellikle güçlü olur; çünkü CLIP’in ortak gömme (embedding) uzayı, sabit bir eğitim sınıfları kümesiyle sınırlı kalmak yerine doğal dille tanımlanan görsel kavramlar arasında genelleşir.",
+      "rationale": "İddia, CLIP’in Snapshot Serengeti’deki nadir türlere ve sınıf dengesizliğine olası uygulamasını ihtiyatlı bir dille (“olur”, “çünkü”) spekülatif biçimde ele alıyor; getirilen parçalar CLIP’in sıfır atışlı yeteneklerini ve ortak gömme uzayını doğrulasa da bunun kamera tuzağı veri kümelerindeki uzun kuyruklu türlere veya sınıf dengesizliğine uygulanmasını doğrudan ele almıyor."
+    },
+    {
+      "sentence": "Dahası, CLIP’in sıfır atışlı (zero-shot) genellemesi konumlar arası ortamlara da uzanabilir (kamera tuzağı modelleri, coğrafi alanlar arasındaki alan kayması nedeniyle bu ortamlarda sıkça başarısız olur); çünkü metin kodlayıcı, tahminleri konuma özgü görsel istatistiklere değil anlamsal tür tanımlarına dayandırır.",
+      "rationale": "İddia ihtiyatlı bir dil kullanıyor (“uzanabilir”) ve CLIP’in konumlar arası genellemeyi neden ele alabileceğine dair spekülatif bir mekanizma öne sürüyor; getirilen parçalar kamera tuzağı alan kayması sorunlarını ve CLIP’in metne dayandırma yeteneklerini doğrulasa da CLIP’in konumlar arası genellemeye uygulanmasına ilişkin özel iddiayı doğrudan desteklemiyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Bu yaklaşım, Snapshot Serengeti gibi veri kümelerindeki nadir veya uzun kuyruklu türler için, denetimli modellerin ciddi sınıf dengesizliğinden muzdarip olduğu bir durumda özellikle güçlü olur; çünkü CLIP’in ortak gömme (embedding) uzayı, sabit bir eğitim sınıfları kümesiyle sınırlı kalmak yerine doğal dille tanımlanan görsel kavramlar arasında genelleşir.",
+      "rationale": "Norouzzadeh ve ark., 48 sınıflı SS veri kümesinin ağır biçimde dengesiz olduğunu (önceki çalışmada en alttaki 22 sınıf çıkarılmıştır) açıkça belirtmektedir; bu da sınıf başına etiketli örnek gerektirmeyen bir yöntemi motive etmektedir; CLIP’in açık sözcük dağarcıklı gömmesi buna doğrudan çözüm getirir."
+    },
+    {
+      "claimSentence": "Dahası, CLIP’in sıfır atışlı (zero-shot) genellemesi konumlar arası ortamlara da uzanabilir (kamera tuzağı modelleri, coğrafi alanlar arasındaki alan kayması nedeniyle bu ortamlarda sıkça başarısız olur); çünkü metin kodlayıcı, tahminleri konuma özgü görsel istatistiklere değil anlamsal tür tanımlarına dayandırır.",
+      "rationale": "Beery ve ark., cis konumlarda eğitilen modellerin görsel alan kayması nedeniyle trans konumlarda başarısız olduğunu göstermektedir; CLIP’in dile dayandırması, anlamsal soyutlamaya benzer bir mekanizmadır ve tahminleri alana özgü görünüm istatistiklerinden ayırabilir."
+    }
+  ],
+  "id": "E4"
+}

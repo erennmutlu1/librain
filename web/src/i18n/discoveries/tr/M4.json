@@ -1,0 +1,28 @@
+{
+  "id": "M4",
+  "topicA": "ham ses alanında şarkı sözlü müzik üretimi (Jukebox)",
+  "topicB": "karşılaştırmalı görüntü-metin ön eğitimi (CLIP)",
+  "hypothesis": "Jukebox’ın hiyerarşik VQ-VAE modeli, ham sesi birden fazla soyutlama düzeyinde zengin müzikal anlam (melodi, tını, vokal tarzı) taşıyan ayrık token’lara sıkıştırır. CLIP tarzı bir karşılaştırmalı (contrastive) ön eğitim hedefi, bu ses token’ları ile doğal dil betimlemeleri (sözler, tür etiketleri, ruh hali ek açıklamaları) üzerinde birlikte uygulanırsa güçlü bir sıfır atışlı (zero-shot) ses-dil gömme (embedding) uzayı üretebilir. Böyle bir model, koşullandırma için zaten kullanılanların ötesinde herhangi bir ek etiketli veri gerektirmeden, Jukebox’ın en üst düzey önselini (prior) doğal dil istemleriyle yönlendirerek sıfır atışlı müzik erişimini ve kontrollü üretimi mümkün kılabilir.",
+  "novelClaim": "CLIP tarzı bir karşılaştırmalı (contrastive) ön eğitim hedefi, bu ses token’ları ile doğal dil betimlemeleri (sözler, tür etiketleri, ruh hali ek açıklamaları) üzerinde birlikte uygulanırsa güçlü bir sıfır atışlı (zero-shot) ses-dil gömme (embedding) uzayı üretebilir. Böyle bir model, koşullandırma için zaten kullanılanların ötesinde herhangi bir ek etiketli veri gerektirmeden, Jukebox’ın en üst düzey önselini (prior) doğal dil istemleriyle yönlendirerek sıfır atışlı müzik erişimini ve kontrollü üretimi mümkün kılabilir.",
+  "reasoning": "Jukebox’ın çok ölçekli VQ-VAE modeli, zengin müzikal anlamı yakalayan ayrık ses token’ları üretir ve sanatçı, tür ve söz koşullandırmasını zaten desteklemektedir (2005.00341, parça 0, 1, 8). CLIP, büyük ölçekli eşleştirilmiş (modalite A, metin) veriler üzerindeki karşılaştırmalı hedeflerin sıfır atışlı kullanıma elverişli ortak gömme uzayları verdiğini ve bu paradigmanın görüntülerin ötesinde ses dahil diğer algısal alanlara da uzandığını göstermektedir (clip, parça 5, 9, 37). Bu iki bulguyu birleştirmek, CLIP’in karşılaştırmalı eğitiminin Jukebox’ın ayrık ses token’larına ve bunlarla ilişkili metinsel üst verilere uygulanmasının, doğal dille yönlendirilen müzik üretimini mümkün kılan sıfır atışlı bir ses-dil uzayı üretebileceğini düşündürmektedir; bu, iki makalenin de doğrudan önermediği bir yetenektir.",
+  "claims": [
+    {
+      "sentence": "CLIP tarzı bir karşılaştırmalı (contrastive) ön eğitim hedefi, bu ses token’ları ile doğal dil betimlemeleri (sözler, tür etiketleri, ruh hali ek açıklamaları) üzerinde birlikte uygulanırsa güçlü bir sıfır atışlı (zero-shot) ses-dil gömme (embedding) uzayı üretebilir.",
+      "rationale": "Cümle, CLIP’in karşılaştırmalı ön eğitiminin sese uygulanmasına dair varsayımsal bir kullanım önermekte ve ihtiyatlı bir dil (“üretebilir”) kullanmaktadır; CLIP’in yaklaşımı getirilen parçalarda iyi belgelenmiş olsa da bunun bu belirli modalitelerle sese uygulanması yerleşik bir olgu değil, varsayımsaldır."
+    },
+    {
+      "sentence": "Böyle bir model, koşullandırma için zaten kullanılanların ötesinde herhangi bir ek etiketli veri gerektirmeden, Jukebox’ın en üst düzey önselini (prior) doğal dil istemleriyle yönlendirerek sıfır atışlı müzik erişimini ve kontrollü üretimi mümkün kılabilir.",
+      "rationale": "Bu cümle ihtiyatlı bir dil (“mümkün kılabilir”) kullanmakta ve CLIP tarzı gömmeleri Jukebox mimarisiyle birleştiren varsayımsal bir uygulama önermektedir; Jukebox söz koşullandırmasını desteklese ve makale insan rehberliğinde üretimle ilgili gelecek çalışmaları ele alsa da bu özel entegrasyon spekülatiftir."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "CLIP tarzı bir karşılaştırmalı (contrastive) ön eğitim hedefi, bu ses token’ları ile doğal dil betimlemeleri (sözler, tür etiketleri, ruh hali ek açıklamaları) üzerinde birlikte uygulanırsa güçlü bir sıfır atışlı (zero-shot) ses-dil gömme (embedding) uzayı üretebilir.",
+      "rationale": "CLIP, eşleştirilmiş (görüntü, metin) verileri üzerindeki karşılaştırmalı hedeflerin güçlü ortak gömme uzayları kurduğunu göstermektedir; aynı mekanizma Jukebox’ın ayrık temsillerinden gelen (ses token’ı, metin) çiftlerine aktarılabilir."
+    },
+    {
+      "claimSentence": "Böyle bir model, koşullandırma için zaten kullanılanların ötesinde herhangi bir ek etiketli veri gerektirmeden, Jukebox’ın en üst düzey önselini (prior) doğal dil istemleriyle yönlendirerek sıfır atışlı müzik erişimini ve kontrollü üretimi mümkün kılabilir.",
+      "rationale": "Getirilen hiçbir parça, karşılaştırmalı bir gömme aracılığıyla sıfır atışlı müzik erişimini ya da Jukebox’ın en üst düzey önselinin doğal dille yönlendirilmesini doğrudan göstermemektedir; bu, iki makalede de ifade edilmeyen bir yeni varsayım uygulamasıdır."
+    }
+  ]
+}

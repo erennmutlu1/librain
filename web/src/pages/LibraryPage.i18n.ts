@@ -1,4 +1,8 @@
 import { strings } from '../i18n/lang';
+import { libraryCounts } from '../lib/library';
+
+const en = libraryCounts('en');
+const tr = libraryCounts('tr');
 
 export const text = strings({
   en: {
@@ -13,8 +17,8 @@ export const text = strings({
       `Today’s library has ${today} papers; the recorded runs cite ${cited} paper IDs: ${current} from today’s library and ${older} from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.`,
     ledeLive: (papers: string, passages: string) =>
       `${papers} papers, split into ${passages} passages. Ask, New idea and Compare all search this library.`,
-    /** Keep in step with PUBLIC_CORPUS_NOTE in LibraryPage.tsx. */
-    corpusNote: 'The public paper library is read-only: 55 papers, 2,210 passages.',
+    /** PUBLIC_CORPUS_NOTE below is this English text; the numbers come from src/lib/library.ts. */
+    corpusNote: `The public paper library is read-only: ${en.papers} papers, ${en.passages} passages.`,
     papers: 'Paper list',
     caption: 'Papers in the library',
     searchLabel: 'Search papers by ID, title or author',
@@ -58,7 +62,7 @@ export const text = strings({
       `Bugünkü makale kütüphanesinde ${today} makale var; hazır çalıştırmalar ${cited} makale kimliğine atıf yapıyor: bugünkü kütüphaneden ${current} makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) ${older} kimlik.`,
     ledeLive: (papers: string, passages: string) =>
       `${papers} makale, ${passages} parçaya bölünmüş durumda. Sor, Yeni fikir ve Karşılaştır bu kütüphanede arar.`,
-    corpusNote: 'Herkese açık makale kütüphanesi salt okunurdur: 55 makale, 2.210 parça.',
+    corpusNote: `Herkese açık makale kütüphanesi salt okunurdur: ${tr.papers} makale, ${tr.passages} parça.`,
     papers: 'Makale listesi',
     caption: 'Kütüphanedeki makaleler',
     searchLabel: 'Makaleleri kimlik, başlık ya da yazara göre arayın',
@@ -95,3 +99,6 @@ export const text = strings({
     keep: 'Vazgeç',
   },
 });
+
+/** The library the public API serves (src/lib/library.ts), in English; the screen shows the reader's language. */
+export const PUBLIC_CORPUS_NOTE = text.en.corpusNote;

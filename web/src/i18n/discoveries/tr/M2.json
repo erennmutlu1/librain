@@ -1,0 +1,20 @@
+{
+  "topicA": "sembolik müzik üretiminde uzun vadeli yapı ve yinelenen motifler",
+  "topicB": "graf dikkat ağları",
+  "hypothesis": "Sembolik müzik, notaların ve motiflerin düğüm, zamansal/armonik ilişkilerinin ise kenar olduğu bir graf olarak doğal biçimde temsil edilebilir; bu yapıya graf dikkat ağlarının uygulanması, bir modelin uzun zaman aralıklarında yinelenen motiflere farklı önem atamasına olanak tanıyacaktır; bu da sıralı Transformer’ların göreli dikkatle yaklaşık olarak ele aldığı uzun menzilli öz-göndergeli yapıyı doğrudan ele alır. Böyle bir GAT tabanlı müzik modeli, görülmemiş kompozisyon yapılarına (örn. yeni ABA formları veya yeni armonik ilerlemeler) yeniden eğitim olmadan endüktif olarak genelleşebilir; bu, mevcut hiçbir sıralı müzik üretimi yaklaşımında gösterilmemiş bir yetenektir.",
+  "novelClaim": "Böyle bir GAT tabanlı müzik modeli, görülmemiş kompozisyon yapılarına (örn. yeni ABA formları veya yeni armonik ilerlemeler) yeniden eğitim olmadan endüktif olarak genelleşebilir; bu, mevcut hiçbir sıralı müzik üretimi yaklaşımında gösterilmemiş bir yetenektir.",
+  "reasoning": "Music Transformer, uzun diziler üzerindeki öz dikkatin müzikteki çok ölçekli tekrarı (motifler, cümleler, ABA bölümleri) yakaladığını göstermekte; GAT’lar ise graf yapılı komşuluklar üzerindeki dikkatin, görülmemiş graf topolojilerine endüktif genellemeyi mümkün kıldığını göstermektedir. Bunları birleştirince, motiflerin düğüm, ilişkilerin kenar olduğu graf yapılı bir müzik temsili, yeni kompozisyon biçimlerini ele almak için GAT’ın endüktif yeteneğinden yararlanabilir; bu, iki kaynak makalede de yapılmamış, alanlar arası bir varsayımdır.",
+  "claims": [
+    {
+      "sentence": "Böyle bir GAT tabanlı müzik modeli, görülmemiş kompozisyon yapılarına (örn. yeni ABA formları veya yeni armonik ilerlemeler) yeniden eğitim olmadan endüktif olarak genelleşebilir; bu, mevcut hiçbir sıralı müzik üretimi yaklaşımında gösterilmemiş bir yetenektir.",
+      "rationale": "İddia, belirli bir olgusal karşılaştırmayı (“mevcut hiçbir sıralı müzik üretimi yaklaşımında gösterilmemiş”) yerleşik bir olgu olarak öne sürüyor; ancak getirilen parçalar GAT’ların müzik üretimine uygulandığına veya endüktif genelleme yeteneklerinin kompozisyon yapıları üzerinde sınandığına dair hiçbir kanıt sunmuyor; Music Transformer makalesi müzik için Transformer’ları ele alıyor, ancak GAT tabanlı modeller veya bunların sıralı yaklaşımlara üstünlüğü hakkında hiçbir iddiada bulunmuyor."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Böyle bir GAT tabanlı müzik modeli, görülmemiş kompozisyon yapılarına (örn. yeni ABA formları veya yeni armonik ilerlemeler) yeniden eğitim olmadan endüktif olarak genelleşebilir; bu, mevcut hiçbir sıralı müzik üretimi yaklaşımında gösterilmemiş bir yetenektir.",
+      "rationale": "GAT’ların, modelin tümüyle görülmemiş graflara genelleştiği görevler dahil endüktif öğrenme problemlerine doğrudan uygulanabilir olduğu gösterilmiştir; bu özellik burada görülmemiş müzikal kompozisyon yapılarına benzetilmektedir."
+    }
+  ],
+  "id": "M2"
+}

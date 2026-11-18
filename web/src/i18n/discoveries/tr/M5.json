@@ -1,0 +1,20 @@
+{
+  "id": "M5",
+  "topicA": "düşük kaynaklı çok enstrümanlı müzik transkripsiyonu (nota çıkarma)",
+  "topicB": "gizli öznitelikleri maskeleyerek konuşma temsillerinin öz denetimli öğrenimi",
+  "hypothesis": "wav2vec 2.0’a benzer bir öz denetimli ön eğitim stratejisi (gizli ses temsillerinin aralıklarını maskeleme ve nicemlenmiş hedefler üzerinde karşılaştırmalı bir görev çözme), etiketli veriye bağımlılığı büyük ölçüde azaltmak üzere çok enstrümanlı müzik transkripsiyonuna uyarlanabilir. Bir Transformer kodlayıcısını büyük miktarda etiketsiz müzik sesi üzerinde ön eğitip düşük kaynaklı enstrümanlar için mevcut küçük etiketli veri kümelerinde ince ayar yapmak, modelin enstrüman sınıfları arasında aktarılan, enstrümandan bağımsız tonal ve ritmik temsiller öğrenmesini sağlayabilir. Maskeleme ve nicemleme paradigmasının bu alanlar arası aktarımı, öz denetimli hedef küçük ölçekte yalnızca etiketli verinin sağlayamayacağı istatistiksel düzenlilikleri sağlayacağından, düşük kaynaklı enstrümanlarda (ör. gitar, URMP topluluk kayıtları) iyi kaynaklı olanlara kıyasla daha büyük göreli kazançlar sağlayabilir.",
+  "novelClaim": "Maskeleme ve nicemleme paradigmasının bu alanlar arası aktarımı, öz denetimli hedef küçük ölçekte yalnızca etiketli verinin sağlayamayacağı istatistiksel düzenlilikleri sağlayacağından, düşük kaynaklı enstrümanlarda (ör. gitar, URMP topluluk kayıtları) iyi kaynaklı olanlara kıyasla daha büyük göreli kazançlar sağlayabilir.",
+  "reasoning": "MT3, düşük kaynaklı enstrümanları (GuitarSet, URMP) en zor durumlar olarak açıkça belirtmekte ve etiketsiz veri üzerinde öz denetimli eğitimi gelecek yönü olarak önermektedir (parça 10); wav2vec 2.0 ise gizli temsilleri maskelemenin ve nicemlenmiş hedefler üzerinde karşılaştırmalı bir görev çözmenin, yalnızca 10 dakikalık etiketli konuşma verisiyle bile güçlü performans sağladığını göstermektedir (parça 0, parça 9). Bu bulguların birleştirilmesi, etiketsiz müzik sesine uygulanan wav2vec 2.0 ön eğitim tarifinin MT3’teki en az veriye sahip enstrüman kategorilerine orantısız biçimde fayda sağlayacağı hipotezini güçlendirmektedir; çünkü konuşma alanında öz denetimli ön eğitimin en büyük göreli artışı sağladığı rejimler tam olarak bunlardır.",
+  "claims": [
+    {
+      "sentence": "Maskeleme ve nicemleme paradigmasının bu alanlar arası aktarımı, öz denetimli hedef küçük ölçekte yalnızca etiketli verinin sağlayamayacağı istatistiksel düzenlilikleri sağlayacağından, düşük kaynaklı enstrümanlarda (ör. gitar, URMP topluluk kayıtları) iyi kaynaklı olanlara kıyasla daha büyük göreli kazançlar sağlayabilir.",
+      "rationale": "Cümle, olası bir mekanizmaya dair spekülatif bir hipotez olarak kurgulanmıştır (“sağlayabilir”, “sağlayacağından”); getirilen parçalar MT3’ün gitar ve URMP gibi düşük kaynaklı veri kümelerinde kazanç elde ettiğini doğrulasa da maskeleme ve nicemlemeyi istatistiksel düzenliliklere bağlayan belirli nedensel mekanizma kanıtta açıkça ortaya konmamıştır."
+    }
+  ],
+  "extrapolationBasis": [
+    {
+      "claimSentence": "Maskeleme ve nicemleme paradigmasının bu alanlar arası aktarımı, öz denetimli hedef küçük ölçekte yalnızca etiketli verinin sağlayamayacağı istatistiksel düzenlilikleri sağlayacağından, düşük kaynaklı enstrümanlarda (ör. gitar, URMP topluluk kayıtları) iyi kaynaklı olanlara kıyasla daha büyük göreli kazançlar sağlayabilir.",
+      "rationale": "wav2vec 2.0, aşırı düşük kaynaklı ASR’de (10 dakikalık etiketli veri) yüksek kaynaklı ayarlara kıyasla orantısız ölçüde büyük kazançlar göstermektedir; bu, etiketli veri kıt olduğunda düşük kaynaklı müzik enstrümanları için de aynı asimetrik faydanın geçerli olabileceğini düşündürmektedir."
+    }
+  ]
+}
