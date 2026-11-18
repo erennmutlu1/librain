@@ -14,6 +14,8 @@ kit. Tests use Vitest and Testing Library.
 | ![Compare: three systems on one topic pair](docs/screenshots/compare.png) | ![Ask: citation panel with the cited passage](docs/screenshots/ask.png) |
 | ![Library: papers, upload and arXiv ingest](docs/screenshots/library.png) | ![Discover on a phone, dark mode](docs/screenshots/mobile-discover.png) |
 
+![Featured discoveries: six recorded runs, each opening its full sentence-by-sentence audit](docs/screenshots/featured.png)
+
 ## Run it
 
 Requires Node 20.19+ or 22.12+ (developed on Node 23) and npm.
@@ -140,6 +142,26 @@ See `.env.example`.
   - A scorecard shows quality, novelty, plausibility, coherence, aggregate
     risk and the citation contract ("dropped N").
   - `validationFailed` shows a warning and leaves the claim unpainted.
+- **Featured discoveries** (no API call, in either mode):
+  - With no result on screen, Discover shows six recorded runs from
+    `experiments/featured-discoveries/` (Claude Sonnet 4.6, 2026-11-18). Each
+    card has the topic pair, a one-line takeaway, quality, novelty,
+    plausibility and claim-risk chips, the RISKY-sentence count when there is
+    one (D1 shows the validator flagging an overreaching claim), the papers it
+    bridges and what the run cost. The framing and the verdict legend sit
+    above the cards: these are candidate hypotheses, and novelty is measured
+    against the 41-paper corpus only.
+  - A card opens `/discover/featured/:id` (for example `/discover/featured/D1`):
+    the full result with the same components as a live run, under a
+    "Recorded run, not generated now" banner with the source file.
+    `/discover/featured` is the gallery on its own; an unknown id gets a
+    not-found with the valid ids.
+  - The runs ship with the app: `src/featured/data/` is a byte-for-byte copy
+    of the manifest and the six runs it names (a test fails if they drift).
+    They load as their own chunk (59 kB gzip) after the Discover screen, and
+    they are not saved to History. To change the selection, edit
+    `experiments/featured-discoveries/featured.json`, then copy it and the run
+    files it names into `src/featured/data/`.
 - **Compare** (`POST /api/compare`, one call): a plain-language explainer of
   the three systems and one score table on a shared 0 to 1 scale.
   - Naive-RAG citations outside the retrieved set are marked as fabricated
@@ -181,6 +203,8 @@ src/
                 citations.ts   [n] markers, fabricated-citation audit, chip line-wrapping
                 arxiv.ts       mirror of ArxivClient.TryNormalizeId
                 stages.ts      progress events -> stepper steps
+  featured/     data/          copies of experiments/featured-discoveries (manifest + six runs)
+                manifest.ts    the manifest; runs.ts the runs (lazy chunk); useFeatured.ts loads them once
   history/      runStore.ts    THE SEAM: RunStore interface + createDefaultRunStore(api)
                 httpRunStore.ts / localRunStore.ts, exporters.ts (JSON/Markdown)
   components/   AnnotatedClaim (the sentence view), ProgressStepper, DiscoverResult, AskResult, CompareView, ...
@@ -193,7 +217,7 @@ routing. React DOM is about 200 kB of that.
 
 ## Tests
 
-`npm test` runs 159 tests, all offline:
+`npm test` runs 173 tests, all offline:
 
 - **Contract tests** (`api/contract.test.ts`) parse every file in
   `src/mocks/contract/` through the client mapping. When the backend
@@ -208,6 +232,12 @@ routing. React DOM is about 200 kB of that.
 - **History** against the `/api/runs` shapes (`runs.json`,
   `run-record.json`) and the browser store, including storage that throws
   or is full.
+- **Featured discoveries** (`featured/featured.test.ts`,
+  `pages/FeaturedPage.test.tsx`): the copies match the experiment files byte
+  for byte; the gallery lists all six in manifest order; D1 opens with
+  exactly one RISKY sentence; opening a run makes no call through an injected
+  client, and with the real client and the API offline only the header's
+  `/health` check reaches `fetch`; the routes and the not-found.
 - Sentence matching against every recorded run, fabricated-citation audit,
   arXiv id rules, the progress stepper, and screen-level flows (arXiv
   ingest, inline delete, 401 to API key to retry, 429).
