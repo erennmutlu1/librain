@@ -1,0 +1,367 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 2rem;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: var(--s4);
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s7);
+  max-width: 60rem;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  padding-bottom: var(--s5);
+  border-bottom: 1px solid var(--rule);
+}
+
+.headMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2) var(--s3);
+}
+
+.runId {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.headGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+}
+
+@media (min-width: 52rem) {
+  .headGrid {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+  }
+
+  .headRating {
+    padding-left: var(--s5);
+    border-left: 1px solid var(--rule);
+  }
+}
+
+.headMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  align-content: start;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: clamp(var(--fs-xl), 3.6vw, var(--fs-3xl));
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  font-variation-settings: 'opsz' 72;
+  overflow-wrap: anywhere;
+  padding-left: 1.1rem;
+}
+
+.provenance {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.actions svg {
+  color: var(--accent);
+}
+
+.headRating {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--s3);
+}
+
+/* ---------- The idea in one line ---------- */
+
+.oneLine {
+  display: grid;
+  gap: var(--s2);
+  padding-left: var(--s4);
+  border-left: 3px solid var(--accent);
+}
+
+.oneLineTitle {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.oneLineText {
+  font-family: var(--font-text);
+  font-size: clamp(var(--fs-lg), 2.4vw, var(--fs-xl));
+  line-height: 1.45;
+  max-width: 60ch;
+  font-variation-settings: 'opsz' 24;
+}
+
+/* ---------- Why it's promising ---------- */
+
+.candidate {
+  padding-left: var(--s3);
+  border-left: 2px solid var(--extrapolated);
+}
+
+.candidate strong {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.points {
+  display: grid;
+  gap: var(--s3);
+  max-width: 68ch;
+}
+
+.point {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: var(--s2);
+  align-items: start;
+  line-height: 1.5;
+}
+
+.pointMark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.12rem;
+  border-radius: 50%;
+}
+
+.point[data-tone='strong'] .pointMark {
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+  color: var(--success);
+}
+
+.point[data-tone='caution'] .pointMark {
+  background: var(--warning-wash);
+  color: var(--warning-ink);
+}
+
+.point[data-tone='neutral'] .pointMark {
+  background: var(--surface-sunken);
+}
+
+.dash {
+  width: 0.5rem;
+  height: 2px;
+  background: var(--ink-3);
+}
+
+.paper {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.editor {
+  font-weight: 650;
+}
+
+/* ---------- Evidence ---------- */
+
+.passages {
+  display: grid;
+  gap: var(--s5);
+}
+
+.passage {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.passageSource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s1) var(--s3);
+  font-size: var(--fs-sm);
+}
+
+.passageWhere {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Generator's reasoning ---------- */
+
+.basis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  padding-left: 1.25rem;
+  max-width: 68ch;
+}
+
+.basisItem {
+  display: grid;
+  gap: var(--s1);
+}
+
+.basisItem::marker {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+}
+
+.basisSentence {
+  font-family: var(--font-text);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+
+.basisMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.basisRationale {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+/* ---------- Related ---------- */
+
+.related {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s2);
+}
+
+.relatedItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'glyph body'
+    'glyph rating';
+  gap: var(--s1) var(--s3);
+  align-items: start;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--cat);
+  border-radius: var(--r-sm);
+}
+
+.relatedItem > :first-child {
+  grid-area: glyph;
+}
+
+.relatedItem:hover {
+  border-color: var(--rule-strong);
+  border-left-color: var(--cat);
+}
+
+@media (min-width: 40rem) {
+  .relatedItem {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'glyph body rating';
+    align-items: center;
+  }
+}
+
+.relatedBody {
+  grid-area: body;
+  min-width: 0;
+}
+
+.relatedItem > :last-child {
+  grid-area: rating;
+}
+
+.relatedLink {
+  font-family: var(--font-text);
+  font-size: var(--fs-md);
+  color: var(--ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.relatedLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.relatedLink:focus-visible {
+  outline: none;
+}
+
+.relatedLink:focus-visible::after {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.relatedItem:hover .relatedLink {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.relatedWhy {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Full view ---------- */
+
+.banner {
+  margin-bottom: var(--s6);
+}
+
+.bannerBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.source {
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+}
+
+.source code {
+  overflow-wrap: anywhere;
+}

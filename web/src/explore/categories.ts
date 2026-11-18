@@ -8,6 +8,7 @@
  * shows its icon and its name, and the scatter on the stats page has a
  * highlightable legend and a table.
  */
+import type { CSSProperties } from 'react';
 
 export type CategoryIcon = 'pill' | 'leaf' | 'pulse' | 'venn' | 'ball' | 'stopwatch' | 'browser' | 'code' | 'briefcase';
 
@@ -48,4 +49,9 @@ export function categoryOf(id: string): Category {
 
 export function categoryByPrefix(prefix: string): Category | undefined {
   return BY_PREFIX.get(prefix.toUpperCase());
+}
+
+/** Inline style carrying a category's hue as --cat. */
+export function catStyle(category: Category): CSSProperties {
+  return { '--cat': `var(${category.colorVar})` } as CSSProperties;
 }

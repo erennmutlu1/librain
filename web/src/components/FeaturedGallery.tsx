@@ -114,33 +114,38 @@ export function FeaturedGallery({ headingLevel = 2 }: { headingLevel?: 1 | 2 }) 
   const cardLevel = headingLevel === 1 ? 2 : 3;
 
   return (
-    <section className={styles.root} aria-labelledby={`${uid}-title`} aria-busy={state.status === 'loading' || undefined}>
-      <header className={styles.intro}>
-        <Title id={`${uid}-title`} className={headingLevel === 1 ? 'page-title' : styles.galleryTitle}>
-          Featured discoveries
-        </Title>
-        <p className={styles.lede}>
-          Recorded runs, chosen by reading every result rather than by score alone. Open one to read its full audit.
-        </p>
-        <FeaturedFraming />
-        <div className={styles.legend}>
-          <StatusLegend />
-        </div>
-      </header>
+    <>
+      <section className={styles.root} aria-labelledby={`${uid}-title`} aria-busy={state.status === 'loading' || undefined}>
+        <header className={styles.intro}>
+          <Title id={`${uid}-title`} className={headingLevel === 1 ? 'page-title' : styles.galleryTitle}>
+            Featured discoveries
+          </Title>
+          <p className={styles.lede}>
+            Recorded runs, chosen by reading every result rather than by score alone. Open one to read its full audit.
+          </p>
+          <FeaturedFraming />
+          <div className={styles.legend}>
+            <StatusLegend />
+          </div>
+        </header>
 
-      {state.status === 'error' ? (
-        <FeaturedLoadError onRetry={retry} />
-      ) : (
-        <ul role="list" className={styles.grid}>
-          {state.status === 'ready'
-            ? state.runs.map((run) => <FeaturedCard key={run.id} run={run} level={cardLevel} />)
-            : featuredManifest.entries.map((entry) => (
-                <li key={entry.id} className={`${styles.card} ${styles.placeholder}`} aria-hidden="true">
-                  <SkeletonLines lines={5} />
-                </li>
-              ))}
-        </ul>
-      )}
-    </section>
+        {state.status === 'error' ? (
+          <FeaturedLoadError onRetry={retry} />
+        ) : (
+          <ul role="list" className={styles.grid}>
+            {state.status === 'ready'
+              ? state.runs.map((run) => <FeaturedCard key={run.id} run={run} level={cardLevel} />)
+              : featuredManifest.entries.map((entry) => (
+                  <li key={entry.id} className={`${styles.card} ${styles.placeholder}`} aria-hidden="true">
+                    <SkeletonLines lines={5} />
+                  </li>
+                ))}
+          </ul>
+        )}
+      </section>
+      <p className={styles.exploreLink}>
+        <Link to="/explore">Explore every recorded discovery</Link>: all of them rated out of 10, with statistics and a quiz.
+      </p>
+    </>
   );
 }

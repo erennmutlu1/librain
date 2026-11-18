@@ -225,3 +225,9 @@
   display: grid;
   gap: var(--s2);
 }
+
+.exploreLink {
+  margin-top: var(--s4);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
