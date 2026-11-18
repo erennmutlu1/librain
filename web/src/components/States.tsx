@@ -1,23 +1,56 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { requestApiKey } from '../api/apiKey';
 import { describeError } from '../api/errors';
 import { CopyText } from './CopyText';
 import { Icon } from './Icon';
 import styles from './States.module.css';
 
-export function ErrorNotice({ error, onRetry, retryLabel = 'Try again' }: { error: unknown; onRetry?: () => void; retryLabel?: string }) {
-  const { title, detail, correlationId } = describeError(error);
+/**
+ * A failure in plain language: what happened, what to do, and the correlation
+ * id when the API gave one. A 401 offers the API-key setting; a 429 says when
+ * the request can be retried and holds the retry button until then.
+ */
+export function ErrorNotice({
+  error,
+  onRetry,
+  retryLabel = 'Try again',
+  correlationId: correlationOverride,
+}: {
+  error: unknown;
+  onRetry?: () => void;
+  retryLabel?: string;
+  correlationId?: string | null;
+}) {
+  const { title, detail, correlationId, action } = describeError(error);
+  const id = correlationOverride ?? correlationId;
+  const retryAt = action?.kind === 'retry-at' ? action.at.getTime() : null;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (retryAt === null) return;
+    const timer = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(timer);
+  }, [retryAt]);
+  const waiting = retryAt !== null && now < retryAt;
+
   return (
     <div className="notice notice-error" role="alert">
       <Icon name="error" />
       <div className={styles.body}>
         <strong>{title}</strong>
         {detail ? <p>{detail}</p> : null}
-        {correlationId ? <CopyText value={correlationId} label="Correlation ID" /> : null}
-        {onRetry ? (
-          <div>
-            <button type="button" className="btn btn-sm" onClick={onRetry}>
-              {retryLabel}
-            </button>
+        {id ? <CopyText value={id} label="Correlation ID" /> : null}
+        {action?.kind === 'api-key' || onRetry ? (
+          <div className="cluster">
+            {action?.kind === 'api-key' ? (
+              <button type="button" className="btn btn-sm btn-primary" onClick={() => requestApiKey(detail ?? title)}>
+                Enter API key
+              </button>
+            ) : null}
+            {onRetry ? (
+              <button type="button" className="btn btn-sm" onClick={onRetry} disabled={waiting}>
+                {retryLabel}
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>

@@ -12,7 +12,7 @@ loadApi().then(
   (api) => {
     root.render(
       <StrictMode>
-        <App api={api} runStore={createDefaultRunStore()} />
+        <App api={api} runStore={createDefaultRunStore(api)} />
       </StrictMode>,
     );
   },

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useApi } from '../api/context';
 import { Icon } from './Icon';
+import { SettingsMenu } from './SettingsMenu';
 import styles from './AppShell.module.css';
 
 const NAV = [
@@ -123,6 +124,7 @@ export function AppShell() {
           </div>
           <div className={styles.tools}>
             <ApiStatus />
+            <SettingsMenu />
             <ThemeToggle />
           </div>
           <nav className={styles.nav} aria-label="Sections">

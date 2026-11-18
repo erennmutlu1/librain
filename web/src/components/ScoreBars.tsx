@@ -56,7 +56,7 @@ export function RiskMeter({ value, failed }: { value: number; failed?: boolean }
       </span>
       <p className={styles.riskHint}>
         {failed
-          ? 'Pinned to 1.0 because the validator returned no usable verdicts.'
+          ? 'The validator returned no usable verdicts, so treat the whole claim as unverified.'
           : 'Highest hallucination probability among the novel-claim sentences.'}
       </p>
     </div>

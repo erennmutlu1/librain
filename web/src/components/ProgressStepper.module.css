@@ -1,0 +1,132 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  max-width: 44rem;
+  padding: var(--s4) var(--s5);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.title {
+  font-weight: 650;
+}
+
+.meta {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--s3);
+  padding-bottom: var(--s4);
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+/* The connector between markers. */
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: calc(0.75rem - 1px);
+  top: 1.6rem;
+  bottom: 0.1rem;
+  width: 2px;
+  background: var(--rule);
+}
+
+.step[data-status='done']:not(:last-child)::before {
+  background: var(--accent);
+}
+
+.marker {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.step[data-status='done'] .marker {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.step[data-status='active'] .marker {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-wash);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--accent-wash);
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--accent-wash);
+  }
+}
+
+.body {
+  min-width: 0;
+  padding-top: 0.15rem;
+}
+
+.label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.step[data-status='pending'] .label {
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.step[data-status='active'] .label {
+  color: var(--ink);
+}
+
+.message {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  margin-top: 0.1rem;
+  overflow-wrap: anywhere;
+}
+
+.time {
+  padding-top: 0.2rem;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}

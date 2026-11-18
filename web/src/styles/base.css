@@ -228,6 +228,17 @@ a:hover {
   color: var(--danger);
 }
 
+.btn-danger-solid {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--bg);
+}
+
+.btn-danger-solid:hover {
+  filter: brightness(0.92);
+  color: var(--bg);
+}
+
 .btn-sm {
   min-height: 2rem;
   padding: var(--s1) var(--s3);

@@ -61,3 +61,9 @@ export function formatBytes(bytes: number): string {
 export function topicLabel(topicA: string, topicB?: string | null): string {
   return topicB?.trim() ? `${topicA.trim()} × ${topicB.trim()}` : topicA.trim();
 }
+
+/** "Lewis, Perez, Piktus et al." */
+export function formatAuthors(authors: string[] | null | undefined, max = 3): string | null {
+  if (!authors || authors.length === 0) return null;
+  return authors.length > max ? `${authors.slice(0, max).join(', ')} et al.` : authors.join(', ');
+}

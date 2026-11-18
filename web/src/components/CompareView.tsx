@@ -1,31 +1,19 @@
 import { useId, type ReactNode } from 'react';
-import type {
-  CompareRequest,
-  DiscoverResponse,
-  DiscoveryEvaluation,
-  NaiveRagResponse,
-  SingleLlmResponse,
-} from '../api/types';
-import { auditClaimedCitations, chunkKey } from '../lib/citations';
-import { formatCount, formatDuration, formatScore } from '../lib/format';
+import type { DiscoveryEvaluation } from '../api/types';
+import { auditClaimedCitations } from '../lib/citations';
+import type { CompareStates, SystemState } from '../lib/compare';
+import { formatScore } from '../lib/format';
 import { usePaperIndex } from '../lib/papers';
 import { DISCOVERY_AXES } from '../lib/scoreItems';
 import { SYSTEMS, type SystemKey } from '../lib/vocabulary';
 import { AnnotatedClaim } from './AnnotatedClaim';
+import { NaiveCitations, RunStats } from './BaselineParts';
 import { CopyText } from './CopyText';
 import { FencedHypothesis } from './FencedHypothesis';
-import { Icon } from './Icon';
 import { ErrorNotice, SkeletonLines } from './States';
 import styles from './CompareView.module.css';
 
-export type SystemState<T> = { status: 'loading' } | { status: 'success'; data: T } | { status: 'error'; error: unknown };
-
-interface Props {
-  request: CompareRequest;
-  librain: SystemState<DiscoverResponse>;
-  naiveRag: SystemState<NaiveRagResponse>;
-  singleLlm: SystemState<SingleLlmResponse>;
-}
+type Props = CompareStates;
 
 export function SystemKeySwatch({ system }: { system: SystemKey }) {
   return <span className={styles.swatch} data-system={system} aria-hidden="true" />;
@@ -79,7 +67,7 @@ function ScoreCell({ system, state, value, best }: { system: SystemKey; state: S
   );
 }
 
-function ScoreTable({ librain, naiveRag, singleLlm }: Omit<Props, 'request'>) {
+function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
   const evals: Record<SystemKey, DiscoveryEvaluation | null | undefined> = {
     librain: evaluationOf(librain),
     naiveRag: evaluationOf(naiveRag),
@@ -184,15 +172,6 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Omit<Props, 'request'>) {
   );
 }
 
-function RunStats({ ms, input, output, retrieved }: { ms?: number | undefined; input?: number | undefined; output?: number | undefined; retrieved?: number | undefined }) {
-  const parts: string[] = [];
-  if (retrieved !== undefined) parts.push(`${formatCount(retrieved)} chunks retrieved`);
-  if (ms !== undefined) parts.push(formatDuration(ms));
-  if (input !== undefined && output !== undefined) parts.push(`${formatCount(input)} in / ${formatCount(output)} out tokens`);
-  if (parts.length === 0) return null;
-  return <p className={styles.stats}>{parts.join(', ')}</p>;
-}
-
 function Column({ system, state, children }: { system: SystemKey; state: SystemState<{ correlationId: string }>; children: ReactNode }) {
   const uid = useId();
   return (
@@ -202,7 +181,7 @@ function Column({ system, state, children }: { system: SystemKey; state: SystemS
         {SYSTEMS[system].name}
       </h2>
       {state.status === 'loading' ? <SkeletonLines lines={6} /> : null}
-      {state.status === 'error' ? <ErrorNotice error={state.error} /> : null}
+      {state.status === 'error' ? <ErrorNotice error={state.error} correlationId={state.correlationId ?? null} /> : null}
       {state.status === 'success' ? (
         <>
           {children}
@@ -213,47 +192,7 @@ function Column({ system, state, children }: { system: SystemKey; state: SystemS
   );
 }
 
-function NaiveCitations({ data }: { data: NaiveRagResponse }) {
-  const audit = auditClaimedCitations(data.claimedCitations, data.fabricatedCitationCount);
-  if (audit.total === 0) return <p className="muted small">The model claimed no citations.</p>;
-  return (
-    <div className={styles.citations}>
-      <p className={styles.citeSummary}>
-        {audit.fabricated.length > 0 ? (
-          <>
-            <Icon name="warning" size={14} />
-            <strong className={styles.fabCount}>
-              {audit.fabricated.length} of {audit.total} citations fabricated
-            </strong>
-          </>
-        ) : (
-          <>
-            <Icon name="check" size={14} />
-            All {audit.total} citations are in the retrieved set
-          </>
-        )}
-      </p>
-      {!audit.consistent ? (
-        <p className={styles.inconsistent}>
-          The API reported {audit.reportedFabricated} fabricated, but {audit.fabricated.length} citations are marked
-          unresolved.
-        </p>
-      ) : null}
-      <ul role="list" className={styles.citeList}>
-        {data.claimedCitations.map((c, i) => (
-          <li key={i} className={styles.cite} data-fabricated={!c.isResolved || undefined}>
-            <code className={styles.citeKey}>{chunkKey(c.paperId, c.chunkIndex)}</code>
-            <span className={styles.citeStatus}>
-              {c.isResolved ? 'In retrieved set' : 'Fabricated: not in the retrieved set'}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export function CompareView({ request, librain, naiveRag, singleLlm }: Props) {
+export function CompareView({ librain, naiveRag, singleLlm }: Props) {
   const papers = usePaperIndex();
   return (
     <div className={styles.root}>
@@ -275,9 +214,7 @@ export function CompareView({ request, librain, naiveRag, singleLlm }: Props) {
                     papers={papers}
                   />
                 </div>
-                <p className={styles.stats}>
-                  {librain.data.supportingEvidence.length} supporting chunks, {request.provider === 'openai' ? 'OpenAI' : 'Anthropic'}
-                </p>
+                <p className={styles.stats}>{librain.data.supportingEvidence.length} supporting chunks kept</p>
               </>
             ) : null}
         </Column>
@@ -287,9 +224,7 @@ export function CompareView({ request, librain, naiveRag, singleLlm }: Props) {
               <>
                 <p className={styles.hypothesis}>{naiveRag.data.hypothesis}</p>
                 <div className={styles.block}>
-                  <p className={styles.blockTitle}>
-                    Claimed citations{request.citationMode === 'free-text' ? ' (free-text)' : ''}
-                  </p>
+                  <p className={styles.blockTitle}>Claimed citations</p>
                   <NaiveCitations data={naiveRag.data} />
                 </div>
                 <RunStats

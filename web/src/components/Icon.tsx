@@ -16,7 +16,9 @@ type IconName =
   | 'moon'
   | 'auto'
   | 'error'
-  | 'doc';
+  | 'doc'
+  | 'key'
+  | 'external';
 
 const PATHS: Record<IconName, string> = {
   upload: 'M8 11V2.5M4.5 6 8 2.5 11.5 6M2.5 10.5v3h11v-3',
@@ -33,6 +35,8 @@ const PATHS: Record<IconName, string> = {
   auto: 'M8 14.5a6.5 6.5 0 1 0 0-13zM8 1.5a6.5 6.5 0 0 0 0 13',
   error: 'M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM5.7 5.7l4.6 4.6M10.3 5.7l-4.6 4.6',
   doc: 'M4 1.5h5.5L12.5 4.5v10h-8.5zM9.5 1.5v3h3M6 8h4.5M6 10.5h4.5',
+  key: 'M9.2 6.8 2.5 13.5M4.4 11.6l1.5 1.5M6 10l1.3 1.3M11 7.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+  external: 'M9.5 2.5h4v4M13.5 2.5 7.5 8.5M12 9.5v4h-9.5V4h4',
 };
 
 export function Icon({ name, size = 16, label }: { name: IconName; size?: number; label?: string }) {

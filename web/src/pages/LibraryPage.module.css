@@ -141,9 +141,16 @@
   flex-wrap: wrap;
 }
 
+.subTitle {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
 .arxiv {
   display: grid;
-  gap: var(--s2);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
   padding-top: var(--s4);
   border-top: 1px solid var(--rule);
 }
@@ -151,6 +158,11 @@
 .arxivRow {
   display: flex;
   gap: var(--s2);
+}
+
+.arxivRow .input {
+  min-width: 0;
+  flex: 1;
 }
 
 /* ---------- List ---------- */
@@ -272,9 +284,95 @@
   color: var(--ink-3);
 }
 
-@media (max-width: 34rem) {
+.authorsCol {
+  width: 12rem;
+  color: var(--ink-2);
+}
+
+.yearCol {
+  width: 4rem;
+  color: var(--ink-2);
+}
+
+.actionCol {
+  width: 2.75rem;
+  text-align: right;
+}
+
+.table tbody td.actionCol {
+  padding-right: 0;
+  vertical-align: middle;
+}
+
+.rowAction {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.rowAction:hover,
+.rowAction[aria-expanded='true'] {
+  color: var(--danger);
+  border-color: var(--rule);
+  background: var(--surface);
+}
+
+.narrowMeta {
+  display: none;
+  margin-top: 0.15rem;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+tr[data-confirming] > td {
+  border-bottom-color: transparent;
+}
+
+.confirmRow > td {
+  padding: 0 0 var(--s3) !important;
+}
+
+.confirm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--danger);
+  background: var(--danger-wash);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+}
+
+.status {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  outline: none;
+}
+
+.status:empty {
+  display: none;
+}
+
+@media (max-width: 80rem) {
   .dateCol {
     display: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .authorsCol,
+  .yearCol {
+    display: none;
+  }
+
+  .narrowMeta {
+    display: block;
   }
 
   .numCol {

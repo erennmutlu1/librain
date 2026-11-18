@@ -1,22 +1,27 @@
 import { useCallback } from 'react';
 import { isAbortError } from '../api/errors';
+import type { ProgressEvent } from '../api/types';
 import { getSession, setSession, useSessionState } from './sessionStore';
+import type { TimedProgress } from './stages';
 
 export type RequestState<T> =
   | { status: 'idle' }
-  | { status: 'loading'; startedAt: number }
-  | { status: 'success'; data: T }
+  | { status: 'loading'; startedAt: number; progress: TimedProgress[] }
+  | { status: 'success'; data: T; elapsedMs?: number }
   | { status: 'error'; error: unknown };
 
 const IDLE = { status: 'idle' } as const;
 const controllers = new Map<string, AbortController>();
 
+export type RequestFn<A, T> = (args: A, signal: AbortSignal, onProgress: (event: ProgressEvent) => void) => Promise<T>;
+
 /**
  * Runs an abortable request whose state lives in the session store under
- * `key`. Starting a new run cancels the previous one. A cancelled run returns
- * to idle rather than showing an error.
+ * `key`, so it survives navigation. Starting a new run cancels the previous
+ * one; a cancelled run returns to idle rather than showing an error. Progress
+ * events reported by `fn` are timestamped into the loading state.
  */
-export function useRequest<A, T>(key: string, fn: (args: A, signal: AbortSignal) => Promise<T>) {
+export function useRequest<A, T>(key: string, fn: RequestFn<A, T>) {
   const [state, setState] = useSessionState<RequestState<T>>(key, IDLE);
 
   const run = useCallback(
@@ -24,11 +29,18 @@ export function useRequest<A, T>(key: string, fn: (args: A, signal: AbortSignal)
       controllers.get(key)?.abort();
       const controller = new AbortController();
       controllers.set(key, controller);
-      setState({ status: 'loading', startedAt: Date.now() });
+      const startedAt = Date.now();
+      setState({ status: 'loading', startedAt, progress: [] });
+      const onProgress = (event: ProgressEvent) => {
+        if (controllers.get(key) !== controller) return;
+        setSession<RequestState<T>>(key, (prev) =>
+          prev?.status === 'loading' ? { ...prev, progress: [...prev.progress, { ...event, at: Date.now() }] } : (prev ?? IDLE),
+        );
+      };
       try {
-        const data = await fn(args, controller.signal);
+        const data = await fn(args, controller.signal, onProgress);
         if (controllers.get(key) !== controller) return undefined; // superseded
-        setState({ status: 'success', data });
+        setState({ status: 'success', data, elapsedMs: Date.now() - startedAt });
         return data;
       } catch (error) {
         if (controllers.get(key) !== controller) return undefined;
@@ -53,8 +65,5 @@ export function useRequest<A, T>(key: string, fn: (args: A, signal: AbortSignal)
     setState(IDLE);
   }, [key, setState]);
 
-  /** Shows a saved result without making a request (used for "load recorded run"). */
-  const show = useCallback((data: T) => setState({ status: 'success', data }), [setState]);
-
-  return { state, run, cancel, reset, show };
+  return { state, run, cancel, reset };
 }

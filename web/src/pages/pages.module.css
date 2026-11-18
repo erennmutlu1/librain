@@ -70,3 +70,26 @@
   font-size: var(--fs-xs);
   color: var(--ink-3);
 }
+
+.legendSlot {
+  margin-top: var(--s4);
+}
+
+.explainer {
+  margin-bottom: var(--s6);
+}
+
+.runMeta {
+  display: grid;
+  gap: var(--s3);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.runTitle {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-2xl);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}

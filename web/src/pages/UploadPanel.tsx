@@ -6,9 +6,12 @@ import { CopyText } from '../components/CopyText';
 import { Icon } from '../components/Icon';
 import { ErrorNotice } from '../components/States';
 import { formatBytes } from '../lib/format';
+import { ArxivPanel } from './ArxivPanel';
 import styles from './LibraryPage.module.css';
 
 const MAX_BYTES = 50_000_000; // matches the API's 50 MB upload cap
+/** PaperEndpoints.SafePaperId: the file stem becomes the paper id. */
+const SAFE_PAPER_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 type UploadState =
   | { phase: 'idle' }
@@ -41,8 +44,8 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
         ? 'This file is empty.'
         : file.size > MAX_BYTES
           ? `This file is ${formatBytes(file.size)}; the API accepts up to 50 MB.`
-          : !stem(file.name).trim()
-            ? 'The file name needs a name before ".pdf"; it becomes the paper ID.'
+          : !SAFE_PAPER_ID.test(stem(file.name))
+            ? "The file name (without .pdf) becomes the paper ID, so it may only use letters, digits, '.', '_' or '-' (up to 128)."
             : null
     : null;
   const existing = file && papers?.some((p) => p.paperId === stem(file.name));
@@ -83,6 +86,7 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
       <h2 id={`${uid}-h`} className={styles.panelTitle}>
         Add a paper
       </h2>
+      <h3 className={styles.subTitle}>Upload a PDF</h3>
 
       <label
         className={styles.dropzone}
@@ -151,8 +155,9 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
           <Icon name="check" />
           <div className={styles.doneBody}>
             <p>
-              <strong>Ingested “{state.result.paperId}”</strong> as {state.result.chunkCount} chunks. It is searchable
-              now.
+              <strong>Ingested “{state.result.paperId}”</strong>
+              {state.result.title && state.result.title !== state.result.paperId ? <> ({state.result.title})</> : null} as{' '}
+              {state.result.chunkCount} chunks. It is searchable now.
             </p>
             <CopyText value={state.result.correlationId} label="Correlation ID" />
           </div>
@@ -178,26 +183,7 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
         ) : null}
       </div>
 
-      <div className={styles.arxiv}>
-        <label className="field-label" htmlFor={`${uid}-arxiv`}>
-          Or ingest by arXiv ID
-        </label>
-        <div className={styles.arxivRow}>
-          <input
-            id={`${uid}-arxiv`}
-            className="input"
-            placeholder="2005.11401"
-            disabled
-            aria-describedby={`${uid}-arxiv-note`}
-          />
-          <button type="button" className="btn" disabled>
-            Fetch
-          </button>
-        </div>
-        <p id={`${uid}-arxiv-note`} className="field-hint">
-          Coming soon. The API can only ingest uploaded PDFs today.
-        </p>
-      </div>
+      <ArxivPanel existing={(id) => Boolean(papers?.some((p) => p.paperId === id))} onIngested={onIngested} />
     </section>
   );
 }

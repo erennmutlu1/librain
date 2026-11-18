@@ -1,131 +1,66 @@
 import { useCallback, useId, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
-import { describeError, isAbortError } from '../api/errors';
-import type {
-  CitationMode,
-  CompareRequest,
-  DiscoverResponse,
-  MockScenario,
-  NaiveRagResponse,
-  Provider,
-  SingleLlmResponse,
-} from '../api/types';
-import { CompareView, SystemsExplainer, type SystemState } from '../components/CompareView';
-import { MockProvenance, RecordedRuns, Segmented } from '../components/FormBits';
-import { EmptyState, RunningState } from '../components/States';
+import { MAX_TOPIC_CHARS, type CompareRequest, type CompareResponse, type MockScenario } from '../api/types';
+import { CompareView, SystemsExplainer } from '../components/CompareView';
+import { MockProvenance, RecordedRuns } from '../components/FormBits';
+import { CopyText } from '../components/CopyText';
+import { EmptyState, ErrorNotice, RunningState } from '../components/States';
 import { useRecordRun } from '../history/context';
-import { newRunId } from '../history/runStore';
-import type { Outcome } from '../history/types';
-import { topicLabel } from '../lib/format';
-import { getSession, useSessionState } from '../lib/sessionStore';
+import { ALL_LOADING, compareStates } from '../lib/compare';
+import { formatDuration, topicLabel } from '../lib/format';
+import { useSessionState } from '../lib/sessionStore';
+import { useRequest, type RequestFn } from '../lib/useRequest';
 import styles from './pages.module.css';
-
-const SESSION_KEY = 'compare.run';
 
 interface CompareForm {
   topicA: string;
   topicB: string;
   topK: string;
-  provider: Provider;
-  citationMode: CitationMode;
 }
 
-interface CompareSession {
+interface CompareRunData {
   request: CompareRequest;
-  startedAt: number;
-  librain: SystemState<DiscoverResponse>;
-  naiveRag: SystemState<NaiveRagResponse>;
-  singleLlm: SystemState<SingleLlmResponse>;
+  result: CompareResponse;
 }
-
-type SystemSlot = 'librain' | 'naiveRag' | 'singleLlm';
-
-let activeController: AbortController | null = null;
 
 function toRequest(form: CompareForm): CompareRequest | string {
   const topicA = form.topicA.trim();
   const topicB = form.topicB.trim();
   if (!topicA) return 'Enter at least Topic A.';
-  if (topicB && topicA === topicB) return 'Topic B must differ from Topic A (the baselines reject identical topics).';
+  if (topicA.length > MAX_TOPIC_CHARS || topicB.length > MAX_TOPIC_CHARS) return `Topics can be at most ${MAX_TOPIC_CHARS} characters.`;
+  if (topicB && topicA === topicB) return 'Topic B must differ from Topic A.';
   const topK = Number(form.topK);
-  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Results per topic must be a whole number from 1 to 20.';
-  const request: CompareRequest = { topicA, topK, provider: form.provider, citationMode: form.citationMode };
-  if (topicB) request.topicB = topicB;
-  return request;
+  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Passages per topic must be a whole number from 1 to 20.';
+  return topicB ? { topicA, topicB, topK } : { topicA, topK };
 }
 
-function toOutcome<T>(state: SystemState<T>): Outcome<T> {
-  if (state.status === 'success') return { ok: true, value: state.data };
-  if (state.status === 'error') return { ok: false, error: describeError(state.error).title };
-  return { ok: false, error: 'Did not finish.' };
-}
-
-export function ComparePage() {
+export default function ComparePage() {
   const api = useApi();
   const uid = useId();
   const record = useRecordRun();
-  const [form, setForm] = useSessionState<CompareForm>('compare.form', {
-    topicA: '',
-    topicB: '',
-    topK: '5',
-    provider: 'anthropic',
-    citationMode: 'structured',
-  });
-  const [session, setSession] = useSessionState<CompareSession | null>(SESSION_KEY, null);
+  const [form, setForm] = useSessionState<CompareForm>('compare.form', { topicA: '', topicB: '', topK: '5' });
   const [formError, setFormError] = useState<string | null>(null);
 
-  const loading =
-    session !== null &&
-    (session.librain.status === 'loading' || session.naiveRag.status === 'loading' || session.singleLlm.status === 'loading');
-
-  const run = useCallback(
-    async (request: CompareRequest) => {
-      activeController?.abort();
-      const controller = new AbortController();
-      activeController = controller;
-      const startedAt = Date.now();
-      setSession({ request, startedAt, librain: { status: 'loading' }, naiveRag: { status: 'loading' }, singleLlm: { status: 'loading' } });
-
-      const settle = <T,>(slot: SystemSlot, promise: Promise<T>) =>
-        promise.then(
-          (data) => setSession((prev) => (prev && prev.startedAt === startedAt ? { ...prev, [slot]: { status: 'success', data } } : prev)),
-          (error: unknown) =>
-            setSession((prev) =>
-              prev && prev.startedAt === startedAt
-                ? { ...prev, [slot]: { status: 'error', error: isAbortError(error) ? new Error('Cancelled.') : error } }
-                : prev,
-            ),
-        );
-
-      const { topicA, topicB, topK, provider, citationMode } = request;
-      const pair = topicB ? { topicA, topicB } : { topicA };
-      await Promise.all([
-        settle('librain', api.discover({ ...pair, topK, provider }, controller.signal)),
-        settle('naiveRag', api.naiveRag({ ...pair, topK, citationMode }, controller.signal)),
-        settle('singleLlm', api.singleLlm(pair, controller.signal)),
-      ]);
-      if (activeController === controller) activeController = null;
-      if (controller.signal.aborted) return;
-
-      const final = getSession<CompareSession | null>(SESSION_KEY, null);
-      if (final && final.startedAt === startedAt) {
-        const librain = toOutcome(final.librain);
-        record({
-          id: newRunId(),
-          kind: 'compare',
-          createdAt: new Date(startedAt).toISOString(),
-          mock: api.mode === 'mock',
-          label: topicLabel(request.topicA, request.topicB),
-          quality: librain.ok ? (librain.value.evaluation?.qualityScore ?? null) : null,
-          request,
-          result: { librain, naiveRag: toOutcome(final.naiveRag), singleLlm: toOutcome(final.singleLlm) },
-        });
-      }
+  // One call: the API runs the three systems concurrently and returns them together.
+  const compare = useCallback<RequestFn<CompareRequest, CompareRunData>>(
+    async (request, signal) => {
+      const result = await api.compare(request, signal);
+      record({
+        id: result.correlationId,
+        kind: 'compare',
+        title: topicLabel(result.topicA || request.topicA, result.topicB ?? request.topicB),
+        createdAt: new Date().toISOString(),
+        quality: result.librain.result?.evaluation?.qualityScore ?? null,
+        mock: api.mode === 'mock',
+        request,
+        response: result,
+      });
+      return { request, result };
     },
-    [api, record, setSession],
+    [api, record],
   );
-
-  const cancel = () => activeController?.abort();
+  const { state, run, cancel } = useRequest<CompareRequest, CompareRunData>('compare.run', compare);
+  const loading = state.status === 'loading';
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -140,15 +75,14 @@ export function ComparePage() {
 
   const pick = (scenario: MockScenario<CompareRequest>) => {
     const r = scenario.request;
-    setForm({
-      topicA: r.topicA,
-      topicB: r.topicB ?? '',
-      topK: String(r.topK ?? 5),
-      provider: r.provider ?? 'anthropic',
-      citationMode: r.citationMode ?? 'structured',
-    });
+    setForm({ topicA: r.topicA, topicB: r.topicB ?? '', topK: String(r.topK ?? 5) });
     setFormError(null);
     void run(r);
+  };
+
+  const retry = () => {
+    const request = toRequest(form);
+    if (typeof request !== 'string') void run(request);
   };
 
   const set = <K extends keyof CompareForm>(key: K, value: CompareForm[K]) => setForm((f) => ({ ...f, [key]: value }));
@@ -163,7 +97,7 @@ export function ComparePage() {
         </p>
       </header>
 
-      <section aria-label="What differs between the systems" style={{ marginBottom: 'var(--s6)' }}>
+      <section aria-label="What differs between the systems" className={styles.explainer}>
         <SystemsExplainer />
       </section>
 
@@ -173,53 +107,23 @@ export function ComparePage() {
             <label className="field-label" htmlFor={`${uid}-a`}>
               Topic A
             </label>
-            <input id={`${uid}-a`} className="input" value={form.topicA} onChange={(e) => set('topicA', e.target.value)} placeholder="e.g. drug discovery" autoComplete="off" />
+            <input id={`${uid}-a`} className="input" value={form.topicA} maxLength={MAX_TOPIC_CHARS} onChange={(e) => set('topicA', e.target.value)} placeholder="e.g. drug discovery" autoComplete="off" />
           </div>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-b`}>
               Topic B <span className="muted">(optional)</span>
             </label>
-            <input id={`${uid}-b`} className="input" value={form.topicB} onChange={(e) => set('topicB', e.target.value)} placeholder="e.g. climate adaptation" autoComplete="off" />
+            <input id={`${uid}-b`} className="input" value={form.topicB} maxLength={MAX_TOPIC_CHARS} onChange={(e) => set('topicB', e.target.value)} placeholder="e.g. climate adaptation" autoComplete="off" />
           </div>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-k`}>
-              Per topic
+              Passages per topic
             </label>
-            <input
-              id={`${uid}-k`}
-              className="input num"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={20}
-              value={form.topK}
-              onChange={(e) => set('topK', e.target.value)}
-            />
+            <input id={`${uid}-k`} className="input num" type="number" inputMode="numeric" min={1} max={20} value={form.topK} onChange={(e) => set('topK', e.target.value)} />
           </div>
         </div>
         <div className={styles.actions}>
-          <div className={styles.options}>
-            <Segmented<Provider>
-              legend="LIBRAIN provider"
-              name={`${uid}-provider`}
-              value={form.provider}
-              onChange={(v) => set('provider', v)}
-              options={[
-                { value: 'anthropic', label: 'Anthropic' },
-                { value: 'openai', label: 'OpenAI' },
-              ]}
-            />
-            <Segmented<CitationMode>
-              legend="Naive-RAG citations"
-              name={`${uid}-mode`}
-              value={form.citationMode}
-              onChange={(v) => set('citationMode', v)}
-              options={[
-                { value: 'structured', label: 'Structured' },
-                { value: 'free-text', label: 'Free text' },
-              ]}
-            />
-          </div>
+          <p className={styles.kbd}>LIBRAIN runs with the server's default model; the baselines use the same evaluator.</p>
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Comparing…' : 'Compare'}
           </button>
@@ -233,27 +137,43 @@ export function ComparePage() {
       </form>
 
       <div className={styles.result}>
-        {session === null ? (
+        {state.status === 'idle' ? (
           <EmptyState title="Nothing compared yet">
             <p>
-              The three runs start together and fill in as each finishes. Scores line up in one table; Naive-RAG
-              citations that point outside the retrieved evidence are marked as fabricated.
+              The three systems run at the same time on the server. Scores line up in one table; Naive-RAG citations
+              that point outside the retrieved evidence are marked as fabricated. If one system fails, the other two
+              still show.
             </p>
           </EmptyState>
-        ) : (
+        ) : null}
+        {state.status === 'loading' ? (
           <>
-            {loading ? (
-              <RunningState
-                title={`Comparing ${topicLabel(session.request.topicA, session.request.topicB)}`}
-                expectation="Each system makes its own model calls; expect up to 30 s for LIBRAIN."
-                startedAt={session.startedAt}
-                onCancel={cancel}
-              />
-            ) : null}
-            {api.mock && !loading ? <MockProvenance match={api.mock.matchCompare(session.request)} /> : null}
-            <CompareView request={session.request} librain={session.librain} naiveRag={session.naiveRag} singleLlm={session.singleLlm} />
+            <RunningState
+              title="Comparing three systems"
+              expectation="All three run concurrently; LIBRAIN usually takes the longest, 15–30 s."
+              startedAt={state.startedAt}
+              onCancel={cancel}
+            />
+            <CompareView {...ALL_LOADING} />
           </>
-        )}
+        ) : null}
+        {state.status === 'error' ? <ErrorNotice error={state.error} onRetry={retry} /> : null}
+        {state.status === 'success' ? (
+          <>
+            {api.mock ? <MockProvenance match={api.mock.matchCompare(state.data.request)} /> : null}
+            <div className={styles.runMeta}>
+              <h2 className={styles.runTitle}>{topicLabel(state.data.result.topicA, state.data.result.topicB)}</h2>
+              <div className="cluster">
+                <span className="tag">top {state.data.result.topK} per topic</span>
+                {state.data.result.totalElapsedMs !== undefined ? (
+                  <span className="tag">{formatDuration(state.data.result.totalElapsedMs)} in total</span>
+                ) : null}
+                <CopyText value={state.data.result.correlationId} label="Correlation ID" />
+              </div>
+            </div>
+            <CompareView {...compareStates(state.data.result)} />
+          </>
+        ) : null}
       </div>
     </div>
   );

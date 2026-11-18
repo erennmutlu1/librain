@@ -77,7 +77,7 @@ export function CitationPanel({
             <blockquote className={styles.excerpt}>{citation.content}</blockquote>
           ) : (
             <p className={styles.noExcerpt}>
-              The API returns where this passage is, not its text, so there is nothing to quote yet.
+              No passage text came back for this citation (runs recorded before the API returned passages have none).
             </p>
           )}
         </div>

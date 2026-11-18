@@ -1,15 +1,24 @@
 import { useCallback, useId, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
-import type { DiscoverRequest, DiscoverResponse, MockScenario, Provider } from '../api/types';
+import {
+  MAX_TOPIC_CHARS,
+  OPENAI_MODELS,
+  type DiscoverRequest,
+  type DiscoverResponse,
+  type MockScenario,
+  type OpenAiModel,
+  type Provider,
+} from '../api/types';
 import { StatusLegend } from '../components/AnnotatedClaim';
 import { DiscoverResult } from '../components/DiscoverResult';
 import { MockProvenance, RecordedRuns, Segmented } from '../components/FormBits';
-import { EmptyState, ErrorNotice, RunningState, SkeletonLines } from '../components/States';
+import { ProgressStepper } from '../components/ProgressStepper';
+import { EmptyState, ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
-import { newRunId } from '../history/runStore';
 import { topicLabel } from '../lib/format';
 import { useSessionState } from '../lib/sessionStore';
-import { useRequest } from '../lib/useRequest';
+import { DISCOVER_STAGES } from '../lib/stages';
+import { useRequest, type RequestFn } from '../lib/useRequest';
 import styles from './pages.module.css';
 
 interface DiscoverForm {
@@ -17,52 +26,56 @@ interface DiscoverForm {
   topicB: string;
   topK: string;
   provider: Provider;
-  model: string;
+  model: OpenAiModel;
 }
 
-const EMPTY_FORM: DiscoverForm = { topicA: '', topicB: '', topK: '5', provider: 'anthropic', model: '' };
+const EMPTY_FORM: DiscoverForm = { topicA: '', topicB: '', topK: '5', provider: 'anthropic', model: 'gpt-4o' };
 
-interface DiscoverRun {
+interface DiscoverRunData {
   request: DiscoverRequest;
   result: DiscoverResponse;
 }
 
+/** The same checks, in the same order, as DiscoveryEndpoints.Validate. */
 function toDiscoverRequest(form: DiscoverForm): DiscoverRequest | string {
   const topicA = form.topicA.trim();
+  const topicB = form.topicB.trim();
   if (!topicA) return 'Enter at least Topic A.';
+  if (topicA.length > MAX_TOPIC_CHARS || topicB.length > MAX_TOPIC_CHARS) return `Topics can be at most ${MAX_TOPIC_CHARS} characters.`;
+  if (topicB && topicA === topicB) return 'Topic B must differ from Topic A.';
   const topK = Number(form.topK);
-  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Results per topic must be a whole number from 1 to 20.';
+  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Passages per topic must be a whole number from 1 to 20.';
   const request: DiscoverRequest = { topicA, topK, provider: form.provider };
-  if (form.topicB.trim()) request.topicB = form.topicB.trim();
-  if (form.provider === 'openai' && form.model.trim()) request.model = form.model.trim();
+  if (topicB) request.topicB = topicB;
+  if (form.provider === 'openai') request.model = form.model;
   return request;
 }
 
-export function DiscoverPage() {
+export default function DiscoverPage() {
   const api = useApi();
   const uid = useId();
   const record = useRecordRun();
   const [form, setForm] = useSessionState<DiscoverForm>('discover.form', EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const discover = useCallback(
-    async (request: DiscoverRequest, signal: AbortSignal): Promise<DiscoverRun> => {
-      const result = await api.discover(request, signal);
+  const discover = useCallback<RequestFn<DiscoverRequest, DiscoverRunData>>(
+    async (request, signal, onProgress) => {
+      const result = await api.discoverStream(request, onProgress, signal);
       record({
-        id: newRunId(),
+        id: result.correlationId,
         kind: 'discover',
+        title: topicLabel(request.topicA, request.topicB),
         createdAt: new Date().toISOString(),
-        mock: api.mode === 'mock',
-        label: topicLabel(request.topicA, request.topicB),
         quality: result.evaluation?.qualityScore ?? null,
+        mock: api.mode === 'mock',
         request,
-        result,
+        response: result,
       });
       return { request, result };
     },
     [api, record],
   );
-  const { state, run, cancel } = useRequest<DiscoverRequest, DiscoverRun>('discover.run', discover);
+  const { state, run, cancel } = useRequest<DiscoverRequest, DiscoverRunData>('discover.run', discover);
   const loading = state.status === 'loading';
 
   const set = <K extends keyof DiscoverForm>(key: K, value: DiscoverForm[K]) => setForm((f) => ({ ...f, [key]: value }));
@@ -85,7 +98,7 @@ export function DiscoverPage() {
       topicB: r.topicB ?? '',
       topK: String(r.topK ?? 5),
       provider: r.provider ?? 'anthropic',
-      model: r.model ?? '',
+      model: r.model ?? 'gpt-4o',
     });
     setFormError(null);
     void run(r);
@@ -113,6 +126,7 @@ export function DiscoverPage() {
               value={form.topicA}
               onChange={(e) => set('topicA', e.target.value)}
               placeholder="e.g. weather foundation models"
+              maxLength={MAX_TOPIC_CHARS}
               required
               aria-invalid={formError?.includes('Topic A') || undefined}
               autoComplete="off"
@@ -128,12 +142,13 @@ export function DiscoverPage() {
               value={form.topicB}
               onChange={(e) => set('topicB', e.target.value)}
               placeholder="e.g. renewable energy planning"
+              maxLength={MAX_TOPIC_CHARS}
               autoComplete="off"
             />
           </div>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-k`}>
-              Per topic
+              Passages per topic
             </label>
             <input
               id={`${uid}-k`}
@@ -147,7 +162,7 @@ export function DiscoverPage() {
               aria-describedby={`${uid}-k-hint`}
             />
             <span id={`${uid}-k-hint`} className="field-hint">
-              1 to 20 chunks
+              1 to 20
             </span>
           </div>
         </div>
@@ -169,14 +184,13 @@ export function DiscoverPage() {
                 <label className="field-label" htmlFor={`${uid}-m`}>
                   OpenAI model
                 </label>
-                <input
-                  id={`${uid}-m`}
-                  className="input"
-                  value={form.model}
-                  onChange={(e) => set('model', e.target.value)}
-                  placeholder="gpt-4o"
-                  autoComplete="off"
-                />
+                <select id={`${uid}-m`} className="input" value={form.model} onChange={(e) => set('model', e.target.value as OpenAiModel)}>
+                  {OPENAI_MODELS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
               </div>
             ) : null}
           </div>
@@ -197,23 +211,23 @@ export function DiscoverPage() {
           <EmptyState title="No discovery yet">
             <p>
               Run one and the novel claim comes back marked up sentence by sentence. Each verdict comes from an
-              independent validator that reads the same retrieved chunks:
+              independent validator that reads the same retrieved passages:
             </p>
-            <div style={{ marginTop: 'var(--s4)' }}>
+            <div className={styles.legendSlot}>
               <StatusLegend />
             </div>
           </EmptyState>
         ) : null}
 
         {state.status === 'loading' ? (
-          <RunningState
+          <ProgressStepper
             title="Running discovery"
-            expectation="Retrieval, generation, claim validation and scoring usually take 15–30 s."
+            stages={DISCOVER_STAGES}
+            events={state.progress}
             startedAt={state.startedAt}
             onCancel={cancel}
-          >
-            <SkeletonLines lines={5} />
-          </RunningState>
+            expectation="Usually 15–30 s."
+          />
         ) : null}
 
         {state.status === 'error' ? (

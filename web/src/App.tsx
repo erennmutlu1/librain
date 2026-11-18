@@ -1,17 +1,20 @@
-import { useEffect, useMemo } from 'react';
-import { createBrowserRouter, createMemoryRouter, Navigate, RouterProvider, useLocation, type RouteObject } from 'react-router';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { BrowserRouter, MemoryRouter, Navigate, useLocation, useRoutes, type RouteObject } from 'react-router';
 import { ApiProvider } from './api/context';
 import type { LibrainApi } from './api/types';
 import { AppShell } from './components/AppShell';
+import { SkeletonLines } from './components/States';
 import { RunStoreProvider } from './history/context';
 import type { RunStore } from './history/runStore';
-import { AskPage } from './pages/AskPage';
-import { ComparePage } from './pages/ComparePage';
-import { DiscoverPage } from './pages/DiscoverPage';
-import { HistoryDetailPage } from './pages/HistoryDetailPage';
-import { HistoryPage } from './pages/HistoryPage';
-import { LibraryPage } from './pages/LibraryPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+
+// Each screen is its own chunk, loaded on first visit.
+const LibraryPage = lazy(() => import('./pages/LibraryPage'));
+const AskPage = lazy(() => import('./pages/AskPage'));
+const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const ComparePage = lazy(() => import('./pages/ComparePage'));
+const HistoryPage = lazy(() => import('./pages/HistoryPage'));
+const HistoryDetailPage = lazy(() => import('./pages/HistoryDetailPage'));
 
 const TITLES: Record<string, string> = {
   '/library': 'Library',
@@ -39,23 +42,45 @@ function Shell() {
   );
 }
 
+function Screen({ children }: { children: ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="page" aria-busy="true" aria-label="Loading">
+          <SkeletonLines lines={5} />
+        </div>
+      }
+    >
+      {children}
+    </Suspense>
+  );
+}
+
 const routes: RouteObject[] = [
   {
     path: '/',
     element: <Shell />,
     children: [
       { index: true, element: <Navigate to="/discover" replace /> },
-      { path: 'library', element: <LibraryPage /> },
-      { path: 'ask', element: <AskPage /> },
-      { path: 'discover', element: <DiscoverPage /> },
-      { path: 'compare', element: <ComparePage /> },
-      { path: 'history', element: <HistoryPage /> },
-      { path: 'history/:id', element: <HistoryDetailPage /> },
+      { path: 'library', element: <Screen><LibraryPage /></Screen> },
+      { path: 'ask', element: <Screen><AskPage /></Screen> },
+      { path: 'discover', element: <Screen><DiscoverPage /></Screen> },
+      { path: 'compare', element: <Screen><ComparePage /></Screen> },
+      { path: 'history', element: <Screen><HistoryPage /></Screen> },
+      { path: 'history/:id', element: <Screen><HistoryDetailPage /></Screen> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
 ];
 
+function Routes() {
+  return useRoutes(routes);
+}
+
+/**
+ * Declarative routing (BrowserRouter + useRoutes): the app needs no loaders or
+ * actions, and this keeps the router's data layer out of the initial bundle.
+ */
 export function App({
   api,
   runStore,
@@ -66,14 +91,18 @@ export function App({
   /** Tests render with an in-memory router starting here. */
   initialPath?: string;
 }) {
-  const router = useMemo(
-    () => (initialPath ? createMemoryRouter(routes, { initialEntries: [initialPath] }) : createBrowserRouter(routes)),
-    [initialPath],
-  );
   return (
     <ApiProvider api={api}>
       <RunStoreProvider store={runStore}>
-        <RouterProvider router={router} />
+        {initialPath ? (
+          <MemoryRouter initialEntries={[initialPath]}>
+            <Routes />
+          </MemoryRouter>
+        ) : (
+          <BrowserRouter>
+            <Routes />
+          </BrowserRouter>
+        )}
       </RunStoreProvider>
     </ApiProvider>
   );

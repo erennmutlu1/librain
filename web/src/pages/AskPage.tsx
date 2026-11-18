@@ -1,13 +1,14 @@
 import { useCallback, useId, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useApi } from '../api/context';
-import type { MockScenario, QueryRequest, QueryResponse } from '../api/types';
+import { MAX_QUERY_CHARS, type MockScenario, type QueryRequest, type QueryResponse } from '../api/types';
 import { AskResult } from '../components/AskResult';
 import { MockProvenance, RecordedRuns } from '../components/FormBits';
-import { EmptyState, ErrorNotice, RunningState, SkeletonLines } from '../components/States';
+import { ProgressStepper } from '../components/ProgressStepper';
+import { EmptyState, ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
-import { newRunId } from '../history/runStore';
 import { useSessionState } from '../lib/sessionStore';
-import { useRequest } from '../lib/useRequest';
+import { QUERY_STAGES } from '../lib/stages';
+import { useRequest, type RequestFn } from '../lib/useRequest';
 import styles from './pages.module.css';
 
 interface AskForm {
@@ -23,30 +24,31 @@ interface AskRunData {
 function toRequest(form: AskForm): QueryRequest | string {
   const query = form.query.trim();
   if (!query) return 'Type a question first.';
+  if (query.length > MAX_QUERY_CHARS) return `Questions can be at most ${MAX_QUERY_CHARS} characters.`;
   const topK = Number(form.topK);
-  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Sources to retrieve must be a whole number from 1 to 20.';
+  if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Passages to retrieve must be a whole number from 1 to 20.';
   return { query, topK };
 }
 
-export function AskPage() {
+export default function AskPage() {
   const api = useApi();
   const uid = useId();
   const record = useRecordRun();
   const [form, setForm] = useSessionState<AskForm>('ask.form', { query: '', topK: '5' });
   const [formError, setFormError] = useState<string | null>(null);
 
-  const ask = useCallback(
-    async (request: QueryRequest, signal: AbortSignal): Promise<AskRunData> => {
-      const result = await api.query(request, signal);
+  const ask = useCallback<RequestFn<QueryRequest, AskRunData>>(
+    async (request, signal, onProgress) => {
+      const result = await api.queryStream(request, onProgress, signal);
       record({
-        id: newRunId(),
-        kind: 'ask',
+        id: result.correlationId,
+        kind: 'query',
+        title: request.query,
         createdAt: new Date().toISOString(),
-        mock: api.mode === 'mock',
-        label: request.query,
         quality: result.evaluation?.qualityScore ?? null,
+        mock: api.mode === 'mock',
         request,
-        result,
+        response: result,
       });
       return { request, result };
     },
@@ -76,6 +78,8 @@ export function AskPage() {
     void run(scenario.request);
   };
 
+  const remaining = MAX_QUERY_CHARS - form.query.length;
+
   return (
     <div className="page">
       <header className="page-header">
@@ -96,17 +100,23 @@ export function AskPage() {
             className="input"
             rows={3}
             value={form.query}
+            maxLength={MAX_QUERY_CHARS}
             onChange={(e) => setForm((f) => ({ ...f, query: e.target.value }))}
             onKeyDown={onKeyDown}
             placeholder="How does retrieval-augmented generation mitigate hallucination?"
             aria-invalid={formError ? true : undefined}
             aria-describedby={formError ? `${uid}-err` : `${uid}-kbd`}
           />
+          {remaining < 200 ? (
+            <span className="field-hint" aria-live="polite">
+              {remaining} characters left
+            </span>
+          ) : null}
         </div>
         <div className={styles.actions}>
           <div className="field">
             <label className="field-label" htmlFor={`${uid}-k`}>
-              Sources to retrieve
+              Passages to retrieve
             </label>
             <input
               id={`${uid}-k`}
@@ -140,20 +150,21 @@ export function AskPage() {
         {state.status === 'idle' ? (
           <EmptyState title="Nothing asked yet">
             <p>
-              Answers come back with numbered source chips. Select one to see which paper, section and page it points
-              to. The evaluator's scores, critique and any unsupported claims sit beside the answer.
+              Answers come back with numbered source chips. Select one to read the cited passage and see which paper,
+              section and page it comes from. The evaluator's scores, critique and any unsupported claims sit beside the
+              answer.
             </p>
           </EmptyState>
         ) : null}
         {state.status === 'loading' ? (
-          <RunningState
+          <ProgressStepper
             title="Answering"
-            expectation="Retrieval, synthesis and evaluation usually take about 15 s."
+            stages={QUERY_STAGES}
+            events={state.progress}
             startedAt={state.startedAt}
             onCancel={cancel}
-          >
-            <SkeletonLines lines={4} />
-          </RunningState>
+            expectation="Usually about 15 s."
+          />
         ) : null}
         {state.status === 'error' ? <ErrorNotice error={state.error} onRetry={() => submit()} /> : null}
         {state.status === 'success' ? (

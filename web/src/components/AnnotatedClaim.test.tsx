@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { normalizeDiscoverResponse } from '../api/normalize';
 import type { ClaimValidationResult } from '../api/types';
-import { discoverScenarios } from '../mocks/scenarios';
+import { contract, discoverScenarios } from '../mocks/scenarios';
 import { AnnotatedClaim } from './AnnotatedClaim';
 
 function fixture(id: string) {
@@ -76,11 +76,14 @@ describe('AnnotatedClaim', () => {
     expect(screen.getByText(/tectonic plates/)).toBeInTheDocument();
   });
 
-  it('warns clearly when validation failed', () => {
-    renderClaim({ claims: [], aggregateRisk: 1, validationFailed: true }, 'Some claim. Another one.');
+  it('warns clearly when validation failed (snapshot derived: only validationFailed flipped to true)', () => {
+    const snapshot = normalizeDiscoverResponse(contract.discover);
+    const failed = { ...snapshot.claimValidation!, validationFailed: true };
+    renderClaim(failed, snapshot.novelClaim);
     expect(screen.getByRole('alert')).toHaveTextContent(/claim validation failed/i);
+    // Verdicts that came with a failed validation are not painted onto the text.
     expect(screen.queryAllByRole('button')).toHaveLength(0);
-    expect(screen.getByText('Some claim. Another one.')).toBeInTheDocument();
+    expect(screen.getByText(snapshot.novelClaim)).toBeInTheDocument();
   });
 
   it('says when there are no verdicts at all', () => {

@@ -50,3 +50,19 @@
   line-height: 1.15;
   overflow-wrap: anywhere;
 }
+
+.spaced {
+  margin-top: var(--s5);
+}
+
+.confirm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--danger);
+  background: var(--danger-wash);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+}

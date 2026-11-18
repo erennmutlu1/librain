@@ -13,6 +13,7 @@ import { displayTitle } from '../lib/papers';
 import { annotate } from '../lib/sentences';
 import { basisMeta, STATUS_META, STATUS_ORDER } from '../lib/vocabulary';
 import { Icon, StatusIcon } from './Icon';
+import { Passage } from './Passage';
 import styles from './AnnotatedClaim.module.css';
 
 interface Props {
@@ -146,8 +147,10 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
             data-interacting={interacting !== null || undefined}
             data-unverified={failed || undefined}
           >
-            {annotation.segments.map((segment, si) => {
-              if (segment.index === null || !hasVerdicts) return <span key={si}>{segment.text}</span>;
+            {!hasVerdicts
+              ? novelClaim
+              : annotation.segments.map((segment, si) => {
+              if (segment.index === null) return <span key={si}>{segment.text}</span>;
               const i = segment.index;
               const claim = claims[i]!;
               const n = ordinal.get(i) ?? i + 1;
@@ -256,6 +259,7 @@ function ChunkRef({
       <code className={styles.chunkKey}>{chunk}</code>
       {title ? <span className={styles.chunkTitle}>{title}</span> : null}
       {where ? <span className={styles.chunkWhere}>{where}</span> : null}
+      {ev?.content ? <Passage text={ev.content} compact /> : null}
     </li>
   );
 }
