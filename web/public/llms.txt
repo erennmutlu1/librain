@@ -1,0 +1,9 @@
+# LIBRAIN web
+
+> Web interface for LIBRAIN, a .NET multi-agent RAG system that answers questions over a scientific-paper corpus and proposes hypotheses whose every sentence is checked against the retrieved evidence.
+
+- [Library](/library): papers in the vector store
+- [Ask](/ask): citation-grounded answers
+- [Discover](/discover): hypotheses with per-sentence claim validation
+- [Compare](/compare): LIBRAIN against Naive-RAG and Single-LLM
+- [History](/history): saved runs

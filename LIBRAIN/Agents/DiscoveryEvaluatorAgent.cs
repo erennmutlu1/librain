@@ -1,20 +1,17 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Storage;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class DiscoveryEvaluatorAgent(
     ILogger<DiscoveryEvaluatorAgent> logger,
-    AnthropicChatClient claude)
+    ILlmClient llm)
 {
     private readonly ILogger<DiscoveryEvaluatorAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
 
     private const string SystemPromptText = """
         You are an impartial scientific reviewer evaluating a discovery hypothesis. The
@@ -55,11 +52,8 @@ public sealed class DiscoveryEvaluatorAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitDiscoveryEvaluationTool =
-        new Function(
-            "submit_discovery_evaluation",
-            "Submit a two-axis evaluation of a discovery hypothesis (plausibility + structural coherence).",
-            JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitDiscoveryEvaluationTool =
+        LlmTool.FromJsonSchema("submit_discovery_evaluation", "Submit a two-axis evaluation of a discovery hypothesis (plausibility + structural coherence).", ToolSchemaJson);
 
     public async Task<(float Plausibility, float StructuralCoherence, string Rationale)> EvaluateAsync(
         string hypothesis,
@@ -69,39 +63,21 @@ public sealed class DiscoveryEvaluatorAgent(
     {
         var sw = Stopwatch.StartNew();
 
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(hypothesis, novelClaim, citedChunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitDiscoveryEvaluationTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_discovery_evaluation" },
-            MaxTokens = 1024,
-            Model = AnthropicModels.Claude45Haiku,
-            Temperature = 0.0m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: ModelSelection.JudgeModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(hypothesis, novelClaim, citedChunks),
+            Temperature: 0.0m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitDiscoveryEvaluationTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogError(
-                "Discovery evaluator: forced tool call did not fire (stopReason={StopReason})",
-                res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block for discovery evaluation (stopReason={res.StopReason})");
-        }
+        var input = res.Input;
 
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            "Discovery evaluator tool use block had null input.");
+        var rawP = LlmJson.GetDouble(input["plausibility"]);
+        var rawC = LlmJson.GetDouble(input["structural_coherence"]);
 
-        var rawP = input["plausibility"]?.GetValue<double>();
-        var rawC = input["structural_coherence"]?.GetValue<double>();
-
-        var plausibility = EvaluationScoring.Clamp01(rawP);
-        var structuralCoherence = EvaluationScoring.Clamp01(rawC);
+        var plausibility = EvaluationScoring.RequireScore(rawP, "plausibility");
+        var structuralCoherence = EvaluationScoring.RequireScore(rawC, "structural_coherence");
 
         int clamped = 0;
         if (IsOutOfBand(rawP)) clamped++;
@@ -113,13 +89,13 @@ public sealed class DiscoveryEvaluatorAgent(
                 clamped, rawP, rawC);
         }
 
-        var rationale = input["rationale"]?.GetValue<string>() ?? string.Empty;
+        var rationale = LlmJson.GetString(input["rationale"]) ?? string.Empty;
 
         _logger.LogInformation(
             "Discovery evaluation: plausibility={Plausibility:F2} structuralCoherence={StructuralCoherence:F2} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             plausibility, structuralCoherence,
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
         _logger.LogDebug(

@@ -72,9 +72,9 @@ See [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) for the full command reference.
 
 ## Why This Project
 
-Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10** using Microsoft Semantic Kernel patterns and Anthropic's official .NET SDK. It's a deliberate counter-example to the "AI = Python only" assumption.
+Most RAG and agent tutorials are written in Python. LIBRAIN explores what production-grade agent architectures look like in **.NET 10**: plain C# agents wired through ASP.NET Core dependency injection, with no agent framework, calling Claude through the community `Anthropic.SDK` .NET client. It's a deliberate counter-example to the "AI = Python only" assumption.
 
-The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design, the simplifications made for the MVP, and the empirical results from the Phase B baseline experiment and the AFTER-FIX human-evaluation pilot. The paper is currently in revision; an arXiv preprint and a peer-reviewed venue submission are both in preparation.
+The companion technical paper (`docs/architecture.pdf`) describes the original four-agent design, the simplifications made for the MVP, and the empirical results from the Phase B baseline experiment and the AFTER-FIX human-evaluation pilot. The paper is currently in revision; an arXiv preprint and a peer-reviewed venue submission are both in preparation. The current revision (71 pages, source in `docs/paper-source/`) integrates the hardening since the archived version, corrects stale statements (RQ3 is 65–67 fabricated citations; prompt caching only takes effect for the generation call; the stack, hosting, tests and cost figures), and adds Experiment 8 (§6.8, §7.11): 46 Discovery runs in nine fields. Every change is listed in `docs/paper-source/CHANGES.md`.
 
 ---
 
@@ -107,7 +107,7 @@ That pilot was then extended to a full replication: two independent blinded thre
 | LLM (reasoning) | Anthropic Claude Sonnet 4.6 (synthesis), Haiku 4.5 (evaluation) via Anthropic.SDK 5.10 |
 | Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
 | Vector store | Qdrant 1.17 (local Docker in dev, Qdrant Cloud free tier in production, AWS Frankfurt) |
-| Orchestration | Microsoft Semantic Kernel patterns |
+| Orchestration | Plain C# agents + ASP.NET Core DI (no agent framework) |
 | PDF parsing | PdfPig |
 | Observability | Application Insights, structured logging |
 | Hosting | Azure Container Apps (API), Azure Static Web Apps (frontend) |
@@ -123,7 +123,7 @@ The full ingest, synthesis, and discovery pipeline needs an Anthropic key, an Op
 # 2. Build (no keys needed)
 dotnet build LIBRAIN.sln
 
-# 3. Run the full unit-test suite (81 tests, fully offline, no keys / network / Qdrant)
+# 3. Run the test suite (230 tests, fully offline, no keys / network / Qdrant)
 dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj
 
 # 4. Reproduce the paper numbers from committed result data (offline)
@@ -131,7 +131,12 @@ dotnet run --project LIBRAIN.Experiments -- analyze       # per-system descripti
 dotnet run --project LIBRAIN.Experiments -- human-eval    # inter-rater agreement
 ```
 
-The 81 tests cover the load-bearing pure logic (chunking, citation validation, scoring, claim validation, fabrication counting, inter-rater agreement). They instantiate no API clients and make no network calls, so they pass on a clean checkout with only the .NET 10 SDK installed. CI runs the same build and test on every push.
+The tests make no paid API calls and need no keys:
+
+- **Pure logic**: chunking, citation validation, scoring, claim validation, fabrication counting, inter-rater agreement.
+- **Replays of the committed results**: all 30 Discovery outputs in `experiments/discovery-openai/` are run through the current pipeline with the model's recorded outputs and must reproduce the committed quality, novelty and risk scores; all 40 RQ3 free-text answers must parse to the committed citation counts.
+- **The whole HTTP API, in memory**: every endpoint (including progress streaming, compare and run history) against fake LLM, embedding and vector-store implementations, with real arXiv metadata captured from export.arxiv.org as fixtures.
+- **Qdrant integration** (opt-in): `LIBRAIN_QDRANT_TEST_HOST=localhost dotnet test` against `docker compose up qdrant`. CI runs it against a Qdrant service container.
 
 ---
 
@@ -155,6 +160,13 @@ docker run -d --name librain-qdrant -p 6333:6333 -p 6334:6334 \
 dotnet run --project LIBRAIN
 ```
 
+### Or run everything with Docker
+
+```bash
+cp .env.example .env          # add OPENAI_API_KEY (and ANTHROPIC_API_KEY); .env is gitignored
+docker compose up --build     # Qdrant + API + web UI; UI on http://localhost:5180, API on http://localhost:5080
+```
+
 Once the API is up:
 
 ```bash
@@ -169,6 +181,43 @@ curl -k -X POST https://localhost:7XXX/api/query \
 ```
 
 (Replace 7XXX with the port from the dotnet run startup log.)
+
+---
+
+## Web UI
+
+`web/` is a React + Vite + TypeScript app over the API: **Library** (upload or arXiv ingest), **Ask** (citation chips open the cited passage), **Discover** (every `novelClaim` sentence coloured by its claim-validation verdict), **Compare** (the three systems side by side, fabricated citations in red) and **History** (saved runs). Long runs show live progress.
+
+![Discover: each novel-claim sentence marked grounded, extrapolated or risky](web/docs/screenshots/discover.png)
+
+```bash
+cd web && npm ci
+npm run dev                          # mock mode: replays committed experiment results and captured API output, no backend needed
+VITE_USE_MOCKS=false npm run dev     # against the API on http://localhost:5000
+```
+
+Or run the API, Qdrant and the UI together with `docker compose up --build` (UI on http://localhost:5180). Details, screenshots and the fixture inventory are in [`web/README.md`](web/README.md).
+
+## HTTP API
+
+Interactive reference at `/scalar` when running in Development. Errors are `application/problem+json`.
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/papers` | Ingested papers (id, title, authors, year, chunk count) |
+| `POST /api/papers/ingest` | Ingest an uploaded PDF (multipart field `file`; the file name becomes the paper id) |
+| `POST /api/papers/arxiv` | Ingest by arXiv id (`{"arxivId": "2005.11401"}`); title, authors and year come from the arXiv API |
+| `DELETE /api/papers/{paperId}` | Remove a paper and all its chunks |
+| `POST /api/query` | Citation-grounded answer + evaluator scores; every citation carries the cited passage |
+| `POST /api/discover` | Discovery Mode hypothesis, `novelClaim`, per-sentence claim validation, scores |
+| `POST /api/naive-rag`, `POST /api/single-llm` | The paper's two baseline systems |
+| `POST /api/compare` | LIBRAIN, Naive-RAG and Single-LLM on one topic pair, concurrently |
+| `POST /api/query/stream`, `POST /api/discover/stream` | Same as above as server-sent events: `progress` events, then one `result` (or `error`) |
+| `GET /api/runs`, `GET /api/runs/{id}`, `DELETE /api/runs/{id}` | Saved runs (SQLite). The id is the response's `correlationId`, so this is also the audit lookup |
+
+Configuration: `Cors:AllowedOrigins` (Development allows the Vite dev server), `Runs:DatabasePath` (default `data/runs.db`), `Anthropic:MaxConcurrentRequests` (default 4). The app refuses to start without `OpenAI:ApiKey` (embeddings) and `Qdrant:Host`.
+
+**Before exposing the API publicly**, set `Security:ApiKey` (every `/api` call must then send it as `X-Api-Key`) and `RateLimiting:PaidRequestsPerHour` (per-client hourly cap on every endpoint that calls an LLM or the embedding API; requests over it get `429` and are never sent to a model). Both are off by default for local use.
 
 ---
 
@@ -209,7 +258,10 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Robustness analysis**: config-driven synthesis model (`Models:SynthesisModel`) + a `robustness` subcommand (topK sensitivity, Sonnet→Haiku substitution, adversarial prompting) over a 5-paper weather/energy slice (the PDFs present at run time); citation contract holds (zero fabricated citations) across every configuration
 - [x] **RQ3 measured benefit + cross-family port**: free-text/starved fabrication-delta (Naive-RAG 67 fabricated vs LIBRAIN 0); the full Discovery pipeline ported to OpenAI (`provider=openai`, gpt-4o) with provider routing; corpus scaled to 41 papers / 30 pairs; novelty-metric validation (ρ=0.41) + in-code inter-rater agreement (Cohen/Fleiss/Krippendorff). Anthropic-judged tables unchanged.
 - [x] **Two-panel human eval (n=30)**: a second blinded three-rater panel extends the AFTER-FIX pilot to 30 outputs (LIBRAIN 0/30 vs Naive-RAG 3/30 hallucination flags; pooled novelClaim novelty 4.47 / 1.80 / 2.47), committed under `experiments/hallucination-pilot/combined-n30-*.csv`
-- [ ] **Phase 3.B**: Frontend demo, Azure deployment (Container Apps + Static Web Apps), response streaming
+- [x] **Hardening**: fail-closed claim validation, one shared Discovery contract for both providers, retries, replay tests over every committed result, run history, progress streaming, arXiv ingest, API key + rate limit (see [`CHANGELOG.md`](CHANGELOG.md))
+- [x] **Phase 3.B (local)**: web UI (Library, Ask, Discover, Compare, History) with live progress, and Docker Compose for the whole stack
+- [x] **New discoveries (2026-11-18)**: 46 Discovery runs on new topic pairs in nine fields (incl. football, sport, web development, programming languages, future jobs), 14 featured with plain-language write-ups; bilingual explainer in [`docs/LIBRAIN-discoveries-explained.pdf`](docs/LIBRAIN-discoveries-explained.pdf)
+- [ ] **Phase 3.B (hosted)**: public deployment (Azure Container Apps + Static Web Apps, or any container host)
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
@@ -217,14 +269,14 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ## Performance
 
-- Papers ingested: 41 (1,766 chunks total). The original 5-paper seed plus a multi-domain expansion spanning RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, and cognition/neuroscience. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
+- Papers ingested: 55 (2,210 chunks). The original 5-paper seed, a multi-domain expansion to 41 papers (RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, cognition/neuroscience), and 14 arXiv papers added on 2026-11-18 for football, sport, web development, programming languages and labour-market studies. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
 - Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration, a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
-- Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
-- Cost per query: ~$0.030 synthesis, ~$0.04 discovery (Sonnet synth + Haiku eval + Haiku claim-validation, cached prefix).
+- Anthropic prompt caching: enabled for the static system prompt and tool schema on every agent. Measured over 46 Discovery runs on 2026-11-18, it took effect only for the Sonnet generation call (11% of its prompt tokens read from cache); the Haiku judge and validator prompts are shorter than the minimum length the API caches, so they are never cached. The audit log records `cacheRead` / `cacheCreate` per call.
+- Cost per Discovery run: **US$0.066 on average** (US$0.057–0.075), measured from logged token counts over 46 runs on 2026-11-18 (Sonnet 4.6 generation ≈ 70%, two Haiku 4.5 calls ≈ 30%). See [`experiments/featured-discoveries/`](experiments/featured-discoveries/) and [`experiments/new-areas-discoveries/`](experiments/new-areas-discoveries/).
 - RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0**, a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
-- Tests: **81/81 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract, synthesis-model resolution, robustness-CSV + fabrication-CSV formatting, free-text citation parsing, inter-rater agreement Cohen/Fleiss/Krippendorff).
+- Tests: **237 backend** (pure logic, replay of all committed results, every HTTP endpoint in memory, Qdrant integration) and **173 web UI** tests, all passing in CI.
 
 ---
 
@@ -239,13 +291,14 @@ Every numeric claim in the companion paper is backed by a runnable command + a c
 | **Table 8** Naive-RAG citation fabrication | (produced by `baseline`) | `experiments/baseline-comparison/results/fabrication-counts.csv` |
 | **Table 9** Per-system human-eval descriptives | `dotnet run --project LIBRAIN.Experiments -- analyze` | `experiments/human-eval-pilot/analysis.csv` |
 | **Spearman ρ** (rater vs LLM-as-Judge, per axis) | (produced by `analyze` once baseline is run) | `experiments/human-eval-pilot/spearman.csv` |
-| **Experiment 8** Hallucination mitigation pilot (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
+| **§7.8 AFTER-FIX pilot**: hallucination mitigation (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
 | **§7.10 Robustness** (topK + model-swap + adversarial, on a 5-paper weather/energy slice) | `dotnet run --project LIBRAIN.Experiments -- robustness` (Haiku leg: `--model-label haiku-4.5` after restarting the API with `Models__SynthesisModel` set) | `experiments/robustness/{results.csv, *.json}` |
 | **RQ3 fabrication-delta** (Naive-RAG vs LIBRAIN, cross-family) | `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai --model gpt-4o-mini` | `experiments/fabrication-delta/{results.csv, summary.md}` |
 | **Discovery ranking** (real pipeline on OpenAI, ranked by quality) | `dotnet run --project LIBRAIN.Experiments -- discover-run --provider openai --model gpt-4o` | `experiments/discovery-openai/{ranking.csv, best-examples.md}` |
 | **Novelty validation** (cosine vs human novelty, offline) | `dotnet run --project LIBRAIN.Experiments -- novelty-validation` | `experiments/novelty-validation/{results.csv, summary.md}` |
 | **Inter-rater agreement** (Cohen/Fleiss/Krippendorff, offline) | `dotnet run --project LIBRAIN.Experiments -- human-eval` | `experiments/human-eval/agreement.csv` |
 | **3-system OpenAI-judge** (judge-substitution cross-check) | `dotnet run --project LIBRAIN.Experiments -- score-systems --model gpt-4o-mini` | `experiments/baseline-comparison/results/openai-judged-*.csv` |
+| **Experiment 8** Discovery in new fields (46 runs) | tables: `python3 scripts/summarize_discoveries.py` (offline); runs: `python3 scripts/run_discoveries.py --pairs experiments/<batch>/pairs.json …` (paid, ~US$0.07/run) | `experiments/featured-discoveries/`, `experiments/new-areas-discoveries/` (runs, `token-usage.csv`, `ranking.csv`, `featured.json`) |
 | **Cross-run consistency study** (Phase 2.5, N=5) | `scripts/cross-run-study.sh --runs 5` | stdout (per-axis mean ± std + classification verdict) |
 
 ### Prerequisites
@@ -275,7 +328,7 @@ dotnet run --project LIBRAIN.Experiments -- hallucination-pilot  # offline · se
 scripts/cross-run-study.sh --runs 5                              # ~$0.40 · ~5 min
 ```
 
-Anthropic prompt caching (auto-enabled across all agents) means the second pair onward in each run reuses ~80% of the system + tool prefix tokens, so the dollar figures above are upper bounds rather than typical.
+Prompt caching is enabled on every agent, but measured over 46 Discovery runs it only takes effect for the Sonnet generation call (11% of its prompt tokens); the Haiku judge prompts are below the API's minimum cacheable length. Treat the dollar figures above as close to actual cost rather than as upper bounds (`experiments/*/token-usage.csv`).
 
 The human-eval rater 1 CSV and unblind key are already committed (`experiments/human-eval-pilot/`), so step 3 reproduces the companion paper's per-system descriptives (`LIBRAIN 4.00/3.40/3-of-5, Naive-RAG 2.40/4.80/0, Single-LLM 2.40/4.60/0`) without any API calls. The full two-panel n=30 replication is committed as well (all three raters per panel plus `combined-n30-per-system.csv`), so the pooled n=30 descriptives are verifiable offline directly from the raw ratings.
 
@@ -297,7 +350,8 @@ librain/
 │   ├── Models/                  # DTOs, domain types
 │   ├── Reading/                 # PDF extraction + chunking
 │   └── Program.cs
-├── LIBRAIN.Tests/               # 81 xUnit unit tests
+├── LIBRAIN.Tests/               # xUnit: unit, replay-of-committed-results, in-memory API, opt-in Qdrant
+├── web/                         # React + Vite + TypeScript UI (Library, Ask, Discover, Compare, History)
 ├── LIBRAIN.Experiments/         # .NET CLI: phase-b, baseline, robustness,
 │                                # fabrication-delta, discover-run, score-systems,
 │                                # novelty-validation, human-eval,

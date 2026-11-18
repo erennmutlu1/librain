@@ -1,0 +1,34 @@
+{
+  "correlationId": "b37c1997-3e8c-4497-b6ea-bfb646b59276",
+  "hypothesis": "Graph message passing explains GraphCast\u0027s skill at medium-range forecasting [1][2].",
+  "citations": [
+    {
+      "index": 1,
+      "paperId": "graphcast",
+      "chunkIndex": 1,
+      "section": "Intro",
+      "pageNumber": 1,
+      "content": "GraphCast forecasts weather with graph neural networks."
+    },
+    {
+      "index": 2,
+      "paperId": "graphcast",
+      "chunkIndex": 2,
+      "section": "Method",
+      "pageNumber": 3,
+      "content": "Message passing over a multi-mesh."
+    }
+  ],
+  "synthesisConfidence": 0.8,
+  "evaluation": {
+    "qualityScore": 0.7833333,
+    "groundednessScore": 0.9,
+    "relevanceScore": 0.85,
+    "completenessScore": 0.6,
+    "critique": "Grounded in both cited passages.",
+    "unsupportedClaims": [],
+    "missingEvidence": [
+      "No error metrics cited."
+    ]
+  }
+}

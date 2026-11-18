@@ -1,0 +1,134 @@
+.list {
+  display: grid;
+  gap: var(--s4);
+}
+
+@media (min-width: 40rem) {
+  .list[data-columns='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--s5);
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--s3);
+  row-gap: var(--s1);
+}
+
+.row:first-child .label {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.row:first-child .number {
+  font-size: var(--fs-lg);
+}
+
+.row:first-child .fill {
+  background: var(--accent);
+}
+
+.label {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.3;
+}
+
+.hint {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.number {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.track {
+  grid-column: 1 / -1;
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--ink-2);
+}
+
+/* ---------- Risk meter ---------- */
+
+.risk {
+  --tone: var(--grounded);
+  display: grid;
+  gap: var(--s2);
+}
+
+.risk[data-tone='mid'] {
+  --tone: var(--extrapolated);
+}
+
+.risk[data-tone='high'] {
+  --tone: var(--risky);
+}
+
+.riskHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.riskTitle {
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+.riskValue {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.riskBand {
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  padding: 0.05em 0.5em;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--tone);
+  color: var(--ink);
+}
+
+.riskTrack {
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.riskFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--tone);
+}
+
+.riskHint {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}

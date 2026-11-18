@@ -1,0 +1,323 @@
+{
+  "_about": "Hand-written plain-language copy for the explainer, keyed by batch folder and run id. Numbers do not belong here: build_explainer.py computes them from the run files and fills these placeholders: {claim_pct} = first percentage in the novel claim, {claim_pct_range} = first percentage range in the novel claim (e.g. 30-40%), {risky_pct} = first percentage in the RISKY sentence, {risky_score} = that sentence's risk score, {grounded_score} = the GROUNDED sentence's risk score. 'note_kind' is 'risky' (default) or 'grounded'.",
+  "papers": {
+    "oc20": {
+      "en": "OC20: a large public dataset of catalyst simulations",
+      "tr": "OC20: katalizör simülasyonlarından oluşan büyük, açık bir veri seti"
+    },
+    "2508.14111": {
+      "en": "a survey of AI agents in scientific discovery",
+      "tr": "bilimsel keşifte yapay zekâ ajanları üzerine bir derleme"
+    },
+    "2505.04651": {
+      "en": "a paper on how AI systems generate scientific hypotheses",
+      "tr": "yapay zekânın bilimsel hipotezleri nasıl ürettiği üzerine bir makale"
+    },
+    "2503.08979": {
+      "en": "a paper on multi-agent AI systems",
+      "tr": "çok ajanlı yapay zekâ sistemleri üzerine bir makale"
+    },
+    "autoct-clinical": {
+      "en": "AutoCT: an AI agent that predicts clinical-trial outcomes",
+      "tr": "AutoCT: klinik deneme sonuçlarını tahmin eden bir yapay zekâ ajanı"
+    },
+    "epi-pinn": {
+      "en": "physics-informed neural networks for epidemic modelling",
+      "tr": "salgın modellemesi için fizik bilgili sinir ağları"
+    },
+    "covid-stgnn": {
+      "en": "COVID-19 forecasting with spatio-temporal graph neural networks",
+      "tr": "uzay-zamansal çizge sinir ağlarıyla COVID-19 tahmini"
+    },
+    "gns-physics": {
+      "en": "Learning to Simulate Complex Physics with Graph Networks (GNS)",
+      "tr": "Learning to Simulate Complex Physics with Graph Networks (GNS): çizge ağlarıyla fizik simülasyonu"
+    },
+    "clip": {
+      "en": "CLIP: an AI that learned to match images with text",
+      "tr": "CLIP: resimleri metinlerle eşleştirmeyi öğrenen bir yapay zekâ"
+    },
+    "crop-yield-multimodal": {
+      "en": "crop yield prediction from several kinds of remote-sensing data",
+      "tr": "farklı türden uzaktan algılama verileriyle mahsul verimi tahmini"
+    },
+    "crop-yield-rs": {
+      "en": "crop yield prediction from easy-to-get data (location, weather, soil)",
+      "tr": "kolay bulunan verilerle (konum, hava, toprak) mahsul verimi tahmini"
+    },
+    "cgcnn": {
+      "en": "Crystal Graph Convolutional Neural Networks (CGCNN) for material properties",
+      "tr": "malzeme özelliklerini tahmin eden kristal çizge evrişimli sinir ağları (CGCNN)"
+    },
+    "self-rag": {
+      "en": "Self-RAG: an AI that learns to look things up and critique itself",
+      "tr": "Self-RAG: kaynağa bakmayı ve kendini eleştirmeyi öğrenen bir yapay zekâ"
+    },
+    "pharmagents": {
+      "en": "PharmAgents: a team of AI agents for drug discovery",
+      "tr": "PharmAgents: ilaç keşfi için bir yapay zekâ ajanları ekibi"
+    },
+    "2310.10553": {
+      "en": "TacticAI: an AI assistant for football tactics",
+      "tr": "TacticAI: futbol taktikleri için bir yapay zekâ asistanı"
+    },
+    "1802.07127": {
+      "en": "Actions Speak Louder Than Goals: valuing player actions in soccer (VAEP)",
+      "tr": "Actions Speak Louder Than Goals (VAEP): futbolda oyuncu hareketlerine değer biçmek"
+    },
+    "gat": {
+      "en": "Graph Attention Networks (GAT)",
+      "tr": "Graph Attention Networks (GAT): çizge dikkat ağları"
+    },
+    "gcn": {
+      "en": "Graph Convolutional Networks (GCN)",
+      "tr": "Graph Convolutional Networks (GCN): çizge evrişimli ağlar"
+    },
+    "1609.07480": {
+      "en": "Predictive modelling of football injuries",
+      "tr": "Predictive modelling of football injuries: futbol sakatlıklarını tahmin etmek"
+    },
+    "2601.19479": {
+      "en": "Time-to-injury forecasting in elite female football",
+      "tr": "Elit kadın futbolunda sakatlığa kalan sürenin tahmini"
+    },
+    "2607.11065": {
+      "en": "Spiking neural networks for detecting muscle fatigue from skin sensors (sEMG)",
+      "tr": "Cilt sensörlerinden (sEMG) kas yorgunluğunu atımlı sinir ağlarıyla tespit etmek"
+    },
+    "neuromorphic-survey": {
+      "en": "a survey of neuromorphic (brain-inspired) computer hardware",
+      "tr": "nöromorfik (beyinden esinlenen) bilgisayar donanımı üzerine bir derleme"
+    },
+    "2006.03511": {
+      "en": "Unsupervised Translation of Programming Languages (TransCoder)",
+      "tr": "TransCoder: programlama dilleri arasında denetimsiz çeviri"
+    },
+    "2403.03163": {
+      "en": "Design2Code: a benchmark for turning web designs into code",
+      "tr": "Design2Code: web tasarımlarını koda dönüştürmeyi ölçen bir test"
+    },
+    "llm-education-survey": {
+      "en": "Large Language Models for Education: A Survey",
+      "tr": "Large Language Models for Education: eğitimde büyük dil modelleri üzerine bir derleme"
+    },
+    "2203.07814": {
+      "en": "Competition-Level Code Generation with AlphaCode",
+      "tr": "AlphaCode: yarışma düzeyinde kod üretimi"
+    },
+    "2302.06590": {
+      "en": "The Impact of AI on Developer Productivity: Evidence from GitHub Copilot",
+      "tr": "GitHub Copilot: yapay zekânın geliştirici verimliliğine etkisi"
+    },
+    "2503.04761": {
+      "en": "Which Economic Tasks are Performed with AI? Evidence from millions of Claude conversations",
+      "tr": "Yapay zekâyla hangi ekonomik görevler yapılıyor? Milyonlarca Claude konuşmasından bulgular"
+    }
+  },
+  "featured-discoveries": {
+    "D7": {
+      "en": {
+        "title": "Smarter chemistry experiments for catalysts",
+        "suggests": "Finding good catalysts (materials that speed up chemical reactions) needs slow computer simulations called DFT, and the biggest public dataset, OC20, covers only about {claim_pct} of the possible arrangements. LIBRAIN suggests letting a team of specialised AI agents pick the most informative simulation to run next. The search could then reach cases OC20 leaves out, such as several molecules on a surface at once, or a surface sitting in liquid.",
+        "test": "Give two searches the same computing budget, one choosing simulations the usual way and one letting the agents choose, and compare how fast each finds promising catalysts."
+      },
+      "tr": {
+        "title": "Katalizörler için daha akıllı kimya deneyleri",
+        "suggests": "İyi katalizörler (kimyasal tepkimeleri hızlandıran malzemeler) bulmak için DFT denen yavaş bilgisayar simülasyonları gerekir; en büyük açık veri seti OC20 ise olası yerleşimlerin yalnızca yaklaşık {claim_pct} kadarını kapsıyor. LIBRAIN, sıradaki en öğretici simülasyonu uzmanlaşmış yapay zekâ ajanlarından oluşan bir ekibin seçmesini öneriyor. Böylece arama, OC20'nin dışarıda bıraktığı durumlara da uzanabilir: yüzeye aynı anda birkaç molekülün tutunması ya da yüzeyin bir sıvı içinde durması gibi.",
+        "test": "Aynı hesaplama bütçesiyle iki arama yapılır: biri simülasyonları alışılmış yöntemle, öteki ajan ekibinin seçimiyle yürür; hangisinin umut verici katalizörleri daha hızlı bulduğu karşılaştırılır."
+      }
+    },
+    "C1": {
+      "en": {
+        "title": "Using the maths of epidemics to predict infectious-disease trials",
+        "suggests": "AutoCT is an AI agent that searches for clues that predict whether a clinical trial will succeed; physics-informed networks learn how an epidemic spreads from the standard epidemic equations. LIBRAIN suggests combining them, so that for infectious-disease trials the agent also uses clues from those equations, such as the reproduction number (how many people one patient infects) where the trial ran. Predictions could become easier to explain and need less labelled data.",
+        "test": "Train the trial predictor on past infectious-disease trials with and without the epidemic-based clues, and check which version predicts unseen trials better."
+      },
+      "tr": {
+        "title": "Bulaşıcı hastalık denemelerini salgın matematiğiyle tahmin etmek",
+        "suggests": "AutoCT, bir klinik denemenin başarılı olup olmayacağını tahmin etmek için ipuçları arayan bir yapay zekâ ajanıdır; fizik bilgili sinir ağları ise bir salgının nasıl yayıldığını bilinen salgın denklemlerinden öğrenir. LIBRAIN ikisini birleştirmeyi öneriyor: bulaşıcı hastalık denemelerinde ajan, bu denklemlerden gelen ipuçlarını da kullanabilir; örneğin denemenin yapıldığı yerdeki üreme sayısı (bir hastanın hastalığı kaç kişiye bulaştırdığı). Böylece tahminler hem daha kolay açıklanabilir hem de daha az etiketli veri gerektirebilir.",
+        "test": "Tahmin modeli, sonucu bilinen eski bulaşıcı hastalık denemeleriyle bir kez salgın temelli ipuçlarıyla, bir kez onlarsız eğitilir; hiç görmediği denemelerde hangisinin daha isabetli olduğuna bakılır."
+      }
+    },
+    "N3": {
+      "en": {
+        "title": "A physics-style simulator to try out epidemic policies",
+        "suggests": "Some AI simulators learned physics, such as how water or sand flows, by treating the world as a network of interacting particles, and they keep working in situations they were not trained on. LIBRAIN suggests treating regions as the particles and infections as what flows between them, with the standard epidemic equations built in. Such a simulator could cope with new outbreaks and measures, letting decision-makers quickly try out questions like “what if we closed schools?”.",
+        "test": "Train it on some outbreaks, then compare its forecasts for unseen outbreaks and policies with what actually happened and with a standard epidemic model."
+      },
+      "tr": {
+        "title": "Salgın kararlarını önceden denemek için fizik tarzı bir simülatör",
+        "suggests": "Bazı yapay zekâ simülatörleri suyun ya da kumun nasıl aktığını, dünyayı birbirini etkileyen parçacıklardan oluşan bir ağ gibi ele alarak öğrendi; üstelik eğitilmedikleri durumlarda da iş görüyorlar. LIBRAIN, bölgeleri parçacık, bulaşmayı da aralarındaki akış gibi düşünmeyi ve bilinen salgın denklemlerini modele yerleştirmeyi öneriyor. Böyle bir simülatör yeni salgınlara ve önlemlere uyum sağlayabilir; karar vericiler “okulları kapatsak ne olur?” gibi soruları hızla deneyebilir.",
+        "test": "Simülatör bazı salgınlarla eğitilir; görmediği salgın ve önlemler için yaptığı tahminler, gerçekte olanlarla ve standart bir salgın modeliyle karşılaştırılır."
+      }
+    },
+    "A2": {
+      "en": {
+        "title": "Estimating harvests from satellite photos and plain-language descriptions",
+        "suggests": "CLIP is an AI that learned to match pictures with their captions, so it can recognise new things from a written description alone. LIBRAIN suggests training a similar model on satellite images paired with farming texts (growth reports, field notes, crop calendars). It could then estimate harvests in new regions, or for new crops, without the scarce and costly yield maps needed today.",
+        "test": "Pretrain on some regions, then ask for yield estimates in a region the model has never seen, with no yield data from there, and compare them with measured harvests."
+      },
+      "tr": {
+        "title": "Uydu fotoğrafları ve sade cümlelerle hasat tahmini",
+        "suggests": "CLIP, resimleri açıklamalarıyla eşleştirmeyi öğrenmiş bir yapay zekâdır; bu sayede yeni bir şeyi yalnızca yazılı tarifinden tanıyabilir. LIBRAIN, benzer bir modelin uydu görüntüleri ile tarım metinleri (gelişim raporları, tarla notları, ekim takvimleri) eşleştirilerek eğitilmesini öneriyor. Böyle bir model, bugün gereken ve toplaması zor, pahalı verim haritaları olmadan yeni bölgelerde ya da yeni ürünlerde hasat tahmini yapabilir.",
+        "test": "Model bazı bölgelerle önceden eğitilir; sonra hiç görmediği ve hiçbir verim verisi verilmeyen bir bölgede tahmin yapması istenir ve tahminler ölçülen hasatla karşılaştırılır."
+      }
+    },
+    "D5": {
+      "en": {
+        "title": "An AI lab assistant that designs new crystals on the computer first",
+        "suggests": "CGCNN is a neural network that predicts properties of crystal materials, such as stability, far faster than the detailed physics simulations (DFT) scientists normally use. LIBRAIN suggests putting it inside an AI agent's loop of proposing, scoring and improving candidate crystals, all on the computer before any slow simulation is run. This could help find new stable materials in spaces too large to search by hand.",
+        "test": "Check the loop's best candidates with full DFT simulations, and later in the lab, and compare how many turn out stable with picks from ordinary screening."
+      },
+      "tr": {
+        "title": "Yeni kristalleri önce bilgisayarda tasarlayan bir yapay zekâ asistanı",
+        "suggests": "CGCNN, kristal malzemelerin kararlılık gibi özelliklerini, bilim insanlarının normalde kullandığı ayrıntılı fizik simülasyonlarından (DFT) çok daha hızlı tahmin eden bir sinir ağıdır. LIBRAIN, bu modeli bir yapay zekâ ajanının aday kristaller önerip puanladığı ve aramasını iyileştirdiği döngünün içine koymayı öneriyor; bunların hepsi, tek bir yavaş simülasyon çalışmadan bilgisayarda olur. Bu, elle taranamayacak kadar geniş alanlarda yeni kararlı malzemeler bulmaya yardım edebilir.",
+        "test": "Döngünün en iyi adayları tam DFT simülasyonlarıyla, sonra da laboratuvarda kontrol edilir; kaç tanesinin gerçekten kararlı çıktığı sıradan bir taramanın seçtikleriyle karşılaştırılır."
+      }
+    },
+    "D1": {
+      "en": {
+        "title": "Drug-discovery AI agents that fact-check themselves",
+        "suggests": "PharmAgents is a team of AI agents covering the drug-discovery pipeline. Self-RAG is a technique that lets an AI decide when to look things up and grade its own answer with small “critique” tags (relevant? supported? useful?). LIBRAIN suggests giving every PharmAgents agent this self-checking habit, so mistakes are caught early instead of piling up from stage to stage.",
+        "test": "Run the published PharmAgents and a self-checking version on the same drug targets, and compare success rates and how many errors pass between stages.",
+        "note": "The second sentence says the combination could push PharmAgents' reported success rate ({risky_pct}) higher. The checker marked it red (RISKY, {risky_score}): the papers give {risky_pct} as what PharmAgents achieved, not as a ceiling, and nothing in them shows this combination would beat it. This is the system catching an overreach in its own idea. The idea may still be worth testing, but that promise is not backed by the sources."
+      },
+      "tr": {
+        "title": "Her adımda kendini denetleyen ilaç keşfi ajanları",
+        "suggests": "PharmAgents, ilaç keşfinin bütün aşamalarını üstlenen bir yapay zekâ ajanları ekibidir. Self-RAG ise bir yapay zekânın ne zaman kaynağa bakacağına kendisinin karar vermesini ve cevabını küçük “eleştiri etiketleriyle” (ilgili mi, destekleniyor mu, işe yarar mı?) notlamasını sağlayan bir tekniktir. LIBRAIN, PharmAgents'taki her ajana bu öz denetim alışkanlığını kazandırmayı öneriyor; böylece hatalar aşamadan aşamaya birikmeden erkenden yakalanabilir.",
+        "test": "PharmAgents'ın yayımlanmış hâli ile kendini denetleyen bir sürümü aynı ilaç hedefleri üzerinde çalıştırılır; başarı oranları ve aşamalar arasında taşınan hata sayısı karşılaştırılır.",
+        "note": "İkinci cümle, bu birleşimin PharmAgents'ın bildirdiği başarı oranını ({risky_pct}) yukarı taşıyabileceğini söylüyor. Denetleyici cümleyi kırmızıyla işaretledi (RİSKLİ, {risky_score}): makaleler bu oranı PharmAgents'ın ulaştığı sonuç olarak veriyor, aşılması gereken bir tavan olarak değil; bu birleşimin onu geçeceğini gösteren bir şey de yok. Yani sistem kendi fikrindeki abartıyı yakalıyor. Fikir yine de denenmeye değer olabilir, ama bu vaat kaynaklarca desteklenmiyor."
+      }
+    }
+  },
+  "new-areas-discoveries": {
+    "F4": {
+      "en": {
+        "title": "Rehearsing corner kicks like a physics simulation",
+        "suggests": "TacticAI is an AI assistant that treats the players at a corner kick as points in a network and suggests better starting positions. Physics simulators built on the same kind of network (GNS) learned to predict, step by step, how particles move. LIBRAIN suggests treating each player like a particle, so the assistant could play out whole movement plans over time instead of judging only where players start.",
+        "test": "Train the simulator on tracking data from real corner kicks and check whether the runs it predicts match what happened in matches it has not seen."
+      },
+      "tr": {
+        "title": "Kornerleri bir fizik simülasyonu gibi prova etmek",
+        "suggests": "TacticAI, korner vuruşunda oyuncuları bir ağdaki noktalar gibi ele alıp daha iyi başlangıç pozisyonları öneren bir yapay zekâ asistanıdır. Aynı türden ağlar üzerine kurulu fizik simülatörleri (GNS) ise parçacıkların adım adım nasıl hareket edeceğini tahmin etmeyi öğrendi. LIBRAIN, her oyuncuyu bir parçacık gibi ele almayı öneriyor; böylece asistan yalnızca başlangıç dizilişini değil, hareket planlarının tamamını zaman içinde oynatıp deneyebilir.",
+        "test": "Simülatör gerçek kornerlerin takip verileriyle eğitilir; görmediği maçlarda tahmin ettiği koşuların gerçekte olanlarla örtüşüp örtüşmediğine bakılır."
+      }
+    },
+    "F2": {
+      "en": {
+        "title": "Giving every pass and dribble a fairer score",
+        "suggests": "VAEP values each action in a football match, such as a pass or a dribble, by how much it changes the chance of scoring or conceding, looking back over a fixed number of earlier actions. LIBRAIN suggests using graph attention networks, which learn what to pay attention to, so the model itself works out which earlier actions in a move matter most for a goal. That could give sharper, fairer values for each action.",
+        "test": "Train the original VAEP and the attention version on the same match data and compare how well each predicts goals in matches it has not seen."
+      },
+      "tr": {
+        "title": "Her pasa ve çalıma daha adil bir puan",
+        "suggests": "VAEP, bir maçtaki pas ya da çalım gibi her hareketi gol atma ya da gol yeme şansını ne kadar değiştirdiğine göre değerlendirir; bunu yaparken geriye doğru sabit sayıda harekete bakar. LIBRAIN, neye dikkat edeceğini kendisi öğrenen çizge dikkat ağlarını kullanmayı öneriyor; böylece bir atakta gole en çok hangi önceki hareketlerin katkı yaptığını model kendisi bulur. Bu, her harekete daha keskin ve daha adil bir değer biçilmesini sağlayabilir.",
+        "test": "Özgün VAEP ile dikkat tabanlı sürüm aynı maç verileriyle eğitilir; görmedikleri maçlarda golleri ne kadar iyi tahmin ettikleri karşılaştırılır."
+      }
+    },
+    "S5": {
+      "en": {
+        "title": "Predicting injuries for the whole squad, not player by player",
+        "suggests": "Today's injury-prediction models usually look at each player on their own. LIBRAIN suggests borrowing a kind of network used to forecast COVID-19 across linked regions: players become linked points (through shared training load, position or physical contact), and workload is tracked week by week. Injury risk would then reflect the team around each player, and the model could show which factors lie behind each warning.",
+        "test": "Compare it with player-by-player models on a club's training and injury records for a season: does it flag injuries earlier and more accurately?"
+      },
+      "tr": {
+        "title": "Sakatlığı tek tek oyuncular için değil, bütün kadro için tahmin etmek",
+        "suggests": "Bugünkü sakatlık tahmin modelleri çoğunlukla her oyuncuya tek başına bakıyor. LIBRAIN, COVID-19'u birbirine bağlı bölgeler üzerinden tahmin etmek için kullanılan bir ağ türünü ödünç almayı öneriyor: oyuncular ortak antrenman yükü, pozisyon ya da fiziksel temasla birbirine bağlı noktalar olur, iş yükü de hafta hafta izlenir. Böylece sakatlık riski oyuncunun çevresindeki takımı da yansıtır ve model her uyarının ardındaki etkenleri gösterebilir.",
+        "test": "Bir kulübün bir sezonluk antrenman ve sakatlık kayıtlarında oyuncu bazlı modellerle karşılaştırılır: sakatlıkları daha erken ve daha isabetli işaret ediyor mu?"
+      }
+    },
+    "S1": {
+      "en": {
+        "title": "A muscle-fatigue tracker whose battery lasts for days",
+        "suggests": "Skin sensors (surface EMG) can tell when a muscle is tiring. A recent paper detects this with spiking neural networks, which work in short electrical “spikes” as the brain does and use far less energy than ordinary networks. LIBRAIN suggests running them on neuromorphic chips, which are built for exactly this kind of network, so a battery-powered wearable could watch muscle fatigue non-stop for several days.",
+        "test": "Run the same fatigue model on an ordinary low-power chip and on a neuromorphic chip, then measure accuracy and battery life on athletes in real training."
+      },
+      "tr": {
+        "title": "Pili günlerce dayanan bir kas yorgunluğu takipçisi",
+        "suggests": "Cilde yerleştirilen sensörler (yüzey EMG) bir kasın yorulmaya başladığını anlayabilir. Yeni bir makale bunu, beyin gibi kısa elektriksel “atımlarla” çalışan ve sıradan ağlardan çok daha az enerji harcayan atımlı sinir ağlarıyla yapıyor. LIBRAIN, bu ağları tam da onlar için tasarlanan nöromorfik çiplerde çalıştırmayı öneriyor; böylece pille çalışan giyilebilir bir cihaz kas yorgunluğunu birkaç gün boyunca kesintisiz izleyebilir.",
+        "test": "Aynı yorgunluk modeli sıradan, düşük güçlü bir çipte ve nöromorfik bir çipte çalıştırılır; gerçek antrenmanlarda sporcular üzerinde isabet ve pil ömrü ölçülür."
+      }
+    },
+    "P5": {
+      "en": {
+        "title": "Translating code by reading its structure",
+        "suggests": "Tools such as TransCoder translate code between programming languages but read it as a flat string of words, although every program also has a tree-shaped structure (its syntax tree). LIBRAIN suggests running graph convolutional networks over that tree, so the translator grasps how the parts connect. This could help most when moving from languages that leave data types unstated, like Python, to ones that spell them out, like Java.",
+        "test": "Train both versions on the same code and compare how often their translations pass the original program's tests, especially from Python to Java."
+      },
+      "tr": {
+        "title": "Kodu yapısını okuyarak başka bir dile çevirmek",
+        "suggests": "TransCoder gibi araçlar kodu programlama dilleri arasında çeviriyor ama onu düz bir kelime dizisi gibi okuyor; oysa her programın ağaç biçiminde bir yapısı (sözdizimi ağacı) da vardır. LIBRAIN, bu ağaç üzerinde çizge evrişimli ağlar çalıştırmayı öneriyor; böylece çevirmen, parçaların birbirine nasıl bağlandığını kavrar. Bu, veri türlerini açıkça yazmayan Python gibi dillerden türleri açıkça yazan Java gibi dillere geçerken en çok işe yarayabilir.",
+        "test": "İki sürüm aynı kodla eğitilir; çevirilerinin özgün programın testlerinden ne sıklıkla geçtiği karşılaştırılır, özellikle Python'dan Java'ya çeviride."
+      }
+    },
+    "W5": {
+      "en": {
+        "title": "Learning web design by sketching",
+        "suggests": "Design2Code is a benchmark that tests how well AI turns a picture of a web page into working code. LIBRAIN suggests using such models as tutors on learning platforms, so beginners could build interactive pages from their own sketches before they know how to code. The idea names its own catch: on complex pages, today's best models still miss {claim_pct_range} of the page's blocks.",
+        "test": "Teach half of a beginners' class with the sketch-to-code tutor and half without it, then compare the pages they build and what they understand.",
+        "note_kind": "grounded",
+        "note": "The limit it states (models missing {claim_pct_range} of a page's blocks) comes straight from the Design2Code paper, so the checker marked the sentence green (GROUNDED, risk {grounded_score}). Green means “the papers say it”, not that the whole idea is proven."
+      },
+      "tr": {
+        "title": "Çizerek web tasarımı öğrenmek",
+        "suggests": "Design2Code, yapay zekânın bir web sayfasının görüntüsünü ne kadar iyi çalışan koda dönüştürdüğünü ölçen bir testtir. LIBRAIN, bu modellerin eğitim platformlarında öğretmen yardımcısı olarak kullanılmasını öneriyor; böylece yeni başlayanlar daha kod bilmeden kendi çizimlerinden etkileşimli sayfalar yapabilir. Fikir kendi zayıf noktasını da söylüyor: karmaşık sayfalarda bugünün en iyi modelleri bile blokların {claim_pct_range} kadarını kaçırıyor.",
+        "test": "Yeni başlayanlardan oluşan bir sınıfın yarısı çizimden koda yardımcısıyla, yarısı onsuz öğrenir; yaptıkları sayfalar ve ne kadar anladıkları karşılaştırılır.",
+        "note_kind": "grounded",
+        "note": "Söylediği sınır (modellerin sayfa bloklarının {claim_pct_range} kadarını kaçırması) doğrudan Design2Code makalesinden geliyor; bu yüzden denetleyici cümleyi yeşille işaretledi (KAYNAKLI, risk {grounded_score}). Yeşil “makalelerde yazıyor” demektir; fikrin tamamının kanıtlandığı anlamına gelmez."
+      }
+    },
+    "J5": {
+      "en": {
+        "title": "Coding assistants that try many answers and keep the one that works",
+        "suggests": "Studies of GitHub Copilot found that AI coding assistants help less experienced developers most, and AlphaCode solved contest problems by writing many candidate programs, testing them and keeping the best. LIBRAIN suggests bringing this “generate many, test, keep the best” approach into everyday pair-programming tools, so beginners get help with the hard reasoning too, which could widen their productivity gains.",
+        "test": "Repeat a controlled study like the Copilot one, giving developers of different experience the same tasks with either assistant, and compare time taken and how often the code works."
+      },
+      "tr": {
+        "title": "Pek çok cevabı deneyip çalışanı seçen kodlama asistanları",
+        "suggests": "GitHub Copilot üzerine yapılan çalışmalar, yapay zekâ kodlama asistanlarının en çok deneyimi az olan geliştiricilere yardım ettiğini gösterdi; AlphaCode ise yarışma sorularını çok sayıda aday program yazıp test ederek ve en iyisini seçerek çözdü. LIBRAIN, bu “çok üret, test et, en iyisini tut” yaklaşımını günlük eşli programlama araçlarına taşımayı öneriyor; böylece yeni başlayanlar işin zor düşünme kısmında da yardım alabilir ve verimlilik kazançları artabilir.",
+        "test": "Copilot çalışmasına benzer kontrollü bir deneyde, farklı deneyimdeki geliştiricilere aynı görevler iki asistandan biriyle verilir; harcanan süre ve kodun ne sıklıkla çalıştığı karşılaştırılır."
+      }
+    },
+    "J4": {
+      "en": {
+        "title": "Drug-research jobs may change faster than expected",
+        "suggests": "Data from millions of Claude conversations shows that AI is used mostly for software, writing and analysis, and still little in specialised fields, while AI agent teams such as PharmAgents take on more and more of drug discovery. LIBRAIN suggests that pharmaceutical research jobs may skip the slow, gradual adoption seen elsewhere and jump quickly from little to deep AI use, possibly faster than policy can adapt.",
+        "test": "Track AI-usage data for pharmaceutical R&D roles over the coming years and compare the speed of adoption with other occupations."
+      },
+      "tr": {
+        "title": "İlaç araştırması meslekleri beklenenden hızlı değişebilir",
+        "suggests": "Milyonlarca Claude konuşmasından elde edilen veriler, yapay zekânın en çok yazılım, yazı ve analiz işlerinde, uzmanlık alanlarında ise hâlâ az kullanıldığını gösteriyor; bu arada PharmAgents gibi yapay zekâ ajan ekipleri ilaç keşfinin giderek daha büyük bir kısmını üstleniyor. LIBRAIN, ilaç araştırma mesleklerinin başka alanlardaki yavaş ve kademeli geçişi atlayıp az kullanımdan yoğun kullanıma hızla, belki de politikaların yetişemeyeceği bir hızla sıçrayabileceğini öne sürüyor.",
+        "test": "Önümüzdeki yıllarda ilaç Ar-Ge rollerindeki yapay zekâ kullanım verileri izlenir; benimsenme hızı diğer mesleklerle karşılaştırılır."
+      }
+    }
+  },
+  "areas": {
+    "AI × football": {
+      "en": "AI × football",
+      "tr": "Yapay zekâ × futbol"
+    },
+    "AI × sport": {
+      "en": "AI × sport",
+      "tr": "Yapay zekâ × spor"
+    },
+    "AI × web development": {
+      "en": "AI × web development",
+      "tr": "Yapay zekâ × web geliştirme"
+    },
+    "Programming languages": {
+      "en": "Programming languages",
+      "tr": "Programlama dilleri"
+    },
+    "Future jobs": {
+      "en": "Future jobs",
+      "tr": "Geleceğin meslekleri"
+    }
+  },
+  "droppedAreas": {
+    "How people will live without money or work": {
+      "tr_area": "İnsanlar parasız ve işsiz nasıl yaşayacak?",
+      "tr_reason": "Listeye alınmadı. (1) “Parasız” ifadesi bu hâliyle mantıklı değil: her toplumun yiyeceği, barınmayı ve bakımı paylaştırmak için bir yola ihtiyacı vardır; evrensel temel gelir bile paradır. (2) İnsanların çalışmadan nasıl yaşaması gerektiği bir değerler ve politika sorusudur; literatüre dayanan bir hipotez motoru bunu çözemez. Üstelik arXiv'de bu konuda kanıt az; çıkacak sonuç, LIBRAIN'in tam da işaretlemek için var olduğu türden dayanaksız bir spekülasyon olurdu. Konunun araştırılabilir kısmı (yapay zekânın meslekleri nasıl değiştirdiği) “Geleceğin meslekleri” başlığında ele alınıyor."
+    }
+  }
+}

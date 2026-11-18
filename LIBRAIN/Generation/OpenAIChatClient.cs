@@ -33,6 +33,12 @@ public sealed class OpenAIChatClient(
 
         var result = await client.CompleteChatAsync(messages, opts, ct).ConfigureAwait(false);
         var completion = result.Value;
+        if (completion.FinishReason == ChatFinishReason.Length)
+        {
+            _logger.LogError("OpenAI chat ({Model}) truncated at the output token limit", model);
+            throw new InvalidOperationException(
+                $"OpenAI output ({model}) was truncated at the token limit; refusing to parse a partial response.");
+        }
         var text = completion.Content.Count > 0 ? completion.Content[0].Text : string.Empty;
         var input = completion.Usage?.InputTokenCount ?? 0;
         var output = completion.Usage?.OutputTokenCount ?? 0;

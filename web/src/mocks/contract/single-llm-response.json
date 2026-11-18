@@ -1,0 +1,13 @@
+{
+  "correlationId": "fd74400e-aefe-4009-a17c-cb04882270b6",
+  "hypothesis": "A plain-text hypothesis.",
+  "evaluation": {
+    "noveltyScore": 0.39999998,
+    "plausibilityScore": 0.7,
+    "structuralCoherenceScore": 0.9,
+    "qualityScore": 0.6666666
+  },
+  "totalElapsedMs": 0,
+  "inputTokens": 100,
+  "outputTokens": 20
+}

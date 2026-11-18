@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using Anthropic.SDK.Messaging;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Llm;
 using LIBRAIN.Models;
 using LIBRAIN.Storage;
 using Microsoft.Extensions.Options;
@@ -20,13 +20,13 @@ public sealed record SingleLlmResult(
 // hypothesis verbatim. Used as the "no-RAG, no-agents" lower bound for RQ1 / RQ3.
 public sealed class SingleLlmAgent(
     ILogger<SingleLlmAgent> logger,
-    AnthropicChatClient claude,
+    ILlmClient llm,
     NoveltyScorer noveltyScorer,
     DiscoveryEvaluatorAgent evaluator,
     IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<SingleLlmAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
     private readonly DiscoveryEvaluatorAgent _evaluator = evaluator;
     private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
@@ -41,9 +41,10 @@ public sealed class SingleLlmAgent(
     public async Task<SingleLlmResult> RunAsync(
         string topicA,
         string? topicB,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        Guid? correlationId = null)
     {
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
             ["correlationId"] = corrId,
@@ -53,24 +54,17 @@ public sealed class SingleLlmAgent(
         var totalSw = Stopwatch.StartNew();
         var userPrompt = BuildUserPrompt(topicA, topicB);
 
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, userPrompt) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPrompt) },
-            MaxTokens = 1024,
-            Model = _synthesisModel,
-            Temperature = 0.2m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: _synthesisModel,
+            SystemPrompt: SystemPrompt,
+            UserPrompt: userPrompt,
+            Temperature: 0.2m);
 
         var sw = Stopwatch.StartNew();
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CompleteAsync(request, ct).ConfigureAwait(false);
         var synthElapsedMs = sw.ElapsedMilliseconds;
 
-        var hypothesis = string.Join(
-            "",
-            res.Content.OfType<TextContent>().Select(t => t.Text)).Trim();
+        var hypothesis = res.Text.Trim();
 
         if (string.IsNullOrWhiteSpace(hypothesis))
         {
@@ -81,7 +75,7 @@ public sealed class SingleLlmAgent(
         _logger.LogInformation(
             "Single-LLM synthesis: input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens; hypothesisChars={HypothesisChars} in {ElapsedMs}ms",
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             hypothesis.Length, synthElapsedMs);
 
         // No novelClaim fence in this baseline → score the full hypothesis as the

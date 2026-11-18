@@ -9,19 +9,20 @@ public sealed class ReaderAgent(
     ILogger<ReaderAgent> logger,
     PdfTextExtractor extractor,
     RecursiveChunker chunker,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repository)
+    IEmbeddingClient embeddings,
+    IPaperStore repository)
 {
     private readonly ILogger<ReaderAgent> _logger = logger;
     private readonly PdfTextExtractor _extractor = extractor;
     private readonly RecursiveChunker _chunker = chunker;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repository = repository;
+    private readonly IEmbeddingClient _embeddings = embeddings;
+    private readonly IPaperStore _repository = repository;
 
     public async Task<IngestResult> IngestAsync(
         Stream pdfStream,
         string paperId,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        PaperMetadata? metadata = null)
     {
         var correlationId = Guid.NewGuid();
         using var scope = _logger.BeginScope(new Dictionary<string, object>
@@ -38,13 +39,16 @@ public sealed class ReaderAgent(
         if (chunks.Count == 0)
         {
             _logger.LogWarning("No chunks produced; nothing to persist");
-            return new IngestResult(paperId, 0, correlationId);
+            return new IngestResult(paperId, 0, correlationId, metadata?.Title ?? doc.Title);
         }
 
         var contents = chunks.Select(c => c.Content).ToArray();
         var vectors = await _embeddings.GenerateAsync(contents, ct);
 
-        var title = string.IsNullOrWhiteSpace(doc.Title) ? paperId : doc.Title;
+        var title = !string.IsNullOrWhiteSpace(metadata?.Title) ? metadata.Title
+            : string.IsNullOrWhiteSpace(doc.Title) ? paperId : doc.Title;
+        var authors = metadata?.Authors is { Count: > 0 } ? metadata.Authors : doc.Authors;
+        var year = metadata?.Year ?? doc.Year;
         var ingestedAt = DateTime.UtcNow;
         var records = new ChunkRecord[chunks.Count];
         for (int i = 0; i < chunks.Count; i++)
@@ -56,8 +60,8 @@ public sealed class ReaderAgent(
                 Content: c.Content,
                 Embedding: vectors[i],
                 Title: title,
-                Authors: doc.Authors,
-                Year: doc.Year,
+                Authors: authors,
+                Year: year,
                 Section: c.Section,
                 PageNumber: c.PageNumber,
                 IngestedAt: ingestedAt);
@@ -70,6 +74,6 @@ public sealed class ReaderAgent(
             chunks.Count,
             sw.ElapsedMilliseconds);
 
-        return new IngestResult(paperId, chunks.Count, correlationId);
+        return new IngestResult(paperId, chunks.Count, correlationId, title);
     }
 }

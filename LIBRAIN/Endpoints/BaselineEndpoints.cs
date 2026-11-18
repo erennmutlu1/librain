@@ -38,15 +38,25 @@ public static class BaselineEndpoints
     private const int MinTopK = 1;
     private const int MaxTopK = 20;
 
+    internal static SingleLlmResponse ToResponse(SingleLlmResult r) => new(
+        r.CorrelationId, r.Hypothesis, r.Evaluation, r.TotalElapsedMs, r.InputTokens, r.OutputTokens);
+
+    internal static NaiveRagResponse ToResponse(NaiveRagResult r) => new(
+        r.CorrelationId, r.Hypothesis, r.RetrievedChunkCount, r.ClaimedCitations, r.FabricatedCitationCount,
+        r.Evaluation, r.TotalElapsedMs, r.InputTokens, r.OutputTokens);
+
     public static void MapBaselineEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/single-llm", HandleSingleLlmAsync);
-        app.MapPost("/api/naive-rag", HandleNaiveRagAsync);
+        app.MapPost("/api/single-llm", HandleSingleLlmAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
+        app.MapPost("/api/naive-rag", HandleNaiveRagAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleSingleLlmAsync(
         SingleLlmRequest req,
         SingleLlmAgent agent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -69,20 +79,18 @@ public static class BaselineEndpoints
         }
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
-            var result = await agent.RunAsync(req.TopicA, req.TopicB, ct);
+            var result = await agent.RunAsync(req.TopicA, req.TopicB, ct, correlationId);
             logger.LogInformation(
                 "Single-LLM endpoint complete: quality={Quality:F4} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, sw.ElapsedMilliseconds, result.CorrelationId);
 
-            return Results.Ok(new SingleLlmResponse(
-                CorrelationId: result.CorrelationId,
-                Hypothesis: result.Hypothesis,
-                Evaluation: result.Evaluation,
-                TotalElapsedMs: result.TotalElapsedMs,
-                InputTokens: result.InputTokens,
-                OutputTokens: result.OutputTokens));
+            var response = ToResponse(result);
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.SingleLlm, LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), result.Evaluation.QualityScore, req, response, CancellationToken.None);
+            return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -92,13 +100,15 @@ public static class BaselineEndpoints
             return Results.Problem(
                 title: "Single-LLM baseline failed",
                 detail: $"The single-LLM baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 
     private static async Task<IResult> HandleNaiveRagAsync(
         NaiveRagRequest req,
         NaiveRagAgent agent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
@@ -130,24 +140,19 @@ public static class BaselineEndpoints
         }
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
-            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, req.CitationMode, ct);
+            var result = await agent.RunAsync(req.TopicA, req.TopicB, topK, req.CitationMode, ct, correlationId);
             logger.LogInformation(
                 "Naive-RAG endpoint complete: quality={Quality:F4} fabricated={FabricatedCount} claimed={ClaimedCount} in {ElapsedMs}ms (correlationId={CorrelationId})",
                 result.Evaluation.QualityScore, result.FabricatedCitationCount, result.ClaimedCitations.Count,
                 sw.ElapsedMilliseconds, result.CorrelationId);
 
-            return Results.Ok(new NaiveRagResponse(
-                CorrelationId: result.CorrelationId,
-                Hypothesis: result.Hypothesis,
-                RetrievedChunkCount: result.RetrievedChunkCount,
-                ClaimedCitations: result.ClaimedCitations,
-                FabricatedCitationCount: result.FabricatedCitationCount,
-                Evaluation: result.Evaluation,
-                TotalElapsedMs: result.TotalElapsedMs,
-                InputTokens: result.InputTokens,
-                OutputTokens: result.OutputTokens));
+            var response = ToResponse(result);
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.NaiveRag, LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), result.Evaluation.QualityScore, req, response, CancellationToken.None);
+            return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -157,7 +162,8 @@ public static class BaselineEndpoints
             return Results.Problem(
                 title: "Naive-RAG baseline failed",
                 detail: $"The naive-RAG baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 }

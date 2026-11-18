@@ -5,12 +5,12 @@ namespace LIBRAIN.Agents;
 
 public sealed class NoveltyScorer(
     ILogger<NoveltyScorer> logger,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repo)
+    IEmbeddingClient embeddings,
+    IPaperStore repo)
 {
     private readonly ILogger<NoveltyScorer> _logger = logger;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repo = repo;
+    private readonly IEmbeddingClient _embeddings = embeddings;
+    private readonly IPaperStore _repo = repo;
 
     public async Task<float> ScoreAsync(string novelClaim, CancellationToken ct = default)
     {

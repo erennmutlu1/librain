@@ -1,22 +1,20 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Models;
 using LIBRAIN.Storage;
 using Microsoft.Extensions.Options;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class SynthesisAgent(
     ILogger<SynthesisAgent> logger,
-    AnthropicChatClient claude,
+    ILlmClient llm,
     IOptions<ModelOptions> modelOptions)
 {
     private readonly ILogger<SynthesisAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
     private readonly string _synthesisModel = ModelSelection.SynthesisModel(modelOptions.Value);
 
     private const string SystemPromptText = """
@@ -50,8 +48,8 @@ public sealed class SynthesisAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitHypothesisTool =
-        new Function("submit_hypothesis", "Submit a citation-grounded hypothesis.", JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitHypothesisTool =
+        LlmTool.FromJsonSchema("submit_hypothesis", "Submit a citation-grounded hypothesis.", ToolSchemaJson);
 
     public async Task<SynthesisResult> SynthesizeAsync(
         string query,
@@ -78,47 +76,33 @@ public sealed class SynthesisAgent(
         }
 
         var sw = Stopwatch.StartNew();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(query, chunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitHypothesisTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_hypothesis" },
-            MaxTokens = 1024,
-            Model = _synthesisModel,
-            Temperature = 0.2m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: _synthesisModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(query, chunks),
+            Temperature: 0.2m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitHypothesisTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogWarning("Forced tool call did not fire (stopReason={StopReason})", res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block (correlationId={corrId}, stopReason={res.StopReason})");
-        }
+        var input = res.Input;
 
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Tool use block had null input (correlationId={corrId})");
-
-        var hypothesis = input["hypothesis"]?.GetValue<string>()
+        var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId})");
 
-        var rawIndices = input["citation_indices"]?.AsArray()
-            .Select(n => n!.GetValue<int>()).ToArray()
+        var indexArray = LlmJson.GetArray(input["citation_indices"])
             ?? throw new InvalidOperationException($"Missing 'citation_indices' (correlationId={corrId})");
+        // Non-integer entries map to 0, which SynthesisCitations.Validate already
+        // rejects as out of range (indices are 1-based), so they count as dropped.
+        var rawIndices = indexArray.Select(n => LlmJson.GetInt(n) ?? 0).ToArray();
 
         var validated = SynthesisCitations.Validate(rawIndices, chunks);
 
-        float? confidence = input["confidence"] is JsonNode confNode
-            ? (float)confNode.GetValue<double>()
+        float? confidence = LlmJson.GetDouble(input["confidence"]) is double conf
+            ? (float)conf
             : null;
 
-        var unsupported = input["unsupported_claims"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var unsupported = LlmJson.GetArray(input["unsupported_claims"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 
@@ -141,8 +125,8 @@ public sealed class SynthesisAgent(
             rawIndices.Length,
             res.Usage.InputTokens,
             res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens,
-            res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens,
+            res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
         return new SynthesisResult(hypothesis, validated, confidence, unsupported, corrId);
@@ -191,7 +175,8 @@ public static class SynthesisCitations
                 PaperId: hit.PaperId,
                 ChunkIndex: hit.ChunkIndex,
                 Section: hit.Section,
-                PageNumber: hit.PageNumber));
+                PageNumber: hit.PageNumber,
+                Content: hit.Content));
         }
         return result;
     }

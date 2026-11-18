@@ -1,0 +1,91 @@
+/* Layout shared by the run screens: a query bar on top, the result below. */
+
+.queryBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+
+.fields {
+  display: grid;
+  gap: var(--s3) var(--s4);
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 44rem) {
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .fieldsTopics {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 8rem;
+  }
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s3) var(--s4);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s3) var(--s4);
+}
+
+.small {
+  width: 8rem;
+}
+
+.formError {
+  font-size: var(--fs-sm);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.result {
+  margin-top: var(--s6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+}
+
+.kbd {
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.explainer {
+  margin-bottom: var(--s6);
+}
+
+.runMeta {
+  display: grid;
+  gap: var(--s3);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.runTitle {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-2xl);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}

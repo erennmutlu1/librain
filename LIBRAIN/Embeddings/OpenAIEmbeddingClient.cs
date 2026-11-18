@@ -7,7 +7,7 @@ namespace LIBRAIN.Embeddings;
 
 public sealed class OpenAIEmbeddingClient(
     ILogger<OpenAIEmbeddingClient> logger,
-    IOptions<OpenAIOptions> options)
+    IOptions<OpenAIOptions> options) : IEmbeddingClient
 {
     private const string Model = "text-embedding-3-small";
     private const int MaxInputsPerBatch = 100;

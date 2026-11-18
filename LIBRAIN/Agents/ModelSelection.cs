@@ -13,4 +13,8 @@ public static class ModelSelection
         string.IsNullOrWhiteSpace(options?.SynthesisModel)
             ? AnthropicModels.Claude46Sonnet
             : options.SynthesisModel.Trim();
+
+    // Evaluator, DiscoveryEvaluator and ClaimValidator are pinned to Claude Haiku 4.5
+    // so judge behaviour stays constant across synthesis-model substitution runs.
+    public static string JudgeModel => AnthropicModels.Claude45Haiku;
 }

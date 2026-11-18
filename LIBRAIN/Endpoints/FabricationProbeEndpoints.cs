@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Generation;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 
 namespace LIBRAIN.Endpoints;
@@ -54,13 +55,13 @@ public static class FabricationProbeEndpoints
 
     public static void MapFabricationProbeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/fabrication-probe", HandleAsync);
+        app.MapPost("/api/fabrication-probe", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
 
     private static async Task<IResult> HandleAsync(
         FabricationProbeRequest req,
-        OpenAIEmbeddingClient embeddings,
-        QdrantPaperRepository repo,
+        TopicRetriever retriever,
         OpenAIChatClient openai,
         ILogger<Program> logger,
         CancellationToken ct)
@@ -72,8 +73,12 @@ public static class FabricationProbeEndpoints
                 detail: "fabrication-probe currently supports provider='openai'.",
                 statusCode: StatusCodes.Status400BadRequest);
 
-        var corrId = Guid.NewGuid();
         var topK = req.TopK ?? DefaultTopK;
+        if (topK < 1 || topK > 20)
+            return Results.Problem(title: "topK out of range", detail: "The 'topK' field must be between 1 and 20.",
+                statusCode: StatusCodes.Status400BadRequest);
+
+        var corrId = Guid.NewGuid();
         var freeText = string.Equals(req.CitationMode, "free-text", StringComparison.OrdinalIgnoreCase);
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
@@ -82,17 +87,9 @@ public static class FabricationProbeEndpoints
         try
         {
             // Retrieval (identical to the agents): embed topics, search, dedup.
-            var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-            var topicEmbeddings = await embeddings.GenerateAsync(topicTexts, ct);
-            var hitsA = await repo.VectorSearchAsync(topicEmbeddings[0], topK, ct);
-            var hitsB = topicB is null
-                ? Array.Empty<SearchHit>()
-                : await repo.VectorSearchAsync(topicEmbeddings[1], topK, ct);
-
-            var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-            var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-            foreach (var h in hitsA) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
-            foreach (var h in hitsB) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
+            var retrieval = await retriever.RetrieveAsync(topicA, topicB, topK, ct);
+            var seenKeys = retrieval.Keys;
+            var dedup = retrieval.Union;
             if (dedup.Count == 0)
                 return Results.Problem(title: "no sources retrieved", statusCode: StatusCodes.Status400BadRequest);
 
@@ -115,12 +112,12 @@ public static class FabricationProbeEndpoints
             {
                 var json = NaiveRagCitations.ExtractJsonObject(text);
                 var node = json is null ? null : JsonNode.Parse(json);
-                hypothesis = node?["hypothesis"]?.GetValue<string>() ?? text;
+                hypothesis = LlmJson.GetString(node?["hypothesis"]) ?? text;
                 var parsed = new List<(string, int)>();
-                foreach (var c in node?["claimed_citations"]?.AsArray() ?? new JsonArray())
+                foreach (var c in LlmJson.GetArray(node?["claimed_citations"]) ?? new JsonArray())
                 {
-                    var pid = c?["paper_id"]?.GetValue<string>();
-                    var ci = c?["chunk_index"]?.GetValue<int>();
+                    var pid = LlmJson.GetString(c?["paper_id"]);
+                    var ci = LlmJson.GetInt(c?["chunk_index"]);
                     if (pid is not null && ci is not null) parsed.Add((pid, ci.Value));
                 }
                 var (res, fab) = NaiveRagCitations.Resolve(parsed, seenKeys);

@@ -4,28 +4,27 @@ using System.Text.Json.Nodes;
 using LIBRAIN.Agents;
 using LIBRAIN.Embeddings;
 using LIBRAIN.Endpoints;
+using LIBRAIN.Retrieval;
 using LIBRAIN.Storage;
 
 namespace LIBRAIN.Generation;
 
-// OpenAI-backed port of the REAL end-to-end Discovery pipeline (DiscoveryAgent +
-// DiscoveryEvaluator + ClaimValidator), used when Anthropic is unavailable. The LLM
-// calls swap to OpenAI (JSON output); ALL the model-agnostic logic is reused verbatim
-// from the Anthropic path: the citation-validation contract (supporting_evidence must
-// resolve to the retrieval set, else dropped), the novelClaim fence, extrapolation
-// basis validation, ClaimValidationScoring, EvaluationScoring, DiscoveryScoring,
-// NoveltyScorer. Produces the same DiscoverResponse. Does NOT touch the Anthropic path.
+// OpenAI-backed port of the end-to-end Discovery pipeline (DiscoveryAgent +
+// DiscoveryEvaluator + ClaimValidator), used for the cross-family experiments. The
+// LLM calls swap to OpenAI (JSON output); the model-agnostic rules are shared code
+// with the Anthropic path, not copies: DiscoveryContract (citation validation and
+// extrapolation-basis validation), ClaimValidationScoring.BuildResult,
+// EvaluationScoring, DiscoveryScoring and NoveltyScorer. Prompts are still separate
+// (shortened for JSON mode). Produces the same DiscoverResponse.
 public sealed class OpenAiDiscoveryAgent(
     ILogger<OpenAiDiscoveryAgent> logger,
     OpenAIChatClient openai,
-    OpenAIEmbeddingClient embeddings,
-    QdrantPaperRepository repo,
+    TopicRetriever retriever,
     NoveltyScorer noveltyScorer)
 {
     private readonly ILogger<OpenAiDiscoveryAgent> _logger = logger;
     private readonly OpenAIChatClient _openai = openai;
-    private readonly OpenAIEmbeddingClient _embeddings = embeddings;
-    private readonly QdrantPaperRepository _repo = repo;
+    private readonly TopicRetriever _retriever = retriever;
     private readonly NoveltyScorer _noveltyScorer = noveltyScorer;
 
     // Same Discovery contract as DiscoveryAgent.SystemPrompt; tail asks for JSON
@@ -82,9 +81,9 @@ public sealed class OpenAiDiscoveryAgent(
         {"claims": [{"sentence":"...","factuality_status":"GROUNDED","supporting_chunks":["paper:0"],"factual_hallucination_probability":0.0,"rationale":"..."}], "aggregate_risk": 0.0}
         """;
 
-    public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, string model, CancellationToken ct = default)
+    public async Task<DiscoverResponse> DiscoverAsync(DiscoverRequest req, string model, CancellationToken ct = default, Guid? correlationId = null)
     {
-        var corrId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
         var topicA = req.TopicA.Trim();
         var topicB = string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB!.Trim();
         var topK = req.TopK ?? 5;
@@ -92,14 +91,9 @@ public sealed class OpenAiDiscoveryAgent(
             throw new ArgumentException("topicA and topicB must differ.", nameof(req));
 
         // Retrieval — identical to DiscoveryAgent (first-seen dedup union).
-        var topicTexts = topicB is null ? new[] { topicA } : new[] { topicA, topicB };
-        var emb = await _embeddings.GenerateAsync(topicTexts, ct).ConfigureAwait(false);
-        var hitsA = await _repo.VectorSearchAsync(emb[0], topK, ct).ConfigureAwait(false);
-        var hitsB = topicB is null ? Array.Empty<SearchHit>() : await _repo.VectorSearchAsync(emb[1], topK, ct).ConfigureAwait(false);
-        var seenKeys = new HashSet<(string PaperId, int ChunkIndex)>();
-        var dedup = new List<SearchHit>(hitsA.Count + hitsB.Count);
-        foreach (var h in hitsA) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
-        foreach (var h in hitsB) if (seenKeys.Add((h.PaperId, h.ChunkIndex))) dedup.Add(h);
+        var retrieval = await _retriever.RetrieveAsync(topicA, topicB, topK, ct).ConfigureAwait(false);
+        var seenKeys = retrieval.Keys;
+        var dedup = retrieval.Union;
         if (dedup.Count == 0)
             throw new InvalidOperationException($"No sources retrieved (correlationId={corrId}).");
 
@@ -108,69 +102,39 @@ public sealed class OpenAiDiscoveryAgent(
         var input = (NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js) : null)
             ?? throw new InvalidOperationException($"OpenAI discovery returned no JSON object (correlationId={corrId}).");
 
-        var hypothesis = input["hypothesis"]?.GetValue<string>()
+        var hypothesis = LlmJson.GetString(input["hypothesis"])
             ?? throw new InvalidOperationException($"Missing 'hypothesis' (correlationId={corrId}).");
-        var novelClaim = input["novel_claim"]?.GetValue<string>() ?? string.Empty;
+        var novelClaim = LlmJson.GetString(input["novel_claim"]) ?? string.Empty;
         if (string.IsNullOrWhiteSpace(novelClaim))
             throw new InvalidOperationException($"Discovery contract violation: empty novel_claim (correlationId={corrId}).");
-        var reasoning = input["reasoning"]?.GetValue<string>() ?? string.Empty;
+        var reasoning = LlmJson.GetString(input["reasoning"]) ?? string.Empty;
 
-        // Citation-validation contract: drop supporting_evidence not in the retrieval set.
-        var rawEvidence = input["supporting_evidence"]?.AsArray() ?? new JsonArray();
-        var validatedEvidence = new List<SupportingEvidence>(rawEvidence.Count);
-        var citedHits = new List<SearchHit>(rawEvidence.Count);
-        int dropped = 0;
-        foreach (var node in rawEvidence)
-        {
-            var pid = node?["paper_id"]?.GetValue<string>();
-            var ci = node?["chunk_index"]?.GetValue<int>();
-            var st = node?["support_type"]?.GetValue<string>();
-            if (pid is null || ci is null || st is null || !seenKeys.Contains((pid, ci.Value))) { dropped++; continue; }
-            var hit = dedup.First(h => h.PaperId == pid && h.ChunkIndex == ci.Value);
-            validatedEvidence.Add(new SupportingEvidence(pid, ci.Value, hit.Section, hit.PageNumber, st));
-            citedHits.Add(hit);
-        }
-
-        // Extrapolation basis validation (same rules as DiscoveryAgent).
-        var rawBasis = input["extrapolation_basis"]?.AsArray() ?? new JsonArray();
-        var validatedBasis = new List<ExtrapolationBasis>(rawBasis.Count);
-        foreach (var node in rawBasis)
-        {
-            var cs = node?["claim_sentence"]?.GetValue<string>();
-            var bt = node?["basis_type"]?.GetValue<string>();
-            var rat = node?["rationale"]?.GetValue<string>();
-            var gid = node?["grounded_in_chunk_id"]?.GetValue<string?>();
-            if (string.IsNullOrWhiteSpace(cs) || string.IsNullOrWhiteSpace(bt) || string.IsNullOrWhiteSpace(rat)) continue;
-            bt = bt.Trim().ToLowerInvariant();
-            if (bt is not ("generalization" or "analogy" or "pure_speculation")) continue;
-            if (bt == "pure_speculation") { gid = null; }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(gid)) continue;
-                var parts = gid.Split(':');
-                if (parts.Length != 2 || !int.TryParse(parts[1], out var bci) || !seenKeys.Contains((parts[0], bci))) continue;
-            }
-            validatedBasis.Add(new ExtrapolationBasis(cs, bt, gid, rat));
-        }
-        if (validatedBasis.Count == 0)
-            validatedBasis.Add(new ExtrapolationBasis(novelClaim, "pure_speculation", null, "auto: model basis failed validation"));
+        // Same contract as the Anthropic path (shared code, not a copy).
+        var evidenceCheck = DiscoveryContract.ValidateEvidence(LlmJson.GetArray(input["supporting_evidence"]), dedup);
+        var validatedEvidence = evidenceCheck.Evidence;
+        var citedHits = evidenceCheck.CitedHits;
+        var dropped = evidenceCheck.Dropped;
+        var basisCheck = DiscoveryContract.ValidateBasisOrThrow(
+            LlmJson.GetArray(input["extrapolation_basis"]), seenKeys, corrId);
+        var validatedBasis = basisCheck.Basis;
 
         // Parallel scoring (same as the Anthropic path), all on OpenAI/embeddings.
-        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, ct);
-        var evalTask = EvaluateAsync(hypothesis, novelClaim, citedHits, model, ct);
-        var claimsTask = ValidateClaimsAsync(novelClaim, dedup, model, ct);
-        await Task.WhenAll(noveltyTask, evalTask, claimsTask).ConfigureAwait(false);
+        using var scoringCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var noveltyTask = _noveltyScorer.ScoreAsync(novelClaim, scoringCts.Token);
+        var evalTask = EvaluateAsync(hypothesis, novelClaim, citedHits, model, scoringCts.Token);
+        var claimsTask = ValidateClaimsAsync(novelClaim, dedup, model, scoringCts.Token);
+        await ParallelScoring.WhenAllCancelOnFault(scoringCts, noveltyTask, evalTask, claimsTask).ConfigureAwait(false);
 
         var (plausibility, coherence) = evalTask.Result;
         var evaluation = DiscoveryScoring.Aggregate(noveltyTask.Result, plausibility, coherence);
 
         _logger.LogInformation(
             "OpenAI discovery ({Model}): evidence={Ev}/{Raw} dropped={Drop} novelty={N:F3} plausibility={P:F2} coherence={C:F2} quality={Q:F3} aggRisk={R:F2} (corr={Corr})",
-            model, validatedEvidence.Count, rawEvidence.Count, dropped, evaluation.NoveltyScore, plausibility, coherence,
+            model, validatedEvidence.Count, evidenceCheck.Claimed, dropped, evaluation.NoveltyScore, plausibility, coherence,
             evaluation.QualityScore, claimsTask.Result.AggregateRisk, corrId);
 
         return new DiscoverResponse(corrId, hypothesis, validatedEvidence, novelClaim, validatedBasis,
-            claimsTask.Result, reasoning, evaluation, rawEvidence.Count, dropped);
+            claimsTask.Result, reasoning, evaluation, evidenceCheck.Claimed, dropped);
     }
 
     private async Task<(float Plausibility, float Coherence)> EvaluateAsync(
@@ -188,9 +152,9 @@ public sealed class OpenAiDiscoveryAgent(
             sb.AppendLine().AppendLine(c.Content).AppendLine();
         }
         var (text, _, _) = await _openai.CompleteAsync(EvaluatorSystem, sb.ToString(), model, 0.0f, ct).ConfigureAwait(false);
-        var node = NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js) : null;
-        return (EvaluationScoring.Clamp01(node?["plausibility"]?.GetValue<double>()),
-                EvaluationScoring.Clamp01(node?["structural_coherence"]?.GetValue<double>()));
+        var node = ParseJsonObject(text, "discovery evaluation");
+        return (EvaluationScoring.RequireScore(LlmJson.GetDouble(node["plausibility"]), "plausibility"),
+                EvaluationScoring.RequireScore(LlmJson.GetDouble(node["structural_coherence"]), "structural_coherence"));
     }
 
     private async Task<ClaimValidationResult> ValidateClaimsAsync(
@@ -209,30 +173,27 @@ public sealed class OpenAiDiscoveryAgent(
             sb.AppendLine().AppendLine(c.Content).AppendLine();
         }
         var (text, _, _) = await _openai.CompleteAsync(ClaimValidatorSystem, sb.ToString(), model, 0.0f, ct).ConfigureAwait(false);
-        var node = NaiveRagCitations.ExtractJsonObject(text) is string js ? JsonNode.Parse(js) : null;
-        var rawClaims = node?["claims"]?.AsArray() ?? new JsonArray();
+        var node = ParseJsonObject(text, "claim validation");
         var retrievedKeys = new HashSet<string>(retrievedChunks.Select(c => $"{c.PaperId}:{c.ChunkIndex}"));
-
-        var entries = new List<ClaimValidationEntry>(rawClaims.Count);
-        var probs = new List<float>(rawClaims.Count);
-        foreach (var n in rawClaims)
+        var (result, stats) = ClaimValidationScoring.BuildResult(LlmJson.GetArray(node["claims"]), retrievedKeys);
+        if (result.ValidationFailed)
         {
-            var sentence = n?["sentence"]?.GetValue<string>();
-            var rationale = n?["rationale"]?.GetValue<string>();
-            if (string.IsNullOrWhiteSpace(sentence) || string.IsNullOrWhiteSpace(rationale)) continue;
-            var status = ClaimValidationScoring.ParseStatus(n?["factuality_status"]?.GetValue<string>());
-            var prob = ClaimValidationScoring.ClampProbability(n?["factual_hallucination_probability"]?.GetValue<double?>());
-            var claimed = new List<string>();
-            foreach (var ch in n?["supporting_chunks"]?.AsArray() ?? new JsonArray())
-            {
-                var id = ch?.GetValue<string>();
-                if (!string.IsNullOrWhiteSpace(id)) claimed.Add(id);
-            }
-            var valid = ClaimValidationScoring.FilterSupportingChunks(claimed, retrievedKeys);
-            entries.Add(new ClaimValidationEntry(sentence, status, valid, prob, rationale));
-            probs.Add(prob);
+            _logger.LogError(
+                "OpenAI claim validator returned no usable claim entries ({RequestedCount} requested); aggregateRisk=1.0 (fail closed)",
+                stats.Requested);
         }
-        return new ClaimValidationResult(entries, ClaimValidationScoring.AggregateRisk(probs));
+        return result;
+    }
+
+    // No JSON object in a judge/validator reply is an invalid response. It used to be
+    // read as "no scores" (0 / zero risk); now it fails loudly like the Anthropic path
+    // does when the forced tool call is missing.
+    private static JsonNode ParseJsonObject(string text, string purpose)
+    {
+        var json = NaiveRagCitations.ExtractJsonObject(text)
+            ?? throw new InvalidOperationException($"OpenAI {purpose} reply contained no JSON object.");
+        return JsonNode.Parse(json)
+            ?? throw new InvalidOperationException($"OpenAI {purpose} reply contained an empty JSON value.");
     }
 
     private static string BuildSourcesPrompt(string topicA, string? topicB, IReadOnlyList<SearchHit> chunks)

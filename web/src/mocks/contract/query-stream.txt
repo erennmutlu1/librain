@@ -1,0 +1,18 @@
+event: progress
+data: {"stage":"retrieving","message":"Searching the corpus","count":null}
+
+event: progress
+data: {"stage":"retrieved","message":"Found 2 passages","count":2}
+
+event: progress
+data: {"stage":"generating","message":"Writing a citation-grounded answer","count":null}
+
+event: progress
+data: {"stage":"validated","message":"2 citation(s) resolved to retrieved passages","count":2}
+
+event: progress
+data: {"stage":"evaluating","message":"Judging groundedness, relevance and completeness","count":null}
+
+event: result
+data: {"correlationId":"b1de8539-93b9-41df-bcad-f3265c63cbb9","hypothesis":"Graph message passing explains GraphCast's skill at medium-range forecasting [1][2].","citations":[{"index":1,"paperId":"graphcast","chunkIndex":1,"section":"Intro","pageNumber":1,"content":"GraphCast forecasts weather with graph neural networks."},{"index":2,"paperId":"graphcast","chunkIndex":2,"section":"Method","pageNumber":3,"content":"Message passing over a multi-mesh."}],"synthesisConfidence":0.8,"evaluation":{"qualityScore":0.7833333,"groundednessScore":0.9,"relevanceScore":0.85,"completenessScore":0.6,"critique":"Grounded in both cited passages.","unsupportedClaims":[],"missingEvidence":["No error metrics cited."]}}
+

@@ -9,7 +9,7 @@ using Qdrant.Client.Grpc;
 
 namespace LIBRAIN.Storage;
 
-public sealed class QdrantPaperRepository
+public sealed class QdrantPaperRepository : IPaperStore
 {
     private const string DefaultCollectionName = "librain_chunks";
     private const ulong VectorSize = 1536;
@@ -55,6 +55,20 @@ public sealed class QdrantPaperRepository
         // is the practical bound. ~50 chunks/paper × 1536 floats × 4 bytes ≈ 312KB, well under.
         await _client.UpsertAsync(_collectionName, points, cancellationToken: ct).ConfigureAwait(false);
 
+        // Re-ingest hygiene. Chunk ids are deterministic (paperId + chunkIndex), so
+        // the upsert above overwrites chunks 0..n-1, but if the new version of a
+        // paper has fewer chunks the old tail used to stay in the index and keep
+        // showing up in retrieval. Delete it. Runs after the upsert, so a failure
+        // here can never leave a paper with fewer chunks than it should have.
+        foreach (var paper in chunks.GroupBy(c => c.PaperId))
+        {
+            var firstStaleIndex = paper.Max(c => c.ChunkIndex) + 1;
+            var staleTail = new Filter();
+            staleTail.Must.Add(Conditions.MatchKeyword("paperId", paper.Key));
+            staleTail.Must.Add(Conditions.Range("chunkIndex", new Qdrant.Client.Grpc.Range { Gte = firstStaleIndex }));
+            await _client.DeleteAsync(_collectionName, staleTail, cancellationToken: ct).ConfigureAwait(false);
+        }
+
         _logger.LogInformation(
             "Persisted {ChunkCount} chunk(s) in {ElapsedMs}ms",
             points.Length,
@@ -96,12 +110,26 @@ public sealed class QdrantPaperRepository
         return hits;
     }
 
+    public async Task<int> DeletePaperAsync(string paperId, CancellationToken ct = default)
+    {
+        await _initialization.Value.ConfigureAwait(false);
+
+        var byPaper = new Filter();
+        byPaper.Must.Add(Conditions.MatchKeyword("paperId", paperId));
+        var count = await _client.CountAsync(_collectionName, byPaper, exact: true, cancellationToken: ct).ConfigureAwait(false);
+        if (count == 0) return 0;
+
+        await _client.DeleteAsync(_collectionName, byPaper, cancellationToken: ct).ConfigureAwait(false);
+        _logger.LogInformation("Deleted paper {PaperId} ({ChunkCount} chunks)", paperId, count);
+        return (int)count;
+    }
+
     public async Task<IReadOnlyList<PaperSummary>> ListPapersAsync(CancellationToken ct = default)
     {
         await _initialization.Value.ConfigureAwait(false);
 
         var sw = Stopwatch.StartNew();
-        var byPaperId = new Dictionary<string, (string? Title, int Count, DateTime? Earliest)>();
+        var byPaperId = new Dictionary<string, (string? Title, int Count, DateTime? Earliest, IReadOnlyList<string>? Authors, int? Year)>();
 
         PointId? offset = null;
         const uint pageSize = 256;
@@ -123,6 +151,12 @@ public sealed class QdrantPaperRepository
                 }
                 var paperId = idVal.StringValue;
                 var title = point.Payload.TryGetValue("title", out var t) ? t.StringValue : null;
+                IReadOnlyList<string>? authors = point.Payload.TryGetValue("authors", out var au) && au.ListValue is { } list
+                    ? list.Values.Select(v => v.StringValue).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()
+                    : null;
+                int? year = point.Payload.TryGetValue("year", out var y) && y.KindCase == Value.KindOneofCase.IntegerValue
+                    ? (int)y.IntegerValue
+                    : null;
                 DateTime? ingestedAt = null;
                 if (point.Payload.TryGetValue("ingestedAt", out var ia)
                     && DateTime.TryParse(
@@ -140,11 +174,12 @@ public sealed class QdrantPaperRepository
                         && (existing.Earliest is null || ingestedAt < existing.Earliest)
                             ? ingestedAt
                             : existing.Earliest;
-                    byPaperId[paperId] = (existing.Title ?? title, existing.Count + 1, earliest);
+                    byPaperId[paperId] = (existing.Title ?? title, existing.Count + 1, earliest,
+                        existing.Authors ?? authors, existing.Year ?? year);
                 }
                 else
                 {
-                    byPaperId[paperId] = (title, 1, ingestedAt);
+                    byPaperId[paperId] = (title, 1, ingestedAt, authors, year);
                 }
             }
 
@@ -156,7 +191,8 @@ public sealed class QdrantPaperRepository
         }
 
         var summaries = byPaperId
-            .Select(kv => new PaperSummary(kv.Key, kv.Value.Title, kv.Value.Count, kv.Value.Earliest))
+            .Select(kv => new PaperSummary(kv.Key, kv.Value.Title, kv.Value.Count, kv.Value.Earliest, kv.Value.Authors, kv.Value.Year))
+            .OrderBy(p => p.PaperId, StringComparer.Ordinal)
             .ToList();
 
         _logger.LogInformation(

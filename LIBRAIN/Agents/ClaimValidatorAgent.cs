@@ -1,11 +1,8 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Storage;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
@@ -18,10 +15,10 @@ namespace LIBRAIN.Agents;
 // Phase 2 Evaluator pattern).
 public sealed class ClaimValidatorAgent(
     ILogger<ClaimValidatorAgent> logger,
-    AnthropicChatClient claude)
+    ILlmClient llm)
 {
     private readonly ILogger<ClaimValidatorAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
 
     private const string SystemPromptText = """
         You are a claim-level factuality validator. You are given the novel_claim
@@ -91,11 +88,8 @@ public sealed class ClaimValidatorAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitClaimValidationTool =
-        new Function(
-            "submit_claim_validation",
-            "Submit a per-sentence factuality validation of novel_claim against retrieved evidence.",
-            JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitClaimValidationTool =
+        LlmTool.FromJsonSchema("submit_claim_validation", "Submit a per-sentence factuality validation of novel_claim against retrieved evidence.", ToolSchemaJson);
 
     public async Task<ClaimValidationResult> ValidateAsync(
         string novelClaim,
@@ -110,107 +104,44 @@ public sealed class ClaimValidatorAgent(
             return new ClaimValidationResult(Array.Empty<ClaimValidationEntry>(), 0f);
         }
 
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(novelClaim, retrievedChunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitClaimValidationTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_claim_validation" },
-            MaxTokens = 1024,
-            Model = AnthropicModels.Claude45Haiku,
-            Temperature = 0.0m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: ModelSelection.JudgeModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(novelClaim, retrievedChunks),
+            Temperature: 0.0m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitClaimValidationTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogError(
-                "Claim validator: forced tool call did not fire (stopReason={StopReason})",
-                res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block for claim validation (stopReason={res.StopReason})");
-        }
+        var input = res.Input;
 
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            "Claim validator tool use block had null input.");
-
-        var rawClaims = input["claims"]?.AsArray() ?? new JsonArray();
         var retrievedKeys = new HashSet<string>(
             retrievedChunks.Select(c => $"{c.PaperId}:{c.ChunkIndex}"));
+        var (result, stats) = ClaimValidationScoring.BuildResult(
+            LlmJson.GetArray(input["claims"]), retrievedKeys);
 
-        var parsedEntries = new List<ClaimValidationEntry>(rawClaims.Count);
-        var probabilities = new List<float>(rawClaims.Count);
-        int dropped = 0;
-        int filteredChunkRefs = 0;
-        int riskyCount = 0;
-        int extrapolatedCount = 0;
-        int groundedCount = 0;
-
-        foreach (var node in rawClaims)
-        {
-            if (node is null) { dropped++; continue; }
-            var sentence = node["sentence"]?.GetValue<string>();
-            var rationale = node["rationale"]?.GetValue<string>();
-            if (string.IsNullOrWhiteSpace(sentence) || string.IsNullOrWhiteSpace(rationale))
-            {
-                dropped++;
-                continue;
-            }
-
-            var rawStatus = node["factuality_status"]?.GetValue<string>();
-            var status = ClaimValidationScoring.ParseStatus(rawStatus);
-
-            var rawProb = node["factual_hallucination_probability"]?.GetValue<double?>();
-            var probability = ClaimValidationScoring.ClampProbability(rawProb);
-
-            var rawChunks = node["supporting_chunks"]?.AsArray() ?? new JsonArray();
-            var claimedChunkIds = new List<string>(rawChunks.Count);
-            foreach (var chunkNode in rawChunks)
-            {
-                var chunkId = chunkNode?.GetValue<string>();
-                if (!string.IsNullOrWhiteSpace(chunkId)) claimedChunkIds.Add(chunkId);
-            }
-            var validChunks = ClaimValidationScoring.FilterSupportingChunks(claimedChunkIds, retrievedKeys);
-            filteredChunkRefs += claimedChunkIds.Count - validChunks.Count;
-
-            parsedEntries.Add(new ClaimValidationEntry(
-                Sentence: sentence,
-                Status: status,
-                SupportingChunks: validChunks,
-                FactualHallucinationProbability: probability,
-                Rationale: rationale));
-            probabilities.Add(probability);
-
-            switch (status)
-            {
-                case ClaimFactualityStatus.Grounded: groundedCount++; break;
-                case ClaimFactualityStatus.Extrapolated: extrapolatedCount++; break;
-                case ClaimFactualityStatus.Risky: riskyCount++; break;
-            }
-        }
-
-        var aggregateRisk = ClaimValidationScoring.AggregateRisk(probabilities);
-
-        if (dropped > 0 || filteredChunkRefs > 0)
+        if (stats.Dropped > 0 || stats.FilteredChunkRefs > 0)
         {
             _logger.LogWarning(
                 "Claim validator: dropped {DroppedCount} invalid claim entry(ies) of {RequestedCount}; filtered {FilteredChunks} out-of-set supporting chunk reference(s)",
-                dropped, rawClaims.Count, filteredChunkRefs);
+                stats.Dropped, stats.Requested, stats.FilteredChunkRefs);
+        }
+
+        if (result.ValidationFailed)
+        {
+            _logger.LogError(
+                "Claim validator returned no usable claim entries ({RequestedCount} requested); marking validation failed with aggregateRisk=1.0 (fail closed)",
+                stats.Requested);
         }
 
         _logger.LogInformation(
-            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
-            parsedEntries.Count, groundedCount, extrapolatedCount, riskyCount,
-            aggregateRisk,
+            "Claim validation: claims={ClaimCount} (grounded={Grounded} extrapolated={Extrapolated} risky={Risky}); aggregateRisk={AggregateRisk:F3} validationFailed={ValidationFailed} (input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
+            result.Claims.Count, stats.Grounded, stats.Extrapolated, stats.Risky,
+            result.AggregateRisk, result.ValidationFailed,
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
-        return new ClaimValidationResult(parsedEntries, aggregateRisk);
+        return result;
     }
 
     private static string BuildUserPrompt(string novelClaim, IReadOnlyList<SearchHit> retrievedChunks)

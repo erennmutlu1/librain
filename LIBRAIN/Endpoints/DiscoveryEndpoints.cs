@@ -15,7 +15,9 @@ public sealed record SupportingEvidence(
     int ChunkIndex,
     string? Section,
     int? PageNumber,
-    string SupportType);
+    string SupportType,
+    // The cited passage. Optional so results saved before it existed still deserialize.
+    string? Content = null);
 
 // Per-sentence self-annotation the DiscoveryAgent must produce alongside novel_claim.
 // BasisType is one of: "generalization" (extends retrieved evidence to a new case),
@@ -62,40 +64,72 @@ public static class DiscoveryEndpoints
 
     public static void MapDiscoveryEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/discover", HandleAsync);
+        app.MapPost("/api/discover", HandleAsync)
+            .RequireRateLimiting(Guards.PaidPolicy);
     }
+
+    // Routes to the Anthropic pipeline (default) or the OpenAI cross-family port.
+    internal static Task<DiscoverResponse> RunAsync(
+        DiscoverRequest normalized, DiscoveryAgent agent, LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
+        Action<LIBRAIN.Pipelines.PipelineProgress>? progress, CancellationToken ct, Guid? correlationId = null)
+    {
+        if (string.Equals(normalized.Provider, "openai", StringComparison.OrdinalIgnoreCase))
+        {
+            progress?.Invoke(new(LIBRAIN.Pipelines.PipelineStages.Generating, "Running the OpenAI port of the Discovery pipeline"));
+            return openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(normalized.Model) ? "gpt-4o" : normalized.Model!, ct, correlationId);
+        }
+        return agent.DiscoverAsync(normalized, ct, progress, correlationId);
+    }
+
+    internal const int MaxTopicChars = 500;
+
+    internal static IResult? Validate(DiscoverRequest req, out int topK)
+    {
+        topK = req.TopK ?? DefaultTopK;
+        if (string.IsNullOrWhiteSpace(req.TopicA))
+            return Results.Problem(title: "topicA is required",
+                detail: "The 'topicA' field must be a non-empty string.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.TopicA.Length > MaxTopicChars || req.TopicB?.Length > MaxTopicChars)
+            return Results.Problem(title: "topic too long",
+                detail: $"Topics must be at most {MaxTopicChars} characters.", statusCode: StatusCodes.Status400BadRequest);
+        if (!string.IsNullOrWhiteSpace(req.TopicB)
+            && string.Equals(req.TopicA.Trim(), req.TopicB.Trim(), StringComparison.Ordinal))
+            return Results.Problem(title: "topicA and topicB must differ",
+                detail: "If topicB is supplied it must differ from topicA after trimming.", statusCode: StatusCodes.Status400BadRequest);
+        if (topK < MinTopK || topK > MaxTopK)
+            return Results.Problem(title: "topK out of range",
+                detail: $"The 'topK' field must be between {MinTopK} and {MaxTopK}.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.Provider is not null && !req.Provider.Equals("anthropic", StringComparison.OrdinalIgnoreCase)
+            && !req.Provider.Equals("openai", StringComparison.OrdinalIgnoreCase))
+            return Results.Problem(title: "unknown provider",
+                detail: "provider must be 'anthropic' (default) or 'openai'.", statusCode: StatusCodes.Status400BadRequest);
+        if (req.Model is not null && !AllowedOpenAiModels.Contains(req.Model))
+            return Results.Problem(title: "model not allowed",
+                detail: $"model must be one of: {string.Join(", ", AllowedOpenAiModels)}.", statusCode: StatusCodes.Status400BadRequest);
+        return null;
+    }
+
+    // Callers could previously pick ANY OpenAI model id (and its price). Restrict to the
+    // models the cross-family experiments actually use.
+    internal static readonly IReadOnlySet<string> AllowedOpenAiModels =
+        new HashSet<string>(StringComparer.Ordinal) { "gpt-4o", "gpt-4o-mini" };
 
     private static async Task<IResult> HandleAsync(
         DiscoverRequest req,
         DiscoveryAgent agent,
         LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
+        LIBRAIN.Runs.RunRecorder recorder,
         ILogger<Program> logger,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(req.TopicA))
-        {
-            return Results.Problem(
-                title: "topicA is required",
-                detail: "The 'topicA' field must be a non-empty string.",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
-
-        var topK = req.TopK ?? DefaultTopK;
-        if (topK < MinTopK || topK > MaxTopK)
-        {
-            return Results.Problem(
-                title: "topK out of range",
-                detail: $"The 'topK' field must be between {MinTopK} and {MaxTopK}.",
-                statusCode: StatusCodes.Status400BadRequest);
-        }
+        if (Validate(req, out var topK) is { } invalid) return invalid;
 
         var sw = Stopwatch.StartNew();
+        var correlationId = Guid.NewGuid();
         try
         {
             var normalized = req with { TopK = topK };
-            var response = string.Equals(req.Provider, "openai", StringComparison.OrdinalIgnoreCase)
-                ? await openaiAgent.DiscoverAsync(normalized, string.IsNullOrWhiteSpace(req.Model) ? "gpt-4o" : req.Model!, ct)
-                : await agent.DiscoverAsync(normalized, ct);
+            var response = await RunAsync(normalized, agent, openaiAgent, progress: null, ct, correlationId);
 
             using var scope = logger.BeginScope(new Dictionary<string, object>
             {
@@ -108,6 +142,10 @@ public static class DiscoveryEndpoints
                 topK,
                 sw.ElapsedMilliseconds);
 
+            // Persist even if the client has gone: the run was already paid for.
+            await recorder.TryRecordAsync(response.CorrelationId, LIBRAIN.Runs.RunKinds.Discover,
+                LIBRAIN.Runs.RunRecorder.TopicTitle(req.TopicA, req.TopicB), response.Evaluation.QualityScore,
+                normalized, response, CancellationToken.None);
             return Results.Ok(response);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -119,7 +157,8 @@ public static class DiscoveryEndpoints
             return Results.Problem(
                 title: "Upstream API error",
                 detail: $"The discovery pipeline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
         }
     }
 }

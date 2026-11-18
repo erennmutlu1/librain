@@ -4,6 +4,11 @@ public sealed record AnthropicOptions
 {
     public const string SectionName = "Anthropic";
     public string ApiKey { get; init; } = string.Empty;
+
+    // Cap on simultaneous Claude requests from this process. A Discovery run makes up
+    // to three at once; the cap keeps several concurrent users (or an experiment batch)
+    // from bursting into rate-limit errors.
+    public int MaxConcurrentRequests { get; init; } = 4;
 }
 
 public sealed record OpenAIOptions
@@ -36,4 +41,23 @@ public sealed record ModelOptions
     // model-substitution robustness run without editing source. Evaluators and
     // ClaimValidator stay pinned to Haiku 4.5 and do not read this option.
     public string SynthesisModel { get; init; } = string.Empty;
+}
+
+public sealed record SecurityOptions
+{
+    public const string SectionName = "Security";
+
+    // When set, every /api request must send this value in the X-Api-Key header.
+    // Leave empty for local use; set it before exposing the API publicly so nobody
+    // else can spend the LLM credit.
+    public string ApiKey { get; init; } = string.Empty;
+}
+
+public sealed record RateLimitingOptions
+{
+    public const string SectionName = "RateLimiting";
+
+    // Paid requests (anything that calls an LLM or the embedding API) allowed per client
+    // IP per hour. 0 disables the limiter (default, for local use).
+    public int PaidRequestsPerHour { get; init; }
 }

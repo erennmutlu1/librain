@@ -1,0 +1,233 @@
+/*
+ * Featured discoveries. Each card is one recorded run: the two topics it
+ * bridges as the title (the "×" hangs in the margin so both topics share one
+ * left edge), the takeaway, score chips and a quiet provenance footer. The
+ * whole card is the link's hit area; the link itself carries the name.
+ */
+
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+}
+
+.galleryTitle {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-2xl);
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  font-variation-settings: 'opsz' 48;
+}
+
+.lede {
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+.framing {
+  max-width: 68ch;
+  padding-left: var(--s3);
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.framing strong {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.legend {
+  margin-top: var(--s2);
+}
+
+/* ---------- Cards ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+}
+
+@media (min-width: 42rem) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 66rem) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s5) var(--s4);
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  min-width: 0;
+  padding: var(--s4) var(--s5) var(--s3);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+}
+
+.card:hover {
+  border-color: var(--rule-strong);
+}
+
+.placeholder {
+  min-height: 15rem;
+}
+
+.title {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-lg);
+  line-height: 1.28;
+  font-variation-settings: 'opsz' 24;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--ink);
+}
+
+.card:hover .link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+}
+
+/* Stretch the link over the card, and draw its focus ring around the card. */
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-md);
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.link:focus-visible::after {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.topic {
+  display: block;
+  position: relative;
+}
+
+.topic + .topic {
+  margin-top: 0.15em;
+}
+
+/* Out of flow, so topic B starts on topic A's left edge. */
+.cross {
+  position: absolute;
+  left: -0.95em;
+  top: -0.02em;
+  font-family: var(--font-ui);
+  font-size: 1.05em;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.takeaway {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.1em 0.5em;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.chip b {
+  font-weight: 650;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.chip[data-tone='mid'] {
+  border-color: color-mix(in srgb, var(--extrapolated) 55%, transparent);
+}
+
+.chip[data-tone='high'] {
+  border-color: color-mix(in srgb, var(--risky) 55%, transparent);
+}
+
+.risky {
+  background: var(--risky-wash);
+  border-color: color-mix(in srgb, var(--risky) 45%, transparent);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.risky > svg {
+  flex: none;
+}
+
+.bridges {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.bridgesLabel {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.errorBody {
+  display: grid;
+  gap: var(--s2);
+}
+
+.exploreLink {
+  margin-top: var(--s4);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}

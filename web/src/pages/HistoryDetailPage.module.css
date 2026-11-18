@@ -1,0 +1,68 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: var(--s5);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.kind {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+}
+
+.compareTitle {
+  font-family: var(--font-text);
+  font-weight: 500;
+  font-size: var(--fs-2xl);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.spaced {
+  margin-top: var(--s5);
+}
+
+.confirm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--danger);
+  background: var(--danger-wash);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+}

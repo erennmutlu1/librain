@@ -1,20 +1,17 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using Anthropic.SDK.Common;
-using Anthropic.SDK.Constants;
-using Anthropic.SDK.Messaging;
+using LIBRAIN.Llm;
 using LIBRAIN.Storage;
-using AnthropicTool = Anthropic.SDK.Common.Tool;
 
 namespace LIBRAIN.Agents;
 
 public sealed class EvaluatorAgent(
     ILogger<EvaluatorAgent> logger,
-    AnthropicChatClient claude)
+    ILlmClient llm)
 {
     private readonly ILogger<EvaluatorAgent> _logger = logger;
-    private readonly AnthropicChatClient _claude = claude;
+    private readonly ILlmClient _llm = llm;
 
     private const string SystemPromptText = """
         You are an evaluator for a research-synthesis system. You will be given a user
@@ -56,8 +53,8 @@ public sealed class EvaluatorAgent(
         }
         """;
 
-    private static readonly AnthropicTool SubmitEvaluationTool =
-        new Function("submit_evaluation", "Submit a multi-dimensional evaluation of a hypothesis.", JsonNode.Parse(ToolSchemaJson)!);
+    private static readonly LlmTool SubmitEvaluationTool =
+        LlmTool.FromJsonSchema("submit_evaluation", "Submit a multi-dimensional evaluation of a hypothesis.", ToolSchemaJson);
 
     public async Task<EvaluationResult> EvaluateAsync(
         string query,
@@ -102,39 +99,23 @@ public sealed class EvaluatorAgent(
         }
 
         var sw = Stopwatch.StartNew();
-        var parameters = new MessageParameters
-        {
-            Messages = new List<Message> { new Message(RoleType.User, BuildUserPrompt(query, hypothesis, chunks)) },
-            System = new List<SystemMessage> { new SystemMessage(SystemPromptText) },
-            Tools = new List<AnthropicTool> { SubmitEvaluationTool },
-            ToolChoice = new ToolChoice { Type = ToolChoiceType.Tool, Name = "submit_evaluation" },
-            MaxTokens = 1024,
-            Model = AnthropicModels.Claude45Haiku,
-            Temperature = 0.0m,
-            Stream = false,
-            PromptCaching = PromptCacheType.AutomaticToolsAndSystem,
-        };
+        var request = new LlmRequest(
+            Model: ModelSelection.JudgeModel,
+            SystemPrompt: SystemPromptText,
+            UserPrompt: BuildUserPrompt(query, hypothesis, chunks),
+            Temperature: 0.0m);
 
-        var res = await _claude.ChatAsync(parameters, ct).ConfigureAwait(false);
+        var res = await _llm.CallToolAsync(request, SubmitEvaluationTool, ct).ConfigureAwait(false);
 
-        var toolUse = res.Content.OfType<ToolUseContent>().FirstOrDefault();
-        if (toolUse is null)
-        {
-            _logger.LogWarning("Forced tool call did not fire (stopReason={StopReason})", res.StopReason);
-            throw new InvalidOperationException(
-                $"Claude did not emit a tool_use block (correlationId={corrId}, stopReason={res.StopReason})");
-        }
+        var input = res.Input;
 
-        var input = toolUse.Input ?? throw new InvalidOperationException(
-            $"Tool use block had null input (correlationId={corrId})");
+        var rawG = LlmJson.GetDouble(input["groundedness_score"]);
+        var rawR = LlmJson.GetDouble(input["relevance_score"]);
+        var rawC = LlmJson.GetDouble(input["completeness_score"]);
 
-        var rawG = input["groundedness_score"]?.GetValue<double>();
-        var rawR = input["relevance_score"]?.GetValue<double>();
-        var rawC = input["completeness_score"]?.GetValue<double>();
-
-        var groundedness = EvaluationScoring.Clamp01(rawG);
-        var relevance = EvaluationScoring.Clamp01(rawR);
-        var completeness = EvaluationScoring.Clamp01(rawC);
+        var groundedness = EvaluationScoring.RequireScore(rawG, "groundedness_score");
+        var relevance = EvaluationScoring.RequireScore(rawR, "relevance_score");
+        var completeness = EvaluationScoring.RequireScore(rawC, "completeness_score");
         var quality = EvaluationScoring.Aggregate(groundedness, relevance, completeness);
 
         int clampedCount = 0;
@@ -148,15 +129,15 @@ public sealed class EvaluatorAgent(
                 clampedCount);
         }
 
-        var critique = input["critique"]?.GetValue<string>() ?? string.Empty;
+        var critique = LlmJson.GetString(input["critique"]) ?? string.Empty;
 
-        var unsupported = input["unsupported_claims"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var unsupported = LlmJson.GetArray(input["unsupported_claims"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 
-        var missing = input["missing_evidence"]?.AsArray()
-            .Select(n => n?.GetValue<string>() ?? string.Empty)
+        var missing = LlmJson.GetArray(input["missing_evidence"])?
+            .Select(n => LlmJson.GetString(n) ?? string.Empty)
             .Where(s => !string.IsNullOrEmpty(s))
             .ToArray() ?? Array.Empty<string>();
 
@@ -164,7 +145,7 @@ public sealed class EvaluatorAgent(
             "Evaluated hypothesis (q={QualityScore:F2} g={Groundedness:F2} r={Relevance:F2} c={Completeness:F2}; input={InputTokens} output={OutputTokens} cacheRead={CacheRead} cacheCreate={CacheCreate} tokens) in {ElapsedMs}ms",
             quality, groundedness, relevance, completeness,
             res.Usage.InputTokens, res.Usage.OutputTokens,
-            res.Usage.CacheReadInputTokens, res.Usage.CacheCreationInputTokens,
+            res.Usage.CacheReadTokens, res.Usage.CacheCreationTokens,
             sw.ElapsedMilliseconds);
 
         return new EvaluationResult(
@@ -212,6 +193,19 @@ public static class EvaluationScoring
         if (v < 0.0) return 0f;
         if (v > 1.0) return 1f;
         return (float)v;
+    }
+
+    // A judge score that is missing or non-numeric is an invalid response, not a
+    // score of 0. Recording it as 0 used to look like a real worst score and pulled
+    // aggregates down silently; failing loudly lets the caller retry or drop the run.
+    public static float RequireScore(double? raw, string field)
+    {
+        if (raw is not double v || double.IsNaN(v))
+        {
+            throw new InvalidOperationException(
+                $"Judge response is missing a numeric '{field}' score; refusing to record it as 0.");
+        }
+        return Clamp01(v);
     }
 
     public static float Aggregate(float groundedness, float relevance, float completeness)

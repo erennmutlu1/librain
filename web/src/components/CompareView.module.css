@@ -1,0 +1,279 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s7);
+}
+
+[data-system='librain'] {
+  --sys: var(--sys-librain);
+}
+
+[data-system='naiveRag'] {
+  --sys: var(--sys-naive);
+}
+
+[data-system='singleLlm'] {
+  --sys: var(--sys-single);
+}
+
+.swatch {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--sys);
+  margin-right: 0.45em;
+  vertical-align: 0.05em;
+}
+
+/* ---------- Explainer ---------- */
+
+.explainer {
+  display: grid;
+  gap: var(--s4);
+}
+
+@media (min-width: 52rem) {
+  .explainer {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s5);
+  }
+}
+
+.explainerItem dt {
+  font-weight: 650;
+  font-size: var(--fs-sm);
+}
+
+.explainerItem dd {
+  margin: var(--s1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+/* ---------- Score table ---------- */
+
+.tableWrap {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--fs-sm);
+}
+
+.axisHead {
+  width: 30%;
+}
+
+.sysHead {
+  text-align: left;
+  font-weight: 650;
+  padding: 0 var(--s2) var(--s2);
+  border-bottom: 1px solid var(--rule-strong);
+  vertical-align: bottom;
+}
+
+.axis {
+  text-align: left;
+  font-weight: 600;
+  padding: var(--s3) var(--s2) var(--s3) 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.axisHint {
+  display: block;
+  font-weight: 400;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.cell {
+  padding: var(--s3) var(--s2);
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.textCell {
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+}
+
+.cellInner {
+  display: grid;
+  gap: var(--s1);
+}
+
+.cellValue {
+  font-weight: 500;
+}
+
+.cellValue[data-best] {
+  font-weight: 750;
+}
+
+.bar {
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--sys);
+}
+
+.cellSkeleton {
+  display: block;
+  height: 0.8rem;
+  width: 70%;
+  border-radius: var(--r-sm);
+  background: var(--track);
+}
+
+.fabCount {
+  color: var(--danger);
+}
+
+@media (max-width: 30rem) {
+  .axisHead {
+    width: 34%;
+  }
+
+  .axisHint {
+    display: none;
+  }
+
+  .sysHead,
+  .cell {
+    padding-inline: var(--s1);
+  }
+}
+
+/* ---------- Columns ---------- */
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+}
+
+@media (min-width: 64rem) {
+  .columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s5);
+  }
+}
+
+.column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  align-content: start;
+  padding-top: var(--s3);
+  border-top: 3px solid var(--sys);
+  min-width: 0;
+}
+
+.columnTitle {
+  font-size: var(--fs-md);
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+}
+
+.hypothesis {
+  font-family: var(--font-text);
+  font-size: var(--fs-md);
+  line-height: 1.6;
+}
+
+.block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+}
+
+.blockTitle {
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.note,
+.stats {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+/* ---------- Naive-RAG citations ---------- */
+
+.citations {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s2);
+}
+
+.citeSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--fs-sm);
+}
+
+.inconsistent {
+  font-size: var(--fs-xs);
+  color: var(--warning-ink);
+}
+
+.citeList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s1);
+}
+
+.cite {
+  display: grid;
+  gap: 0.1rem;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.cite[data-fabricated] {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.citeKey {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.cite[data-fabricated] .citeKey {
+  color: var(--danger);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.citeStatus {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.cite[data-fabricated] .citeStatus {
+  color: var(--danger);
+  font-weight: 650;
+}

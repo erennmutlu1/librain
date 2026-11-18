@@ -1,0 +1,184 @@
+/*
+ * Design tokens. Every colour in the app is referenced through these roles so
+ * light and dark mode swap in one place.
+ *
+ * Status hues (grounded / extrapolated / risky) and system hues (LIBRAIN /
+ * Naive-RAG / Single-LLM) were checked with a CVD + contrast validator against
+ * the surfaces below, all pairs, in both modes. Status is never carried by
+ * colour alone: each status also has an underline style and an icon + label.
+ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces and ink */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f4;
+  --ink: #141b2d;
+  --ink-2: #434d60;
+  --ink-3: #5d6779;
+  --rule: #d9dee5;
+  --rule-strong: #b6bfcb;
+
+  /* Proof blue: interactive elements, links, focus */
+  --accent: #1c5da6;
+  --accent-hover: #164b88;
+  --accent-ink: #ffffff;
+  --accent-wash: #e4edf8;
+  --focus-ring: #1c5da6;
+
+  /* Claim status */
+  --grounded: #00809a;
+  --grounded-wash: #d9eff3;
+  --extrapolated: #b87400;
+  --extrapolated-wash: #fbedcf;
+  --risky: #c2236a;
+  --risky-wash: #fadbe8;
+
+  /* Feedback */
+  --danger: #b4233c;
+  --danger-wash: #fce4e7;
+  --warning-ink: #7a4b00;
+  --warning-wash: #fdf1d6;
+  --success: #1d7a4a;
+
+  /* Systems (Compare) */
+  --sys-librain: #2a78d6;
+  --sys-naive: #eb6834;
+  --sys-single: #1baf7a;
+
+  /* Meter track */
+  --track: #e3e7ec;
+
+  /*
+   * Explore categories: the eight categorical hues above (Compare uses the
+   * first three), plus a neutral for the catch-all "New cross-field pairings".
+   * A category is never shown by colour alone: its icon and name go with it.
+   */
+  --cat-d: #2a78d6;
+  --cat-a: #008300;
+  --cat-c: #6250d6;
+  --cat-n: #7d8796;
+  --cat-f: #eb6834;
+  --cat-s: #eda100;
+  --cat-w: #1baf7a;
+  --cat-p: #e87ba4;
+  --cat-j: #e34948;
+
+  /* Type */
+  --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-text: 'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.1875rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.875rem;
+  --fs-3xl: 2.5rem;
+
+  /* Space (4px grid) */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+  --s8: 4rem;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+
+  --shadow-panel: 0 1px 2px rgb(20 27 45 / 0.06), 0 8px 24px rgb(20 27 45 / 0.08);
+
+  --page-max: 76rem;
+  --gutter: clamp(1rem, 3vw, 2rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0f141a;
+    --surface: #161c24;
+    --surface-sunken: #121820;
+    --ink: #e8ecf1;
+    --ink-2: #b9c1cc;
+    --ink-3: #8f99a7;
+    --rule: #2a3340;
+    --rule-strong: #3d4858;
+    --accent: #7db1ee;
+    --accent-hover: #a3c8f4;
+    --accent-ink: #0f141a;
+    --accent-wash: #1a2b40;
+    --focus-ring: #7db1ee;
+    --grounded: #1e96b0;
+    --grounded-wash: rgb(30 150 176 / 0.2);
+    --extrapolated: #c08410;
+    --extrapolated-wash: rgb(192 132 16 / 0.22);
+    --risky: #e0508a;
+    --risky-wash: rgb(224 80 138 / 0.22);
+    --danger: #f07d8f;
+    --danger-wash: rgb(240 125 143 / 0.14);
+    --warning-ink: #f0c36a;
+    --warning-wash: rgb(192 132 16 / 0.16);
+    --success: #5fcf93;
+    --sys-librain: #3987e5;
+    --sys-naive: #d95926;
+    --sys-single: #199e70;
+    --track: #252e3a;
+    --cat-d: #3987e5;
+    --cat-a: #0ca30c;
+    --cat-c: #9085e9;
+    --cat-n: #8f99a7;
+    --cat-f: #d95926;
+    --cat-s: #c98500;
+    --cat-w: #199e70;
+    --cat-p: #d55181;
+    --cat-j: #e66767;
+    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f141a;
+  --surface: #161c24;
+  --surface-sunken: #121820;
+  --ink: #e8ecf1;
+  --ink-2: #b9c1cc;
+  --ink-3: #8f99a7;
+  --rule: #2a3340;
+  --rule-strong: #3d4858;
+  --accent: #7db1ee;
+  --accent-hover: #a3c8f4;
+  --accent-ink: #0f141a;
+  --accent-wash: #1a2b40;
+  --focus-ring: #7db1ee;
+  --grounded: #1e96b0;
+  --grounded-wash: rgb(30 150 176 / 0.2);
+  --extrapolated: #c08410;
+  --extrapolated-wash: rgb(192 132 16 / 0.22);
+  --risky: #e0508a;
+  --risky-wash: rgb(224 80 138 / 0.22);
+  --danger: #f07d8f;
+  --danger-wash: rgb(240 125 143 / 0.14);
+  --warning-ink: #f0c36a;
+  --warning-wash: rgb(192 132 16 / 0.16);
+  --success: #5fcf93;
+  --sys-librain: #3987e5;
+  --sys-naive: #d95926;
+  --sys-single: #199e70;
+  --track: #252e3a;
+  --cat-d: #3987e5;
+  --cat-a: #0ca30c;
+  --cat-c: #9085e9;
+  --cat-n: #8f99a7;
+  --cat-f: #d95926;
+  --cat-s: #c98500;
+  --cat-w: #199e70;
+  --cat-p: #d55181;
+  --cat-j: #e66767;
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+}

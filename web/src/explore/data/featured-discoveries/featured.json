@@ -1,0 +1,44 @@
+{
+  "model": "claude-sonnet-4-6 (generation), claude-haiku-4-5 (judge, claim validator)",
+  "corpus": "41 papers, 1,766 chunks (local Qdrant)",
+  "date": "2026-11-18",
+  "topK": 5,
+  "featured": [
+    {
+      "id": "D7",
+      "takeaway": "A multi-agent system chooses which DFT calculations to run next, so catalyst models trained on OC20 extend to the multi-adsorbate and solvation regimes the dataset leaves out.",
+      "whyFeatured": "Specific, quantified gap (OC20 covers ~0.07% of configurations) with a concrete mechanism to close it; testable.",
+      "file": "runs/D7.json"
+    },
+    {
+      "id": "C1",
+      "takeaway": "Epidemic ODE constraints become features an LLM agent can search over, so infectious-disease trial-outcome models predict from mechanistic quantities such as trial-specific reproduction numbers.",
+      "whyFeatured": "The least obvious bridge in the set: compartmental-model physics inside an LLM agent's feature search.",
+      "file": "runs/C1.json"
+    },
+    {
+      "id": "N3",
+      "takeaway": "A mesh-based graph simulator, as used for physics, is trained on epidemic dynamics so it generalises across infection seeds, population densities and interventions and supports real-time counterfactual policy runs.",
+      "whyFeatured": "Transfers a property GNS is known for (generalising across initial conditions) to epidemics; draws on three papers.",
+      "file": "runs/N3.json"
+    },
+    {
+      "id": "A2",
+      "takeaway": "A CLIP-style model pretrained on paired satellite imagery and text estimates crop yield zero-shot, prompted with natural-language descriptions of crop conditions.",
+      "whyFeatured": "Clear, testable zero-shot claim that would remove the labelled-yield bottleneck if it holds.",
+      "file": "runs/A2.json"
+    },
+    {
+      "id": "D5",
+      "takeaway": "CGCNN serves as a fast surrogate inside an agentic discovery loop, so candidate crystal structures are proposed, scored and refined in silico before any DFT calculation.",
+      "whyFeatured": "Concrete loop design with a named surrogate; drawn from three papers across materials science and agentic AI.",
+      "file": "runs/D5.json"
+    },
+    {
+      "id": "D1",
+      "takeaway": "Self-RAG critique tokens go inside every PharmAgents agent, so each stage retrieves on demand and passes token-level quality signals downstream. The validator flags the claim about beating PharmAgents' 37.94% success rate as risky.",
+      "whyFeatured": "Shows the audit working: a confident numeric claim beyond the evidence is flagged RISKY (0.72).",
+      "file": "runs/D1.json"
+    }
+  ]
+}

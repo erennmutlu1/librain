@@ -1,0 +1,215 @@
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s7);
+}
+
+/* ---------- Tiles ---------- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+}
+
+@media (min-width: 52rem) {
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  display: grid;
+  align-content: start;
+  gap: var(--s1);
+  padding: var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  min-width: 0;
+}
+
+.tileLabel {
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.tileValue {
+  font-family: var(--font-text);
+  font-size: clamp(var(--fs-2xl), 4vw, var(--fs-3xl));
+  font-weight: 500;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-variation-settings: 'opsz' 72;
+}
+
+.tileUnit {
+  font-family: var(--font-ui);
+  font-size: 0.45em;
+  color: var(--ink-3);
+  font-weight: 550;
+}
+
+.tileNote {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+/* ---------- Charts ---------- */
+
+.charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Rates ---------- */
+
+.rates {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+  max-width: 44rem;
+}
+
+.rate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label value'
+    'track track'
+    'note note';
+  gap: var(--s1) var(--s3);
+  align-items: baseline;
+}
+
+.rateLabel {
+  grid-area: label;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.rateValue {
+  grid-area: value;
+  font-family: var(--font-text);
+  font-size: var(--fs-xl);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.rateOf {
+  font-family: var(--font-ui);
+  font-size: 0.62em;
+  color: var(--ink-3);
+}
+
+.rateTrack {
+  grid-area: track;
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.rateFill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.rateNote {
+  grid-area: note;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.contract {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  max-width: 44rem;
+  margin-top: var(--s2);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--success);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+}
+
+.contract > svg {
+  flex: none;
+  margin-top: 0.2em;
+  color: var(--success);
+}
+
+.contract strong {
+  font-weight: 650;
+}
+
+/* ---------- Cost ---------- */
+
+.cost {
+  display: grid;
+  gap: var(--s3);
+  max-width: 44rem;
+}
+
+.costLead {
+  color: var(--ink-2);
+}
+
+.costTotal {
+  font-family: var(--font-text);
+  font-size: var(--fs-2xl);
+  font-weight: 500;
+  color: var(--ink);
+  margin-right: var(--s1);
+}
+
+.costList {
+  display: grid;
+  gap: var(--s1);
+  padding-left: 1.1rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+/* ---------- Dropped area ---------- */
+
+.dropped {
+  display: grid;
+  gap: var(--s2);
+  max-width: 62ch;
+  padding: var(--s4);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r-md);
+}
+
+.droppedArea {
+  font-family: var(--font-text);
+  font-size: var(--fs-lg);
+  color: var(--ink);
+}
+
+.droppedReason {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.back a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}

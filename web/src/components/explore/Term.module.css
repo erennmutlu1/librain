@@ -1,0 +1,60 @@
+.root {
+  position: relative;
+  display: inline;
+}
+
+/* Reads as text with a dotted underline; the tooltip is the affordance. */
+.term {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--ink-3);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.term:hover {
+  text-decoration-color: var(--accent);
+}
+
+.term:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.tip {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  top: calc(100% + 0.4rem);
+  width: max-content;
+  max-width: min(17rem, calc(100vw - 2rem));
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  font-weight: 450;
+  font-style: normal;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: normal;
+  pointer-events: none;
+}
+
+.tip[hidden] {
+  display: none;
+}

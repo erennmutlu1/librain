@@ -1,0 +1,27 @@
+{
+  "correlationId": "52c6b7b7-a121-49b1-9ba8-0c20c93d7e55",
+  "hypothesis": "Graph message passing explains GraphCast\u0027s skill at medium-range forecasting [1][2].",
+  "retrievedChunkCount": 3,
+  "claimedCitations": [
+    {
+      "paperId": "graphcast",
+      "chunkIndex": 1,
+      "isResolved": true
+    },
+    {
+      "paperId": "pangu-weather",
+      "chunkIndex": 4,
+      "isResolved": false
+    }
+  ],
+  "fabricatedCitationCount": 1,
+  "evaluation": {
+    "noveltyScore": 0.39999998,
+    "plausibilityScore": 0.7,
+    "structuralCoherenceScore": 0.9,
+    "qualityScore": 0.6666666
+  },
+  "totalElapsedMs": 0,
+  "inputTokens": 100,
+  "outputTokens": 50
+}

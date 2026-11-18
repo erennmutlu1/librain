@@ -1,0 +1,6 @@
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "topicA is required",
+  "status": 400,
+  "detail": "The \u0027topicA\u0027 field must be a non-empty string."
+}

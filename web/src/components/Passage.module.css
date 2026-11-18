@@ -1,0 +1,43 @@
+.root {
+  display: grid;
+  justify-items: start;
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.quote {
+  margin: 0;
+  padding-left: var(--s3);
+  border-left: 2px solid var(--rule-strong);
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.root[data-compact] .quote {
+  font-size: var(--fs-xs);
+}
+
+.quote[data-clamped] {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toggle {
+  border: 0;
+  background: none;
+  padding: var(--s1) 0;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.toggle:hover {
+  text-decoration: underline;
+}
