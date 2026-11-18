@@ -18,8 +18,17 @@ export const text = strings({
     exportAll: 'Export all runs',
     exporting: 'Exporting…',
     clear: 'Clear history',
-    deleteAll: (n: string) => `Delete all ${n}`,
+    /** Clearing deletes every saved run; `everyKind` says so when the table shows one kind. */
+    deleteAll: (n: number | null, f: string, everyKind: boolean) =>
+      n === null
+        ? 'Delete every saved run'
+        : n === 1
+          ? 'Delete the 1 saved run'
+          : everyKind
+            ? `Delete all ${f} runs of every kind`
+            : `Delete all ${f} runs`,
     keep: 'Keep',
+    cleared: 'History cleared.',
     emptyAll: 'No runs yet',
     emptyKind: (kind: string) => `No ${kind} runs yet`,
     runDiscovery: 'Run a discovery',
@@ -58,8 +67,16 @@ export const text = strings({
     exportAll: 'Tüm çalıştırmaları dışa aktar',
     exporting: 'Dışa aktarılıyor…',
     clear: 'Geçmişi temizle',
-    deleteAll: (n: string) => `${n} çalıştırmanın tümünü sil`,
+    deleteAll: (n: number | null, f: string, everyKind: boolean) =>
+      n === null
+        ? 'Kayıtlı tüm çalıştırmaları sil'
+        : n === 1
+          ? 'Kayıtlı 1 çalıştırmayı sil'
+          : everyKind
+            ? `Tüm türlerdeki ${f} çalıştırmayı sil`
+            : `${f} çalıştırmanın tümünü sil`,
     keep: 'Vazgeç',
+    cleared: 'Geçmiş temizlendi.',
     emptyAll: 'Henüz çalıştırma yok',
     emptyKind: (kind: string) => `Henüz ${kind} çalıştırması yok`,
     runDiscovery: 'Bir keşif çalıştırın',

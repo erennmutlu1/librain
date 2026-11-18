@@ -28,6 +28,34 @@ export function checkTopicForm(form: TopicForm): CheckedTopics | { error: FormEr
   return topicB ? { topicA, topicB, topK } : { topicA, topK };
 }
 
+/** The topic form's fields, as TopicFields names them. */
+export type TopicFormField = 'a' | 'b' | 'topK';
+
+/** The id TopicFields gives a field, so a page can move focus to it. */
+export function topicFieldId(prefix: string, field: TopicFormField): string {
+  return `${prefix}-${field}`;
+}
+
+/**
+ * Which field a topic-form error is about, so the message can sit under it:
+ * a missing Topic A, the topic that is too long, Topic B when it repeats
+ * Topic A, and the passage count. Null for errors from other forms.
+ */
+export function topicErrorField(error: FormError, form: TopicForm): TopicFormField | null {
+  switch (error) {
+    case 'topicRequired':
+      return 'a';
+    case 'topicTooLong':
+      return form.topicA.trim().length > MAX_TOPIC_CHARS ? 'a' : 'b';
+    case 'topicsSame':
+      return 'b';
+    case 'topKRange':
+      return 'topK';
+    default:
+      return null;
+  }
+}
+
 /** A form error in the reader's language. */
 export function formErrorText(t: (typeof text)['en'], error: FormError): string {
   const message = t.errors[error];

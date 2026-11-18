@@ -1,0 +1,52 @@
+/* The key panel's own bits; the panel itself is styled by SettingsMenu.module.css. */
+
+/* A key that does not look like the provider's: the hint turns into a warning (icon and weight, not colour alone). */
+.warn {
+  display: inline-flex;
+  gap: var(--s1);
+  align-items: baseline;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.warn > svg {
+  flex: none;
+  align-self: center;
+}
+
+/* The key fields: the shared input, with the ring offset and a 44 px target on touch. */
+.keyInput:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+@media (pointer: coarse) {
+  .keyInput {
+    min-height: 2.75rem;
+  }
+}
+
+/* Where to get a key: a link of its own under the hint, not part of it. */
+.getKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  justify-self: start;
+  min-height: 1.75rem;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.getKey:hover {
+  color: var(--ink);
+}
+
+@media (pointer: coarse) {
+  .getKey {
+    min-height: 2.75rem;
+  }
+}

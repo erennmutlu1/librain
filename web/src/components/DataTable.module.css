@@ -35,8 +35,13 @@
   padding-left: 2.25rem;
 }
 
+.searchInput:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
 .search:focus-within .searchIcon {
-  color: var(--accent);
+  color: var(--ink);
 }
 
 .filters {
@@ -49,7 +54,7 @@
 .count {
   margin-left: auto;
   font-size: var(--fs-xs);
-  font-weight: 550;
+  font-weight: 500;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -72,7 +77,7 @@
   min-width: 0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
 }
 
 @media (min-width: 40rem) {
@@ -82,14 +87,22 @@
 }
 
 .scroller:focus-visible {
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-/* `separate` so the sticky header keeps its bottom rule while it sticks. */
+/*
+ * A hairline frame with 8 px corners. `separate` so the sticky header keeps
+ * its bottom rule while it sticks; the corners are rounded on the corner
+ * cells, since clipping the table would stop the header sticking.
+ */
 .table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--surface);
   font-size: var(--fs-sm);
   font-variant-numeric: tabular-nums;
 }
@@ -101,9 +114,17 @@
   padding: 0;
   text-align: left;
   vertical-align: bottom;
-  background: var(--bg);
-  border-bottom: 1px solid var(--rule-strong);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--rule);
   white-space: nowrap;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: calc(var(--r-md) - 1px);
+}
+
+.table thead th:last-child {
+  border-top-right-radius: calc(var(--r-md) - 1px);
 }
 
 .table [data-numeric] {
@@ -115,21 +136,18 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  min-height: 2.5rem;
-  padding: var(--s2);
+  min-height: 2.25rem;
+  padding: var(--s2) var(--s3);
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
   font: inherit;
   font-size: var(--fs-xs);
-  font-weight: 650;
-  letter-spacing: 0.02em;
-  color: var(--ink-3);
+  font-weight: 600;
+  color: var(--ink-2);
   cursor: pointer;
   text-align: inherit;
-  transition:
-    color 120ms ease,
-    background-color 120ms ease;
+  transition: color 120ms ease;
 }
 
 /* Right-aligned columns put the arrow on the left, so the label lines up with the numbers. */
@@ -139,17 +157,14 @@ th[data-numeric] .sortButton {
 
 .sortButton:hover {
   color: var(--ink);
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 
 .sortButton:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: -2px;
-  box-shadow: var(--glow-accent);
 }
 
-th[aria-sort='ascending'] .sortButton,
-th[aria-sort='descending'] .sortButton {
+th[aria-sort] .sortButton {
   color: var(--ink);
 }
 
@@ -158,51 +173,60 @@ th[aria-sort='descending'] .sortButton {
   opacity: 0.45;
 }
 
-th[aria-sort='ascending'] .sortIcon,
-th[aria-sort='descending'] .sortIcon {
+th[aria-sort] .sortIcon {
   opacity: 1;
-  color: var(--accent);
 }
 
 .headerText {
   display: block;
-  padding: var(--s2);
-  min-height: 2.5rem;
-  line-height: calc(2.5rem - 2 * var(--s2));
+  padding: var(--s2) var(--s3);
+  min-height: 2.25rem;
+  line-height: calc(2.25rem - 2 * var(--s2));
   font-size: var(--fs-xs);
-  font-weight: 650;
-  letter-spacing: 0.02em;
-  color: var(--ink-3);
+  font-weight: 600;
+  color: var(--ink-2);
 }
 
+/* Rows: about 37 px for one line of text, a hairline between them. */
 .table tbody > tr > th,
 .table tbody > tr > td {
-  padding: var(--s3) var(--s2);
+  padding: var(--s2) var(--s3);
   border-bottom: 1px solid var(--rule);
   vertical-align: top;
   text-align: left;
   font-weight: inherit;
+  line-height: 1.5;
   color: var(--ink);
   transition: background-color 120ms ease;
+}
+
+.table tbody > tr:last-child > * {
+  border-bottom: 0;
+}
+
+.table tbody > tr:last-child > :first-child {
+  border-bottom-left-radius: calc(var(--r-md) - 1px);
+}
+
+.table tbody > tr:last-child > :last-child {
+  border-bottom-right-radius: calc(var(--r-md) - 1px);
 }
 
 .table tbody > tr > [data-numeric] {
   text-align: right;
 }
 
-/* Hover is a faint wash; a focused link or button inside the row lights its edge. */
+/* Hover is a faint wash; a focused link or button inside the row marks its edge in the focus colour. */
 .table tbody > tr:hover > * {
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  background: var(--surface-sunken);
 }
 
 .table tbody > tr:focus-within > * {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  background: var(--accent-wash);
 }
 
 .table tbody > tr:focus-within > :first-child {
-  box-shadow:
-    inset 2px 0 0 var(--focus-ring),
-    inset 10px 0 12px -10px var(--focus-ring);
+  box-shadow: inset 2px 0 0 var(--focus-ring);
 }
 
 .table tbody > tr[data-clickable] {
@@ -226,6 +250,8 @@ tr:hover .rowLink {
 
 .rowLink:focus-visible {
   border-radius: 2px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* ---------- No matches ---------- */
@@ -242,13 +268,12 @@ tr:hover .rowLink {
   padding: var(--s6) var(--s4);
   border: 1px dashed var(--rule-strong);
   border-radius: var(--r-md);
-  background: var(--grad-brand-soft, transparent);
+  background: var(--surface-sunken);
   color: var(--ink-3);
   text-align: center;
 }
 
 .emptyTitle {
-  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-md);
   font-weight: 600;
   color: var(--ink);
@@ -283,6 +308,7 @@ tr:hover .rowLink {
 /* ---------- Touch ---------- */
 
 @media (pointer: coarse) {
+  .searchInput,
   .sortButton,
   .headerText {
     min-height: 2.75rem;
@@ -294,5 +320,21 @@ tr:hover .rowLink {
 
   .actions :global(.btn) {
     min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sortButton,
+  .table tbody > tr > th,
+  .table tbody > tr > td {
+    transition: none;
+  }
+}
+
+/* Forced colours drop the row wash: an outline marks the row holding focus. */
+@media (forced-colors: active) {
+  .table tbody > tr:focus-within > :first-child {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
   }
 }

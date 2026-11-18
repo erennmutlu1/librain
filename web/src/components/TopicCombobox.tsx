@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
 import { useT } from '../i18n/lang';
 import { findMatch, matchRank } from '../lib/textMatch';
+import { Icon } from './Icon';
 import { SUGGESTION_GROUPS, type SuggestionGroup, type TopicSuggestion } from './topicSuggestions';
 import { text } from './TopicCombobox.i18n';
 import styles from './TopicCombobox.module.css';
@@ -20,7 +21,9 @@ import styles from './TopicCombobox.module.css';
  *   Tab, click away  close without picking
  *
  * The chevron button opens the full list for pointer and touch users; it stays
- * out of the Tab order, as in the pattern's examples.
+ * out of the Tab order, as in the pattern's examples. Neither it nor anything
+ * in the open list (options, group labels, padding, the scrollbar) takes focus
+ * on mousedown, so a click there never blurs the field and closes the list.
  */
 
 export interface TopicComboboxProps {
@@ -35,7 +38,13 @@ export interface TopicComboboxProps {
   optional?: boolean;
   placeholder?: string;
   maxLength?: number;
+  /** One sentence under the field, such as an example. */
+  hint?: string;
+  /** A form-level error for this field, shown under the hint and announced. */
+  error?: string | null;
+  /** Marks the field invalid (an error shown elsewhere). `error` implies it. */
   invalid?: boolean;
+  /** Extra ids for aria-describedby, after the hint and the error. */
   describedBy?: string;
   disabled?: boolean;
   id?: string;
@@ -71,6 +80,8 @@ export function TopicCombobox({
   optional,
   placeholder,
   maxLength,
+  hint,
+  error,
   invalid,
   describedBy,
   disabled,
@@ -108,6 +119,9 @@ export function TopicCombobox({
   const expanded = open && flat.length > 0 && !disabled;
   const activeIndex = expanded && active < flat.length ? active : -1;
   const optionId = (i: number) => `${uid}-opt-${i}`;
+  const hintId = `${uid}-hint`;
+  const errorId = `${uid}-err`;
+  const describedByIds = [hint ? hintId : null, error ? errorId : null, describedBy].filter(Boolean).join(' ') || undefined;
 
   // Keep the highlighted option in view as the arrows move through a long list.
   useEffect(() => {
@@ -201,8 +215,8 @@ export function TopicCombobox({
           aria-expanded={expanded}
           aria-controls={listId}
           aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
-          aria-invalid={invalid || undefined}
-          aria-describedby={describedBy}
+          aria-invalid={Boolean(error) || invalid || undefined}
+          aria-describedby={describedByIds}
           value={value}
           placeholder={placeholder}
           maxLength={maxLength}
@@ -247,7 +261,15 @@ export function TopicCombobox({
             </svg>
           </button>
         ) : null}
-        <ul id={listId} role="listbox" aria-label={t.suggestionsFor(label)} className={styles.list} hidden={!expanded}>
+        <ul
+          id={listId}
+          role="listbox"
+          aria-label={t.suggestionsFor(label)}
+          className={styles.list}
+          hidden={!expanded}
+          // The whole popup, not just the options: a click on a group label, the padding or the scrollbar keeps focus in the field.
+          onMouseDown={(e) => e.preventDefault()}
+        >
           {expanded
             ? groups.map(({ group, items }) => {
                 const headingId = `${uid}-g-${group}`;
@@ -267,7 +289,6 @@ export function TopicCombobox({
                             role="option"
                             aria-selected={index === activeIndex}
                             className={styles.option}
-                            onMouseDown={(e) => e.preventDefault()}
                             onMouseMove={() => index !== activeIndex && setActive(index)}
                             onClick={() => choose(s)}
                           >
@@ -289,6 +310,17 @@ export function TopicCombobox({
             : null}
         </ul>
       </div>
+      {hint ? (
+        <span id={hintId} className="field-hint">
+          {hint}
+        </span>
+      ) : null}
+      {error ? (
+        <p id={errorId} className={styles.error} role="alert">
+          <Icon name="error" size={14} />
+          <span>{error}</span>
+        </p>
+      ) : null}
       <span className="visually-hidden" role="status">
         {open && typed && !disabled ? t.count(flat.length) : ''}
       </span>

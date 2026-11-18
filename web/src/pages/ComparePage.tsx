@@ -1,4 +1,4 @@
-import { useCallback, useId, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
 import type { CompareRequest, CompareResponse, MockScenario } from '../api/types';
 import { CompareView, SystemsExplainer } from '../components/CompareView';
@@ -18,7 +18,7 @@ import { usePublicDemo } from '../public/context';
 import { TopicFields } from './TopicFields';
 import { text } from './ComparePage.i18n';
 import { text as formText, type FormError } from './forms.i18n';
-import { checkTopicForm, formErrorText } from './topicForm';
+import { checkTopicForm, formErrorText, topicErrorField, topicFieldId, type TopicFormField } from './topicForm';
 import styles from './pages.module.css';
 
 interface CompareRunData {
@@ -38,7 +38,8 @@ export default function ComparePage() {
   const record = useRecordRun();
   const recordedOnly = usePublicDemo()?.mode === 'recorded';
   const [form, setForm] = useSessionState<TopicForm>('compare.form', { topicA: '', topicB: '', topK: '5' });
-  const [formError, setFormError] = useState<FormError | null>(null);
+  // A code, not a message, so it follows a language switch; and the field it belongs under.
+  const [formError, setFormError] = useState<{ code: FormError; field: TopicFormField } | null>(null);
 
   // One call: the API runs the three systems concurrently and returns them together.
   const compare = useCallback<RequestFn<CompareRequest, CompareRunData>>(
@@ -61,12 +62,17 @@ export default function ComparePage() {
   const { state, run, cancel } = useRequest<CompareRequest, CompareRunData>('compare.run', compare);
   const loading = state.status === 'loading';
 
+  // Each failed submit (a new object, even for the same error) takes focus to the field at fault.
+  useEffect(() => {
+    if (formError) document.getElementById(topicFieldId(uid, formError.field))?.focus();
+  }, [formError, uid]);
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (loading) return;
     const request = toRequest(form);
     if ('error' in request) {
-      setFormError(request.error);
+      setFormError({ code: request.error, field: topicErrorField(request.error, form) ?? 'a' });
       return;
     }
     setFormError(null);
@@ -101,15 +107,15 @@ export default function ComparePage() {
         className={styles.queryBar}
         onSubmit={submit}
         onKeyDown={submitOnModEnter}
-        aria-describedby={formError ? `${uid}-err` : undefined}
         noValidate
       >
         <TopicFields
           source="compare"
           form={form}
           setForm={setForm}
-          placeholders={{ a: t.placeholderA, b: t.placeholderB }}
-          invalidA={formError === 'topicRequired' || formError === 'topicsSame'}
+          idPrefix={uid}
+          hints={{ a: t.hintA, b: t.hintB }}
+          error={formError ? { field: formError.field, message: formErrorText(ft, formError.code) } : null}
         />
         <div className={styles.actions}>
           <p className={styles.kbd}>{recordedOnly ? t.recordedTip : t.serverModel}</p>
@@ -120,11 +126,6 @@ export default function ComparePage() {
             </button>
           </div>
         </div>
-        {formError ? (
-          <p id={`${uid}-err`} className={styles.formError} role="alert">
-            {formErrorText(ft, formError)}
-          </p>
-        ) : null}
         <RecordedRuns scenarios={api.mock?.compare} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 

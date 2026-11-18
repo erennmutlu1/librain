@@ -10,7 +10,7 @@ import styles from './DataTable.module.css';
 
 /*
  * A real <table> with the conveniences people expect from a data grid:
- * sortable headers (buttons inside <th aria-sort>), a search box that filters
+ * sortable headers (buttons in the <th>; the sorted one has aria-sort), a search box that filters
  * rows as you type, a live "N of M" count, a sticky header, an empty state
  * that offers to clear the search, and an optional CSV export of the rows
  * shown. Columns are typed against the row, so a page declares what a column
@@ -285,7 +285,8 @@ export function DataTable<T>({
                     className={[c.hideBelow ? HIDE[c.hideBelow] : null, c.className].filter(Boolean).join(' ') || undefined}
                     style={c.width ? { width: c.width } : undefined}
                     data-numeric={c.numeric || undefined}
-                    aria-sort={c.sortValue ? (active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none') : undefined}
+                    // Only the sorted column carries aria-sort; "none" on the others is noise for screen readers.
+                    aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : undefined}
                   >
                     {c.headerHidden ? (
                       <span className="visually-hidden">{c.header}</span>

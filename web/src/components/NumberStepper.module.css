@@ -8,19 +8,25 @@
   min-height: 2.5rem;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-sm);
-  background: var(--surface-input, var(--surface-sunken));
-  transition:
-    border-color 120ms ease,
-    box-shadow 160ms ease;
+  background: var(--surface-input, var(--surface));
+  transition: border-color 120ms ease;
 }
 
 .stepper:hover:not([data-disabled]) {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--rule-strong));
+  border-color: var(--ink-3);
 }
 
+/*
+ * The ring sits on the whole control, as an outline so it survives forced
+ * colours (borders and shadows alone are repainted or dropped there).
+ */
 .stepper:focus-within {
-  border-color: var(--focus-ring);
-  box-shadow: var(--glow-accent);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.stepper[data-invalid] {
+  border-color: var(--danger);
 }
 
 .input {
@@ -31,13 +37,14 @@
   border-inline: 1px solid var(--rule);
   background: transparent;
   color: var(--ink);
-  font-family: var(--font-display, var(--font-ui));
+  font-family: var(--font-mono);
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
-/* The ring is on the whole control (focus-within above). */
+/* The control's own outline (focus-within above) is the field's ring. */
 .input:focus-visible {
   outline: none;
 }
@@ -69,12 +76,8 @@
 }
 
 .button:hover:not(:disabled) {
-  color: var(--accent);
+  color: var(--ink);
   background: var(--accent-wash);
-}
-
-.button:active:not(:disabled) {
-  transform: translateY(1px);
 }
 
 .button:disabled {
@@ -87,9 +90,30 @@
   opacity: 0.75;
 }
 
+.error {
+  display: flex;
+  gap: var(--s1);
+  align-items: baseline;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.error > svg {
+  flex: none;
+  align-self: center;
+}
+
 @media (pointer: coarse) {
   .stepper {
     grid-template-columns: 2.75rem minmax(2.75rem, 3.5rem) 2.75rem;
     min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepper,
+  .button {
+    transition: none;
   }
 }

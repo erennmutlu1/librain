@@ -83,6 +83,54 @@ describe('NumberStepper', () => {
     expect(field).toHaveValue('1');
   });
 
+  it('keeps focus in the field when − and + are pressed, even as one disables at a limit', async () => {
+    const { user, field } = setup('19');
+    await user.click(field);
+    expect(field).toHaveFocus();
+    const plus = screen.getByRole('button', { name: 'Increase Passages per topic' });
+    await user.click(plus);
+    expect(field).toHaveValue('20');
+    expect(plus).toBeDisabled();
+    // Without preventDefault on mousedown the button took focus, then dropped it to <body> as it disabled.
+    expect(field).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Decrease Passages per topic' }));
+    expect(field).toHaveValue('19');
+    expect(field).toHaveFocus();
+  });
+
+  it('is aria-invalid with no aria-valuenow while a typed value is out of range', async () => {
+    const { user, field } = setup('8');
+    expect(field).not.toHaveAttribute('aria-invalid');
+    await user.clear(field);
+    await user.type(field, '42');
+    expect(field).toHaveValue('42');
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(field).not.toHaveAttribute('aria-valuenow');
+    await user.tab();
+    expect(field).toHaveValue('20');
+    expect(field).toHaveAttribute('aria-valuenow', '20');
+    expect(field).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('shows a form error under its hint, marks the field invalid and is described by both', () => {
+    render(
+      <>
+        <NumberStepper label="Passages per topic" value="5" onChange={() => {}} min={1} max={20} error="Pick a number from 1 to 20." describedBy="extra" />
+        <p id="extra">Extra note</p>
+      </>,
+    );
+    const field = screen.getByRole('spinbutton', { name: 'Passages per topic' });
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(field).toHaveAccessibleDescription('1 to 20 Pick a number from 1 to 20. Extra note');
+    expect(screen.getByRole('alert')).toHaveTextContent('Pick a number from 1 to 20.');
+  });
+
+  it('takes `invalid` alone for an error shown elsewhere', () => {
+    render(<NumberStepper label="Passages per topic" value="5" onChange={() => {}} min={1} max={20} invalid />);
+    expect(screen.getByRole('spinbutton', { name: 'Passages per topic' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('speaks Turkish', () => {
     render(
       <LangProvider initial="tr">

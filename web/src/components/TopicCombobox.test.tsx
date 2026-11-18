@@ -158,6 +158,45 @@ describe('TopicCombobox', () => {
     expect(screen.getAllByRole('option')).toHaveLength(4);
   });
 
+  it('stays open, with focus in the field, when a click lands on a group label or the list itself', async () => {
+    const { user, input } = setup();
+    await user.click(input);
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+    const listbox = screen.getByRole('listbox', { name: 'Suggestions for Topic A' });
+
+    // A group's label (role="presentation", not an option).
+    await user.click(screen.getByText('Recorded topics'));
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+
+    // The list's own padding (or its scrollbar): the click target is the listbox.
+    await user.click(listbox);
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+
+    // Clicking away still closes it.
+    await user.click(document.body);
+    expect(input).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('shows a hint and an error under the field, describes the field with both and marks it invalid', () => {
+    render(
+      <TopicCombobox
+        label="Topic A"
+        value=""
+        onChange={() => {}}
+        suggestions={[]}
+        hint="For example: weather foundation models"
+        error="Enter at least Topic A."
+      />,
+    );
+    const input = screen.getByRole('combobox', { name: 'Topic A' });
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAccessibleDescription('For example: weather foundation models Enter at least Topic A.');
+    expect(input).not.toHaveAttribute('placeholder');
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter at least Topic A.');
+  });
+
   it('speaks Turkish', async () => {
     const user = userEvent.setup();
     render(

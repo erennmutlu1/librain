@@ -100,6 +100,73 @@ describe('Discover: faster flows', () => {
   });
 });
 
+describe('Discover: errors sit under the field at fault, which takes focus', () => {
+  it('a missing Topic A: focus, aria-invalid and the message under it', async () => {
+    const { user } = setup('/discover');
+    const a = await topicA();
+    await user.click(screen.getByRole('button', { name: 'Discover' }));
+    expect(a).toHaveFocus();
+    expect(a).toHaveAttribute('aria-invalid', 'true');
+    expect(a).toHaveAccessibleDescription(/Enter at least Topic A\.$/);
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter at least Topic A.');
+    // The message lives in Topic A's field group, after its hint.
+    expect(a.closest('.field')).toContainElement(screen.getByRole('alert'));
+    expect(topicB()).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('Topic B repeating Topic A: the message goes under Topic B, which takes focus', async () => {
+    const { user } = setup('/discover');
+    await user.type(await topicA(), 'same');
+    await user.type(topicB(), 'same');
+    await user.click(screen.getByRole('button', { name: 'Discover' }));
+    expect(topicB()).toHaveFocus();
+    expect(topicB()).toHaveAttribute('aria-invalid', 'true');
+    expect(topicB()).toHaveAccessibleDescription(/Topic B must differ from Topic A\.$/);
+    expect(await topicA()).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('a passage count out of range: the stepper is invalid, described by the message, and focused', async () => {
+    const { user, runStore } = setup('/discover');
+    await user.type(await topicA(), 'drug discovery');
+    await user.clear(passages());
+    await user.type(passages(), '25');
+    // Ctrl+Enter submits before leaving the field would clamp the value.
+    await user.keyboard('{Control>}{Enter}{/Control}');
+    expect(passages()).toHaveFocus();
+    expect(passages()).toHaveAttribute('aria-invalid', 'true');
+    expect(passages()).toHaveAccessibleDescription('1 to 20 Passages per topic must be a whole number from 1 to 20.');
+    expect(await runStore.list()).toHaveLength(0);
+  });
+
+  it('a topic over the limit is not cut short: the length message shows under it', async () => {
+    const { user } = setup('/discover');
+    const a = await topicA();
+    await user.click(a);
+    await user.paste('x'.repeat(501));
+    expect(a).toHaveValue('x'.repeat(501));
+    await user.keyboard('{Control>}{Enter}{/Control}');
+    expect(a).toHaveAccessibleDescription(/Topics can be at most 500 characters\.$/);
+    expect(a).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('gives the examples as hints under the fields, not as placeholders', async () => {
+    setup('/discover');
+    const a = await topicA();
+    expect(a).not.toHaveAttribute('placeholder');
+    expect(a).toHaveAccessibleDescription('For example: weather foundation models');
+    expect(topicB()).toHaveAccessibleDescription('For example: renewable energy planning');
+  });
+
+  it('says it in Turkish', async () => {
+    const { user } = setup('/discover', 'tr');
+    const a = await screen.findByRole('combobox', { name: 'Konu A' });
+    expect(a).toHaveAccessibleDescription('Örneğin: hava durumu temel modelleri');
+    await user.click(screen.getByRole('button', { name: 'Keşfet' }));
+    expect(a).toHaveFocus();
+    expect(screen.getByRole('alert')).toHaveTextContent('En azından Konu A’yı girin.');
+  });
+});
+
 describe('Discover: Recorded mode (public build)', () => {
   it('offers only recorded topics, fills the recorded partner, and the run replays', async () => {
     const history = createPublicHistory({ getStorage: () => window.localStorage });

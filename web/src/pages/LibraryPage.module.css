@@ -18,7 +18,6 @@
 }
 
 .panelTitle {
-  font-family: var(--font-display, var(--font-ui));
   font-size: var(--fs-lg);
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -32,8 +31,9 @@
   gap: var(--s4);
   padding: var(--s5);
   background: var(--surface-raised, var(--surface));
-  border: 1px solid var(--rule-glow, var(--rule));
+  border: 1px solid var(--rule);
   border-radius: var(--r-md);
+  box-shadow: var(--shadow-panel);
 }
 
 .dropzone {
@@ -41,16 +41,19 @@
   justify-items: start;
   gap: var(--s2);
   padding: var(--s5) var(--s4);
-  border: 1.5px dashed var(--rule-strong);
+  border: 1px dashed var(--rule-strong);
   border-radius: var(--r-md);
-  background: var(--bg-deep, var(--surface-sunken));
+  background: var(--surface-sunken);
   color: var(--ink-2);
   cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
 }
 
 .dropzone:hover,
 .dropzone[data-dragging] {
-  border-color: var(--accent);
+  border-color: var(--ink-3);
   background: var(--accent-wash);
   color: var(--ink);
 }
@@ -122,6 +125,19 @@
   animation: indeterminate 1.3s ease-in-out infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .progressTrack[data-indeterminate] > span {
+    width: 100%;
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .progressTrack > span,
+  .dropzone {
+    transition: none;
+  }
+}
+
 @keyframes indeterminate {
   from {
     left: -35%;
@@ -145,7 +161,7 @@
 
 .subTitle {
   font-size: var(--fs-sm);
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-2);
 }
 
@@ -162,9 +178,21 @@
   gap: var(--s2);
 }
 
-.arxivRow .input {
+.arxivRow :global(.input) {
   min-width: 0;
   flex: 1;
+}
+
+.arxivRow :global(.input):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+@media (pointer: coarse) {
+  .arxivRow :global(.input),
+  .arxivRow :global(.btn) {
+    min-height: 2.75rem;
+  }
 }
 
 /* ---------- List ---------- */
@@ -186,9 +214,9 @@
 
 .title {
   display: block;
-  font-family: var(--font-text);
-  font-size: var(--fs-md);
-  line-height: 1.35;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
@@ -237,9 +265,12 @@
 .chunkBar > span {
   display: block;
   height: 100%;
-  background: var(--grad-brand, var(--accent));
-  background-size: 4.5rem 100%;
-  opacity: 0.85;
+  background: var(--ink-3);
+}
+
+/* An empty cell's mark: for the eye only (aria-hidden in the markup). */
+.none {
+  color: var(--ink-3);
 }
 
 .muted {
@@ -265,13 +296,16 @@
 .rowAction {
   display: inline-grid;
   place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;
+  height: 2rem;
   border: 1px solid transparent;
   border-radius: var(--r-sm);
   background: transparent;
   color: var(--ink-3);
   cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .rowAction:hover,
@@ -279,6 +313,11 @@
   color: var(--danger);
   border-color: var(--rule);
   background: var(--surface-raised, var(--surface));
+}
+
+.rowAction:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 
 @media (pointer: coarse) {
@@ -320,7 +359,7 @@ tr[data-confirming] > * {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s3);
   padding: var(--s3) var(--s4);
-  border-left: 3px solid var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--rule));
   background: var(--danger-wash);
   border-radius: var(--r-sm);
   font-size: var(--fs-sm);

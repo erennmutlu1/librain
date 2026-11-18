@@ -4,8 +4,8 @@ export const text = strings({
   en: {
     title: 'Discover',
     lede: 'Give LIBRAIN one or two topics. It retrieves evidence for each, proposes a hypothesis that goes beyond the papers, and has a second model check every sentence of the speculative part.',
-    placeholderA: 'e.g. weather foundation models',
-    placeholderB: 'e.g. renewable energy planning',
+    hintA: 'For example: weather foundation models',
+    hintB: 'For example: renewable energy planning',
     anthropicOnly: 'Generation and claim checks run on Anthropic models.',
     provider: 'Model provider',
     openaiModel: 'OpenAI model',
@@ -21,8 +21,8 @@ export const text = strings({
   tr: {
     title: 'Keşfet',
     lede: 'LIBRAIN’e bir ya da iki konu verin. Her biri için kanıt getirir, makalelerin ötesine geçen bir hipotez önerir ve spekülatif kısmın her cümlesini ikinci bir modele denetletir.',
-    placeholderA: 'ör. hava durumu temel modelleri',
-    placeholderB: 'ör. yenilenebilir enerji planlaması',
+    hintA: 'Örneğin: hava durumu temel modelleri',
+    hintB: 'Örneğin: yenilenebilir enerji planlaması',
     anthropicOnly: 'Üretim ve iddia denetimi Anthropic modelleriyle yapılır.',
     provider: 'Model sağlayıcısı',
     openaiModel: 'OpenAI modeli',

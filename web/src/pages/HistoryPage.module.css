@@ -19,6 +19,11 @@
   min-width: 11rem;
 }
 
+.select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
 /* CSV · JSON · Markdown read as one control. */
 .exportGroup {
   display: inline-flex;
@@ -33,6 +38,13 @@
   color: var(--ink-3);
 }
 
+/* Delete all / Keep, in place of Clear history. */
+.confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
 .emptyWrap {
   margin-top: var(--s5);
 }
@@ -43,7 +55,7 @@
   display: inline-flex;
   align-items: center;
   font-size: var(--fs-xs);
-  font-weight: 650;
+  font-weight: 600;
   color: var(--ink-2);
   white-space: nowrap;
 }
@@ -60,12 +72,14 @@
 }
 
 .kind[data-kind='discover']::before {
-  background: var(--accent);
+  background: var(--ink);
 }
 
-/* Compare ran all three systems: their three hues in one dot. */
+/* Compare ran all three systems: a ring rather than a dot, so the shape tells it apart too. */
 .kind[data-kind='compare']::before {
-  background: conic-gradient(var(--sys-librain) 0 33%, var(--sys-naive) 0 66%, var(--sys-single) 0);
+  box-sizing: border-box;
+  border: 2px solid var(--sys-librain);
+  background: transparent;
 }
 
 .kind[data-kind='naive-rag']::before {
@@ -77,8 +91,8 @@
 }
 
 .label {
-  font-size: var(--fs-md);
-  line-height: 1.4;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
 }
 
 .mockTag {
@@ -92,9 +106,16 @@
 }
 
 .quality {
-  font-family: var(--font-display, var(--font-ui));
-  font-weight: 600;
-  font-size: var(--fs-md);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* An empty cell's mark: for the eye only (aria-hidden in the markup). */
+.none {
+  color: var(--ink-3);
+  font-family: var(--font-ui);
 }
 
 /* Phones: the kind and the time move under the title when their columns drop out. */
@@ -130,7 +151,17 @@
 }
 
 @media (pointer: coarse) {
-  .exportGroup :global(.btn) {
+  .exportGroup :global(.btn),
+  .confirm :global(.btn) {
     min-height: 2.75rem;
   }
+
+  .select {
+    min-height: 2.75rem;
+  }
+}
+
+/* The page heading takes focus after clearing (a landmark for the reader, not a control): no ring. */
+.heading:focus {
+  outline: none;
 }

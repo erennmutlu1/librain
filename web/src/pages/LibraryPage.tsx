@@ -26,6 +26,13 @@ function paperSearchText(p: PaperSummary): string {
   return [p.paperId, p.title ?? '', ...(p.authors ?? [])].join(' ');
 }
 
+/** An empty cell: a muted dash for the eye, nothing for screen readers (which would read "dash"). */
+const EMPTY_CELL = (
+  <span className={styles.none} aria-hidden="true">
+    –
+  </span>
+);
+
 function arxivUrl(paperId: string): string | null {
   const id = normalizeArxivId(paperId);
   return id ? `https://arxiv.org/abs/${id}` : null;
@@ -136,7 +143,7 @@ function paperColumns(
       sortValue: (p) => p.authors?.[0] ?? null,
       cell: (p) => {
         const authors = formatAuthors(p.authors);
-        return authors ? <span title={p.authors?.join(', ')}>{authors}</span> : <span className="muted">—</span>;
+        return authors ? <span title={p.authors?.join(', ')}>{authors}</span> : EMPTY_CELL;
       },
     },
     {
@@ -148,7 +155,7 @@ function paperColumns(
       className: styles.muted,
       firstDir: 'desc',
       sortValue: (p) => p.year,
-      cell: (p) => (p.year === null ? <span className="muted">—</span> : String(p.year)),
+      cell: (p) => (p.year === null ? EMPTY_CELL : String(p.year)),
     },
     {
       id: 'chunks',
@@ -174,7 +181,11 @@ function paperColumns(
       className: styles.date,
       firstDir: 'desc',
       sortValue: (p) => p.firstIngestedAt,
-      cell: (p) => formatDate(p.firstIngestedAt),
+      cell: (p) => {
+        // formatDate gives "—" for a missing or broken date; that is an empty cell too.
+        const date = formatDate(p.firstIngestedAt);
+        return date === '—' ? EMPTY_CELL : date;
+      },
     },
   ];
   if (deleteButton) {
@@ -212,6 +223,7 @@ export default function LibraryPage() {
   const statusRef = useRef<HTMLParagraphElement>(null);
 
   const papers = state.status === 'success' ? state.data : null;
+  const loading = state.status === 'loading' || state.status === 'idle';
   const totalChunks = papers?.reduce((sum, p) => sum + p.chunkCount, 0) ?? 0;
   const maxChunks = papers?.reduce((max, p) => Math.max(max, p.chunkCount), 0) ?? 0;
 
@@ -236,6 +248,8 @@ export default function LibraryPage() {
         }}
         type="button"
         className={styles.rowAction}
+        // A visible tooltip for the icon; the visually hidden text below is its accessible name.
+        title={t.deleteLabel(p.paperId)}
         aria-expanded={confirming === p.paperId}
         onClick={() => {
           setDeleted(null);
@@ -293,11 +307,11 @@ export default function LibraryPage() {
             {deleted ? t.deleted(deleted) : ''}
           </p>
 
-          {state.status === 'loading' || state.status === 'idle' ? (
-            <div aria-busy="true" aria-label={t.loading}>
-              <SkeletonLines lines={8} />
-            </div>
-          ) : null}
+          {/* Always present, so the change to "Loading papers…" is announced. */}
+          <p className="visually-hidden" role="status">
+            {loading ? t.loading : ''}
+          </p>
+          {loading ? <SkeletonLines lines={8} /> : null}
           {state.status === 'error' ? <ErrorNotice error={state.error} onRetry={() => void run()} /> : null}
 
           {papers && papers.length === 0 ? (

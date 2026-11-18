@@ -1,4 +1,4 @@
-import { useCallback, useId, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { useApi } from '../api/context';
 import { MAX_QUERY_CHARS, type MockScenario, type QueryRequest, type QueryResponse } from '../api/types';
 import { AskResult } from '../components/AskResult';
@@ -52,6 +52,14 @@ export default function AskPage() {
   const noRecordings = demo?.mode === 'recorded';
   const [form, setForm] = useSessionState<AskForm>('ask.form', { query: '', topK: '5' });
   const [formError, setFormError] = useState<FormError | null>(null);
+  const [errorTick, setErrorTick] = useState(0);
+  const topKError = formError === 'queryTopKRange';
+
+  // A failed submit takes focus to the field at fault: the question, or the passage count.
+  useEffect(() => {
+    if (!formError || errorTick === 0) return;
+    document.getElementById(formError === 'queryTopKRange' ? `${uid}-k` : `${uid}-q`)?.focus();
+  }, [formError, errorTick, uid]);
   const [recent, setRecent] = useState(() => recentQuestions());
 
   const ask = useCallback<RequestFn<QueryRequest, AskRunData>>(
@@ -79,7 +87,9 @@ export default function AskPage() {
     if (noRecordings || loading) return;
     const request = toRequest(form);
     if ('error' in request) {
+      // A new value each time, so a repeated error still moves focus (effect below).
       setFormError(request.error);
+      setErrorTick((n) => n + 1);
       return;
     }
     setFormError(null);
@@ -134,9 +144,14 @@ export default function AskPage() {
             maxLength={MAX_QUERY_CHARS}
             onChange={(e) => setForm((f) => ({ ...f, query: e.target.value }))}
             placeholder={t.placeholder}
-            aria-invalid={formError === 'queryRequired' || formError === 'queryTooLong' || undefined}
-            aria-describedby={formError ? `${uid}-err` : `${uid}-kbd`}
+            aria-invalid={(formError !== null && !topKError) || undefined}
+            aria-describedby={formError && !topKError ? `${uid}-err` : `${uid}-kbd`}
           />
+          {formError && !topKError ? (
+            <p id={`${uid}-err`} className={styles.formError} role="alert">
+              {formErrorText(ft, formError)}
+            </p>
+          ) : null}
           {remaining < 200 ? (
             <span className="field-hint" aria-live="polite">
               {t.charsLeft(formatCount(remaining, lang))}
@@ -171,6 +186,8 @@ export default function AskPage() {
         ) : null}
         <div className={styles.actions}>
           <NumberStepper
+            id={`${uid}-k`}
+            error={topKError ? formErrorText(ft, formError) : null}
             label={ft.passagesToRetrieve}
             value={form.topK}
             onChange={(v) => setForm((f) => ({ ...f, topK: v }))}
@@ -187,11 +204,6 @@ export default function AskPage() {
             </button>
           </div>
         </div>
-        {formError ? (
-          <p id={`${uid}-err`} className={styles.formError} role="alert">
-            {formErrorText(ft, formError)}
-          </p>
-        ) : null}
         <RecordedRuns scenarios={api.mock?.ask} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 

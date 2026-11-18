@@ -21,7 +21,7 @@ import { RecordedIndex } from './RecordedIndex';
 import { TopicFields } from './TopicFields';
 import { text } from './DiscoverPage.i18n';
 import { text as formText, type FormError } from './forms.i18n';
-import { checkTopicForm, formErrorText, readTopicParams } from './topicForm';
+import { checkTopicForm, formErrorText, readTopicParams, topicErrorField, topicFieldId, type TopicFormField } from './topicForm';
 import styles from './pages.module.css';
 
 interface DiscoverForm {
@@ -63,7 +63,8 @@ export default function DiscoverPage() {
   const demo = usePublicDemo();
   const anthropicOnly = demo !== null;
   const [form, setForm] = useSessionState<DiscoverForm>('discover.form', EMPTY_FORM);
-  const [formError, setFormError] = useState<FormError | null>(null);
+  // A code, not a message, so it follows a language switch; and the field it belongs under.
+  const [formError, setFormError] = useState<{ code: FormError; field: TopicFormField } | null>(null);
   // Set when a /discover?a=&b=&k= link filled the form; cleared by the next run.
   const [prefilled, setPrefilled] = useSessionState('discover.prefilled', false);
   const [params, setParams] = useSearchParams();
@@ -109,6 +110,11 @@ export default function DiscoverPage() {
   const { state, run, cancel } = useRequest<DiscoverRequest, DiscoverRunData>('discover.run', discover);
   const loading = state.status === 'loading';
 
+  // Each failed submit (a new object, even for the same error) takes focus to the field at fault.
+  useEffect(() => {
+    if (formError) document.getElementById(topicFieldId(uid, formError.field))?.focus();
+  }, [formError, uid]);
+
   const set = <K extends keyof DiscoverForm>(key: K, value: DiscoverForm[K]) => setForm((f) => ({ ...f, [key]: value }));
 
   const submit = (event: FormEvent) => {
@@ -116,7 +122,7 @@ export default function DiscoverPage() {
     if (loading) return;
     const request = toDiscoverRequest(form, anthropicOnly);
     if ('error' in request) {
-      setFormError(request.error);
+      setFormError({ code: request.error, field: topicErrorField(request.error, form) ?? 'a' });
       return;
     }
     setFormError(null);
@@ -146,13 +152,7 @@ export default function DiscoverPage() {
         <p className="page-lede">{t.lede}</p>
       </header>
 
-      <form
-        className={styles.queryBar}
-        onSubmit={submit}
-        onKeyDown={submitOnModEnter}
-        aria-describedby={formError ? `${uid}-err` : undefined}
-        noValidate
-      >
+      <form className={styles.queryBar} onSubmit={submit} onKeyDown={submitOnModEnter} noValidate>
         {prefilled ? (
           <p className={styles.formNote} role="status">
             <Icon name="link" size={15} />
@@ -163,8 +163,9 @@ export default function DiscoverPage() {
           source="discover"
           form={form}
           setForm={setForm}
-          placeholders={{ a: t.placeholderA, b: t.placeholderB }}
-          invalidA={formError === 'topicRequired' || formError === 'topicsSame'}
+          idPrefix={uid}
+          hints={{ a: t.hintA, b: t.hintB }}
+          error={formError ? { field: formError.field, message: formErrorText(ft, formError.code) } : null}
         />
 
         <div className={styles.actions}>
@@ -205,11 +206,6 @@ export default function DiscoverPage() {
             </button>
           </div>
         </div>
-        {formError ? (
-          <p id={`${uid}-err`} className={styles.formError} role="alert">
-            {formErrorText(ft, formError)}
-          </p>
-        ) : null}
         <RecordedIndex scenarios={api.mock?.discover} onPick={pick} disabled={loading} collapsed={state.status === 'success'} />
       </form>
 

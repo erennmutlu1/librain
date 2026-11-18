@@ -16,20 +16,39 @@ import { usePublicDemo } from '../public/context';
 import { Icon, type IconName } from './Icon';
 import { text } from './ProviderKeysMenu.i18n';
 import styles from './SettingsMenu.module.css';
+import own from './ProviderKeysMenu.module.css';
 
 type Text = (typeof text)['en'];
 type Provider = 'anthropic' | 'openai';
 
 const REPO_URL = 'https://github.com/erennmutlu1/librain';
 
-/** A soft check only: providers change key formats, so a mismatch warns but never blocks saving. */
-function formatHint(provider: Provider, value: string, t: Text): string | null {
+/**
+ * The field's one-sentence hint: the key format. A soft check only (providers
+ * change key formats), so a typed key that does not match turns it into a
+ * warning but never blocks saving.
+ */
+function formatHint(provider: Provider, value: string, t: Text): { text: string; warn: boolean } {
   const key = value.trim();
-  if (!key) return null;
-  if (provider === 'anthropic') return key.startsWith('sk-ant-') ? null : t.hint.anthropic;
-  if (key.startsWith('sk-ant-')) return t.hint.looksAnthropic;
-  return key.startsWith('sk-') ? null : t.hint.openai;
+  if (provider === 'anthropic') return { text: t.hint.anthropic, warn: key !== '' && !key.startsWith('sk-ant-') };
+  if (key.startsWith('sk-ant-')) return { text: t.hint.looksAnthropic, warn: true };
+  return { text: t.hint.openai, warn: key !== '' && !key.startsWith('sk-') };
 }
+
+/*
+ * Password managers: these are API keys, not this site's login. A password
+ * field's autocomplete="off" is ignored by browsers, and "new-password" makes
+ * Chrome offer to generate one, so the fields keep "off", carry names that
+ * are not credentials, and add the opt-out hints the common managers read
+ * (1Password, LastPass, Bitwarden, Dashlane).
+ */
+const NOT_A_LOGIN = {
+  autoComplete: 'off',
+  'data-1p-ignore': 'true',
+  'data-lpignore': 'true',
+  'data-bwignore': 'true',
+  'data-form-type': 'other',
+} as const;
 
 function KeyField({
   provider,
@@ -39,6 +58,8 @@ function KeyField({
   onChange,
   inputRef,
   getKeyUrl,
+  shown,
+  onShownChange,
 }: {
   provider: Provider;
   id: string;
@@ -47,10 +68,12 @@ function KeyField({
   onChange: (value: string) => void;
   inputRef: RefObject<HTMLInputElement | null>;
   getKeyUrl: string;
+  /** Whether the key shows as text; the panel hides it again on save and clear. */
+  shown: boolean;
+  onShownChange: (shown: boolean) => void;
 }) {
   const t = useT(text);
   const field = t[provider];
-  const [show, setShow] = useState(false);
   const hint = formatHint(provider, value, t);
   return (
     <div className="field">
@@ -61,9 +84,10 @@ function KeyField({
         <input
           ref={inputRef}
           id={id}
-          className="input mono"
-          type={show ? 'text' : 'password'}
-          autoComplete="off"
+          name={`${provider}-api-key`}
+          className={`input mono ${own.keyInput}`}
+          type={shown ? 'text' : 'password'}
+          {...NOT_A_LOGIN}
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
@@ -72,20 +96,24 @@ function KeyField({
           onChange={(e) => onChange(e.target.value)}
           aria-describedby={`${id}-hint`}
         />
-        <button type="button" className="btn btn-sm" aria-label={show ? field.hide : field.show} aria-controls={id} onClick={() => setShow((s) => !s)}>
-          {show ? t.hide : t.show}
+        <button type="button" className="btn btn-sm" aria-label={shown ? field.hide : field.show} aria-controls={id} onClick={() => onShownChange(!shown)}>
+          {shown ? t.hide : t.show}
         </button>
       </div>
-      <span id={`${id}-hint`} className="field-hint">
-        {hint ? <span className={styles.warn}>{hint} </span> : null}
-        <a href={getKeyUrl} target="_blank" rel="noreferrer">
-          {field.getKey}
-          <span className="visually-hidden">{t.newTab}</span>
-        </a>
+      <span id={`${id}-hint`} className={`field-hint ${hint.warn ? own.warn : ''}`}>
+        {hint.warn ? <Icon name="warning" size={13} /> : null}
+        {hint.text}
       </span>
+      <a className={own.getKey} href={getKeyUrl} target="_blank" rel="noreferrer">
+        {field.getKey}
+        <Icon name="external" size={12} />
+        <span className="visually-hidden">{t.newTab}</span>
+      </a>
     </div>
   );
 }
+
+const MASKED: Record<Provider, boolean> = { anthropic: false, openai: false };
 
 type Check = { status: 'idle' } | { status: 'checking' } | { status: 'done'; result: KeyCheckResult } | { status: 'error'; message: string };
 
@@ -166,6 +194,9 @@ export function ProviderKeysMenu() {
   const [saved, setSaved] = useState<string | null>(null);
   const [complete, setComplete] = useState(() => hasBothProviderKeys());
   const [check, setCheck] = useState<Check>({ status: 'idle' });
+  // Lives here, not in each field, so saving, clearing and closing can mask the keys again.
+  const [shown, setShown] = useState<Record<Provider, boolean>>(MASKED);
+  const hideKeys = () => setShown(MASKED);
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const anthropicInput = useRef<HTMLInputElement>(null);
@@ -190,6 +221,7 @@ export function ProviderKeysMenu() {
         setOpenai(keys.openai ?? '');
         setRemember(rememberingProviderKeys());
         setCheck({ status: 'idle' });
+        setShown(MASKED);
         setOpen(true);
       }),
     [],
@@ -202,6 +234,7 @@ export function ProviderKeysMenu() {
     const close = () => {
       setOpen(false);
       setGoLive(false);
+      setShown(MASKED);
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -226,6 +259,8 @@ export function ProviderKeysMenu() {
 
   const save = (event: FormEvent) => {
     event.preventDefault();
+    // A key shown to check it is masked again once it is saved.
+    hideKeys();
     const keys = { anthropic: anthropic.trim() || null, openai: openai.trim() || null };
     if (!keys.anthropic && !keys.openai) {
       clear();
@@ -249,6 +284,7 @@ export function ProviderKeysMenu() {
 
   const clear = () => {
     stopCheck();
+    hideKeys();
     clearProviderKeys();
     setAnthropic('');
     setOpenai('');
@@ -302,6 +338,7 @@ export function ProviderKeysMenu() {
         aria-controls={`${uid}-panel`}
         onClick={() => {
           setOpen((o) => !o);
+          setShown(MASKED);
           setGoLive(false);
           setSaved(null);
           setReason(null);
@@ -340,6 +377,8 @@ export function ProviderKeysMenu() {
               }}
               inputRef={anthropicInput}
               getKeyUrl="https://console.anthropic.com/settings/keys"
+              shown={shown.anthropic}
+              onShownChange={(v) => setShown((s) => ({ ...s, anthropic: v }))}
             />
             <KeyField
               provider="openai"
@@ -352,6 +391,8 @@ export function ProviderKeysMenu() {
               }}
               inputRef={openaiInput}
               getKeyUrl="https://platform.openai.com/api-keys"
+              shown={shown.openai}
+              onShownChange={(v) => setShown((s) => ({ ...s, openai: v }))}
             />
             <label className={styles.check}>
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} aria-describedby={`${uid}-remember`} />{' '}

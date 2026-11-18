@@ -21,7 +21,7 @@ export const text = strings({
     footnoteMock:
       'Mock mode: the API snapshot’s paper plus every paper id the recorded runs cite. Titles are unknown for those, and chunk counts are lower bounds (highest cited chunk index plus one).',
     footnoteAuthors: 'Authors and year are filled in for papers ingested from arXiv; uploaded PDFs rarely carry them.',
-    loading: 'Loading papers',
+    loading: 'Loading papers…',
     emptyTitle: 'The library is empty',
     emptyBody: 'Upload a PDF or ingest an arXiv paper to start. Every paper you add becomes searchable from Ask, Discover and Compare.',
     deleted: (id: string) => `Deleted ${id}.`,
@@ -63,7 +63,7 @@ export const text = strings({
     footnoteMock:
       'Örnek veri modu: API anlık görüntüsündeki makale ve kayıtlı çalıştırmaların kaynak gösterdiği her makale kimliği. Bunların başlıkları bilinmiyor; parça sayıları da alt sınırdır (kaynak gösterilen en yüksek parça sırası artı bir).',
     footnoteAuthors: 'Yazar ve yıl, arXiv’den alınan makalelerde dolu gelir; yüklenen PDF’lerde nadiren bulunur.',
-    loading: 'Makaleler yükleniyor',
+    loading: 'Makaleler yükleniyor…',
     emptyTitle: 'Kütüphane boş',
     emptyBody: 'Başlamak için bir PDF yükleyin ya da arXiv’den bir makale alın. Eklediğiniz her makale Sor, Keşfet ve Karşılaştır’da aranabilir olur.',
     deleted: (id: string) => `${id} silindi.`,

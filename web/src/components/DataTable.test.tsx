@@ -62,7 +62,8 @@ describe('DataTable', () => {
     const nameHeader = within(table).getByRole('columnheader', { name: 'Name' });
     const chunksHeader = within(table).getByRole('columnheader', { name: 'Chunks' });
     expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
-    expect(chunksHeader).toHaveAttribute('aria-sort', 'none');
+    // Only the sorted column says so; the others carry no aria-sort at all.
+    expect(chunksHeader).not.toHaveAttribute('aria-sort');
     // An unsortable column has no button and no aria-sort.
     const note = within(table).getByRole('columnheader', { name: 'Note' });
     expect(note).not.toHaveAttribute('aria-sort');
@@ -75,7 +76,7 @@ describe('DataTable', () => {
     // A numeric column starts high-to-low; missing values sort last both ways.
     await user.click(within(chunksHeader).getByRole('button', { name: 'Chunks' }));
     expect(chunksHeader).toHaveAttribute('aria-sort', 'descending');
-    expect(nameHeader).toHaveAttribute('aria-sort', 'none');
+    expect(nameHeader).not.toHaveAttribute('aria-sort');
     expect(order()).toEqual(['Climate models', 'Özgün graph networks', 'Alpha retrieval']);
     await user.click(within(chunksHeader).getByRole('button', { name: 'Chunks' }));
     expect(chunksHeader).toHaveAttribute('aria-sort', 'ascending');

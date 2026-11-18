@@ -66,7 +66,7 @@
   left: var(--s4);
   right: var(--s4);
   height: 1px;
-  background: var(--grad-brand);
+  background: var(--ink);
   opacity: 0.8;
 }
 
@@ -167,12 +167,12 @@
   align-items: center;
 }
 
-.keyRow .input {
+.keyRow :global(.input) {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.keyRow .btn {
+.keyRow :global(.btn) {
   flex: none;
 }
 
@@ -244,7 +244,6 @@
   align-items: flex-start;
   padding: var(--s2) var(--s3);
   border: 1px solid var(--rule);
-  border-left-width: 3px;
   border-radius: var(--r-sm);
   background: var(--surface);
   font-size: var(--fs-xs);
