@@ -1,14 +1,23 @@
-import type { DiscoverResponse, DiscoveryEvaluation, NaiveRagResponse, SingleLlmResponse } from '../api/types';
+import type {
+  CompareOutcome,
+  CompareRun,
+  DiscoverResponse,
+  DiscoverRun,
+  DiscoveryEvaluation,
+  NaiveRagResponse,
+  QueryRun,
+  SingleLlmResponse,
+} from '../api/types';
 import { auditClaimedCitations, chunkKey } from '../lib/citations';
 import { formatPercent, formatScore, topicLabel } from '../lib/format';
 import { annotate } from '../lib/sentences';
 import { basisMeta, STATUS_META } from '../lib/vocabulary';
-import type { CompareRun, DiscoverRun, AskRun, Outcome, RunRecord } from './types';
-import { RUN_KIND_LABEL } from './types';
+import { RUN_KIND_LABEL, type RunDetail } from './types';
 
-export const EXPORT_FORMAT_VERSION = 1;
+export const EXPORT_FORMAT_VERSION = 2;
 
-export function runsToJson(runs: readonly RunRecord[]): string {
+/** The same record shape GET /api/runs/{id} returns, so exports re-import through one normaliser. */
+export function runsToJson(runs: readonly RunDetail[]): string {
   return JSON.stringify(
     { format: 'librain-web-runs', version: EXPORT_FORMAT_VERSION, exportedAt: new Date().toISOString(), runs },
     null,
@@ -28,17 +37,18 @@ function quote(text: string): string {
     .join('\n');
 }
 
-function header(run: RunRecord): string[] {
+function header(run: RunDetail): string[] {
   const lines = [
-    `# ${RUN_KIND_LABEL[run.kind]}: ${run.label}`,
+    `# ${RUN_KIND_LABEL[run.kind]}: ${run.title}`,
     '',
     `- Run at: ${new Date(run.createdAt).toISOString()}${run.mock ? ' (mock data from recorded runs)' : ''}`,
+    `- Run id: \`${run.id}\``,
   ];
   if (run.quality !== null) lines.push(`- Quality: ${formatScore(run.quality)}`);
   return lines;
 }
 
-function discoveryScores(evaluation: DiscoveryEvaluation | null): string[] {
+function scores(evaluation: DiscoveryEvaluation | null): string[] {
   if (!evaluation) return ['_Not scored._'];
   return [
     '| Axis | Score |',
@@ -62,10 +72,10 @@ function discoverBody(result: DiscoverResponse, level = 2): string[] {
     lines.push('_Not returned._', '');
   } else {
     if (cv.validationFailed) {
-      lines.push('**Validation failed:** the validator produced no usable verdicts; aggregate risk is reported as 1.0.', '');
+      lines.push('**Validation failed:** the validator produced no usable verdicts; treat the claim as unverified.', '');
     }
     lines.push(`Aggregate risk: ${formatScore(cv.aggregateRisk)}`, '');
-    if (cv.claims.length > 0) {
+    if (cv.claims.length > 0 && !cv.validationFailed) {
       const ann = annotate(result.novelClaim, cv.claims.map((c) => c.sentence));
       lines.push('| # | Status | Hallucination probability | Sentence | Rationale |', '| --- | --- | --- | --- | --- |');
       cv.claims.forEach((c, i) => {
@@ -78,7 +88,7 @@ function discoverBody(result: DiscoverResponse, level = 2): string[] {
     }
   }
 
-  lines.push(`${h} Scores`, '', ...discoveryScores(result.evaluation), '');
+  lines.push(`${h} Scores`, '', ...scores(result.evaluation), '');
 
   lines.push(`${h} Citation contract`, '');
   if (result.claimedEvidenceCount === undefined) {
@@ -95,6 +105,7 @@ function discoverBody(result: DiscoverResponse, level = 2): string[] {
   for (const e of result.supportingEvidence) {
     const where = [e.section, e.pageNumber !== null ? `p. ${e.pageNumber}` : null].filter(Boolean).join(', ');
     lines.push(`- \`${chunkKey(e.paperId, e.chunkIndex)}\`${where ? ` ${where}` : ''} (${e.supportType})`);
+    if (e.content) lines.push(`  > ${e.content.replace(/\s+/g, ' ').trim()}`);
   }
   lines.push('');
 
@@ -112,8 +123,8 @@ function discoverBody(result: DiscoverResponse, level = 2): string[] {
   return lines;
 }
 
-function askMarkdown(run: AskRun): string[] {
-  const r = run.result;
+function queryMarkdown(run: QueryRun): string[] {
+  const r = run.response;
   const lines = [...header(run), `- topK: ${run.request.topK ?? 5}`, ''];
   lines.push('## Answer', '', r.hypothesis || '_Empty._', '');
   if (r.synthesisConfidence !== null) lines.push(`Synthesis confidence: ${formatScore(r.synthesisConfidence)}`, '');
@@ -122,6 +133,7 @@ function askMarkdown(run: AskRun): string[] {
   for (const c of r.citations) {
     const where = [c.section, c.pageNumber !== null ? `p. ${c.pageNumber}` : null].filter(Boolean).join(', ');
     lines.push(`- [${c.index}] \`${chunkKey(c.paperId, c.chunkIndex)}\`${where ? ` ${where}` : ''}`);
+    if (c.content) lines.push(`  > ${c.content.replace(/\s+/g, ' ').trim()}`);
   }
   lines.push('');
   const e = r.evaluation;
@@ -152,55 +164,71 @@ function discoverMarkdown(run: DiscoverRun): string[] {
     ...header(run),
     `- Provider: ${req.provider ?? 'anthropic'}${req.model ? ` (${req.model})` : ''}, topK ${req.topK ?? 5}`,
     '',
-    ...discoverBody(run.result),
+    ...discoverBody(run.response),
   ];
 }
 
-function outcomeLines<T>(outcome: Outcome<T>, render: (value: T) => string[]): string[] {
-  return outcome.ok ? render(outcome.value) : [`_Failed: ${outcome.error}_`, ''];
-}
-
-function naiveLines(r: NaiveRagResponse): string[] {
+function naiveLines(r: NaiveRagResponse, level = 3): string[] {
+  const h = '#'.repeat(level);
   const audit = auditClaimedCitations(r.claimedCitations, r.fabricatedCitationCount);
-  const lines = ['### Hypothesis', '', r.hypothesis, '', '### Scores', '', ...discoveryScores(r.evaluation), ''];
-  lines.push('### Claimed citations', '', `${audit.fabricated.length} of ${audit.total} fabricated (not in the retrieved set).`, '');
-  for (const c of r.claimedCitations) {
-    lines.push(`- \`${chunkKey(c.paperId, c.chunkIndex)}\`${c.isResolved ? '' : ' **FABRICATED**'}`);
-  }
+  const lines = [`${h} Hypothesis`, '', r.hypothesis, '', `${h} Scores`, '', ...scores(r.evaluation), ''];
+  lines.push(`${h} Claimed citations`, '', `${audit.fabricated.length} of ${audit.total} fabricated (not in the retrieved set).`, '');
+  for (const c of r.claimedCitations) lines.push(`- \`${chunkKey(c.paperId, c.chunkIndex)}\`${c.isResolved ? '' : ' **FABRICATED**'}`);
   lines.push('', `Correlation ID: \`${r.correlationId}\``, '');
   return lines;
 }
 
-function singleLines(r: SingleLlmResponse): string[] {
-  return ['### Hypothesis', '', r.hypothesis, '', '### Scores', '', ...discoveryScores(r.evaluation), '', `Correlation ID: \`${r.correlationId}\``, ''];
+function singleLines(r: SingleLlmResponse, level = 3): string[] {
+  const h = '#'.repeat(level);
+  return [`${h} Hypothesis`, '', r.hypothesis, '', `${h} Scores`, '', ...scores(r.evaluation), '', `Correlation ID: \`${r.correlationId}\``, ''];
+}
+
+function outcomeLines<T>(outcome: CompareOutcome<T>, render: (value: T) => string[]): string[] {
+  if (outcome.result) return render(outcome.result);
+  return [`_Failed: ${outcome.error ?? 'no result'}_${outcome.correlationId ? ` (correlation ID \`${outcome.correlationId}\`)` : ''}`, ''];
 }
 
 function compareMarkdown(run: CompareRun): string[] {
-  const { librain, naiveRag, singleLlm } = run.result;
+  const { librain, naiveRag, singleLlm } = run.response;
   return [
     ...header(run),
-    `- Topics: ${topicLabel(run.request.topicA, run.request.topicB)}`,
-    `- LIBRAIN provider: ${run.request.provider ?? 'anthropic'}, topK ${run.request.topK ?? 5}, Naive-RAG citations: ${run.request.citationMode ?? 'structured'}`,
+    `- Topics: ${topicLabel(run.response.topicA || run.request.topicA, run.response.topicB ?? run.request.topicB)}, topK ${run.response.topK}`,
     '',
     '## LIBRAIN',
     '',
     ...outcomeLines(librain, (v) => discoverBody(v, 3)),
     '## Naive-RAG',
     '',
-    ...outcomeLines(naiveRag, naiveLines),
+    ...outcomeLines(naiveRag, (v) => naiveLines(v)),
     '## Single-LLM',
     '',
-    ...outcomeLines(singleLlm, singleLines),
+    ...outcomeLines(singleLlm, (v) => singleLines(v)),
   ];
 }
 
-export function runToMarkdown(run: RunRecord): string {
-  const lines =
-    run.kind === 'ask' ? askMarkdown(run) : run.kind === 'discover' ? discoverMarkdown(run) : compareMarkdown(run);
+export function runToMarkdown(run: RunDetail): string {
+  let lines: string[];
+  switch (run.kind) {
+    case 'query':
+      lines = queryMarkdown(run);
+      break;
+    case 'discover':
+      lines = discoverMarkdown(run);
+      break;
+    case 'compare':
+      lines = compareMarkdown(run);
+      break;
+    case 'naive-rag':
+      lines = [...header(run), '', ...naiveLines(run.response, 2)];
+      break;
+    case 'single-llm':
+      lines = [...header(run), '', ...singleLines(run.response, 2)];
+      break;
+  }
   return `${lines.join('\n').replace(/\n{3,}/g, '\n\n').trim()}\n`;
 }
 
-export function runsToMarkdown(runs: readonly RunRecord[]): string {
+export function runsToMarkdown(runs: readonly RunDetail[]): string {
   const intro = `# LIBRAIN run history\n\nExported ${new Date().toISOString()}, ${runs.length} run(s).\n`;
   return [intro, ...runs.map((run) => runToMarkdown(run).replace(/^# /, '## ').replace(/\n(#{2,}) /g, '\n#$1 '))].join('\n---\n\n');
 }

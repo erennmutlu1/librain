@@ -1,21 +1,21 @@
 import { describe, expect, it, vi } from 'vitest';
-import { normalizeDiscoverResponse } from '../api/normalize';
-import { discoverScenarios } from '../mocks/scenarios';
-import { createLocalRunStore, reviveRun, STORAGE_KEY } from './localRunStore';
+import { normalizeDiscoverResponse, normalizeRunDetail } from '../api/normalize';
+import type { DiscoverRun } from '../api/types';
+import { contract, discoverScenarios } from '../mocks/scenarios';
 import { runToMarkdown, runsToJson } from './exporters';
-import type { DiscoverRun, RunRecord } from './types';
+import { createLocalRunStore, reviveRun, STORAGE_KEY } from './localRunStore';
 
 function discoverRun(id: string, createdAt: string, scenarioId = 'anthropic-pair-10'): DiscoverRun {
   const s = discoverScenarios.find((x) => x.id === scenarioId)!;
   return {
     id,
     kind: 'discover',
+    title: s.label,
     createdAt,
-    mock: true,
-    label: s.label,
     quality: 0.5,
+    mock: true,
     request: s.request,
-    result: normalizeDiscoverResponse(s.response),
+    response: normalizeDiscoverResponse(s.response),
   };
 }
 
@@ -41,28 +41,38 @@ class MemoryStorage implements Storage {
   }
 }
 
-describe('createLocalRunStore', () => {
-  it('saves, lists newest first, gets and removes runs', async () => {
+describe('createLocalRunStore (mock-mode history)', () => {
+  it('saves, lists newest first as summaries, gets and removes runs', async () => {
     const storage = new MemoryStorage();
     const store = createLocalRunStore({ getStorage: () => storage });
     await store.save(discoverRun('a', '2026-11-01T10:00:00Z'));
     await store.save(discoverRun('b', '2026-11-02T10:00:00Z'));
 
-    expect((await store.list()).map((r) => r.id)).toEqual(['b', 'a']);
+    const list = await store.list();
+    expect(list.map((r) => r.id)).toEqual(['b', 'a']);
+    expect(list[0]).toEqual({ id: 'b', kind: 'discover', title: 'Drug discovery × climate adaptation', createdAt: '2026-11-02T10:00:00Z', quality: 0.5, mock: true });
     expect((await store.get('a'))?.kind).toBe('discover');
     expect(JSON.parse(storage.getItem(STORAGE_KEY)!)).toHaveLength(2);
 
     await store.remove('b');
     expect((await store.list()).map((r) => r.id)).toEqual(['a']);
     expect(store.status().persistent).toBe(true);
+    expect(store.location).toBe('browser');
+  });
+
+  it('filters by kind', async () => {
+    const store = createLocalRunStore({ getStorage: () => new MemoryStorage() });
+    await store.save(discoverRun('a', '2026-11-01T10:00:00Z'));
+    await store.save(normalizeRunDetail({ ...(contract.runRecord as object), id: 'q', kind: 'query', request: { query: 'x' }, response: contract.query }));
+    expect((await store.list({ kind: 'query' })).map((r) => r.id)).toEqual(['q']);
+    expect((await store.list({ kind: 'discover' })).map((r) => r.id)).toEqual(['a']);
   });
 
   it('round-trips a run through storage with its claim statuses intact', async () => {
     const storage = new MemoryStorage();
     await createLocalRunStore({ getStorage: () => storage }).save(discoverRun('a', '2026-11-01T10:00:00Z'));
-    const fresh = createLocalRunStore({ getStorage: () => storage });
-    const run = (await fresh.get('a')) as DiscoverRun;
-    expect(run.result.claimValidation?.claims.map((c) => c.status)).toEqual(['extrapolated', 'risky']);
+    const run = (await createLocalRunStore({ getStorage: () => storage }).get('a')) as DiscoverRun;
+    expect(run.response.claimValidation?.claims.map((c) => c.status)).toEqual(['extrapolated', 'risky']);
   });
 
   it('keeps at most `limit` runs, dropping the oldest', async () => {
@@ -97,17 +107,16 @@ describe('createLocalRunStore', () => {
     await expect(store.save(discoverRun('a', '2026-11-01T10:00:00Z'))).resolves.toBeUndefined();
     expect((await store.list()).map((r) => r.id)).toEqual(['a']);
     expect(store.status().persistent).toBe(false);
-    await expect(store.clear()).resolves.toBeUndefined();
+    await expect(store.clear!()).resolves.toBeUndefined();
   });
 
   it('drops the oldest half and retries when the quota is exceeded', async () => {
     const storage = new MemoryStorage();
     const realSet = storage.setItem.bind(storage);
-    const setItem = vi.fn((key: string, value: string) => {
+    storage.setItem = vi.fn((key: string, value: string) => {
       if ((JSON.parse(value) as unknown[]).length > 2) throw new DOMException('full', 'QuotaExceededError');
       realSet(key, value);
     });
-    storage.setItem = setItem;
     const store = createLocalRunStore({ getStorage: () => storage });
     await store.save(discoverRun('a', '2026-11-01T10:00:00Z'));
     await store.save(discoverRun('b', '2026-11-02T10:00:00Z'));
@@ -119,8 +128,7 @@ describe('createLocalRunStore', () => {
   it('ignores a corrupt stored value instead of crashing', async () => {
     const storage = new MemoryStorage();
     storage.setItem(STORAGE_KEY, '{not json');
-    const store = createLocalRunStore({ getStorage: () => storage });
-    await expect(store.list()).resolves.toEqual([]);
+    await expect(createLocalRunStore({ getStorage: () => storage }).list()).resolves.toEqual([]);
   });
 
   it('notifies subscribers on change', async () => {
@@ -128,7 +136,7 @@ describe('createLocalRunStore', () => {
     const listener = vi.fn();
     const off = store.subscribe(listener);
     await store.save(discoverRun('a', '2026-11-01T10:00:00Z'));
-    await store.clear();
+    await store.clear!();
     off();
     await store.save(discoverRun('b', '2026-11-01T10:00:00Z'));
     expect(listener).toHaveBeenCalledTimes(2);
@@ -142,27 +150,33 @@ describe('reviveRun', () => {
     expect(reviveRun({ id: 'x', createdAt: 'now', kind: 'mystery' })).toBeNull();
   });
 
-  it('revives compare runs with a failed system', () => {
-    const run = reviveRun({
-      id: 'x',
+  it('reads the first UI pass format (kind "ask", label/result, {ok,value} outcomes)', () => {
+    const ask = reviveRun({ id: 'x', createdAt: '2026-11-01T10:00:00Z', kind: 'ask', label: 'Q?', quality: 0.7, request: { query: 'Q?' }, result: contract.query });
+    expect(ask).toMatchObject({ kind: 'query', title: 'Q?' });
+
+    const compare = reviveRun({
+      id: 'y',
       createdAt: '2026-11-01T10:00:00Z',
       kind: 'compare',
       label: 'a × b',
       request: { topicA: 'a', topicB: 'b' },
-      result: { librain: { ok: false, error: 'Upstream API error' }, naiveRag: { ok: true, value: { hypothesis: 'h', claimedCitations: [] } } },
+      result: {
+        librain: { ok: false, error: 'Upstream API error' },
+        naiveRag: { ok: true, value: { correlationId: 'n', hypothesis: 'h', claimedCitations: [] } },
+      },
     });
-    expect(run?.kind).toBe('compare');
-    if (run?.kind !== 'compare') return;
-    expect(run.result.librain).toEqual({ ok: false, error: 'Upstream API error' });
-    expect(run.result.naiveRag.ok).toBe(true);
-    expect(run.result.singleLlm).toEqual({ ok: false, error: 'No result was saved.' });
+    expect(compare?.kind).toBe('compare');
+    if (compare?.kind !== 'compare') return;
+    expect(compare.response.librain).toEqual({ result: null, error: 'Upstream API error', correlationId: null });
+    expect(compare.response.naiveRag.result?.hypothesis).toBe('h');
+    expect(compare.response.singleLlm.error).toBe('No result was returned.');
   });
 });
 
 describe('exporters', () => {
-  const run: RunRecord = discoverRun('a', '2026-11-01T10:00:00Z');
+  const run = discoverRun('a', '2026-11-01T10:00:00Z');
 
-  it('exports JSON that revives to the same run', () => {
+  it('exports JSON in the /api/runs record shape, which revives to the same run', () => {
     const parsed = JSON.parse(runsToJson([run])) as { format: string; runs: unknown[] };
     expect(parsed.format).toBe('librain-web-runs');
     expect(reviveRun(parsed.runs[0])).toEqual(run);
@@ -173,5 +187,21 @@ describe('exporters', () => {
     expect(md).toMatch(/^# Discover: Drug discovery × climate adaptation/);
     expect(md).toContain('| 2 | Risky | 75% |');
     expect(md).toContain('were not recorded for this run');
+  });
+
+  it('exports a compare run with a failed system and its correlation id', () => {
+    const compare = normalizeRunDetail({
+      id: 'c',
+      kind: 'compare',
+      title: 'weather forecasting × protein folding',
+      createdAt: '2026-11-01T10:00:00Z',
+      quality: null,
+      request: {},
+      // Derived from the real compare snapshot: only LIBRAIN's outcome is replaced with a failure.
+      response: { ...(contract.compare as object), librain: { result: null, error: 'LIBRAIN failed: HttpRequestException', correlationId: 'lib-123' } },
+    });
+    const md = runToMarkdown(compare);
+    expect(md).toContain('_Failed: LIBRAIN failed: HttpRequestException_ (correlation ID `lib-123`)');
+    expect(md).toContain('**FABRICATED**');
   });
 });

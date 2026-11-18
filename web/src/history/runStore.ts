@@ -1,15 +1,17 @@
 /*
- * THE SEAM for run history.
+ * THE SEAM for run history. Every screen talks to `RunStore` through
+ * <RunStoreProvider>; createDefaultRunStore picks the implementation:
  *
- * The backend has no run store yet, so runs live in the browser
- * (createLocalRunStore). Every screen talks to the `RunStore` interface only,
- * through <RunStoreProvider>. When the API grows `/api/runs`, add a
- * createHttpRunStore() implementing the same interface (list -> GET
- * /api/runs, get -> GET /api/runs/{id}, save -> POST, remove -> DELETE) and
- * change `createDefaultRunStore` below. No component needs to change.
+ *   live API  -> createHttpRunStore: GET/DELETE /api/runs. The API saves every
+ *                successful run itself (id = correlationId), so save() only
+ *                tells listeners to refresh.
+ *   mock mode -> createLocalRunStore: the browser's localStorage, because no
+ *                server exists to save anything.
  */
-import type { RunRecord } from './types';
+import type { LibrainApi, RunKind } from '../api/types';
+import { createHttpRunStore } from './httpRunStore';
 import { createLocalRunStore } from './localRunStore';
+import type { RunDetail, RunListItem } from './types';
 
 export interface RunStoreStatus {
   /** False when runs are only kept in memory for this tab. */
@@ -19,22 +21,22 @@ export interface RunStoreStatus {
 }
 
 export interface RunStore {
+  /** Where runs live: the API's database or this browser. */
+  readonly location: 'server' | 'browser';
   /** Newest first. */
-  list(): Promise<RunRecord[]>;
-  get(id: string): Promise<RunRecord | undefined>;
-  save(run: RunRecord): Promise<void>;
+  list(filter?: { kind?: RunKind }): Promise<RunListItem[]>;
+  /** Undefined when the run does not exist. */
+  get(id: string): Promise<RunDetail | undefined>;
+  /** Records a finished run (a no-op for the server store, which saves on its own). */
+  save(run: RunDetail): Promise<void>;
   remove(id: string): Promise<void>;
-  clear(): Promise<void>;
+  /** Deletes everything; only the browser store supports it. */
+  clear?: () => Promise<void>;
   status(): RunStoreStatus;
   /** Called after any change, including from another tab. Returns an unsubscribe. */
   subscribe(listener: () => void): () => void;
 }
 
-export function createDefaultRunStore(): RunStore {
-  return createLocalRunStore();
-}
-
-export function newRunId(): string {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `run_${Date.now().toString(36)}_${random}`;
+export function createDefaultRunStore(api: LibrainApi): RunStore {
+  return api.mode === 'live' ? createHttpRunStore(api) : createLocalRunStore();
 }
