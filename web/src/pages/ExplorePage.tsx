@@ -191,14 +191,14 @@ function ExploreBody({ data }: { data: ExploreData }) {
               className={styles.chip}
               style={catStyle(c)}
               aria-pressed={category === c.prefix}
-              aria-label={`${c.name}, ${n} ${n === 1 ? 'idea' : 'ideas'}`}
               title={c.name}
               onClick={() => update({ cat: category === c.prefix ? null : c.prefix })}
             >
               <span className={styles.chipGlyph} aria-hidden="true">
                 <Icon name={c.icon} size={12} />
               </span>
-              {c.short} <span className={styles.count}>{n}</span>
+              {c.short} <span className={styles.count}>{n}</span>{' '}
+              <span className="visually-hidden">{n === 1 ? 'idea' : 'ideas'}</span>
             </button>
           );
         })}

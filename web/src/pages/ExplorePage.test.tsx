@@ -81,7 +81,7 @@ describe('Explore', () => {
     await cards();
     const chips = screen.getByRole('group', { name: 'Category' });
     expect(within(chips).getByRole('button', { name: 'All 46' })).toHaveAttribute('aria-pressed', 'true');
-    const football = within(chips).getByRole('button', { name: 'AI × football, 5 ideas' });
+    const football = within(chips).getByRole('button', { name: 'Football 5 ideas' });
     await user.click(football);
     expect(football).toHaveAttribute('aria-pressed', 'true');
     const items = await cards();
@@ -110,8 +110,8 @@ describe('Explore', () => {
     expect(items).toHaveLength(1);
     expect(cardTitle(items[0]!)).toBe(`${raw('F4').request.topicA} × ${raw('F4').request.topicB}`);
     // The category counts follow the search.
-    expect(screen.getByRole('button', { name: 'AI × football, 1 idea' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Drug discovery × agents, 0 ideas' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Football 1 idea' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Drug discovery 0 ideas' })).toBeInTheDocument();
 
     await user.clear(search);
     await user.type(search, 'zzzz-no-such-topic');

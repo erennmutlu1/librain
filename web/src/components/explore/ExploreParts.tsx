@@ -198,13 +198,22 @@ export function ExploreTabs({ data, currentId }: { data?: ExploreData; currentId
 }
 
 /** The rating formula, opened from a "How ratings work" button. */
-export function RatingExplainer({ range, discovery }: { range: NoveltyRange; discovery?: Discovery }) {
+export function RatingExplainer({
+  range,
+  discovery,
+  align = 'start',
+}: {
+  range: NoveltyRange;
+  discovery?: Discovery;
+  /** Which edge the button and panel line up with. */
+  align?: 'start' | 'end';
+}) {
   const uid = useId();
   const [open, setOpen] = useState(false);
   const w = RATING_WEIGHTS;
   const s = discovery?.scores;
   return (
-    <div className={styles.explainer}>
+    <div className={styles.explainer} data-align={align}>
       <button
         type="button"
         className="btn btn-quiet btn-sm"

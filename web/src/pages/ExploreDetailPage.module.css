@@ -95,6 +95,11 @@
   color: var(--accent);
 }
 
+.headExplain {
+  grid-column: 1 / -1;
+  margin-top: calc(var(--s3) * -1);
+}
+
 .headRating {
   display: grid;
   justify-items: start;

@@ -62,6 +62,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s4);
+  align-items: start;
 }
 
 @media (min-width: 60rem) {

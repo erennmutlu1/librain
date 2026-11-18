@@ -113,7 +113,9 @@ function Header({ d, data }: { d: Discovery; data: ExploreData }) {
         <div className={styles.headRating}>
           <Rating value={d.rating} size="lg" />
           <RiskChip discovery={d} />
-          <RatingExplainer range={data.noveltyRange} discovery={d} />
+        </div>
+        <div className={styles.headExplain}>
+          <RatingExplainer range={data.noveltyRange} discovery={d} align="end" />
         </div>
       </div>
     </header>

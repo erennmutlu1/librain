@@ -442,6 +442,12 @@
   min-width: 0;
 }
 
+@media (min-width: 52rem) {
+  .explainer[data-align='end'] {
+    justify-items: end;
+  }
+}
+
 .explainerPanel {
   display: grid;
   gap: var(--s3);
