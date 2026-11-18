@@ -22,8 +22,7 @@
 
 ### Added
 
-- Companion paper (`docs/architecture.pdf`): Appendix B, pages 66–70, with the November 2026 revision (changes, the two corrections, verification by replay, interface and deployment, Experiment 8 with 46 runs, limitations). Pages 1–65 are unchanged. Source: `docs/addendum/appendix-b.html`.
-
+- Companion paper (`docs/architecture.pdf`, 71 pages): rebuilt from the June PDF into an editable source (`docs/paper-source/`, verified word for word against the original), with the revision integrated into its sections: corrected stale statements, the hardening (§8.5), and Experiment 8 (§6.8, §7.11). Cover date unchanged (May 2026). Every change is listed in `docs/paper-source/CHANGES.md`.
 - Web UI (`web/`, React + Vite + TypeScript): Library, Ask, Discover, Compare and History.
 - Ingest by arXiv id with authoritative metadata from the arXiv API; delete papers; passage text in every citation.
 - Run history in SQLite (`/api/runs`), doubling as the audit lookup by correlation id.
