@@ -4,6 +4,9 @@ name: Publish
 #   - api-image: the API container (public mode is switched on by the host's settings,
 #     not baked in) to GitHub Container Registry, for anyone who wants to run it. The live
 #     API itself is built by Render straight from this repository (render.yaml);
+#   - render: once that image builds, asks Render to redeploy the live API when the push
+#     changed it (LIBRAIN/ or the Dockerfile). Render's own on-commit trigger did not
+#     fire for this repository, so the deploy hook (secret RENDER_DEPLOY_HOOK) does it;
 #   - pages: the web UI's public build (recorded runs by default, live runs with the
 #     visitor's own keys) to GitHub Pages.
 # Both stay off until the repository variable PUBLIC_DEMO is "true", so forks and the
@@ -53,6 +56,40 @@ jobs:
             org.opencontainers.image.description=LIBRAIN API (set Public__Enabled=true for the public demo)
             org.opencontainers.image.licenses=MIT
 
+  render:
+    name: Redeploy the live API (Render)
+    if: vars.PUBLIC_DEMO == 'true'
+    needs: api-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Did this push change the API?
+        id: changed
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # A manual run, or a push whose previous commit is unknown, redeploys.
+          if [ "${{ github.event_name }}" != "push" ] || [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$BEFORE" "$GITHUB_SHA" -- LIBRAIN Dockerfile; then
+            echo "api=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger the Render deploy hook
+        if: steps.changed.outputs.api == 'true'
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "RENDER_DEPLOY_HOOK is not set; skipping."; exit 0; fi
+          # The URL carries a key: never echo it.
+          curl -fsS -X POST -o /dev/null "$HOOK"
+          echo "Render deploy requested."
 
   pages:
     name: Web UI (GitHub Pages)

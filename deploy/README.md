@@ -68,8 +68,11 @@ without being shown. The Keychain holds `librain-qdrant-url` and `librain-qdrant
    ```
 5. Push to `main` (or run the Publish workflow).
 
-After that, every push to `main` republishes the UI, and Render rebuilds the API when `LIBRAIN/`
-or the `Dockerfile` changed. The Publish workflow also pushes the API image to
+After that, every push to `main` republishes the UI. When a push changes `LIBRAIN/` or the
+`Dockerfile`, the Publish workflow asks Render to rebuild the API through its deploy hook
+(Render, the service, Settings, Deploy Hook: copy it into the repository secret
+`RENDER_DEPLOY_HOOK`, e.g. `pbpaste | gh secret set RENDER_DEPLOY_HOOK`, then copy something
+else). Render's own on-commit trigger did not fire for this repository. The Publish workflow also pushes the API image to
 `ghcr.io/erennmutlu1/librain-api` for anyone who wants to run it themselves.
 
 ## Checking it
