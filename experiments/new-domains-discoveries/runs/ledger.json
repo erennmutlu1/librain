@@ -1,0 +1,95 @@
+{
+  "total": 1.2304518999999998,
+  "runs": {
+    "L1": {
+      "cost": 0.0784,
+      "status": 200,
+      "seconds": 18.6
+    },
+    "E1": {
+      "cost": 0.076,
+      "status": 200,
+      "seconds": 24.3
+    },
+    "M1": {
+      "cost": 0.06486,
+      "status": 200,
+      "seconds": 22.3
+    },
+    "M2": {
+      "cost": 0.06218,
+      "status": 200,
+      "seconds": 18.0
+    },
+    "M3": {
+      "cost": 0.0725,
+      "status": 200,
+      "seconds": 22.8
+    },
+    "E2": {
+      "cost": 0.05944,
+      "status": 200,
+      "seconds": 23.5
+    },
+    "E3": {
+      "cost": 0.07406,
+      "status": 200,
+      "seconds": 21.5
+    },
+    "L2": {
+      "cost": 0.06631,
+      "status": 200,
+      "seconds": 18.9
+    },
+    "E4": {
+      "cost": 0.07133,
+      "status": 200,
+      "seconds": 25.6
+    },
+    "E5": {
+      "cost": 0.07009,
+      "status": 200,
+      "seconds": 18.2
+    },
+    "L3": {
+      "cost": 0.06764,
+      "status": 200,
+      "seconds": 19.4
+    },
+    "E6": {
+      "cost": 0.06525,
+      "status": 200,
+      "seconds": 20.2
+    },
+    "M4": {
+      "cost": 0.06614,
+      "status": 200,
+      "seconds": 23.9
+    },
+    "L4": {
+      "cost": 0.0704,
+      "status": 200,
+      "seconds": 21.6
+    },
+    "L5": {
+      "cost": 0.06037,
+      "status": 200,
+      "seconds": 23.0
+    },
+    "L6": {
+      "cost": 0.06831,
+      "status": 200,
+      "seconds": 24.9
+    },
+    "M5": {
+      "cost": 0.06645,
+      "status": 200,
+      "seconds": 21.9
+    },
+    "L7": {
+      "cost": 0.07073,
+      "status": 200,
+      "seconds": 18.0
+    }
+  }
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "L1",
+    "topicA": "benchmarking legal language understanding across English legal NLP tasks (LexGLUE)",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "E1",
+    "topicA": "passive acoustic monitoring of animal populations from field recordings",
+    "topicB": "probabilistic time-series forecasting with autoregressive recurrent networks (DeepAR)",
+    "topK": 5
+  },
+  {
+    "id": "M1",
+    "topicA": "multi-instrument music transcription as sequence-to-sequence over note events",
+    "topicB": "unsupervised translation of programming languages",
+    "topK": 5
+  },
+  {
+    "id": "M2",
+    "topicA": "long-term structure and repeated motifs in symbolic music generation",
+    "topicB": "graph attention networks",
+    "topK": 5
+  },
+  {
+    "id": "M3",
+    "topicA": "polyphonic piano transcription from onsets and frames",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "E2",
+    "topicA": "generalising animal recognition to new camera-trap locations",
+    "topicB": "pretraining photovoltaic forecasting models on synthetic data then fine-tuning",
+    "topK": 5
+  },
+  {
+    "id": "E3",
+    "topicA": "detecting animal vocalisations on battery-powered field recorders",
+    "topicB": "neuromorphic hardware energy efficiency",
+    "topK": 5
+  },
+  {
+    "id": "L2",
+    "topicA": "expert-annotated contract review and clause extraction",
+    "topicB": "semi-supervised classification with graph convolutional networks",
+    "topK": 5
+  },
+  {
+    "id": "E4",
+    "topicA": "identifying and counting wild animals in camera-trap images",
+    "topicB": "contrastive image-text pretraining (CLIP)",
+    "topK": 5
+  },
+  {
+    "id": "E5",
+    "topicA": "animal movement tracking with bio-logging devices and drones",
+    "topicB": "learned physics simulators with graph networks",
+    "topK": 5
+  },
+  {
+    "id": "L3",
+    "topicA": "predicting court judgments from case facts",
+    "topicB": "graph attention networks",
+    "topK": 5
+  },
+  {
+    "id": "E6",
+    "topicA": "camera-trap networks for monitoring wildlife across a reserve",
+    "topicB": "spatio-temporal graph neural networks",
+    "topK": 5
+  },
+  {
+    "id": "M4",
+    "topicA": "generating music with singing in the raw audio domain (Jukebox)",
+    "topicB": "contrastive image-text pretraining (CLIP)",
+    "topK": 5
+  },
+  {
+    "id": "L4",
+    "topicA": "similar case matching and legal question answering",
+    "topicB": "retrieval-augmented generation with a non-parametric memory",
+    "topK": 5
+  },
+  {
+    "id": "L5",
+    "topicA": "contract review by legal professionals with machine highlighting",
+    "topicB": "controlled experiment on developer productivity with an AI pair programmer",
+    "topK": 5
+  },
+  {
+    "id": "L6",
+    "topicA": "legal text classification tasks from court cases, statutes and contracts in a legal NLP benchmark",
+    "topicB": "which economic tasks people perform with AI assistants",
+    "topK": 5
+  },
+  {
+    "id": "M5",
+    "topicA": "low-resource multi-instrument music transcription",
+    "topicB": "self-supervised learning of speech representations by masking latent features",
+    "topK": 5
+  },
+  {
+    "id": "L7",
+    "topicA": "symbol-based legal reasoning with law articles as explicit rules",
+    "topicB": "physics-informed neural networks",
+    "topK": 5
+  }
+]

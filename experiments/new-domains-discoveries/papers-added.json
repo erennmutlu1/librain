@@ -1,0 +1,86 @@
+[
+  {
+    "arxivId": "1906.02059",
+    "title": "Neural Legal Judgment Prediction in English",
+    "year": 2019,
+    "area": "law",
+    "passages": 8
+  },
+  {
+    "arxivId": "2004.12158",
+    "title": "How Does NLP Benefit Legal System: A Summary of Legal Artificial Intelligence",
+    "year": 2020,
+    "area": "law",
+    "passages": 17
+  },
+  {
+    "arxivId": "2103.06268",
+    "title": "CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review",
+    "year": 2021,
+    "area": "law",
+    "passages": 16
+  },
+  {
+    "arxivId": "2110.00976",
+    "title": "LexGLUE: A Benchmark Dataset for Legal Language Understanding in English",
+    "year": 2021,
+    "area": "law",
+    "passages": 31
+  },
+  {
+    "arxivId": "1710.11153",
+    "title": "Onsets and Frames: Dual-Objective Piano Transcription",
+    "year": 2017,
+    "area": "music",
+    "passages": 11
+  },
+  {
+    "arxivId": "1809.04281",
+    "title": "Music Transformer",
+    "year": 2018,
+    "area": "music",
+    "passages": 14
+  },
+  {
+    "arxivId": "2005.00341",
+    "title": "Jukebox: A Generative Model for Music",
+    "year": 2020,
+    "area": "music",
+    "passages": 26
+  },
+  {
+    "arxivId": "2111.03017",
+    "title": "MT3: Multi-Task Multitrack Music Transcription",
+    "year": 2021,
+    "area": "music",
+    "passages": 21
+  },
+  {
+    "arxivId": "1703.05830",
+    "title": "Automatically identifying, counting, and describing wild animals in camera-trap images with deep learning",
+    "year": 2017,
+    "area": "wildlife",
+    "passages": 22
+  },
+  {
+    "arxivId": "1807.04975",
+    "title": "Recognition in Terra Incognita",
+    "year": 2018,
+    "area": "wildlife",
+    "passages": 16
+  },
+  {
+    "arxivId": "2110.12951",
+    "title": "Seeing biodiversity: perspectives in machine learning for wildlife conservation",
+    "year": 2021,
+    "area": "wildlife",
+    "passages": 34
+  },
+  {
+    "arxivId": "2112.06725",
+    "title": "Computational bioacoustics with deep learning: a review and roadmap",
+    "year": 2021,
+    "area": "wildlife",
+    "passages": 44
+  }
+]
