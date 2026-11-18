@@ -53,6 +53,19 @@ public sealed record SecurityOptions
     public string ApiKey { get; init; } = string.Empty;
 }
 
+public sealed record PublicModeOptions
+{
+    public const string SectionName = "Public";
+
+    // The public deployment behind librain.erenmutlu.me. When true:
+    //   - every LLM and embedding call uses the visitor's own keys (X-Anthropic-Key,
+    //     X-OpenAI-Key headers) and never the configured ones (see LIBRAIN.Llm.ProviderKeys);
+    //   - the corpus is read-only (no ingest or delete), and run history, the OpenAI port
+    //     and the fabrication probe are switched off;
+    //   - nothing about a visitor's run is stored on the server.
+    public bool Enabled { get; init; }
+}
+
 public sealed record RateLimitingOptions
 {
     public const string SectionName = "RateLimiting";

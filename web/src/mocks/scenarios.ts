@@ -283,18 +283,24 @@ interface ChunkRef {
   chunkIndex: number | null;
 }
 
-function chunkRefs(): ChunkRef[] {
+interface RecordingLists {
+  ask: readonly AskRecording[];
+  discover: readonly DiscoverRecording[];
+  compare: readonly CompareRecording[];
+}
+
+function chunkRefs(lists: RecordingLists): ChunkRef[] {
   const refs: ChunkRef[] = [];
-  for (const s of discoverScenarios) {
+  for (const s of lists.discover) {
     const r = normalizeDiscoverResponse(s.response);
     for (const e of r.supportingEvidence) refs.push({ paperId: e.paperId, chunkIndex: e.chunkIndex });
     for (const c of r.claimValidation?.claims ?? []) for (const k of c.supportingChunks) refs.push(parseChunkKey(k));
     for (const b of r.extrapolationBasis) if (b.groundedInChunkId) refs.push(parseChunkKey(b.groundedInChunkId));
   }
-  for (const s of askScenarios) {
+  for (const s of lists.ask) {
     for (const c of normalizeQueryResponse(s.response).citations) refs.push({ paperId: c.paperId, chunkIndex: c.chunkIndex });
   }
-  for (const s of compareScenarios) {
+  for (const s of lists.compare) {
     const cited = (s.naiveRag as { claimedCitations?: { paperId: string; chunkIndex: number; isResolved: boolean }[] }).claimedCitations ?? [];
     // Unresolved citations point outside the retrieval set, so they prove nothing about the corpus.
     for (const c of cited) if (c.isResolved) refs.push({ paperId: c.paperId, chunkIndex: c.chunkIndex });
@@ -303,22 +309,27 @@ function chunkRefs(): ChunkRef[] {
 }
 
 /**
- * DERIVED. The papers the recordings cite, with no invented metadata: title,
- * authors, year and ingest date are unknown (null), and chunkCount is a lower
- * bound (highest chunk index cited, plus one). The API snapshot's own papers
- * list is merged in as captured.
+ * DERIVED. The papers a set of recordings cites, with no invented metadata:
+ * title, authors, year and ingest date are unknown (null), and chunkCount is a
+ * lower bound (highest chunk index cited, plus one). `captured` papers (an
+ * API snapshot's list) are kept as captured and come first.
  */
-export function mockLibrary(): unknown[] {
+export function libraryFrom(lists: RecordingLists, captured: readonly unknown[] = []): unknown[] {
   const maxIndex = new Map<string, number>();
-  for (const ref of chunkRefs()) {
+  for (const ref of chunkRefs(lists)) {
     const prev = maxIndex.get(ref.paperId) ?? -1;
     maxIndex.set(ref.paperId, Math.max(prev, ref.chunkIndex ?? 0));
   }
-  const captured = (contract.papers as { paperId: string }[]).map((p) => p.paperId);
+  const capturedIds = (captured as { paperId: string }[]).map((p) => p.paperId);
   const derived = [...maxIndex.entries()]
-    .filter(([id]) => !captured.includes(id))
+    .filter(([id]) => !capturedIds.includes(id))
     .map(([paperId, max]) => ({ paperId, title: null, chunkCount: max + 1, firstIngestedAt: null, authors: null, year: null }));
-  return [...(contract.papers as unknown[]), ...derived];
+  return [...captured, ...derived];
+}
+
+/** The owner's mock mode: the API snapshot's papers list plus every paper id the recordings cite. */
+export function mockLibrary(): unknown[] {
+  return libraryFrom({ ask: askScenarios, discover: discoverScenarios, compare: compareScenarios }, contract.papers as unknown[]);
 }
 
 // ---------- Matching ----------
@@ -335,20 +346,73 @@ function sameTopics(a: { topicA: string; topicB?: string }, b: { topicA: string;
   return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
 }
 
-export function findDiscover(request: DiscoverRequest): { scenario: DiscoverRecording; matched: boolean } {
+/** Every endpoint defaults topK to 5. */
+function sameTopK(a: { topK?: number }, b: { topK?: number }): boolean {
+  return (a.topK ?? 5) === (b.topK ?? 5);
+}
+
+function sameQuestion(a: QueryRequest, b: QueryRequest): boolean {
+  const q = (r: QueryRequest) => normalizeTopic(r.query).replace(/[?.!]+$/, '');
+  return q(a) === q(b);
+}
+
+/** The recording for these inputs, if any. `strict` also requires the same passages per topic. */
+export function matchDiscover(list: readonly DiscoverRecording[], request: DiscoverRequest, strict = false): DiscoverRecording | undefined {
   const provider = request.provider ?? 'anthropic';
-  const byTopic = discoverScenarios.filter((s) => sameTopics(s.request, request));
-  const scenario = byTopic.find((s) => (s.request.provider ?? 'anthropic') === provider) ?? byTopic[0];
+  const byTopic = list.filter((s) => sameTopics(s.request, request) && (!strict || sameTopK(s.request, request)));
+  const sameProvider = byTopic.find((s) => (s.request.provider ?? 'anthropic') === provider);
+  // A strict set never answers with another provider's run: that would be a different recording.
+  return strict ? sameProvider : (sameProvider ?? byTopic[0]);
+}
+
+export function matchCompare(list: readonly CompareRecording[], request: CompareRequest, strict = false): CompareRecording | undefined {
+  return list.find((s) => sameTopics(s.request, request) && (!strict || sameTopK(s.request, request)));
+}
+
+export function matchAsk(list: readonly AskRecording[], request: QueryRequest, strict = false): AskRecording | undefined {
+  return list.find((s) => sameQuestion(s.request, request) && (!strict || sameTopK(s.request, request)));
+}
+
+export function findDiscover(request: DiscoverRequest): { scenario: DiscoverRecording; matched: boolean } {
+  const scenario = matchDiscover(discoverScenarios, request);
   return scenario ? { scenario, matched: true } : { scenario: DEFAULT_DISCOVER, matched: false };
 }
 
 export function findCompare(request: CompareRequest): { scenario: CompareRecording; matched: boolean } {
-  const scenario = compareScenarios.find((s) => sameTopics(s.request, request));
+  const scenario = matchCompare(compareScenarios, request);
   return scenario ? { scenario, matched: true } : { scenario: DEFAULT_COMPARE, matched: false };
 }
 
 export function findAsk(request: QueryRequest): { scenario: AskRecording; matched: boolean } {
-  const q = normalizeTopic(request.query).replace(/[?.!]+$/, '');
-  const scenario = askScenarios.find((s) => normalizeTopic(s.request.query).replace(/[?.!]+$/, '') === q);
+  const scenario = matchAsk(askScenarios, request);
   return scenario ? { scenario, matched: true } : { scenario: askScenarios[0]!, matched: false };
 }
+
+// ---------- Recording sets ----------
+
+/** Everything one mock client serves. */
+export interface RecordingSet extends RecordingLists {
+  /**
+   * What inputs that match no recording get. The owner's mock mode serves the
+   * API snapshot, under a notice saying so. Null means nothing is ever
+   * substituted: the client answers with NO_RECORDING instead.
+   */
+  fallback: { ask: AskRecording; discover: DiscoverRecording; compare: CompareRecording } | null;
+  /** Also match on passages per topic, so a run is only served for the request it recorded. */
+  strict: boolean;
+  /** The mock Library, as raw /api/papers items. */
+  library: () => unknown[];
+  /** The mock History, as raw /api/runs items (records are built from the snapshots). */
+  runs: unknown;
+}
+
+/** The owner's mock mode (`npm run dev`), unchanged. */
+export const defaultRecordings: RecordingSet = {
+  ask: askScenarios,
+  discover: discoverScenarios,
+  compare: compareScenarios,
+  fallback: { ask: askScenarios[0]!, discover: DEFAULT_DISCOVER, compare: DEFAULT_COMPARE },
+  strict: false,
+  library: mockLibrary,
+  runs: contract.runs,
+};

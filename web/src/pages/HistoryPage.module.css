@@ -129,3 +129,19 @@
     row-gap: var(--s1);
   }
 }
+
+/* Public build: where these runs live. */
+.browserOnly {
+  display: flex;
+  gap: var(--s2);
+  align-items: baseline;
+  margin-top: var(--s3);
+  max-width: 68ch;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.browserOnly > svg {
+  flex: none;
+  align-self: center;
+}

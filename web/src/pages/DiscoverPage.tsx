@@ -16,6 +16,7 @@ import { ProgressStepper } from '../components/ProgressStepper';
 import { ErrorNotice } from '../components/States';
 import { useRecordRun } from '../history/context';
 import { topicLabel } from '../lib/format';
+import { usePublicDemo } from '../public/context';
 import { useSessionState } from '../lib/sessionStore';
 import { DISCOVER_STAGES } from '../lib/stages';
 import { useRequest, type RequestFn } from '../lib/useRequest';
@@ -36,8 +37,12 @@ interface DiscoverRunData {
   result: DiscoverResponse;
 }
 
-/** The same checks, in the same order, as DiscoveryEndpoints.Validate. */
-function toDiscoverRequest(form: DiscoverForm): DiscoverRequest | string {
+/**
+ * The same checks, in the same order, as DiscoveryEndpoints.Validate. The
+ * public API runs Anthropic only (it answers 400 to OpenAI), so the public
+ * build always sends that provider and offers no choice.
+ */
+function toDiscoverRequest(form: DiscoverForm, anthropicOnly = false): DiscoverRequest | string {
   const topicA = form.topicA.trim();
   const topicB = form.topicB.trim();
   if (!topicA) return 'Enter at least Topic A.';
@@ -45,9 +50,10 @@ function toDiscoverRequest(form: DiscoverForm): DiscoverRequest | string {
   if (topicB && topicA === topicB) return 'Topic B must differ from Topic A.';
   const topK = Number(form.topK);
   if (!Number.isInteger(topK) || topK < 1 || topK > 20) return 'Passages per topic must be a whole number from 1 to 20.';
-  const request: DiscoverRequest = { topicA, topK, provider: form.provider };
+  const provider: Provider = anthropicOnly ? 'anthropic' : form.provider;
+  const request: DiscoverRequest = { topicA, topK, provider };
   if (topicB) request.topicB = topicB;
-  if (form.provider === 'openai') request.model = form.model;
+  if (provider === 'openai') request.model = form.model;
   return request;
 }
 
@@ -55,6 +61,7 @@ export default function DiscoverPage() {
   const api = useApi();
   const uid = useId();
   const record = useRecordRun();
+  const anthropicOnly = usePublicDemo() !== null;
   const [form, setForm] = useSessionState<DiscoverForm>('discover.form', EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -82,7 +89,7 @@ export default function DiscoverPage() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const request = toDiscoverRequest(form);
+    const request = toDiscoverRequest(form, anthropicOnly);
     if (typeof request === 'string') {
       setFormError(request);
       return;
@@ -168,32 +175,36 @@ export default function DiscoverPage() {
         </div>
 
         <div className={styles.actions}>
-          <div className={styles.options}>
-            <Segmented<Provider>
-              legend="Model provider"
-              name={`${uid}-provider`}
-              value={form.provider}
-              onChange={(v) => set('provider', v)}
-              options={[
-                { value: 'anthropic', label: 'Anthropic' },
-                { value: 'openai', label: 'OpenAI' },
-              ]}
-            />
-            {form.provider === 'openai' ? (
-              <div className="field">
-                <label className="field-label" htmlFor={`${uid}-m`}>
-                  OpenAI model
-                </label>
-                <select id={`${uid}-m`} className="input" value={form.model} onChange={(e) => set('model', e.target.value as OpenAiModel)}>
-                  {OPENAI_MODELS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-          </div>
+          {anthropicOnly ? (
+            <p className={styles.kbd}>Generation and claim checks run on Anthropic models.</p>
+          ) : (
+            <div className={styles.options}>
+              <Segmented<Provider>
+                legend="Model provider"
+                name={`${uid}-provider`}
+                value={form.provider}
+                onChange={(v) => set('provider', v)}
+                options={[
+                  { value: 'anthropic', label: 'Anthropic' },
+                  { value: 'openai', label: 'OpenAI' },
+                ]}
+              />
+              {form.provider === 'openai' ? (
+                <div className="field">
+                  <label className="field-label" htmlFor={`${uid}-m`}>
+                    OpenAI model
+                  </label>
+                  <select id={`${uid}-m`} className="input" value={form.model} onChange={(e) => set('model', e.target.value as OpenAiModel)}>
+                    {OPENAI_MODELS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+            </div>
+          )}
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Discovering…' : 'Discover'}
           </button>
@@ -222,7 +233,7 @@ export default function DiscoverPage() {
           <ErrorNotice
             error={state.error}
             onRetry={() => {
-              const request = toDiscoverRequest(form);
+              const request = toDiscoverRequest(form, anthropicOnly);
               if (typeof request !== 'string') void run(request);
             }}
           />

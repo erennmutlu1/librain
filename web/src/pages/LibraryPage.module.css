@@ -379,3 +379,8 @@ tr[data-confirming] > td {
     width: 5rem;
   }
 }
+
+/* Public build: the corpus note above the list, which then has the full width. */
+.readOnly {
+  margin-bottom: var(--s5);
+}

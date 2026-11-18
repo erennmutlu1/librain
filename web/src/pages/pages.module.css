@@ -89,3 +89,16 @@
   line-height: 1.15;
   overflow-wrap: anywhere;
 }
+
+/* Public build: a mode notice above the query bar (Ask has no recorded runs). */
+.modeNotice {
+  margin-bottom: var(--s4);
+}
+
+.modeNotice p {
+  margin-top: var(--s1);
+}
+
+.modeNotice :global(.cluster) {
+  margin-top: var(--s3);
+}

@@ -1,0 +1,112 @@
+name: Publish
+
+# The public demo at https://librain.erenmutlu.me:
+#   - api-image: the API container (public mode is switched on by the host's settings,
+#     not baked in) to GitHub Container Registry, then a redeploy of the Render service
+#     that runs it (render.yaml), when the RENDER_DEPLOY_HOOK secret is set;
+#   - pages: the web UI's public build (recorded runs by default, live runs with the
+#     visitor's own keys) to GitHub Pages.
+# Both stay off until the repository variable PUBLIC_DEMO is "true", so forks and the
+# time before go-live publish nothing. Setup: deploy/README.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  api-image:
+    name: API image (ghcr.io)
+    if: vars.PUBLIC_DEMO == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/librain-api:latest
+            ghcr.io/${{ github.repository_owner }}/librain-api:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=LIBRAIN API (set Public__Enabled=true for the public demo)
+            org.opencontainers.image.licenses=MIT
+
+      # Render does not watch the registry; its deploy hook pulls :latest again.
+      - name: Redeploy on Render
+        if: env.RENDER_DEPLOY_HOOK != ''
+        run: curl -fsS -m 30 -X POST -o /dev/null "$RENDER_DEPLOY_HOOK" && echo "Render redeploy requested"
+
+  pages:
+    name: Web UI (GitHub Pages)
+    if: vars.PUBLIC_DEMO == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build (public demo)
+        run: npm run build
+        env:
+          VITE_PUBLIC_DEMO: 'true'
+          VITE_USE_MOCKS: 'true'
+          # The Azure Container Apps URL, set as a repository variable after deployment.
+          VITE_API_BASE_URL: ${{ vars.LIBRAIN_API_URL }}
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4

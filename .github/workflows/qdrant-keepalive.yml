@@ -1,0 +1,37 @@
+name: Qdrant keep-alive
+
+# The free Qdrant Cloud cluster that holds the public corpus is suspended after a week
+# without use. One read of the collection every third day keeps it active. Read-only key,
+# no other service involved, nothing billed.
+
+on:
+  schedule:
+    - cron: "17 6 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write   # for the last step
+
+jobs:
+  ping:
+    name: Read the collection
+    if: vars.PUBLIC_DEMO == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read librain_chunks
+        env:
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_READONLY_KEY }}
+        run: |
+          code=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -H "api-key: $QDRANT_API_KEY" "${QDRANT_URL%/}:6333/collections/librain_chunks")
+          echo "Qdrant answered HTTP $code"
+          test "$code" = 200
+
+      # GitHub switches off scheduled workflows in a public repository after 60 days with
+      # no commits. Re-enabling it on every run keeps the schedule alive between commits
+      # (the approach of the keepalive-workflow action, without dummy commits).
+      - name: Keep this schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable qdrant-keepalive.yml --repo "$GITHUB_REPOSITORY"

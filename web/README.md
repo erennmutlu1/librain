@@ -89,6 +89,47 @@ origin, and `proxy_buffering off` keeps progress streams live. The API is
 also published on http://localhost:5080, so for `npm run dev` against that
 stack set `VITE_API_PROXY_TARGET=http://localhost:5080`.
 
+### Public build (static site)
+
+```bash
+cd web
+VITE_PUBLIC_DEMO=true VITE_API_BASE_URL=https://<public API origin> npm run build
+```
+
+The build behind https://librain.erenmutlu.me (GitHub Pages). It ships no
+keys of its own. A pill in the header switches between two modes; switching
+cancels any running request, clears every result and remounts the screen.
+
+- **Recorded** (default): the owner's real runs, replayed by the mock client
+  from `src/mocks/publicScenarios.ts`, with no network. Discover offers the
+  46 committed runs from `src/explore/data/` plus the Anthropic
+  baseline-experiment pairs; Compare the two real pairs. Matching is strict
+  (topics in either order, and passages per topic): inputs that match no
+  recording get a notice and nothing is substituted. The API contract
+  snapshots and the OpenAI recordings never appear. Ask has no real
+  recording, so it says so and points to Live.
+- **Live**: the API at `VITE_API_BASE_URL`, with the visitor's own keys sent
+  as `X-Anthropic-Key` and `X-OpenAI-Key` on the model endpoints only (not
+  `/health` or `GET /api/papers`), never in a URL and never in Recorded mode.
+  Discover always sends `provider: "anthropic"`; the provider choice is
+  hidden. A 401 "provider keys required" opens the keys panel; a provider's
+  own rejection reads "Anthropic rejected your key: …".
+- **Waking the free host**: the API sleeps after 15 idle minutes and takes up
+  to a minute to wake. A live request with no answer after 4 s, while the
+  server has not answered in the last 10 minutes, shows "Waking up the free
+  server…" until the first answer (a `/health` probe clears it during a long
+  Compare). It is never an error, and no live request has a timeout.
+- **Keys panel** (key icon): both keys with show/hide, kept in
+  `sessionStorage`, or in `localStorage` with "Remember on this device"; Clear
+  removes them from both. Choosing Live without both keys opens it.
+- **Read-only**: Library hides upload, arXiv ingest and delete in both modes.
+- **History** is this browser only: the live client saves each successful
+  Ask, Discover and Compare run to `localStorage` (the last 50), and History
+  reads that store. `/api/runs` is never called.
+- **Deep links**: every build also writes `dist/404.html` (a copy of
+  `index.html`), so GitHub Pages serves the app for `/explore/F2` and the
+  router takes over.
+
 ### Environment variables
 
 | Variable | Default | Meaning |
@@ -96,6 +137,7 @@ stack set `VITE_API_PROXY_TARGET=http://localhost:5080`.
 | `VITE_USE_MOCKS` | `true` in `npm run dev`, `false` in `npm run build` | `false`/`0`/`no`/`off` calls the API; anything else uses recorded data. |
 | `VITE_API_PROXY_TARGET` | `http://localhost:5000` | Dev-server proxy target for real mode. |
 | `VITE_API_BASE_URL` | empty (same origin) | API origin for builds served apart from the API (needs CORS on the API). |
+| `VITE_PUBLIC_DEMO` | unset | `true` makes the public build above (Recorded/Live switch, visitor keys, read-only). `VITE_USE_MOCKS` is then ignored. |
 
 See `.env.example`.
 
@@ -263,6 +305,7 @@ src/
                 httpClient.ts  live client: every endpoint, streams, X-Api-Key, problem+json, Retry-After
                 mockClient.ts  recorded-data client (dynamically imported; not in real-mode bundles)
                 apiKey.ts      the stored key and the "please enter a key" signal
+                providerKeys.ts  public build: the visitor's Anthropic/OpenAI keys (session or local storage)
                 errors.ts      ApiError and plain-language descriptions (401, 429, 502, stream errors)
   mocks/        contract/      responses captured from the real API (do not edit by hand)
                 fixtures/      committed experiment outputs (byte-for-byte copies)
@@ -278,13 +321,16 @@ src/
                 model.ts       takeaways, percentiles, evidence bullets, related ideas, filter/sort/search,
                                day pick, quiz rounds, stats; runs.ts builds it (lazy chunk)
                 bookmarks.ts / quizScore.ts   localStorage with every access guarded
+  public/       PublicApp.tsx  public build: the Recorded/Live switch around App
+                clients.ts     the two clients (live one sends the visitor's keys); browserHistory.ts
   history/      runStore.ts    THE SEAM: RunStore interface + createDefaultRunStore(api)
                 httpRunStore.ts / localRunStore.ts, exporters.ts (JSON/Markdown)
   components/   AnnotatedClaim (the sentence view), ProgressStepper, DiscoverResult, AskResult, CompareView, ...
   pages/        one lazily loaded chunk per screen
 ```
 
-The initial bundle is 301 kB (96 kB gzip), down from 420 kB (130 kB gzip)
+The initial bundle is 312 kB (99 kB gzip; the public build's keys panel and
+mode switch are 11 kB of it), down from 420 kB (130 kB gzip)
 before route splitting and the switch from the data router to declarative
 routing. React DOM is about 200 kB of that. Explore added 4 kB (1.6 kB gzip)
 to it, the nav link, routes and icons; its four screens share a 31 kB
@@ -292,7 +338,7 @@ to it, the nav link, routes and icons; its four screens share a 31 kB
 
 ## Tests
 
-`npm test` runs 216 tests, all offline:
+`npm test` runs 261 tests, all offline:
 
 - **Contract tests** (`api/contract.test.ts`) parse every file in
   `src/mocks/contract/` through the client mapping. When the backend
@@ -326,6 +372,15 @@ to it, the nav link, routes and icons; its four screens share a 31 kB
 - Sentence matching against every recorded run, fabricated-citation audit,
   arXiv id rules, the progress stepper, and screen-level flows (arXiv
   ingest, inline delete, 401 to API key to retry, 429).
+
+- **Public build** (`public/public.test.ts`, `public/PublicApp.test.tsx`,
+  `public/wakeWatch.test.ts`):
+  strict matching with no substitute and no snapshot in any picker; keys in
+  `sessionStorage` unless "remember" is on; the key headers only in Live
+  mode, only on the API base URL's model endpoints; 401 "provider keys
+  required" opens the keys panel; switching modes clears results; browser
+  History round trip and its cap of 50; Library without write controls; the
+  wake-up notice appearing at 4 s and clearing on the answer (fake timers).
 
 Tests that need a variation of a snapshot derive it in the test and say so
 (for example `validationFailed` flipped to true, or one Compare outcome

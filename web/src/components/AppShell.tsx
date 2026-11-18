@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useApi } from '../api/context';
+import type { LibrainApi } from '../api/types';
+import { usePublicDemo } from '../public/context';
 import { Icon } from './Icon';
+import { ProviderKeysMenu } from './ProviderKeysMenu';
 import { SettingsMenu } from './SettingsMenu';
 import styles from './AppShell.module.css';
 
@@ -59,9 +62,11 @@ function ThemeToggle() {
   );
 }
 
-function ApiStatus() {
-  const api = useApi();
-  const [state, setState] = useState<'checking' | 'up' | 'down'>('checking');
+type Health = 'checking' | 'up' | 'down';
+
+/** GET /health for the live client; the mock client is never checked. */
+function useHealth(api: LibrainApi): Health {
+  const [state, setState] = useState<Health>('checking');
 
   useEffect(() => {
     if (api.mode === 'mock') return;
@@ -74,6 +79,13 @@ function ApiStatus() {
       });
     return () => controller.abort();
   }, [api]);
+
+  return state;
+}
+
+function ApiStatus() {
+  const api = useApi();
+  const state = useHealth(api);
 
   if (api.mode === 'mock') {
     return (
@@ -92,8 +104,49 @@ function ApiStatus() {
   );
 }
 
+const HEALTH_LABEL: Record<Health, string> = { checking: 'checking the API', up: 'API connected', down: 'API unreachable' };
+
+/**
+ * Public build: which data the screens show. Recorded replays real runs from
+ * the repository; Live calls the API with the visitor's own keys.
+ */
+function ModeSwitch() {
+  const demo = usePublicDemo();
+  const api = useApi();
+  const health = useHealth(api);
+  if (!demo) return null;
+  const live = demo.mode === 'live';
+  return (
+    <div className={styles.modeSwitch} role="group" aria-label="Data source">
+      <button
+        type="button"
+        className={styles.mode}
+        data-mode="recorded"
+        aria-pressed={!live}
+        onClick={() => demo.switchTo('recorded')}
+        title="Real runs recorded in the repository. No keys, nothing billed."
+      >
+        Recorded
+      </button>
+      <button
+        type="button"
+        className={styles.mode}
+        data-mode="live"
+        aria-pressed={live}
+        onClick={() => demo.switchTo('live')}
+        title={live ? `Live: ${HEALTH_LABEL[health]}` : 'Run your own inputs on the API with your own keys, billed to your accounts.'}
+      >
+        {live ? <span className={styles.dot} data-tone={health} aria-hidden="true" /> : null}
+        Live
+        {live ? <span className="visually-hidden"> ({HEALTH_LABEL[health]})</span> : null}
+      </button>
+    </div>
+  );
+}
+
 export function AppShell() {
   const location = useLocation();
+  const demo = usePublicDemo();
 
   // Move focus to the main region on navigation so keyboard and screen-reader
   // users start at the new page, not the old link.
@@ -109,7 +162,7 @@ export function AppShell() {
         Skip to content
       </a>
       <header className={styles.header}>
-        <div className={styles.headerInner}>
+        <div className={styles.headerInner} data-public={demo ? '' : undefined}>
           <div className={styles.brand}>
             <NavLink to="/discover" className={styles.wordmark} aria-label="LIBRAIN home">
               <span className={styles.glyph} aria-hidden="true">
@@ -124,8 +177,8 @@ export function AppShell() {
             </p>
           </div>
           <div className={styles.tools}>
-            <ApiStatus />
-            <SettingsMenu />
+            {demo ? <ModeSwitch /> : <ApiStatus />}
+            {demo ? <ProviderKeysMenu /> : <SettingsMenu />}
             <ThemeToggle />
           </div>
           <nav className={styles.nav} aria-label="Sections">
@@ -142,7 +195,19 @@ export function AppShell() {
         </div>
       </header>
       <main id="main" tabIndex={-1} className={styles.main}>
-        <Outlet />
+        {/* Always mounted, so screen readers announce the text when it appears. */}
+        {demo ? (
+          <div className={styles.wake} role="status">
+            {demo.waking ? (
+              <p className="notice notice-info">
+                <Icon name="info" />
+                <span>Waking up the free server. The first request after a quiet spell can take up to a minute.</span>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {/* A new key per mode remounts the screen, so it starts clean on the other data source. */}
+        <Outlet key={demo?.mode} />
       </main>
     </div>
   );

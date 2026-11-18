@@ -1,0 +1,37 @@
+# Render Blueprint for the public LIBRAIN API (free web service, Frankfurt).
+# Render dashboard: New, Blueprint, pick this repository. It asks for the two values marked
+# sync: false (the Qdrant host and a READ-ONLY Qdrant key); nothing secret lives in the repo.
+# No Anthropic or OpenAI key is configured: in public mode every visitor brings their own.
+# The free instance sleeps after 15 minutes without traffic and wakes on the next request.
+services:
+  - type: web
+    name: librain-api
+    runtime: image
+    image:
+      url: ghcr.io/erennmutlu1/librain-api:latest
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: Public__Enabled
+        value: "true"
+      - key: Qdrant__Host
+        sync: false
+      - key: Qdrant__ApiKey
+        sync: false
+      - key: Qdrant__Port
+        value: "6334"
+      - key: Qdrant__UseHttps
+        value: "true"
+      - key: Cors__AllowedOrigins__0
+        value: https://librain.erenmutlu.me
+      - key: RateLimiting__PaidRequestsPerHour
+        value: "30"
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # The image listens on 8080; Render routes to $PORT.
+      - key: PORT
+        value: "8080"
+      # Workstation GC: a smaller footprint on the free instance's 512 MB.
+      - key: DOTNET_gcServer
+        value: "0"

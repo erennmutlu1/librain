@@ -1,13 +1,14 @@
 using System.Diagnostics;
-using LIBRAIN.Models;
-using Microsoft.Extensions.Options;
+using LIBRAIN.Llm;
 using OpenAI.Embeddings;
 
 namespace LIBRAIN.Embeddings;
 
+// Scoped: one instance per request, built with that request's OpenAI key (the visitor's
+// own key in public mode, see IProviderKeys).
 public sealed class OpenAIEmbeddingClient(
     ILogger<OpenAIEmbeddingClient> logger,
-    IOptions<OpenAIOptions> options) : IEmbeddingClient
+    IProviderKeys keys) : IEmbeddingClient
 {
     private const string Model = "text-embedding-3-small";
     private const int MaxInputsPerBatch = 100;
@@ -20,7 +21,15 @@ public sealed class OpenAIEmbeddingClient(
     private const int CharsPerToken = 4;
 
     private readonly ILogger<OpenAIEmbeddingClient> _logger = logger;
-    private readonly EmbeddingClient _client = new(Model, options.Value.ApiKey);
+    private EmbeddingClient? _client;
+
+    // Created on first use, so a request that never embeds needs no key.
+    private EmbeddingClient Client => _client ??= new(Model, keys.OpenAI ?? throw MissingKey(keys));
+
+    internal static Exception MissingKey(IProviderKeys keys) => keys.PublicMode
+        ? new ProviderKeyMissingException("OpenAI")
+        : new InvalidOperationException(
+            "OpenAI:ApiKey is not configured. Set it with: dotnet user-secrets set \"OpenAI:ApiKey\" \"sk-...\" --project LIBRAIN");
 
     public async Task<IReadOnlyList<float[]>> GenerateAsync(
         IReadOnlyList<string> inputs,
@@ -44,7 +53,7 @@ public sealed class OpenAIEmbeddingClient(
                 slice[i] = inputs[batch.Start + i];
             }
 
-            var response = await _client.GenerateEmbeddingsAsync(slice, cancellationToken: ct);
+            var response = await Client.GenerateEmbeddingsAsync(slice, cancellationToken: ct);
 
             int idx = 0;
             foreach (var embedding in response.Value)

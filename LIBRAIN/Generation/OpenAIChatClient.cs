@@ -1,5 +1,5 @@
-using LIBRAIN.Models;
-using Microsoft.Extensions.Options;
+using LIBRAIN.Embeddings;
+using LIBRAIN.Llm;
 using OpenAI.Chat;
 
 namespace LIBRAIN.Generation;
@@ -9,12 +9,13 @@ namespace LIBRAIN.Generation;
 // from the returned text (free-text) or JSON (structured), so no function-calling
 // plumbing is needed. Embeddings already run on OpenAI, so this lets the whole
 // fabrication experiment run with no Anthropic dependency.
+// Unreachable in public mode (the OpenAI port and the probe are switched off there), but it
+// still takes its key from IProviderKeys so the configured key is never read in that mode.
 public sealed class OpenAIChatClient(
     ILogger<OpenAIChatClient> logger,
-    IOptions<OpenAIOptions> options)
+    IProviderKeys keys)
 {
     private readonly ILogger<OpenAIChatClient> _logger = logger;
-    private readonly string _apiKey = options.Value.ApiKey;
 
     public async Task<(string Text, int InputTokens, int OutputTokens)> CompleteAsync(
         string systemPrompt,
@@ -23,7 +24,7 @@ public sealed class OpenAIChatClient(
         float temperature,
         CancellationToken ct = default)
     {
-        var client = new ChatClient(model, _apiKey);
+        var client = new ChatClient(model, keys.OpenAI ?? throw OpenAIEmbeddingClient.MissingKey(keys));
         ChatMessage[] messages =
         {
             new SystemChatMessage(systemPrompt),

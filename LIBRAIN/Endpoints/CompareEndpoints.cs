@@ -55,10 +55,13 @@ public static class CompareEndpoints
 
         var response = new CompareResponse(
             Guid.NewGuid(), req.TopicA.Trim(), string.IsNullOrWhiteSpace(req.TopicB) ? null : req.TopicB.Trim(), topK,
-            librainTask.Result, naiveTask.Result, singleTask.Result, sw.ElapsedMilliseconds);
+            librainTask.Result.Outcome, naiveTask.Result.Outcome, singleTask.Result.Outcome, sw.ElapsedMilliseconds);
 
         if (response.Librain.Result is null && response.NaiveRag.Result is null && response.SingleLlm.Result is null)
         {
+            // The same rejected key or empty account usually sinks all three: say so plainly.
+            var failure = librainTask.Result.Failure ?? naiveTask.Result.Failure ?? singleTask.Result.Failure;
+            if (failure is not null) return UpstreamErrors.ToProblem(failure);
             return Results.Problem(title: "All three systems failed",
                 detail: $"LIBRAIN: {response.Librain.Error} | Naive-RAG: {response.NaiveRag.Error} | Single-LLM: {response.SingleLlm.Error}",
                 statusCode: StatusCodes.Status502BadGateway);
@@ -69,16 +72,19 @@ public static class CompareEndpoints
         return Results.Ok(response);
     }
 
-    private static async Task<CompareOutcome<T>> Capture<T>(string system, Guid correlationId, Func<Task<T>> run, ILogger logger) where T : class
+    private sealed record Captured<T>(CompareOutcome<T> Outcome, UpstreamErrors.Failure? Failure) where T : class;
+
+    private static async Task<Captured<T>> Capture<T>(string system, Guid correlationId, Func<Task<T>> run, ILogger logger) where T : class
     {
         try
         {
-            return new CompareOutcome<T>(await run(), null, correlationId);
+            return new(new CompareOutcome<T>(await run(), null, correlationId), null);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             logger.LogError(ex, "Compare: {System} failed ({ExceptionType})", system, ex.GetType().Name);
-            return new CompareOutcome<T>(null, $"{system} failed: {ex.GetType().Name}", correlationId);
+            var failure = UpstreamErrors.Classify(ex);
+            return new(new CompareOutcome<T>(null, $"{system} failed: {failure?.Detail ?? ex.GetType().Name}", correlationId), failure);
         }
     }
 }
