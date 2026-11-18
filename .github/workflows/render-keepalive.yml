@@ -33,8 +33,17 @@ jobs:
           API_URL: ${{ vars.LIBRAIN_API_URL }}
         run: |
           # A cold start takes up to a minute, so wait for it rather than give up.
-          code=$(curl -s -m 120 -o /dev/null -w '%{http_code}' "${API_URL%/}/health" || true)
-          echo "LIBRAIN API answered HTTP ${code:-none}"
+          out=$(curl -s -m 120 -o /dev/null -w '%{http_code} %{time_total}' "${API_URL%/}/health" || true)
+          code=${out%% *}
+          secs=${out##* }
+          echo "LIBRAIN API answered HTTP ${code:-none} in ${secs:-?} s"
+          # Awake, it answers in well under a second; waking from sleep takes 10 s or more.
+          # A warning shows on the run without failing it (and without a mail).
+          if [ "${code}" != "200" ]; then
+            echo "::warning::LIBRAIN API answered HTTP ${code:-none} after ${secs:-?} s"
+          elif awk -v s="${secs}" 'BEGIN { exit !(s > 5) }'; then
+            echo "::warning::LIBRAIN API was asleep: it took ${secs} s to answer"
+          fi
 
       # GitHub switches off scheduled workflows in a public repository after 60 days with
       # no commits; re-enabling it on every run keeps the schedule alive between commits.
