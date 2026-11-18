@@ -83,7 +83,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 2px;
-  background: var(--grad-brand, var(--accent));
+  background: var(--ink);
 }
 
 .hypothesis .sectionTitle {
@@ -102,7 +102,6 @@
   line-height: 1.6;
   max-width: 64ch;
   color: var(--ink);
-  font-variation-settings: 'opsz' 20;
 }
 
 /* ---------- Baseline results (BaselineResult) ---------- */

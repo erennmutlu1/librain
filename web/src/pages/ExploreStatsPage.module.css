@@ -29,17 +29,15 @@
   min-width: 0;
 }
 
-/* The average rating is the page's key number: raised, in the brand gradient. */
+/* The average rating is the page's key number: raised, in ink. */
 .tile[data-key] {
   background: var(--surface-raised, var(--surface));
-  border-color: var(--rule-glow, var(--rule));
+  border-color: var(--rule-strong);
+  box-shadow: var(--shadow-panel);
 }
 
 .tile[data-key] .tileValue {
-  background: var(--grad-brand, none);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
 }
 
 .tile[data-key] .tileUnit {
@@ -166,8 +164,7 @@
   max-width: 44rem;
   margin-top: var(--s2);
   padding: var(--s3) var(--s4);
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
   background: var(--surface);
   border-radius: var(--r-sm);
   font-size: var(--fs-sm);

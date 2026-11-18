@@ -31,7 +31,7 @@ describe('app shell', () => {
     const nav = screen.getByRole('navigation', { name: 'Bölümler' });
     expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Kütüphane', 'Sor', 'Keşfet', 'İncele', 'Karşılaştır', 'Geçmiş']);
     expect(screen.getByText('Örnek veri')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sistem teması. Açık temaya geç' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Açık tema. Koyu temaya geç' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Ara ve istediğiniz yere gidin/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Bağlantı ayarları/ })).toBeInTheDocument();
 
@@ -44,19 +44,21 @@ describe('app shell', () => {
   it('keeps English as it was, and titles a discovery by its id', async () => {
     renderApp('/explore/f4', 'en');
     expect(screen.getByRole('link', { name: 'Skip to content' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'System theme. Switch to light theme' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' })).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('Discovery F4 · LIBRAIN'));
   });
 
   it('cycles the theme from the header, in step with the palette', async () => {
     const { user } = renderApp('/explore/stats', 'en');
-    await user.click(screen.getByRole('button', { name: 'System theme. Switch to light theme' }));
-    expect(document.documentElement.dataset.theme).toBe('light');
+    // Light by default; the header button switches to dark.
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    await user.click(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' }));
+    expect(document.documentElement.dataset.theme).toBe('dark');
     await user.click(screen.getByRole('button', { name: /^Search and jump/ }));
     await user.type(await screen.findByRole('combobox'), 'theme');
     await user.keyboard('{Enter}');
-    expect(document.documentElement.dataset.theme).toBe('dark');
-    expect(screen.getByRole('button', { name: 'Dark theme. Switch to system theme' })).toBeInTheDocument();
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    expect(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' })).toBeInTheDocument();
   });
 
   it('translates the public build’s mode switch and keys button', async () => {

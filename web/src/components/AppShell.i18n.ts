@@ -16,11 +16,10 @@ export const text = strings({
       compare: 'Compare',
       history: 'History',
     },
-    theme: { system: 'System theme', light: 'Light theme', dark: 'Dark theme' } as Record<Theme, string>,
+    theme: { light: 'Light theme', dark: 'Dark theme' } as Record<Theme, string>,
     themeButton: {
-      system: 'System theme. Switch to light theme',
       light: 'Light theme. Switch to dark theme',
-      dark: 'Dark theme. Switch to system theme',
+      dark: 'Dark theme. Switch to light theme',
     } as Record<Theme, string>,
     palette: {
       button: 'Search',
@@ -67,11 +66,10 @@ export const text = strings({
       compare: 'Karşılaştır',
       history: 'Geçmiş',
     },
-    theme: { system: 'Sistem teması', light: 'Açık tema', dark: 'Koyu tema' },
+    theme: { light: 'Açık tema', dark: 'Koyu tema' },
     themeButton: {
-      system: 'Sistem teması. Açık temaya geç',
       light: 'Açık tema. Koyu temaya geç',
-      dark: 'Koyu tema. Sistem temasına geç',
+      dark: 'Koyu tema. Açık temaya geç',
     },
     palette: {
       button: 'Ara',

@@ -160,16 +160,15 @@
   display: grid;
   gap: var(--s2);
   padding: var(--s5);
-  background: var(--surface);
+  background: var(--surface-sunken);
   border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--r-sm) var(--r-md) var(--r-md) var(--r-sm);
+  border-radius: var(--r-md);
 }
 
 .oneLineTitle {
   font-size: var(--fs-sm);
-  font-weight: 650;
-  color: var(--accent);
+  font-weight: 600;
+  color: var(--ink-3);
 }
 
 .oneLineText {
@@ -177,7 +176,6 @@
   font-size: clamp(var(--fs-lg), 2.4vw, var(--fs-xl));
   line-height: 1.5;
   max-width: 60ch;
-  font-variation-settings: 'opsz' 24;
 }
 
 @media (max-width: 30rem) {
@@ -348,8 +346,7 @@
   padding: var(--s3) var(--s4);
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-left: 2px solid var(--cat);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   transition: border-color 140ms ease, background-color 140ms ease;
 }
 
@@ -358,7 +355,7 @@
 }
 
 .relatedItem:hover {
-  border-color: var(--rule-glow, var(--rule-strong));
+  border-color: var(--rule-strong);
   border-left-color: var(--cat);
   background: var(--surface-raised, var(--surface));
 }

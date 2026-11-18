@@ -1,124 +1,15 @@
 /*
- * Light theme (default): a deeper gradient with no glow, so every stop keeps at
- * least 3.9:1 against the near-white page. Dark theme: the neon set plus glow.
- * The theme selectors mirror tokens.css.
+ * The logo paints in currentColor; --ink switches between the light and dark
+ * themes in tokens.css. The fallback is the light ink, for pages without tokens.
  */
 .logo {
-  --lb-c1: #0b86a6;
-  --lb-c2: #7c3aed;
-  --lb-c3: #c026d3;
+  color: var(--ink, #171717);
   flex-shrink: 0;
   max-width: none;
-  /* The glow may spill past the box without changing the layout size. */
-  overflow: visible;
-}
-
-.c1 {
-  stop-color: var(--lb-c1);
-}
-.c2 {
-  stop-color: var(--lb-c2);
-}
-.c3 {
-  stop-color: var(--lb-c3);
-}
-
-.glow,
-.halo,
-.core {
-  display: none;
-}
-
-.core {
-  opacity: 0.9;
-}
-
-.ping {
-  opacity: 0;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .logo {
-    --lb-c1: #22d3ee;
-    --lb-c2: #8b5cf6;
-    --lb-c3: #d946ef;
-  }
-  :root:not([data-theme='light']) .glow,
-  :root:not([data-theme='light']) .halo,
-  :root:not([data-theme='light']) .core {
-    display: inline;
-  }
-  :root:not([data-theme='light']) .glow {
-    opacity: 0.8;
-  }
-}
-
-:root[data-theme='dark'] .logo {
-  --lb-c1: #22d3ee;
-  --lb-c2: #8b5cf6;
-  --lb-c3: #d946ef;
-}
-:root[data-theme='dark'] .glow,
-:root[data-theme='dark'] .halo,
-:root[data-theme='dark'] .core {
-  display: inline;
-}
-:root[data-theme='dark'] .glow {
-  opacity: 0.8;
-}
-
-/* One signal on load: the node fires once and a ring fades out. Nothing loops. */
-@media (prefers-reduced-motion: no-preference) {
-  .node,
-  .ping {
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-  .node {
-    animation: lb-fire 900ms cubic-bezier(0.3, 0.7, 0.4, 1) 300ms both;
-  }
-  .ping {
-    /* forwards, not both: the ring stays hidden until the node fires. */
-    animation: lb-ping 1200ms cubic-bezier(0.2, 0.6, 0.3, 1) 420ms forwards;
-  }
-}
-
-@keyframes lb-fire {
-  0% {
-    opacity: 0.25;
-    transform: scale(0.5);
-  }
-  45% {
-    opacity: 1;
-    transform: scale(1.3);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes lb-ping {
-  0% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.8);
-  }
 }
 
 @media (forced-colors: active) {
-  .ink {
-    stroke: CanvasText;
-  }
-  .fill {
-    fill: CanvasText;
-  }
-  .glow,
-  .halo,
-  .core,
-  .ping {
-    display: none;
+  .logo {
+    color: CanvasText;
   }
 }

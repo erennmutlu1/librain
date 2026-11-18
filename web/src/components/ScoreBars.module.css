@@ -32,8 +32,7 @@
 
 /* The lead score is the key number: its bar carries the brand gradient. */
 .row:first-child .fill {
-  background: var(--grad-brand);
-  box-shadow: var(--glow-line);
+  background: var(--ink);
 }
 
 .label {

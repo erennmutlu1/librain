@@ -2,102 +2,105 @@
  * Design tokens. Every colour in the app is referenced through these roles so
  * light and dark mode swap in one place.
  *
- * Direction: a precise research instrument with a neon signal. Dark-first ink
- * and indigo surfaces, hairlines with a cool tint, and one brand gradient
- * (cyan → violet → magenta, the logo's) kept for the logo, the primary action,
- * the active section, key numbers and focus. Reading surfaces stay calm.
+ * Direction "Graphite": a calm, precise instrument for reading research.
+ * Light by default (dark is a choice in the header, remembered). Ink does the
+ * work: primary actions are ink-filled, links are ink with an underline, and
+ * colour is kept for meaning: the three claim verdicts, categories and chart
+ * series. No gradients or glows. Hairline borders, soft layered shadows in
+ * light mode, borders alone in dark mode. Geist and Geist Mono throughout.
  *
- * Contrast (WCAG 2.x), checked against bg / surface / raised / sunken in both
- * modes: ink, ink-2, ink-3, accent and every status hue clear 4.5:1 as text;
- * button text on --grad-brand clears 4.6:1 at every stop. Status is never
- * carried by colour alone: each status also has an underline style and an
- * icon + label. The system and category hues keep the CVD-checked set (Compare
- * uses the first three); LIBRAIN's own series takes the brand violet.
+ * Verdicts sit on the blue / ochre / raspberry axis, which stays distinct for
+ * protan, deutan and tritan vision (OKLab distance >= 7 under simulation), and
+ * are never shown by colour alone: each also has an icon, a label and its own
+ * underline (solid / dashed / wavy). Contrast (WCAG 2): ink-2, ink-3 and every
+ * verdict colour clear 4.5:1 as text on bg, surface and sunken in both modes;
+ * --rule-strong (input borders) clears 3:1 against its background.
+ *
+ * Legacy role names from the earlier neon theme (--grad-brand, --glow-*,
+ * --rule-glow, --circuit-pattern, --bg-deep, --brand-*) are kept as plain
+ * aliases so nothing breaks while components move off them.
  */
 :root {
   color-scheme: light;
 
-  /* Surfaces and ink: cool near-white, deep indigo ink */
-  --bg-deep: #eef1fa;
-  --bg: #f4f6fc;
+  /* Surfaces and ink */
+  --bg: #ffffff;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-sunken: #eceff8;
+  --surface-sunken: #fafafa;
   --surface-input: #ffffff;
-  --ink: #0e1233;
-  --ink-2: #3a4068;
-  --ink-3: #585e8c;
-  --rule: #dde1f0;
-  --rule-strong: #b4bbd9;
-  --rule-glow: rgb(91 63 217 / 0.24);
+  --ink: #171717;
+  --ink-2: #3f4147;
+  --ink-3: #5e6168;
+  --rule: #e5e5e5;
+  --rule-strong: #8f8f8f;
 
-  /* Signal violet: links, interactive text, focus */
-  --accent: #4b3fd6;
-  --accent-hover: #3a2fb8;
+  /* Interaction: ink, with a blue focus ring */
+  --accent: #171717;
+  --accent-hover: #000000;
   --accent-ink: #ffffff;
-  --accent-wash: #ecebfd;
-  --focus-ring: #6d28d9;
-
-  /* Brand gradient, a little deeper on light so white text holds 5.3:1 */
-  --brand-cyan: #0e7490;
-  --brand-violet: #6d28d9;
-  --brand-magenta: #a21caf;
-  --grad-brand: linear-gradient(100deg, #0e7490 0%, #6d28d9 55%, #a21caf 100%);
-  --grad-brand-soft: linear-gradient(100deg, rgb(14 116 144 / 0.07) 0%, rgb(109 40 217 / 0.07) 55%, rgb(162 28 175 / 0.07) 100%);
-  --glow-accent: none;
-  --glow-line: none;
-
-  /* Faint circuit traces, header band only */
-  --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%234b3fd6' stroke-opacity='0.11' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%234b3fd6' fill-opacity='0.11' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+  --accent-wash: #f2f2f2;
+  --focus-ring: #1f5fad;
 
   /* Claim status */
-  --grounded: #0a7884;
-  --grounded-wash: #dbf1f2;
-  --extrapolated: #a35f00;
-  --extrapolated-wash: #fbeed3;
-  --risky: #c4215c;
-  --risky-wash: #fbe1ea;
+  --grounded: #1f5fad;
+  --grounded-wash: #eaf1fb;
+  --extrapolated: #7a6200;
+  --extrapolated-wash: #f6f0d9;
+  --risky: #a3246e;
+  --risky-wash: #f9e8f1;
 
   /* Feedback */
-  --danger: #b4233c;
-  --danger-wash: #fce6ea;
-  --warning-ink: #7a4b00;
-  --warning-wash: #fdf2da;
-  --success: #1d7a4a;
+  --danger: #b42318;
+  --danger-wash: #fdecea;
+  --warning-ink: #7a5300;
+  --warning-wash: #fbf3db;
+  --success: #1a7f37;
 
-  /* Systems (Compare) */
-  --sys-librain: #5b4be0;
-  --sys-naive: #eb6834;
-  --sys-single: #1baf7a;
+  /* Systems (Compare): LIBRAIN in ink, the two baselines in the CVD-checked hues */
+  --sys-librain: #171717;
+  --sys-naive: #c4501e;
+  --sys-single: #13865f;
 
   /* Meter track */
-  --track: #e2e6f3;
+  --track: #ebebeb;
 
   /*
-   * Explore categories: the eight categorical hues above (Compare uses the
-   * first three), plus a neutral for the catch-all "New cross-field pairings".
-   * A category is never shown by colour alone: its icon and name go with it.
+   * Explore categories: CVD-checked categorical hues, a little deeper than
+   * before so they sit on white without shouting. A category is never shown
+   * by colour alone: its icon and name go with it.
    */
-  --cat-d: #2a78d6;
-  --cat-a: #008300;
-  --cat-c: #6250d6;
-  --cat-n: #6f7894;
-  --cat-f: #eb6834;
-  --cat-s: #eda100;
-  --cat-w: #1baf7a;
-  --cat-p: #e87ba4;
-  --cat-j: #e34948;
+  --cat-d: #2a6fc4;
+  --cat-a: #1f7a1f;
+  --cat-c: #5b4bc4;
+  --cat-n: #6b7280;
+  --cat-f: #c4501e;
+  --cat-s: #9a6200;
+  --cat-w: #13865f;
+  --cat-p: #b54577;
+  --cat-j: #c43c3b;
 
-  /*
-   * Type. Sora (display) is a round monoline geometric, the same build as the
-   * neon-tube wordmark; Instrument Sans carries the UI; Newsreader keeps
-   * hypotheses and passages calm for long reading; JetBrains Mono for ids and
-   * scores.
-   */
-  --font-display: 'Sora', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-text: 'Newsreader', 'Iowan Old Style', 'Charter', Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  /* Shadows: hairline ring plus soft layers (light); dark mode uses borders only */
+  --shadow-panel: 0 0 0 1px rgb(0 0 0 / 0.02), 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 12px rgb(0 0 0 / 0.04);
+  --shadow-pop: 0 0 0 1px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.1);
+
+  /* Legacy aliases (see the header comment) */
+  --bg-deep: var(--surface-sunken);
+  --rule-glow: var(--rule);
+  --brand-cyan: var(--ink);
+  --brand-violet: var(--ink);
+  --brand-magenta: var(--ink);
+  --grad-brand: var(--ink);
+  --grad-brand-soft: var(--accent-wash);
+  --glow-accent: none;
+  --glow-line: none;
+  --circuit-pattern: none;
+
+  /* Type: Geist for everything readable, Geist Mono for ids, keys and scores */
+  --font-display: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-text: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   --fs-xs: 0.8125rem;
   --fs-sm: 0.875rem;
@@ -117,123 +120,60 @@
   --s7: 3rem;
   --s8: 4rem;
 
-  /* Corners step with size: controls, panels, large panels */
+  /* Corners step with size: controls, panels, large panels (nested radii) */
   --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
+  --r-md: 8px;
+  --r-lg: 12px;
 
-  --shadow-panel: 0 1px 2px rgb(14 18 51 / 0.06), 0 10px 28px rgb(14 18 51 / 0.09);
+
+  --page-max: 76rem;
 
   --page-max: 76rem;
   --gutter: clamp(1rem, 3vw, 2rem);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --bg-deep: #070a1a;
-    --bg: #070a1a;
-    --surface: #0d1130;
-    --surface-raised: #141a3d;
-    --surface-sunken: #0a0d25;
-    --surface-input: #0a0d25;
-    --ink: #e8eafb;
-    --ink-2: #b3b9dd;
-    --ink-3: #8a92be;
-    --rule: #1f2652;
-    --rule-strong: #3a4580;
-    --rule-glow: rgb(139 120 255 / 0.34);
-    --accent: #8fa6ff;
-    --accent-hover: #b7c5ff;
-    --accent-ink: #070a1a;
-    --accent-wash: #1b2155;
-    --focus-ring: #22d3ee;
-    --brand-cyan: #22d3ee;
-    --brand-violet: #8b5cf6;
-    --brand-magenta: #d946ef;
-    --grad-brand: linear-gradient(100deg, #22d3ee 0%, #8b5cf6 55%, #d946ef 100%);
-    --grad-brand-soft: linear-gradient(100deg, rgb(34 211 238 / 0.1) 0%, rgb(139 92 246 / 0.1) 55%, rgb(217 70 239 / 0.1) 100%);
-    --glow-accent: 0 0 0 1px rgb(139 92 246 / 0.5), 0 0 18px -4px rgb(34 211 238 / 0.55), 0 0 26px -8px rgb(217 70 239 / 0.6);
-    --glow-line: 0 0 8px rgb(139 92 246 / 0.85), 0 0 2px rgb(34 211 238 / 0.9);
-    --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%238b9cff' stroke-opacity='0.13' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%238b9cff' fill-opacity='0.16' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
-    --grounded: #2dd4bf;
-    --grounded-wash: rgb(45 212 191 / 0.15);
-    --extrapolated: #f2b544;
-    --extrapolated-wash: rgb(242 181 68 / 0.16);
-    --risky: #ff6597;
-    --risky-wash: rgb(255 101 151 / 0.16);
-    --danger: #ff7f90;
-    --danger-wash: rgb(255 127 144 / 0.13);
-    --warning-ink: #f7c86a;
-    --warning-wash: rgb(242 181 68 / 0.13);
-    --success: #4ade9a;
-    --sys-librain: #8c8cff;
-    --sys-naive: #d95926;
-    --sys-single: #199e70;
-    --track: #1c2350;
-    --cat-d: #3987e5;
-    --cat-a: #0ca30c;
-    --cat-c: #9085e9;
-    --cat-n: #8a92be;
-    --cat-f: #d95926;
-    --cat-s: #c98500;
-    --cat-w: #199e70;
-    --cat-p: #d55181;
-    --cat-j: #e66767;
-    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px rgb(2 4 20 / 0.6);
-  }
-}
-
+/* Dark mode is the visitor's choice (header toggle), not the OS default. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg-deep: #070a1a;
-  --bg: #070a1a;
-  --surface: #0d1130;
-  --surface-raised: #141a3d;
-  --surface-sunken: #0a0d25;
-  --surface-input: #0a0d25;
-  --ink: #e8eafb;
-  --ink-2: #b3b9dd;
-  --ink-3: #8a92be;
-  --rule: #1f2652;
-  --rule-strong: #3a4580;
-  --rule-glow: rgb(139 120 255 / 0.34);
-  --accent: #8fa6ff;
-  --accent-hover: #b7c5ff;
-  --accent-ink: #070a1a;
-  --accent-wash: #1b2155;
-  --focus-ring: #22d3ee;
-  --brand-cyan: #22d3ee;
-  --brand-violet: #8b5cf6;
-  --brand-magenta: #d946ef;
-  --grad-brand: linear-gradient(100deg, #22d3ee 0%, #8b5cf6 55%, #d946ef 100%);
-  --grad-brand-soft: linear-gradient(100deg, rgb(34 211 238 / 0.1) 0%, rgb(139 92 246 / 0.1) 55%, rgb(217 70 239 / 0.1) 100%);
-  --glow-accent: 0 0 0 1px rgb(139 92 246 / 0.5), 0 0 18px -4px rgb(34 211 238 / 0.55), 0 0 26px -8px rgb(217 70 239 / 0.6);
-  --glow-line: 0 0 8px rgb(139 92 246 / 0.85), 0 0 2px rgb(34 211 238 / 0.9);
-  --circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160' fill='none' stroke='%238b9cff' stroke-opacity='0.13' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M0 40h56l16 16h61M231 24h41l16 16h32M43 132h53l16-16h65M160 11v17l16 16v37M211 140h37l16-16V92l16-16h17M11 92h17l10-10M196 60h44l12 12M196 68h40l8 8M100 92h40l8-8'/%3E%3Cg fill='%238b9cff' fill-opacity='0.16' stroke='none'%3E%3Ccircle cx='136' cy='56' r='2.5'/%3E%3Ccircle cx='228' cy='24' r='2.5'/%3E%3Ccircle cx='40' cy='132' r='2.5'/%3E%3Ccircle cx='180' cy='116' r='2.5'/%3E%3Ccircle cx='160' cy='8' r='2.5'/%3E%3Ccircle cx='176' cy='84' r='2.5'/%3E%3Ccircle cx='208' cy='140' r='2.5'/%3E%3Ccircle cx='300' cy='76' r='2.5'/%3E%3Ccircle cx='8' cy='92' r='2.5'/%3E%3Ccircle cx='40' cy='80' r='2.5'/%3E%3Ccircle cx='254' cy='74' r='2.5'/%3E%3Ccircle cx='246' cy='78' r='2.5'/%3E%3Ccircle cx='97' cy='92' r='2.5'/%3E%3Ccircle cx='150' cy='82' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
-  --grounded: #2dd4bf;
-  --grounded-wash: rgb(45 212 191 / 0.15);
-  --extrapolated: #f2b544;
-  --extrapolated-wash: rgb(242 181 68 / 0.16);
-  --risky: #ff6597;
-  --risky-wash: rgb(255 101 151 / 0.16);
-  --danger: #ff7f90;
-  --danger-wash: rgb(255 127 144 / 0.13);
-  --warning-ink: #f7c86a;
-  --warning-wash: rgb(242 181 68 / 0.13);
-  --success: #4ade9a;
-  --sys-librain: #8c8cff;
-  --sys-naive: #d95926;
-  --sys-single: #199e70;
-  --track: #1c2350;
-  --cat-d: #3987e5;
-  --cat-a: #0ca30c;
-  --cat-c: #9085e9;
-  --cat-n: #8a92be;
-  --cat-f: #d95926;
-  --cat-s: #c98500;
-  --cat-w: #199e70;
-  --cat-p: #d55181;
-  --cat-j: #e66767;
-  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px rgb(2 4 20 / 0.6);
+  --bg: #0e0f11;
+  --surface: #16171a;
+  --surface-raised: #1b1c20;
+  --surface-sunken: #121316;
+  --surface-input: #0e0f11;
+  --ink: #ecedee;
+  --ink-2: #c9ccd1;
+  --ink-3: #9ba1a9;
+  --rule: #2a2d32;
+  --rule-strong: #6b7079;
+  --accent: #ecedee;
+  --accent-hover: #ffffff;
+  --accent-ink: #0e0f11;
+  --accent-wash: #1e2024;
+  --focus-ring: #7eadf7;
+  --grounded: #7eadf7;
+  --grounded-wash: #18222f;
+  --extrapolated: #d6b04c;
+  --extrapolated-wash: #2a2416;
+  --risky: #f28bbf;
+  --risky-wash: #2e1b26;
+  --danger: #ff8a80;
+  --danger-wash: #2f1a18;
+  --warning-ink: #e3c26b;
+  --warning-wash: #2a2416;
+  --success: #5cc98a;
+  --sys-librain: #ecedee;
+  --sys-naive: #e3743f;
+  --sys-single: #3fb68b;
+  --track: #2a2d32;
+  --cat-d: #6ea3ea;
+  --cat-a: #5cb85c;
+  --cat-c: #9d92ee;
+  --cat-n: #9ba1a9;
+  --cat-f: #e3743f;
+  --cat-s: #d6a23c;
+  --cat-w: #3fb68b;
+  --cat-p: #e483ad;
+  --cat-j: #ec7b7a;
+  --shadow-panel: none;
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.06), 0 8px 24px rgb(0 0 0 / 0.55);
 }

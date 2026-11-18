@@ -107,8 +107,8 @@ describe('command palette', () => {
   it('runs actions: switch the language and cycle the theme', async () => {
     const { user, input } = renderPalette();
     await user.type(input, 'theme');
-    await user.click(screen.getByRole('option', { name: /^Switch to the light theme/ }));
-    expect(document.documentElement.dataset.theme).toBe('light');
+    await user.click(screen.getByRole('option', { name: /^Switch to the dark theme/ }));
+    expect(document.documentElement.dataset.theme).toBe('dark');
 
     await user.clear(input);
     await user.type(input, 'turkish');

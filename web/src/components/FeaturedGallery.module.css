@@ -32,8 +32,6 @@
 
 .framing {
   max-width: 68ch;
-  padding-left: var(--s3);
-  border-left: 2px solid var(--accent);
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }
@@ -82,7 +80,7 @@
 }
 
 .card:hover {
-  border-color: var(--rule-glow, var(--rule-strong));
+  border-color: var(--rule-strong);
   background: var(--surface-raised, var(--surface));
 }
 

@@ -116,7 +116,6 @@
   font-family: var(--font-text);
   font-size: var(--fs-xl);
   line-height: 1.85;
-  font-variation-settings: 'opsz' 24;
   max-width: 62ch;
   color: var(--ink);
 }

@@ -25,23 +25,30 @@ describe('LibrainLogo', () => {
     expect(svg?.querySelector('title')).toBeNull();
   });
 
-  it('gives each instance its own gradient and filter ids', () => {
-    const { container } = render(
+  it('paints flat in currentColor, with no gradient, filter or halo', () => {
+    const { container } = render(<LibrainLogo />);
+    const svg = container.querySelector('svg')!;
+    expect(svg.querySelector('linearGradient, radialGradient, filter, mask')).toBeNull();
+    expect(svg.outerHTML).not.toMatch(/url\(#/);
+    const paths = svg.querySelectorAll('path');
+    expect(paths.length).toBeGreaterThan(1);
+    for (const p of paths) expect(p.closest('[stroke]')).toHaveAttribute('stroke', 'currentColor');
+    // The i's dot and the node over the alpha.
+    const dots = svg.querySelectorAll('circle');
+    expect(dots).toHaveLength(2);
+    for (const c of dots) expect(c.closest('[fill]')).toHaveAttribute('fill', 'currentColor');
+  });
+
+  it('gives each instance its own title id', () => {
+    render(
       <>
         <LibrainLogo />
-        <LibrainLogo variant="mark" decorative />
+        <LibrainLogo variant="mark" title="LIBRAIN home" />
       </>,
     );
-    const gradients = [...container.querySelectorAll('linearGradient')].map((g) => g.id);
-    const filters = [...container.querySelectorAll('filter')].map((f) => f.id);
-    expect(gradients).toHaveLength(2);
-    expect(new Set(gradients).size).toBe(2);
-    expect(new Set(filters).size).toBe(2);
-    // Every url(#id) reference resolves inside the same svg.
-    for (const svg of container.querySelectorAll('svg')) {
-      const refs = [...svg.outerHTML.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]!);
-      expect(refs.length).toBeGreaterThan(0);
-      for (const id of refs) expect(svg.querySelector(`[id="${id}"]`)).not.toBeNull();
-    }
+    const ids = screen.getAllByRole('img').map((svg) => svg.getAttribute('aria-labelledby'));
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    expect(screen.getByRole('img', { name: 'LIBRAIN home' })).toBeInTheDocument();
   });
 });

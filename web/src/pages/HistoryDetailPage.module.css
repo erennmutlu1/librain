@@ -71,7 +71,7 @@
   gap: var(--s3);
   margin-bottom: var(--s5);
   padding: var(--s3) var(--s4);
-  border-left: 3px solid var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
   background: var(--danger-wash);
   border-radius: var(--r-sm);
   font-size: var(--fs-sm);

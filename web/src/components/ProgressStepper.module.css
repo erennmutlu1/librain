@@ -18,8 +18,7 @@
   left: var(--s5);
   right: var(--s5);
   height: 1px;
-  background: var(--grad-brand);
-  box-shadow: var(--glow-line);
+  background: var(--ink);
 }
 
 .head {

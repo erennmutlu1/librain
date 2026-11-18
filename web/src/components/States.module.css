@@ -9,7 +9,7 @@
   padding: var(--s6) var(--s5);
   border: 1px dashed var(--rule-strong);
   border-radius: var(--r-md);
-  background: var(--grad-brand-soft), var(--surface);
+  background: var(--surface);
   max-width: 40rem;
 }
 
@@ -69,8 +69,7 @@
   height: 10px;
   margin-top: 0.45em;
   border-radius: 50%;
-  background: var(--grad-brand);
-  box-shadow: var(--glow-line);
+  background: var(--ink);
   animation: pulse 1.4s ease-in-out infinite;
 }
 

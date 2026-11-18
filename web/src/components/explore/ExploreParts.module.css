@@ -116,16 +116,8 @@
   font-size: clamp(2.75rem, 7vw, 3.75rem);
   font-weight: 600;
   letter-spacing: -0.04em;
-  background: var(--grad-brand, none);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .rating[data-size='lg'] .ratingNumber {
-    -webkit-text-fill-color: currentColor;
-  }
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 @media (forced-colors: active) {
@@ -247,7 +239,7 @@
 }
 
 .card:hover {
-  border-color: var(--rule-glow, var(--rule-strong));
+  border-color: var(--rule-strong);
   border-top-color: var(--cat);
   background: var(--surface-raised, var(--surface));
 }
@@ -344,7 +336,6 @@
   gap: var(--s2);
   padding: var(--s3) var(--s4);
   border-top-width: 1px;
-  border-left: 3px solid var(--cat);
 }
 
 .card[data-view='list'] .cardTitle {
@@ -458,7 +449,7 @@
 
 .tabActive::after,
 .tabActive:hover::after {
-  background: var(--grad-brand, var(--accent));
+  background: var(--ink);
 }
 
 .tabActive > svg {
@@ -506,9 +497,8 @@
   max-width: 44rem;
   padding: var(--s4);
   border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--r-sm);
-  background: var(--surface-raised, var(--surface));
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }

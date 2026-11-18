@@ -1,34 +1,35 @@
 import { useSyncExternalStore } from 'react';
 
 /*
- * The colour theme: follow the system, or a fixed light or dark choice.
- * <html data-theme> is the source of truth (index.html sets it from storage
- * before first paint), so the header toggle and the command palette always
- * agree on the current theme.
+ * The colour theme: light by default, dark when the visitor picks it (the
+ * choice is remembered). The OS preference is deliberately not followed: the
+ * light theme is the designed default. <html data-theme="dark"> is the source
+ * of truth (index.html sets it from storage before first paint), so the header
+ * toggle and the command palette always agree on the current theme.
  */
 
-export type Theme = 'system' | 'light' | 'dark';
+export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'librain.theme';
 
 /** The order the toggle steps through. */
-export const NEXT_THEME: Record<Theme, Theme> = { system: 'light', light: 'dark', dark: 'system' };
+export const NEXT_THEME: Record<Theme, Theme> = { light: 'dark', dark: 'light' };
 
 const listeners = new Set<() => void>();
 
 export function getTheme(): Theme {
-  if (typeof document === 'undefined') return 'system';
-  const t = document.documentElement.dataset.theme;
-  return t === 'light' || t === 'dark' ? t : 'system';
+  if (typeof document === 'undefined') return 'light';
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 }
 
 export function setTheme(theme: Theme): void {
   const root = document.documentElement;
-  if (theme === 'system') delete root.dataset.theme;
-  else root.dataset.theme = theme;
+  if (theme === 'dark') root.dataset.theme = 'dark';
+  else delete root.dataset.theme;
+  // The browser chrome (mobile address bar) follows the page background.
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0e0f11' : '#ffffff');
   try {
-    if (theme === 'system') localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, theme);
+    localStorage.setItem(STORAGE_KEY, theme);
   } catch {
     // The theme still applies for this visit.
   }
@@ -47,5 +48,5 @@ function subscribe(listener: () => void): () => void {
 }
 
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, getTheme, () => 'system' as Theme);
+  return useSyncExternalStore(subscribe, getTheme, () => 'light' as Theme);
 }

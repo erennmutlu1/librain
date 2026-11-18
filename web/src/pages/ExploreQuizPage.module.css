@@ -86,7 +86,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 2px;
-  background: var(--grad-brand, var(--accent));
+  background: var(--ink);
 }
 
 @media (max-width: 30rem) {
@@ -122,7 +122,6 @@
   font-family: var(--font-text);
   font-size: clamp(var(--fs-lg), 2.6vw, var(--fs-xl));
   line-height: 1.5;
-  font-variation-settings: 'opsz' 24;
   max-width: 62ch;
 }
 
@@ -210,8 +209,7 @@
   padding: var(--s4);
   border-radius: var(--r-sm);
   background: var(--bg-deep, var(--surface-sunken));
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
 }
 
 .result[data-correct] {

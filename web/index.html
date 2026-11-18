@@ -9,8 +9,7 @@
     />
     <meta name="color-scheme" content="light dark" />
     <!-- The mobile browser bar follows the page background of each theme (tokens.css). -->
-    <meta name="theme-color" content="#f4f6fc" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#070a1a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
@@ -30,14 +29,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400..600&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&family=Sora:wght@400..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap"
     />
     <title>LIBRAIN</title>
     <script>
       // Apply a stored theme choice before first paint to avoid a flash.
       try {
         var t = localStorage.getItem('librain.theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (t === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0e0f11');
+        }
       } catch (e) {}
     </script>
   </head>

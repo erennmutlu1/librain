@@ -24,7 +24,7 @@
   background: var(--surface-raised);
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-panel), var(--glow-accent);
+  box-shadow: var(--shadow-pop);
   overflow: hidden;
 }
 
@@ -36,7 +36,7 @@
   left: var(--s5);
   right: var(--s5);
   height: 1px;
-  background: var(--grad-brand);
+  background: var(--ink);
   opacity: 0.85;
 }
 
@@ -177,8 +177,7 @@
   bottom: var(--s2);
   width: 3px;
   border-radius: 3px;
-  background: var(--grad-brand);
-  box-shadow: var(--glow-line);
+  background: var(--ink);
 }
 
 .optionIcon {
