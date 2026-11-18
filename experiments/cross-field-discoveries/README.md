@@ -24,5 +24,20 @@ Goal: new discoveries rated above 7.8 / 10 on the Explore scale (the best of the
 - Why 7.8 is hard here: the judge has never given plausibility above 0.72 or coherence above 0.82, so
   above 7.8 needs those maxima together with claim risk near 0.05 and novelty near 0.50.
 
+## Retries of the two closest (owner-approved, cap US$0.80)
+X01 and X17 were run four more times each with the same request, to see whether the 7.8 line
+was within reach by chance. None crossed it; every retry rated lower than its original
+(`retries/`, US$0.572, rated on the same 70-run scale):
+
+| Pair | Original | Retries |
+|---|---|---|
+| X01 | 7.6 (novelty 0.466, risk 0.15) | 7.22, 6.96, 6.53, 6.78 (novelty 0.42–0.48, plausibility 0.72 once, 0.62 three times) |
+| X17 | 7.7 (novelty 0.525) | 5.64, 6.07, 5.83, 6.17 (novelty 0.25–0.32; plausibility 0.72 every time) |
+
+Same request, different hypothesis: novelty moved by up to 0.27 and plausibility by a judge step.
+A single run's rating is therefore noisy (about ±1 point here), and the highest ratings, these
+and probably the earlier 7.8s, are partly luck. Best-of-N selection would not be a new
+discovery, so none of the retries replaces a recorded run.
+
 Files: `pairs.json` (the 24 pairs run), `runs/X*.json` (one per run: request, status, costUsd,
-response), `runs/ledger.json`, `ranking.csv` (rated on the combined 70-run scale).
+response), `runs/ledger.json`, `retries/` (the 8 retries and their ledger), `ranking.csv` (rated on the combined 70-run scale).

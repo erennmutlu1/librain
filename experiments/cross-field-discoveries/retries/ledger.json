@@ -1,0 +1,45 @@
+{
+  "total": 0.5721759,
+  "runs": {
+    "X01-r2": {
+      "cost": 0.07324,
+      "status": 200,
+      "seconds": 52.7
+    },
+    "X01-r3": {
+      "cost": 0.06925,
+      "status": 200,
+      "seconds": 22.3
+    },
+    "X01-r4": {
+      "cost": 0.07218,
+      "status": 200,
+      "seconds": 23.2
+    },
+    "X01-r5": {
+      "cost": 0.07048,
+      "status": 200,
+      "seconds": 19.0
+    },
+    "X17-r2": {
+      "cost": 0.07305,
+      "status": 200,
+      "seconds": 84.4
+    },
+    "X17-r3": {
+      "cost": 0.07123,
+      "status": 200,
+      "seconds": 26.6
+    },
+    "X17-r4": {
+      "cost": 0.07272,
+      "status": 200,
+      "seconds": 23.8
+    },
+    "X17-r5": {
+      "cost": 0.07001,
+      "status": 200,
+      "seconds": 53.5
+    }
+  }
+}
