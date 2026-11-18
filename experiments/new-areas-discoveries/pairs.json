@@ -1,0 +1,152 @@
+[
+  {
+    "id": "F1",
+    "topicA": "graph neural network assistant for football tactics (TacticAI)",
+    "topicB": "medium-range weather forecasting with graph neural networks (GraphCast)",
+    "topK": 5
+  },
+  {
+    "id": "F2",
+    "topicA": "valuing player actions in soccer by their effect on scoring probability",
+    "topicB": "graph attention networks",
+    "topK": 5
+  },
+  {
+    "id": "F3",
+    "topicA": "Google Research Football reinforcement learning environment",
+    "topicB": "proximal policy optimization",
+    "topK": 5
+  },
+  {
+    "id": "F4",
+    "topicA": "corner kick tactic generation and player positioning",
+    "topicB": "learned physics simulators with graph networks",
+    "topK": 5
+  },
+  {
+    "id": "F5",
+    "topicA": "valuing football player decisions and actions",
+    "topicB": "a foundation model of human cognition and decision-making (Centaur)",
+    "topK": 5
+  },
+  {
+    "id": "J1",
+    "topicA": "labor market exposure of occupations to large language models (GPTs are GPTs)",
+    "topicB": "developer productivity with AI pair programmers (GitHub Copilot)",
+    "topK": 5
+  },
+  {
+    "id": "J2",
+    "topicA": "which economic tasks people perform with AI assistants",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "J3",
+    "topicA": "occupational exposure to large language models",
+    "topicB": "autonomous agentic scientific discovery",
+    "topK": 5
+  },
+  {
+    "id": "J4",
+    "topicA": "AI usage across economic tasks and occupations",
+    "topicB": "multi-agent drug discovery pipelines (PharmAgents)",
+    "topK": 5
+  },
+  {
+    "id": "J5",
+    "topicA": "developer productivity with AI pair programmers (GitHub Copilot)",
+    "topicB": "competition-level code generation (AlphaCode)",
+    "topK": 5
+  },
+  {
+    "id": "P1",
+    "topicA": "unsupervised translation between programming languages (TransCoder)",
+    "topicB": "large-scale weakly supervised multilingual training (Whisper)",
+    "topK": 5
+  },
+  {
+    "id": "P2",
+    "topicA": "competition-level code generation with large-scale sampling and filtering (AlphaCode)",
+    "topicB": "Monte Carlo tree search feature discovery in LLM agents (AutoCT)",
+    "topK": 5
+  },
+  {
+    "id": "P3",
+    "topicA": "large language models trained on code and functional correctness (Codex)",
+    "topicB": "self-reflective retrieval with critique tokens (Self-RAG)",
+    "topK": 5
+  },
+  {
+    "id": "P4",
+    "topicA": "large-scale program sampling and filtering (AlphaCode)",
+    "topicB": "de novo molecular generation with generative models",
+    "topK": 5
+  },
+  {
+    "id": "P5",
+    "topicA": "translating code between programming languages",
+    "topicB": "graph convolutional networks",
+    "topK": 5
+  },
+  {
+    "id": "S1",
+    "topicA": "muscle fatigue detection from surface EMG with spiking neural networks",
+    "topicB": "neuromorphic hardware energy efficiency",
+    "topK": 5
+  },
+  {
+    "id": "S2",
+    "topicA": "time-to-injury survival models for elite football players",
+    "topicB": "clinical trial outcome prediction with LLM agents (AutoCT)",
+    "topK": 5
+  },
+  {
+    "id": "S3",
+    "topicA": "athlete injury prediction from training load",
+    "topicB": "probabilistic time-series forecasting with autoregressive recurrent networks (DeepAR)",
+    "topK": 5
+  },
+  {
+    "id": "S4",
+    "topicA": "wearable sensor monitoring of athlete injury risk",
+    "topicB": "physics-informed neural networks",
+    "topK": 5
+  },
+  {
+    "id": "S5",
+    "topicA": "predictive modelling of football injuries",
+    "topicB": "spatio-temporal graph neural networks",
+    "topK": 5
+  },
+  {
+    "id": "W1",
+    "topicA": "screenshot-to-code generation for web front-ends (Design2Code)",
+    "topicB": "contrastive image-text pretraining (CLIP)",
+    "topK": 5
+  },
+  {
+    "id": "W2",
+    "topicA": "autonomous web agents in realistic browser environments (WebArena)",
+    "topicB": "self-reflective retrieval with critique tokens (Self-RAG)",
+    "topK": 5
+  },
+  {
+    "id": "W3",
+    "topicA": "multimodal front-end code generation from web page screenshots",
+    "topicB": "vision transformer patch embeddings",
+    "topK": 5
+  },
+  {
+    "id": "W4",
+    "topicA": "web navigation agents completing multi-step tasks",
+    "topicB": "reinforcement learning with proximal policy optimization",
+    "topK": 5
+  },
+  {
+    "id": "W5",
+    "topicA": "automated front-end engineering benchmarks",
+    "topicB": "large language models for education",
+    "topK": 5
+  }
+]

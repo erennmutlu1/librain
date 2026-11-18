@@ -291,13 +291,14 @@ Every numeric claim in the companion paper is backed by a runnable command + a c
 | **Table 8** Naive-RAG citation fabrication | (produced by `baseline`) | `experiments/baseline-comparison/results/fabrication-counts.csv` |
 | **Table 9** Per-system human-eval descriptives | `dotnet run --project LIBRAIN.Experiments -- analyze` | `experiments/human-eval-pilot/analysis.csv` |
 | **Spearman ρ** (rater vs LLM-as-Judge, per axis) | (produced by `analyze` once baseline is run) | `experiments/human-eval-pilot/spearman.csv` |
-| **Experiment 8** Hallucination mitigation pilot (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
+| **§7.8 AFTER-FIX pilot**: hallucination mitigation (Phase 3.A.5) | `dotnet run --project LIBRAIN.Experiments -- hallucination-pilot` | `experiments/hallucination-pilot/{results/, ratings-template.csv, unblind-key.csv}` |
 | **§7.10 Robustness** (topK + model-swap + adversarial, on a 5-paper weather/energy slice) | `dotnet run --project LIBRAIN.Experiments -- robustness` (Haiku leg: `--model-label haiku-4.5` after restarting the API with `Models__SynthesisModel` set) | `experiments/robustness/{results.csv, *.json}` |
 | **RQ3 fabrication-delta** (Naive-RAG vs LIBRAIN, cross-family) | `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai --model gpt-4o-mini` | `experiments/fabrication-delta/{results.csv, summary.md}` |
 | **Discovery ranking** (real pipeline on OpenAI, ranked by quality) | `dotnet run --project LIBRAIN.Experiments -- discover-run --provider openai --model gpt-4o` | `experiments/discovery-openai/{ranking.csv, best-examples.md}` |
 | **Novelty validation** (cosine vs human novelty, offline) | `dotnet run --project LIBRAIN.Experiments -- novelty-validation` | `experiments/novelty-validation/{results.csv, summary.md}` |
 | **Inter-rater agreement** (Cohen/Fleiss/Krippendorff, offline) | `dotnet run --project LIBRAIN.Experiments -- human-eval` | `experiments/human-eval/agreement.csv` |
 | **3-system OpenAI-judge** (judge-substitution cross-check) | `dotnet run --project LIBRAIN.Experiments -- score-systems --model gpt-4o-mini` | `experiments/baseline-comparison/results/openai-judged-*.csv` |
+| **Experiment 8** Discovery in new fields (46 runs) | tables: `python3 scripts/summarize_discoveries.py` (offline); runs: `python3 scripts/run_discoveries.py --pairs experiments/<batch>/pairs.json …` (paid, ~US$0.07/run) | `experiments/featured-discoveries/`, `experiments/new-areas-discoveries/` (runs, `token-usage.csv`, `ranking.csv`, `featured.json`) |
 | **Cross-run consistency study** (Phase 2.5, N=5) | `scripts/cross-run-study.sh --runs 5` | stdout (per-axis mean ± std + classification verdict) |
 
 ### Prerequisites
@@ -327,7 +328,7 @@ dotnet run --project LIBRAIN.Experiments -- hallucination-pilot  # offline · se
 scripts/cross-run-study.sh --runs 5                              # ~$0.40 · ~5 min
 ```
 
-Anthropic prompt caching (auto-enabled across all agents) means the second pair onward in each run reuses ~80% of the system + tool prefix tokens, so the dollar figures above are upper bounds rather than typical.
+Prompt caching is enabled on every agent, but measured over 46 Discovery runs it only takes effect for the Sonnet generation call (11% of its prompt tokens); the Haiku judge prompts are below the API's minimum cacheable length. Treat the dollar figures above as close to actual cost rather than as upper bounds (`experiments/*/token-usage.csv`).
 
 The human-eval rater 1 CSV and unblind key are already committed (`experiments/human-eval-pilot/`), so step 3 reproduces the companion paper's per-system descriptives (`LIBRAIN 4.00/3.40/3-of-5, Naive-RAG 2.40/4.80/0, Single-LLM 2.40/4.60/0`) without any API calls. The full two-panel n=30 replication is committed as well (all three raters per panel plus `combined-n30-per-system.csv`), so the pooled n=30 descriptives are verifiable offline directly from the raw ratings.
 

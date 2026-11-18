@@ -1,0 +1,128 @@
+[
+  {
+    "id": "A1",
+    "topicA": "photovoltaic power forecasting with transfer learning (SolNet)",
+    "topicB": "medium-range weather forecasting with graph neural networks (GraphCast)",
+    "topK": 5
+  },
+  {
+    "id": "A2",
+    "topicA": "crop yield prediction from multi-modal remote sensing",
+    "topicB": "contrastive image-text pretraining (CLIP)",
+    "topK": 5
+  },
+  {
+    "id": "A3",
+    "topicA": "probabilistic time-series forecasting with autoregressive recurrent networks (DeepAR)",
+    "topicB": "fine-tuning an atmospheric foundation model (Aurora)",
+    "topK": 5
+  },
+  {
+    "id": "A4",
+    "topicA": "crop yield forecasting",
+    "topicB": "3D Earth-specific transformer weather forecasting (Pangu-Weather)",
+    "topK": 5
+  },
+  {
+    "id": "A5",
+    "topicA": "renewable energy grid balancing",
+    "topicB": "decomposition transformers for long-horizon forecasting (Autoformer)",
+    "topK": 5
+  },
+  {
+    "id": "A6",
+    "topicA": "vision transformer patch embeddings",
+    "topicB": "satellite imagery for agricultural monitoring",
+    "topK": 5
+  },
+  {
+    "id": "A7",
+    "topicA": "learned physics simulators with graph networks",
+    "topicB": "solar irradiance and cloud motion forecasting",
+    "topK": 5
+  },
+  {
+    "id": "C1",
+    "topicA": "clinical trial outcome prediction with LLM agents (AutoCT)",
+    "topicB": "physics-informed neural networks for epidemic dynamics",
+    "topK": 5
+  },
+  {
+    "id": "C2",
+    "topicA": "spatio-temporal graph neural networks for COVID-19 forecasting",
+    "topicB": "adaptive clinical trial site selection",
+    "topK": 5
+  },
+  {
+    "id": "C3",
+    "topicA": "causal inference for treatment effect estimation",
+    "topicB": "graph convolutional networks on patient similarity graphs",
+    "topK": 5
+  },
+  {
+    "id": "C4",
+    "topicA": "clinical trial eligibility criteria design",
+    "topicB": "retrieval-augmented generation",
+    "topK": 5
+  },
+  {
+    "id": "D1",
+    "topicA": "self-reflective retrieval with critique tokens (Self-RAG)",
+    "topicB": "multi-agent drug discovery pipeline (PharmAgents)",
+    "topK": 5
+  },
+  {
+    "id": "D2",
+    "topicA": "drug-target binding affinity prediction from sequences (DeepDTA)",
+    "topicB": "reinforcement learning with proximal policy optimization",
+    "topK": 5
+  },
+  {
+    "id": "D3",
+    "topicA": "de novo molecular generation with generative models",
+    "topicB": "retrieval-augmented generation over a dense document index",
+    "topK": 5
+  },
+  {
+    "id": "D4",
+    "topicA": "graph attention networks",
+    "topicB": "protein-ligand interaction prediction",
+    "topK": 5
+  },
+  {
+    "id": "D5",
+    "topicA": "crystal graph convolutional networks for material property prediction",
+    "topicB": "autonomous agentic scientific discovery loops",
+    "topK": 5
+  },
+  {
+    "id": "D6",
+    "topicA": "biomedical generalist foundation model (BiomedGPT)",
+    "topicB": "toxicity and ADMET evaluation by LLM agents",
+    "topK": 5
+  },
+  {
+    "id": "D7",
+    "topicA": "catalyst adsorption energy prediction (OC20)",
+    "topicB": "multi-agent hypothesis generation",
+    "topK": 5
+  },
+  {
+    "id": "N1",
+    "topicA": "neuromorphic spiking hardware energy efficiency",
+    "topicB": "edge deployment of weather and photovoltaic forecasting models",
+    "topK": 5
+  },
+  {
+    "id": "N2",
+    "topicA": "decoding text from EEG signals (Thought2Text)",
+    "topicB": "a foundation model of human cognition (Centaur)",
+    "topK": 5
+  },
+  {
+    "id": "N3",
+    "topicA": "mesh-based learned physics simulators",
+    "topicB": "epidemic spread modelling with physics-informed neural networks",
+    "topK": 5
+  }
+]
