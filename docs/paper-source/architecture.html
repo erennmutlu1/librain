@@ -71,7 +71,7 @@
   .title-page .date { text-align: right; font-size: 9pt; color: #666; margin: 2pt 0 0; line-height: 13pt; }
 
   /* ---------- table of contents ---------- */
-  .toc { break-after: page; }
+  .toc { break-after: page; width: 468pt; } /* the printed text width (612pt page - 2 x 72pt margins), so the leaders measured on screen match the print */
   .toc .toc-title { font-size: 16pt; font-weight: 700; text-align: center; margin: 9pt 0 16pt; line-height: 20pt; }
   .toc a { display: flex; align-items: baseline; }
   .toc .l1 { font-weight: 700; font-size: 11pt; line-height: 14pt; margin-top: 2.1pt; }
@@ -79,9 +79,13 @@
   .toc .l1 + .l2 { margin-top: 3.5pt; }
   .toc .l1:first-child { margin-top: 0; }
   .toc .t { flex: none; max-width: 85%; }
-  .toc .dots { flex: 1; overflow: hidden; white-space: nowrap; min-width: 6pt; }
-  .toc .dots::after { content: "................................................................................................................................................................................................................"; }
-  .toc .n { flex: none; text-align: right; padding-left: 1pt; }
+  /* Leaders and page numbers are the same size and weight on every row; only the titles differ by level.
+     The dots are right-aligned and whole (the script at the end of the body fills each leader with as many
+     dots as fit), so every row ends the same distance before its page number and no dot is cut in half. */
+  .toc .dots, .toc .n { font-size: 10pt; font-weight: 400; }
+  .toc .dots { flex: 1; overflow: hidden; white-space: nowrap; min-width: 6pt; direction: rtl; text-align: right; color: var(--toc-sub); } /* rtl: any overflow is clipped at the title end, never next to the number */
+  .toc .n { flex: none; text-align: right; padding-left: 2.5pt; font-variant-numeric: tabular-nums; }
+  .toc .l1 .n { color: var(--text); }
 
   /* ---------- headings ---------- */
   h1, h2, h3, h4 { break-after: avoid; break-inside: avoid; text-align: left; margin: 0; }
@@ -1421,5 +1425,24 @@
 <p>[27] Tay et al., "SciRAG: Adaptive, Citation-Aware, and Outline-Guided Retrieval and Synthesis for Scientific Literature," arXiv preprint arXiv:2511.14362, 2025.</p>
 
 </main>
+<script>
+  /* TOC leaders: once the fonts are in, fill each leader with the number of whole dots that fit its width
+     (less a small gap after the title). Chrome prints after this has run (--virtual-time-budget). */
+  document.fonts.ready.then(() => {
+    const leaders = document.querySelectorAll('.toc .dots');
+    if (!leaders.length) return;
+    const probe = leaders[0].cloneNode();
+    probe.style.cssText = 'position:absolute;visibility:hidden;flex:none;width:auto;min-width:0;overflow:visible';
+    probe.textContent = '.'.repeat(200);
+    leaders[0].parentNode.appendChild(probe);
+    const dot = probe.getBoundingClientRect().width / 200;
+    probe.remove();
+    const gap = 3 * 96 / 72; // 3pt between the title and the first dot
+    leaders.forEach((el) => {
+      const n = Math.max(0, Math.floor((el.getBoundingClientRect().width - gap) / dot));
+      el.textContent = '.'.repeat(n);
+    });
+  });
+</script>
 </body>
 </html>

@@ -34,7 +34,9 @@ network access to `fonts.googleapis.com` / `fonts.gstatic.com`.
 - **Headings**: `<h1>` = numbered section, `<h2>` = subsection (both go in the TOC), `<h3>` and `<h4>` =
   lower levels (not in the TOC). Every `<h1>`/`<h2>` needs a unique `id`; add `class="notoc"` to keep a
   subsection heading out of the TOC (the Appendix A demonstrations and A.1 use it). Do not edit the TOC
-  block by hand; the build rewrites it.
+  block by hand; the build rewrites it. The leader dots are filled in by the small script at the end of
+  `<body>` (whole dots only, right-aligned, measured against the 468pt text width that `.toc` is pinned to);
+  if you change the page size or margins, change that width too.
 - **Tables**: `<figure class="table">` holding a `<table>` (column widths in a `<colgroup>`, header row in
   `<thead>`, which Chrome repeats when a table breaks across pages) and a `<p class="caption">`. Table and
   figure numbers are plain text; renumber by hand if you insert one.
