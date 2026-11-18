@@ -27,9 +27,9 @@ export interface Category {
 
 /** Display order: batch 1 then batch 2, each in the order its experiment lists them. */
 export const CATEGORIES: readonly Category[] = [
-  { prefix: 'D', name: 'Drug discovery × agents', short: 'Drug discovery', icon: 'pill', colorVar: '--cat-d', batch: 1 },
+  { prefix: 'D', name: 'Drug & materials discovery × agents', short: 'Drug & materials', icon: 'pill', colorVar: '--cat-d', batch: 1 },
   { prefix: 'A', name: 'Agriculture & energy × foundation models', short: 'Agriculture & energy', icon: 'leaf', colorVar: '--cat-a', batch: 1 },
-  { prefix: 'C', name: 'Clinical trials × causal ML', short: 'Clinical trials', icon: 'pulse', colorVar: '--cat-c', batch: 1 },
+  { prefix: 'C', name: 'Clinical trials × causal & graph methods', short: 'Clinical trials', icon: 'pulse', colorVar: '--cat-c', batch: 1 },
   { prefix: 'N', name: 'New cross-field pairings', short: 'Cross-field', icon: 'venn', colorVar: '--cat-n', batch: 1 },
   { prefix: 'F', name: 'AI × football', short: 'Football', icon: 'ball', colorVar: '--cat-f', batch: 2 },
   { prefix: 'S', name: 'AI × sport', short: 'Sport', icon: 'stopwatch', colorVar: '--cat-s', batch: 2 },

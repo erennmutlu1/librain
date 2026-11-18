@@ -70,7 +70,8 @@ describe('categories', () => {
     const counts = Object.fromEntries(CATEGORIES.map((c) => [c.prefix, discoveries.filter((d) => d.category === c).length]));
     expect(counts).toEqual({ D: 7, A: 7, C: 4, N: 3, F: 5, S: 5, W: 5, P: 5, J: 5 });
     expect(discoveries.every((d) => d.category === categoryOf(d.id))).toBe(true);
-    expect(categoryOf('D1').name).toBe('Drug discovery × agents');
+    expect(categoryOf('D1').name).toBe('Drug & materials discovery × agents');
+    expect(categoryOf('C1').name).toBe('Clinical trials × causal & graph methods');
     expect(categoryOf('J4').name).toBe('Future jobs');
     expect(() => categoryOf('X1')).toThrow(/no Explore category/);
   });

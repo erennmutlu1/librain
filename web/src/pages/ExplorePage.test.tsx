@@ -111,7 +111,7 @@ describe('Explore', () => {
     expect(cardTitle(items[0]!)).toBe(`${raw('F4').request.topicA} × ${raw('F4').request.topicB}`);
     // The category counts follow the search.
     expect(screen.getByRole('button', { name: 'Football 1 idea' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Drug discovery 0 ideas' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Drug & materials 0 ideas' })).toBeInTheDocument();
 
     await user.clear(search);
     await user.type(search, 'zzzz-no-such-topic');
@@ -242,11 +242,11 @@ describe('Explore statistics', () => {
     expect(glance).toHaveTextContent('$3.05');
     expect(glance).toHaveTextContent('46');
     expect(screen.getByRole('img', { name: /^Histogram of ratings/ })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /^Average rating by category: Drug discovery × agents/ })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /^Average rating by category: Drug & materials discovery × agents/ })).toBeInTheDocument();
     const scatter = screen.getByRole('group', { name: 'Scatter plot: one link per idea' });
     const dots = within(scatter).getAllByRole('link');
     expect(dots).toHaveLength(46);
-    expect(within(scatter).getByRole('link', { name: /^D1, Drug discovery × agents: .*rated 5\.1 out of 10\.$/ })).toHaveAttribute('href', '/explore/D1');
+    expect(within(scatter).getByRole('link', { name: /^D1, Drug & materials discovery × agents: .*rated 5\.1 out of 10\.$/ })).toHaveAttribute('href', '/explore/D1');
     const held = screen.getByRole('region', { name: 'How the runs held up' });
     expect(held).toHaveTextContent('Completed46/46');
     expect(held).toHaveTextContent('No risky sentence42/46');
