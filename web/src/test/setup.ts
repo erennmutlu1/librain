@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
+import { resetBookmarks } from '../explore/bookmarks';
 import { resetSessionStore } from '../lib/sessionStore';
 
 // findBy*/waitFor give up after 1 s by default. Lazy-loaded pages can take longer
@@ -20,6 +21,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   resetSessionStore();
+  resetBookmarks();
   vi.unstubAllGlobals();
   try {
     window.localStorage.clear();
