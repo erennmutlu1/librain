@@ -260,6 +260,7 @@ All four citations resolved to chunks from `2005.11401` (Lewis et al., the RAG p
 - [x] **Two-panel human eval (n=30)**: a second blinded three-rater panel extends the AFTER-FIX pilot to 30 outputs (LIBRAIN 0/30 vs Naive-RAG 3/30 hallucination flags; pooled novelClaim novelty 4.47 / 1.80 / 2.47), committed under `experiments/hallucination-pilot/combined-n30-*.csv`
 - [x] **Hardening**: fail-closed claim validation, one shared Discovery contract for both providers, retries, replay tests over every committed result, run history, progress streaming, arXiv ingest, API key + rate limit (see [`CHANGELOG.md`](CHANGELOG.md))
 - [x] **Phase 3.B (local)**: web UI (Library, Ask, Discover, Compare, History) with live progress, and Docker Compose for the whole stack
+- [x] **New discoveries (2026-11-18)**: 46 Discovery runs on new topic pairs in nine fields (incl. football, sport, web development, programming languages, future jobs), 14 featured with plain-language write-ups; bilingual explainer in [`docs/LIBRAIN-discoveries-explained.pdf`](docs/LIBRAIN-discoveries-explained.pdf)
 - [ ] **Phase 3.B (hosted)**: public deployment (Azure Container Apps + Static Web Apps, or any container host)
 
 See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
@@ -268,14 +269,14 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 
 ## Performance
 
-- Papers ingested: 41 (1,766 chunks total). The original 5-paper seed plus a multi-domain expansion spanning RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, and cognition/neuroscience. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
+- Papers ingested: 55 (2,210 chunks). The original 5-paper seed, a multi-domain expansion to 41 papers (RAG/agentic methods, drug discovery & proteins, weather/climate/energy, agriculture, clinical trials, cognition/neuroscience), and 14 arXiv papers added on 2026-11-18 for football, sport, web development, programming languages and labour-market studies. (The pre-registered companion-paper results in [Reproducing Paper Numbers](#reproducing-paper-numbers) use the original 13-paper Phase B corpus and are unchanged.)
 - Retrieval latency (p95): < 200 ms (Qdrant local, top-5).
 - End-to-end query latency: ~13s synthesis path; Discovery + claim validation + evaluation now run via `Task.WhenAll` so the post-synthesis stage is bounded by the slowest single Haiku call instead of three sequential round-trips.
 - Robustness: across `topK ∈ {3,5,7,10}`, a Sonnet 4.6 → Haiku 4.5 synthesis swap, and an adversarial prompt explicitly demanding out-of-corpus citations, the citation-validation contract admitted **zero** fabricated citations in every configuration, a by-construction guarantee, not a model-dependent one. Reproduce with `dotnet run --project LIBRAIN.Experiments -- robustness`.
-- Anthropic prompt caching: enabled on all seven LLM-backed agents via `MessageParameters.PromptCaching = PromptCacheType.AutomaticToolsAndSystem`. Audit log shows `cacheRead`/`cacheCreate` token counts per call; within a 5-minute TTL repeated runs reuse ~80% of the system+tool prefix tokens.
-- Cost per query: ~$0.030 synthesis, ~$0.04 discovery (Sonnet synth + Haiku eval + Haiku claim-validation, cached prefix).
+- Anthropic prompt caching: enabled for the static system prompt and tool schema on every agent. Measured over 46 Discovery runs on 2026-11-18, it took effect only for the Sonnet generation call (11% of its prompt tokens read from cache); the Haiku judge and validator prompts are shorter than the minimum length the API caches, so they are never cached. The audit log records `cacheRead` / `cacheCreate` per call.
+- Cost per Discovery run: **US$0.066 on average** (US$0.057–0.075), measured from logged token counts over 46 runs on 2026-11-18 (Sonnet 4.6 generation ≈ 70%, two Haiku 4.5 calls ≈ 30%). See [`experiments/featured-discoveries/`](experiments/featured-discoveries/) and [`experiments/new-areas-discoveries/`](experiments/new-areas-discoveries/).
 - RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0**, a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
-- Tests: **81/81 passing** (chunker, citation validation, evaluation/novelty/discovery scoring, claim-validation scoring, baseline fabrication counting, single-LLM no-retrieval contract, synthesis-model resolution, robustness-CSV + fabrication-CSV formatting, free-text citation parsing, inter-rater agreement Cohen/Fleiss/Krippendorff).
+- Tests: **237 backend** (pure logic, replay of all committed results, every HTTP endpoint in memory, Qdrant integration) and **173 web UI** tests, all passing in CI.
 
 ---
 
