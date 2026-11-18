@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeNaiveRag } from '../api/normalize';
-import { compareScenarios } from '../mocks/scenarios';
+import { compareScenarios, contract } from '../mocks/scenarios';
 import { auditClaimedCitations, chunkKey, parseChunkKey, parseCitationMarkers, parseFreeTextCitations } from './citations';
 
 describe('auditClaimedCitations (fabricated-citation detection)', () => {
@@ -40,17 +40,16 @@ describe('auditClaimedCitations (fabricated-citation detection)', () => {
     expect(audit).toMatchObject({ total: 0, fabricated: [], consistent: true, reportedFabricated: null });
   });
 
-  it('agrees with the recorded free-text Naive-RAG run (2 of 5 fabricated)', () => {
-    const scenario = compareScenarios.find((s) => s.id === 'pair-01-free-text')!;
-    const r = normalizeNaiveRag(scenario.naiveRag);
+  it('finds the fabricated citation in the real API compare snapshot (1 of 2)', () => {
+    const r = normalizeNaiveRag(contract.naiveRag);
     const audit = auditClaimedCitations(r.claimedCitations, r.fabricatedCitationCount);
-    expect(audit.total).toBe(5);
-    expect(audit.fabricated).toHaveLength(2);
+    expect(audit.total).toBe(2);
+    expect(audit.fabricatedKeys).toEqual(['pangu-weather:4']);
     expect(audit.consistent).toBe(true);
   });
 
-  it('finds no fabrications in the recorded structured baseline runs', () => {
-    for (const s of compareScenarios.filter((x) => x.request.citationMode === 'structured')) {
+  it('finds no fabrications in the committed baseline-experiment runs', () => {
+    for (const s of compareScenarios.filter((x) => !x.id.startsWith('contract-'))) {
       const r = normalizeNaiveRag(s.naiveRag);
       expect(auditClaimedCitations(r.claimedCitations, r.fabricatedCitationCount).fabricated, s.id).toHaveLength(0);
     }

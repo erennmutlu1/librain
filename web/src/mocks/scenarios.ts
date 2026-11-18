@@ -1,18 +1,43 @@
 /*
- * Recorded LIBRAIN runs served in mock mode.
+ * Everything mock mode serves, and where it came from.
  *
- * Every discovery / baseline fixture is a byte-for-byte copy of a committed
- * output under experiments/ (see `source`). Two are adjusted in code below,
- * each with a `note` saying exactly how, so the UI's rarer states can be seen
- * without a live API:
- *   - a validator-failure run (validationFailed is new on the backend and no
- *     recorded run has it yet);
- *   - a free-text Naive-RAG run with per-citation isResolved flags (the
- *     fabrication-delta experiment stored only the counts).
- * The papers list and the Ask answer are hand-built; see web/README.md.
+ * Two kinds of real data, never hand-written content:
+ *   1. API contract snapshots (src/mocks/contract/): responses captured from
+ *      the real API running in memory with a fake LLM
+ *      (LIBRAIN.Tests/Api/UiContractSnapshotTests.cs). They pin every shape.
+ *   2. Committed experiment outputs (src/mocks/fixtures/): byte-for-byte copies
+ *      of LIBRAIN results under experiments/, for real domain content.
+ *
+ * Anything assembled or synthesised is labelled where it is built:
+ *   - progress events for recordings that have no captured stream
+ *     (synthesiseDiscoverProgress / synthesiseQueryProgress);
+ *   - Compare envelopes around three separate experiment outputs;
+ *   - the mock library, derived from the paper ids those outputs cite.
  */
-import type { CompareRequest, DiscoverRequest, MockScenario, QueryRequest } from '../api/types';
-import { parseFreeTextCitations } from '../lib/citations';
+import { normalizeDiscoverResponse, normalizeQueryResponse } from '../api/normalize';
+import type {
+  CompareRequest,
+  DiscoverRequest,
+  DiscoverResponse,
+  MockScenario,
+  ProgressEvent,
+  QueryRequest,
+  QueryResponse,
+} from '../api/types';
+import { parseChunkKey } from '../lib/citations';
+
+import contractArxiv from './contract/arxiv-ingest-result.json';
+import contractCompare from './contract/compare-response.json';
+import contractDiscover from './contract/discover-response.json';
+import discoverStreamText from './contract/discover-stream.txt?raw';
+import contractIngest from './contract/ingest-result.json';
+import contractNaive from './contract/naive-rag-response.json';
+import contractPapers from './contract/papers.json';
+import contractProblem400 from './contract/problem-400.json';
+import contractQuery from './contract/query-response.json';
+import contractRunRecord from './contract/run-record.json';
+import contractRuns from './contract/runs.json';
+import contractSingle from './contract/single-llm-response.json';
 
 import discoverAnthropic01 from './fixtures/discover-anthropic-pair-01.json';
 import discoverAnthropic02 from './fixtures/discover-anthropic-pair-02.json';
@@ -21,43 +46,57 @@ import discoverAnthropic10 from './fixtures/discover-anthropic-pair-10.json';
 import discoverOpenai01 from './fixtures/discover-openai-pair-01.json';
 import discoverOpenai03 from './fixtures/discover-openai-pair-03.json';
 import discoverOpenai21 from './fixtures/discover-openai-pair-21.json';
-import fabricationDeltaFreeText from './fixtures/fabrication-delta-pair-01-free-text-gpt-4o.json';
 import naiveRag01 from './fixtures/naive-rag-pair-01.json';
 import naiveRag10 from './fixtures/naive-rag-pair-10.json';
-import papersFixture from './fixtures/papers.json';
-import queryRag from './fixtures/query-rag-hallucination.json';
 import singleLlm01 from './fixtures/single-llm-pair-01.json';
 import singleLlm10 from './fixtures/single-llm-pair-10.json';
+
+export const contract = {
+  arxiv: contractArxiv as unknown,
+  compare: contractCompare as unknown,
+  discover: contractDiscover as unknown,
+  discoverStream: discoverStreamText,
+  ingest: contractIngest as unknown,
+  naiveRag: contractNaive as unknown,
+  papers: contractPapers as unknown,
+  problem400: contractProblem400 as unknown,
+  query: contractQuery as unknown,
+  runRecord: contractRunRecord as unknown,
+  runs: contractRuns as unknown,
+  singleLlm: contractSingle as unknown,
+};
+
+const SNAPSHOT_NOTE =
+  'API contract snapshot: real API output with a fake LLM, so the text is placeholder-like but every field is exactly what the API sends.';
+
+/** The request every contract snapshot was captured with (UiContractSnapshotTests). */
+const CONTRACT_TOPICS: CompareRequest = { topicA: 'weather forecasting', topicB: 'protein folding', topK: 2 };
 
 export interface Recorded<Req> extends MockScenario<Req> {
   response: unknown;
 }
 
-export const papers: unknown = papersFixture;
-
 // ---------- Ask ----------
 
 export const askScenarios: Recorded<QueryRequest>[] = [
   {
-    id: 'rag-hallucination',
-    label: 'How does retrieval-augmented generation mitigate hallucination?',
-    request: { query: 'How does retrieval-augmented generation mitigate hallucination?', topK: 5 },
-    source: 'README.md, "Example query result" (Phase 2 smoke test)',
-    note:
-      'Scores, confidence and two citations are from the README example; the full answer text, the other two citations, the critique and the passage excerpts were written to complete it. The live API does not return passage text yet.',
-    response: queryRag,
+    id: 'contract-query',
+    label: 'Why does GraphCast forecast well?',
+    request: { query: 'Why does GraphCast forecast well?', topK: 2 },
+    source: 'web/src/mocks/contract/query-response.json',
+    note: `${SNAPSHOT_NOTE} Progress events are synthesised from the documented query stages.`,
+    response: contractQuery,
   },
 ];
 
 // ---------- Discover ----------
 
-/** The backend's failure shape: no usable verdicts, aggregate risk pinned to 1.0. */
-const validatorFailure = {
-  ...discoverAnthropic08,
-  claimValidation: { claims: [], aggregateRisk: 1, validationFailed: true },
-};
+export interface DiscoverRecording extends Recorded<DiscoverRequest> {
+  /** A captured text/event-stream, replayed verbatim when present. */
+  stream?: string;
+}
 
-export const discoverScenarios: Recorded<DiscoverRequest>[] = [
+export const discoverScenarios: DiscoverRecording[] = [
   {
     id: 'anthropic-pair-10',
     label: 'Drug discovery × climate adaptation',
@@ -78,6 +117,13 @@ export const discoverScenarios: Recorded<DiscoverRequest>[] = [
     request: { topicA: 'large language models', topicB: 'drug-target interaction prediction', topK: 5, provider: 'anthropic' },
     source: 'experiments/baseline-comparison/results/librain/pair-01.json',
     response: discoverAnthropic01,
+  },
+  {
+    id: 'anthropic-pair-08',
+    label: 'Brain-inspired architectures × hypothesis generation',
+    request: { topicA: 'brain inspired architectures', topicB: 'hypothesis generation', topK: 5, provider: 'anthropic' },
+    source: 'experiments/baseline-comparison/results/librain/pair-08.json',
+    response: discoverAnthropic08,
   },
   {
     id: 'openai-pair-21',
@@ -101,84 +147,171 @@ export const discoverScenarios: Recorded<DiscoverRequest>[] = [
     response: discoverOpenai01,
   },
   {
-    id: 'validator-failure',
-    label: 'Brain-inspired architectures × hypothesis generation (validator failure)',
-    request: { topicA: 'brain inspired architectures', topicB: 'hypothesis generation', topK: 5, provider: 'anthropic' },
-    source: 'experiments/baseline-comparison/results/librain/pair-08.json',
-    note: 'claimValidation replaced with the backend failure shape (no claims, aggregateRisk 1.0, validationFailed true) to preview the warning.',
-    response: validatorFailure,
+    id: 'contract-discover',
+    label: 'Weather forecasting × protein folding (API snapshot)',
+    request: { ...CONTRACT_TOPICS },
+    source: 'web/src/mocks/contract/discover-stream.txt',
+    note: `${SNAPSHOT_NOTE} The captured event stream is replayed event by event.`,
+    response: contractDiscover,
+    stream: discoverStreamText,
   },
 ];
 
+/** Served when the topics match no recording. */
+export const DEFAULT_DISCOVER = discoverScenarios.find((s) => s.id === 'contract-discover')!;
+
 // ---------- Compare ----------
 
-/**
- * fabrication-delta stored counts only (claimed 5, resolved 3, fabricated 2).
- * The citations are parsed from the recorded hypothesis exactly as the backend
- * does; the two unresolved ones are assigned to the key cited twice
- * (2504.05496:9), one of the assignments consistent with those counts.
- */
-function freeTextNaiveRag(): unknown {
-  const unresolvedKey = '2504.05496:9';
-  const claimedCitations = parseFreeTextCitations(fabricationDeltaFreeText.hypothesis).map((c) => ({
-    paperId: c.paperId,
-    chunkIndex: c.chunkIndex ?? -1,
-    isResolved: `${c.paperId}:${c.chunkIndex}` !== unresolvedKey,
-  }));
-  return {
-    correlationId: fabricationDeltaFreeText.correlationId,
-    hypothesis: fabricationDeltaFreeText.hypothesis,
-    retrievedChunkCount: fabricationDeltaFreeText.retrievedChunkCount,
-    claimedCitations,
-    fabricatedCitationCount: fabricationDeltaFreeText.fabricatedCount,
-    // Evaluators were skipped in that experiment, so there are no scores.
-  };
-}
-
 export interface CompareRecording extends Recorded<CompareRequest> {
-  librain: unknown;
   naiveRag: unknown;
-  naiveRagSource: string;
   singleLlm: unknown;
 }
 
+/**
+ * Wraps three committed experiment outputs in the /api/compare envelope. The
+ * envelope itself was never returned by an API: its correlation id is a
+ * visible "assembled-…" label and it has no totalElapsedMs.
+ */
+function assembleCompare(id: string, request: CompareRequest, librain: unknown, naiveRag: unknown, singleLlm: unknown): unknown {
+  const idOf = (r: unknown) => (r as { correlationId?: string }).correlationId ?? null;
+  return {
+    correlationId: `assembled-${id}`,
+    topicA: request.topicA,
+    topicB: request.topicB ?? null,
+    topK: request.topK ?? 5,
+    librain: { result: librain, error: null, correlationId: idOf(librain) },
+    naiveRag: { result: naiveRag, error: null, correlationId: idOf(naiveRag) },
+    singleLlm: { result: singleLlm, error: null, correlationId: idOf(singleLlm) },
+  };
+}
+
+const PAIR_10: CompareRequest = { topicA: 'drug discovery', topicB: 'climate adaptation', topK: 5 };
+const PAIR_01: CompareRequest = { topicA: 'large language models', topicB: 'drug-target interaction prediction', topK: 5 };
+
 export const compareScenarios: CompareRecording[] = [
+  {
+    id: 'contract-compare',
+    label: 'Weather forecasting × protein folding (API snapshot, 1 fabricated citation)',
+    request: { ...CONTRACT_TOPICS },
+    source: 'web/src/mocks/contract/compare-response.json',
+    note: SNAPSHOT_NOTE,
+    response: contractCompare,
+    naiveRag: contractNaive,
+    singleLlm: contractSingle,
+  },
   {
     id: 'pair-10',
     label: 'Drug discovery × climate adaptation',
-    request: { topicA: 'drug discovery', topicB: 'climate adaptation', topK: 5, provider: 'anthropic', citationMode: 'structured' },
+    request: PAIR_10,
     source: 'experiments/baseline-comparison/results/{librain,naive-rag,single-llm}/pair-10.json',
-    response: null,
-    librain: discoverAnthropic10,
+    note: 'Three committed outputs from the baseline experiment, wrapped in the /api/compare envelope.',
+    response: assembleCompare('pair-10', PAIR_10, discoverAnthropic10, naiveRag10, singleLlm10),
     naiveRag: naiveRag10,
-    naiveRagSource: 'experiments/baseline-comparison/results/naive-rag/pair-10.json',
     singleLlm: singleLlm10,
   },
   {
     id: 'pair-01',
     label: 'Large language models × drug-target interaction prediction',
-    request: { topicA: 'large language models', topicB: 'drug-target interaction prediction', topK: 5, provider: 'anthropic', citationMode: 'structured' },
+    request: PAIR_01,
     source: 'experiments/baseline-comparison/results/{librain,naive-rag,single-llm}/pair-01.json',
-    response: null,
-    librain: discoverAnthropic01,
+    note: 'Three committed outputs from the baseline experiment, wrapped in the /api/compare envelope.',
+    response: assembleCompare('pair-01', PAIR_01, discoverAnthropic01, naiveRag01, singleLlm01),
     naiveRag: naiveRag01,
-    naiveRagSource: 'experiments/baseline-comparison/results/naive-rag/pair-01.json',
-    singleLlm: singleLlm01,
-  },
-  {
-    id: 'pair-01-free-text',
-    label: 'Large language models × drug-target interaction prediction (free-text citations)',
-    request: { topicA: 'large language models', topicB: 'drug-target interaction prediction', topK: 5, provider: 'anthropic', citationMode: 'free-text' },
-    source: 'experiments/fabrication-delta/pair-01-probe-aggressive-free-text-gpt-4o-clean.json (Naive-RAG); baseline-comparison pair-01 (others)',
-    note:
-      'Naive-RAG column comes from the fabrication-delta experiment (gpt-4o, free-text citations, unscored). Per-citation isResolved flags are reconstructed from its recorded counts.',
-    response: null,
-    librain: discoverAnthropic01,
-    naiveRag: freeTextNaiveRag(),
-    naiveRagSource: 'experiments/fabrication-delta/pair-01-probe-aggressive-free-text-gpt-4o-clean.json',
     singleLlm: singleLlm01,
   },
 ];
+
+export const DEFAULT_COMPARE = compareScenarios[0]!;
+
+// ---------- Synthetic progress (labelled) ----------
+
+/**
+ * SYNTHETIC. Committed experiment outputs carry no event stream, so mock mode
+ * rebuilds one from the stage list and message wording in
+ * LIBRAIN/Agents/DiscoveryAgent.cs. Counts come from the recorded result when
+ * it has them; the retrieval count is not recorded, so that event has none.
+ * The OpenAI path emits only "generating", as the real endpoint does.
+ */
+export function synthesiseDiscoverProgress(request: DiscoverRequest, result: DiscoverResponse): ProgressEvent[] {
+  if (request.provider === 'openai') {
+    return [{ stage: 'generating', message: 'Running the OpenAI port of the Discovery pipeline', count: null }];
+  }
+  const kept = result.supportingEvidence.length;
+  const claimed = result.claimedEvidenceCount;
+  return [
+    { stage: 'retrieving', message: request.topicB ? 'Searching the corpus for both topics' : 'Searching the corpus', count: null },
+    { stage: 'retrieved', message: 'Retrieved passages for each topic', count: null },
+    { stage: 'generating', message: 'Asking Claude for a hypothesis that goes beyond the sources', count: null },
+    {
+      stage: 'validated',
+      message: claimed !== undefined ? `Citation contract kept ${kept} of ${claimed} cited sources` : `Citation contract kept ${kept} cited sources`,
+      count: kept,
+    },
+    { stage: 'scoring', message: 'Scoring novelty, plausibility and per-sentence claim risk', count: null },
+  ];
+}
+
+/**
+ * SYNTHETIC. No query stream was captured; this follows the stage list and
+ * wording in LIBRAIN/Pipelines/QueryPipeline.cs with counts taken from the
+ * recorded request (passages) and response (citations).
+ */
+export function synthesiseQueryProgress(request: QueryRequest, result: QueryResponse): ProgressEvent[] {
+  const passages = request.topK ?? 5;
+  const cited = result.citations.length;
+  return [
+    { stage: 'retrieving', message: 'Searching the corpus', count: null },
+    { stage: 'retrieved', message: `Found ${passages} passages`, count: passages },
+    { stage: 'generating', message: 'Writing a citation-grounded answer', count: null },
+    { stage: 'validated', message: `${cited} citation(s) resolved to retrieved passages`, count: cited },
+    { stage: 'evaluating', message: 'Judging groundedness, relevance and completeness', count: null },
+  ];
+}
+
+// ---------- Mock library (derived, labelled) ----------
+
+interface ChunkRef {
+  paperId: string;
+  chunkIndex: number | null;
+}
+
+function chunkRefs(): ChunkRef[] {
+  const refs: ChunkRef[] = [];
+  for (const s of discoverScenarios) {
+    const r = normalizeDiscoverResponse(s.response);
+    for (const e of r.supportingEvidence) refs.push({ paperId: e.paperId, chunkIndex: e.chunkIndex });
+    for (const c of r.claimValidation?.claims ?? []) for (const k of c.supportingChunks) refs.push(parseChunkKey(k));
+    for (const b of r.extrapolationBasis) if (b.groundedInChunkId) refs.push(parseChunkKey(b.groundedInChunkId));
+  }
+  for (const s of askScenarios) {
+    for (const c of normalizeQueryResponse(s.response).citations) refs.push({ paperId: c.paperId, chunkIndex: c.chunkIndex });
+  }
+  for (const s of compareScenarios) {
+    const cited = (s.naiveRag as { claimedCitations?: { paperId: string; chunkIndex: number; isResolved: boolean }[] }).claimedCitations ?? [];
+    // Unresolved citations point outside the retrieval set, so they prove nothing about the corpus.
+    for (const c of cited) if (c.isResolved) refs.push({ paperId: c.paperId, chunkIndex: c.chunkIndex });
+  }
+  return refs;
+}
+
+/**
+ * DERIVED. The papers the recordings cite, with no invented metadata: title,
+ * authors, year and ingest date are unknown (null), and chunkCount is a lower
+ * bound (highest chunk index cited, plus one). The API snapshot's own papers
+ * list is merged in as captured.
+ */
+export function mockLibrary(): unknown[] {
+  const maxIndex = new Map<string, number>();
+  for (const ref of chunkRefs()) {
+    const prev = maxIndex.get(ref.paperId) ?? -1;
+    maxIndex.set(ref.paperId, Math.max(prev, ref.chunkIndex ?? 0));
+  }
+  const captured = (contract.papers as { paperId: string }[]).map((p) => p.paperId);
+  const derived = [...maxIndex.entries()]
+    .filter(([id]) => !captured.includes(id))
+    .map(([paperId, max]) => ({ paperId, title: null, chunkCount: max + 1, firstIngestedAt: null, authors: null, year: null }));
+  return [...(contract.papers as unknown[]), ...derived];
+}
 
 // ---------- Matching ----------
 
@@ -194,22 +327,16 @@ function sameTopics(a: { topicA: string; topicB?: string }, b: { topicA: string;
   return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
 }
 
-export function findDiscover(request: DiscoverRequest): { scenario: Recorded<DiscoverRequest>; matched: boolean } {
+export function findDiscover(request: DiscoverRequest): { scenario: DiscoverRecording; matched: boolean } {
   const provider = request.provider ?? 'anthropic';
   const byTopic = discoverScenarios.filter((s) => sameTopics(s.request, request));
-  const exact = byTopic.find((s) => (s.request.provider ?? 'anthropic') === provider);
-  const scenario = exact ?? byTopic[0];
-  if (scenario) return { scenario, matched: true };
-  return { scenario: discoverScenarios[0]!, matched: false };
+  const scenario = byTopic.find((s) => (s.request.provider ?? 'anthropic') === provider) ?? byTopic[0];
+  return scenario ? { scenario, matched: true } : { scenario: DEFAULT_DISCOVER, matched: false };
 }
 
 export function findCompare(request: CompareRequest): { scenario: CompareRecording; matched: boolean } {
-  const mode = request.citationMode ?? 'structured';
-  const byTopic = compareScenarios.filter((s) => sameTopics(s.request, request));
-  const exact = byTopic.find((s) => (s.request.citationMode ?? 'structured') === mode);
-  const scenario = exact ?? byTopic[0];
-  if (scenario) return { scenario, matched: true };
-  return { scenario: compareScenarios[0]!, matched: false };
+  const scenario = compareScenarios.find((s) => sameTopics(s.request, request));
+  return scenario ? { scenario, matched: true } : { scenario: DEFAULT_COMPARE, matched: false };
 }
 
 export function findAsk(request: QueryRequest): { scenario: Recorded<QueryRequest>; matched: boolean } {
