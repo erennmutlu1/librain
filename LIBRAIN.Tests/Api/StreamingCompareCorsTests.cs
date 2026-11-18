@@ -130,6 +130,18 @@ public sealed class StreamingCompareCorsTests
         Assert.Equal(JsonValueKind.Object, body.GetProperty("naiveRag").GetProperty("result").ValueKind);
     }
 
+    [Fact]
+    public async Task Cors_ExposesRetryAfter_SoTheUiCanShowWhenToRetry()
+    {
+        await using var factory = new LibrainApiFactory();
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/papers");
+        req.Headers.Add("Origin", "http://localhost:5173");
+
+        var res = await factory.CreateClient().SendAsync(req, Ct);
+
+        Assert.Contains("Retry-After", res.Headers.GetValues("Access-Control-Expose-Headers").Single());
+    }
+
     [Theory]
     [InlineData("http://localhost:5173", true)]
     [InlineData("https://evil.example", false)]

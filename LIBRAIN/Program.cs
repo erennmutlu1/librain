@@ -91,7 +91,9 @@ if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
 }
 builder.Services.AddLibrainGuards(builder.Configuration);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()
+        // Lets a separately hosted UI read when to retry after a 429.
+        .WithExposedHeaders("Retry-After")));
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();

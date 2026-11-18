@@ -44,11 +44,14 @@ public sealed class UiContractSnapshotTests
 
         var stream = await http.PostAsJsonAsync("/api/discover/stream", topics, Ct);
         snapshots["discover-stream.txt"] = await stream.Content.ReadAsStringAsync(Ct);
+        var queryStream = await http.PostAsJsonAsync("/api/query/stream", new { query = "Why does GraphCast forecast well?", topK = 2 }, Ct);
+        snapshots["query-stream.txt"] = await queryStream.Content.ReadAsStringAsync(Ct);
         var problem = await http.PostAsJsonAsync("/api/discover", new { topicA = "" }, Ct);
         snapshots["problem-400.json"] = JsonSerializer.Serialize(await problem.Content.ReadFromJsonAsync<JsonElement>(Ct), Pretty);
 
-        Assert.Equal(12, snapshots.Count);
+        Assert.Equal(13, snapshots.Count);
         Assert.Contains("event: result", snapshots["discover-stream.txt"]);
+        Assert.Contains("event: result", snapshots["query-stream.txt"]);
 
         if (Environment.GetEnvironmentVariable("LIBRAIN_WRITE_UI_CONTRACT") == "1")
         {

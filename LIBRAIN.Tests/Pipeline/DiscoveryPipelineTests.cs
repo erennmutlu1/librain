@@ -54,9 +54,14 @@ public sealed class FakePaperStore(IReadOnlyList<SearchHit> hitsA, IReadOnlyList
 {
     public ConcurrentQueue<ChunkRecord> Persisted { get; } = new();
 
+    // Same semantics as QdrantPaperRepository: a paper's new chunks replace its old ones
+    // (deterministic ids overwrite 0..n-1, the stale tail is deleted).
     public Task PersistAsync(IReadOnlyList<ChunkRecord> chunks, CancellationToken ct = default)
     {
-        foreach (var c in chunks) Persisted.Enqueue(c);
+        var replaced = chunks.Select(c => c.PaperId).ToHashSet();
+        var kept = Persisted.Where(c => !replaced.Contains(c.PaperId)).ToArray();
+        Persisted.Clear();
+        foreach (var c in kept.Concat(chunks)) Persisted.Enqueue(c);
         return Task.CompletedTask;
     }
 
