@@ -5,10 +5,13 @@
 | Web UI (public build) | GitHub Pages, `librain.erenmutlu.me` | free |
 | API (public mode), https://librain.onrender.com | Render free web service, built from this repo (`render.yaml`) | free, no card |
 | Corpus (67 papers, 2,470 chunks) | Qdrant Cloud free cluster, Frankfurt | free |
-| Keep-alive | GitHub Actions, one read every 3 days (`qdrant-keepalive.yml`) | free |
+| Keep-alive | GitHub Actions: a Qdrant read every 3 days (`qdrant-keepalive.yml`), `GET /health` on Render every 5 minutes (`render-keepalive.yml`) | free |
 | Claude and OpenAI | **the visitor's own keys** | billed to the visitor |
 
-The free Render instance sleeps after 15 minutes without traffic; the first live request
+The free Render instance sleeps after 15 minutes without traffic, so `render-keepalive.yml`
+calls `/health` every five minutes. One always-on service uses about 744 of the workspace's 750
+free instance hours a month: a second free Render service would run them out. GitHub can delay
+or skip a scheduled run, so the API can still fall asleep now and then; the first live request
 after that waits up to about a minute while it wakes, and the UI says so. Recorded runs never
 touch the API.
 
