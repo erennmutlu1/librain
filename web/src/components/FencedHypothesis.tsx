@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import { useT } from '../i18n/lang';
 import { matchSentences } from '../lib/sentences';
+import { text } from './FencedHypothesis.i18n';
 import styles from './FencedHypothesis.module.css';
 
 /**
@@ -19,6 +21,7 @@ export function FencedHypothesis({
   className?: string;
   withKey?: boolean;
 }) {
+  const t = useT(text);
   const span = useMemo(() => {
     if (!novelClaim.trim()) return null;
     return matchSentences(hypothesis, [novelClaim])[0]?.span ?? null;
@@ -30,16 +33,15 @@ export function FencedHypothesis({
       <p className={className}>
         {hypothesis.slice(0, span.start)}
         <span className={styles.fence}>
-          <span className="visually-hidden">Novel claim begins: </span>
+          <span className="visually-hidden">{t.begins}</span>
           {hypothesis.slice(span.start, span.end)}
-          <span className="visually-hidden"> (novel claim ends)</span>
+          <span className="visually-hidden">{t.ends}</span>
         </span>
         {hypothesis.slice(span.end)}
       </p>
       {withKey ? (
         <p className={styles.key}>
-          <span className={styles.swatch} aria-hidden="true" /> The indented italic part is the model's novel claim, checked
-          sentence by sentence below.
+          <span className={styles.swatch} aria-hidden="true" /> {t.key}
         </p>
       ) : null}
     </>

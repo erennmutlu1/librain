@@ -190,3 +190,115 @@
   border-radius: var(--r-sm);
   background: var(--surface-sunken);
 }
+
+/* "Check my keys": the answer per provider, an icon and a word each. */
+.keyCheck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+
+.keyCheck svg {
+  flex: none;
+}
+
+.checkResults {
+  width: 100%;
+}
+
+/* Kept in the layout even when empty: a live region must exist before its text arrives. */
+.checkResults:empty {
+  margin-top: calc(var(--s2) * -1);
+}
+
+.checkNote {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.checkError {
+  display: flex;
+  gap: var(--s2);
+  align-items: flex-start;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.checkError > svg {
+  margin-top: 0.15em;
+}
+
+.checkList {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+}
+
+.checkItem {
+  display: flex;
+  gap: var(--s2);
+  align-items: flex-start;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--rule);
+  border-left-width: 3px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.checkItem > svg {
+  margin-top: 0.2em;
+}
+
+.checkItem strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.checkItem[data-status='valid'] {
+  border-left-color: var(--success);
+}
+
+.checkItem[data-status='valid'] > svg {
+  color: var(--success);
+}
+
+.checkItem[data-status='invalid'] {
+  border-left-color: var(--danger);
+}
+
+.checkItem[data-status='invalid'] > svg {
+  color: var(--danger);
+}
+
+.checkItem[data-status='rate_limited'],
+.checkItem[data-status='unreachable'] {
+  border-left-color: var(--extrapolated);
+}
+
+.checkItem[data-status='rate_limited'] > svg,
+.checkItem[data-status='unreachable'] > svg {
+  color: var(--extrapolated);
+}
+
+.checkItem[data-status='not_provided'] > svg {
+  color: var(--ink-3);
+}
+
+.checkDetail {
+  display: block;
+  color: var(--ink-3);
+}
+
+@media (max-width: 40rem) {
+  .keyCheck > :global(.btn) {
+    min-height: 2.75rem;
+  }
+}

@@ -2,12 +2,14 @@
  * The two clients the public build switches between, and the History they
  * share. See PublicApp.tsx for how the switch works.
  */
-import { PROVIDER_KEYS_REQUIRED } from '../api/errors';
+import { ApiError, PROVIDER_KEYS_REQUIRED, errorFromBody } from '../api/errors';
 import { createHttpApi } from '../api/httpClient';
-import { providerKeyHeaders, requestProviderKeys } from '../api/providerKeys';
+import { providerKeyHeaders, requestProviderKeys, type ProviderKeys } from '../api/providerKeys';
 import type { LibrainApi } from '../api/types';
 import type { RunStore } from '../history/runStore';
+import { pick } from '../i18n/lang';
 import { createPublicHistory, createPublicRunStore, withBrowserHistory } from './browserHistory';
+import { text } from './public.i18n';
 import { createWakeWatch, type WakeWatch } from './wakeWatch';
 
 export interface PublicClients {
@@ -17,6 +19,8 @@ export interface PublicClients {
   runStore: RunStore;
   /** Whether a live request is waiting on the free host waking up; absent in tests that do not need it. */
   wake?: WakeWatch;
+  /** "Check my keys" in the keys panel; absent in tests that do not need it (the button is then hidden). */
+  checkKeys?: CheckKeys;
 }
 
 export interface PublicClientOptions {
@@ -41,8 +45,6 @@ export function needsProviderKeys(path: string): boolean {
   return KEYED_PATHS.some((p) => path === p || path.startsWith(`${p}/`) || path.startsWith(`${p}?`));
 }
 
-export const LIVE_NEEDS_KEYS = 'Live mode runs on your own Anthropic and OpenAI keys. Add both to switch.';
-
 export function createLiveClient(history: RunStore, options: PublicClientOptions = {}): LibrainApi {
   const http = createHttpApi({
     baseUrl: options.baseUrl ?? '',
@@ -51,7 +53,7 @@ export function createLiveClient(history: RunStore, options: PublicClientOptions
     apiKey: () => null,
     requestHeaders: (path) => (needsProviderKeys(path) ? providerKeyHeaders() : {}),
     onUnauthorized: (error) =>
-      requestProviderKeys({ reason: error.title === PROVIDER_KEYS_REQUIRED ? 'Live mode needs both of your keys.' : (error.detail ?? error.title) }),
+      requestProviderKeys({ reason: error.title === PROVIDER_KEYS_REQUIRED ? pick(text).bothKeys : (error.detail ?? error.title) }),
   });
   return withBrowserHistory(http, history, { record: true });
 }
@@ -71,7 +73,85 @@ export function createPublicClients(options: PublicClientOptions = {}): PublicCl
     live: createLiveClient(history, { ...options, fetchImpl: wake.fetch }),
     runStore: createPublicRunStore(history),
     wake,
+    // Through the wake watch, so a check that waits on the sleeping host says so.
+    checkKeys: (keys, signal) => checkProviderKeys(keys, { baseUrl: options.baseUrl ?? '', fetchImpl: wake.fetch, signal }),
   };
+}
+
+// ---------- "Check my keys" ----------
+
+/** One provider's answer from POST /api/keys/check. */
+export type KeyCheckStatus = 'valid' | 'invalid' | 'rate_limited' | 'unreachable' | 'not_provided';
+
+export interface KeyCheck {
+  status: KeyCheckStatus;
+  detail: string | null;
+}
+
+export interface KeyCheckResult {
+  anthropic: KeyCheck;
+  openai: KeyCheck;
+}
+
+export type CheckKeys = (keys: ProviderKeys, signal?: AbortSignal) => Promise<KeyCheckResult>;
+
+const KEY_CHECK_STATUSES: readonly KeyCheckStatus[] = ['valid', 'invalid', 'rate_limited', 'unreachable', 'not_provided'];
+
+/** Never show a key back, even if a provider's message quotes it. */
+function redact(detail: string, keys: ProviderKeys): string {
+  let out = detail;
+  for (const key of [keys.anthropic, keys.openai]) {
+    if (key && key.length >= 8) out = out.split(key).join('[your key]');
+  }
+  return out;
+}
+
+function parseKeyCheck(body: unknown, keys: ProviderKeys): KeyCheckResult {
+  const record = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+  const one = (raw: unknown): KeyCheck => {
+    if (!record(raw) || !KEY_CHECK_STATUSES.includes(raw.status as KeyCheckStatus)) {
+      throw new ApiError({ kind: 'parse', title: 'Unexpected response', detail: 'The key check answered in an unknown format.' });
+    }
+    const detail = typeof raw.detail === 'string' && raw.detail.trim() ? redact(raw.detail.trim(), keys) : null;
+    return { status: raw.status as KeyCheckStatus, detail };
+  };
+  if (!record(body)) throw new ApiError({ kind: 'parse', title: 'Unexpected response', detail: 'The key check answered in an unknown format.' });
+  return { anthropic: one(body.anthropic), openai: one(body.openai) };
+}
+
+/**
+ * Asks the public API whether Anthropic and OpenAI accept the given keys:
+ * POST /api/keys/check with whichever key headers are filled, no body. The
+ * server lists each provider's models, which costs nothing and says nothing
+ * about the credit balance. Keys travel only in those headers, to `baseUrl`.
+ */
+export async function checkProviderKeys(
+  keys: ProviderKeys,
+  options: { baseUrl?: string; fetchImpl?: typeof fetch; signal?: AbortSignal | undefined } = {},
+): Promise<KeyCheckResult> {
+  const keyHeaders = providerKeyHeaders(keys);
+  if (Object.keys(keyHeaders).length === 0) {
+    throw new ApiError({ kind: 'http', status: 400, title: 'no key', detail: pick(text).noKeyToCheck });
+  }
+  const doFetch = options.fetchImpl ?? ((input, init) => fetch(input, init));
+  const url = `${(options.baseUrl ?? '').replace(/\/+$/, '')}/api/keys/check`;
+  let response: Response;
+  try {
+    response = await doFetch(url, { method: 'POST', headers: { Accept: 'application/json', ...keyHeaders }, signal: options.signal });
+  } catch (error) {
+    if (options.signal?.aborted || (error instanceof DOMException && error.name === 'AbortError')) {
+      throw new ApiError({ kind: 'aborted', title: 'Request cancelled' });
+    }
+    throw new ApiError({ kind: 'network', title: 'Network error' });
+  }
+  let body: unknown = null;
+  try {
+    body = await response.json();
+  } catch {
+    // An empty or non-JSON body: the status alone decides below.
+  }
+  if (!response.ok) throw errorFromBody(response.status, response.statusText, body, response.headers.get('Retry-After'));
+  return parseKeyCheck(body, keys);
 }
 
 /**

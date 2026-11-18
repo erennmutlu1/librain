@@ -115,6 +115,33 @@
   color: var(--accent);
 }
 
+/* The gradient button keeps its icon in the button's own ink. */
+.actions .remix svg {
+  color: inherit;
+}
+
+.export {
+  gap: var(--s2);
+}
+
+/* Turkish interface: the translation notice and its "Show original" toggle. */
+.translation {
+  max-width: 60rem;
+  margin-bottom: var(--s5);
+}
+
+.translationBody {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2) var(--s4);
+}
+
+.translationBody > p {
+  flex: 1 1 18rem;
+}
+
 .headExplain {
   grid-column: 1 / -1;
   margin-top: calc(var(--s3) * -1);
@@ -412,4 +439,10 @@
 
 .source code {
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 40rem) {
+  .translationBody :global(.btn) {
+    min-height: 2.75rem;
+  }
 }

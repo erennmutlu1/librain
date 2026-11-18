@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { normalizeDiscoverResponse } from '../api/normalize';
 import type { ClaimValidationResult } from '../api/types';
 import { contract, discoverScenarios } from '../mocks/scenarios';
+import { LangProvider } from '../i18n/lang';
 import { AnnotatedClaim } from './AnnotatedClaim';
 
 function fixture(id: string) {
@@ -89,5 +90,21 @@ describe('AnnotatedClaim', () => {
   it('says when there are no verdicts at all', () => {
     renderClaim(null, 'Some claim.');
     expect(screen.getByText(/no sentence-level verdicts/i)).toBeInTheDocument();
+  });
+
+  it('renders in Turkish inside a Turkish language provider', () => {
+    const r = fixture('anthropic-pair-10');
+    render(
+      <LangProvider initial="tr">
+        <AnnotatedClaim novelClaim={r.novelClaim} validation={r.claimValidation} basis={r.extrapolationBasis} evidence={r.supportingEvidence} papers={new Map()} />
+      </LangProvider>,
+    );
+    const sentences = screen.getAllByRole('button', { pressed: false });
+    expect(sentences[0]).toHaveTextContent(/1\. cümle: Çıkarımsal, halüsinasyon olasılığı %15/);
+    expect(sentences[1]).toHaveTextContent(/2\. cümle: Riskli, halüsinasyon olasılığı %75/);
+    const note = screen.getByRole('complementary', { name: 'Cümle hükmü' });
+    expect(within(note).getByText('2 cümleden 2.')).toBeInTheDocument();
+    expect(within(note).getByText('Getirilen hiçbir parça bu cümleyi desteklemiyor.')).toBeInTheDocument();
+    expect(within(note).getByText('Spekülasyon')).toBeInTheDocument();
   });
 });

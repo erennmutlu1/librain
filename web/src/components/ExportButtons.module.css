@@ -1,0 +1,10 @@
+.group {
+  gap: var(--s2);
+}
+
+/* Full-size touch targets on phones. */
+@media (max-width: 40rem) {
+  .group :global(.btn) {
+    min-height: 2.75rem;
+  }
+}

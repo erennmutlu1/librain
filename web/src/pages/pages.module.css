@@ -178,7 +178,7 @@
 
 @media (min-width: 64rem) {
   .bridgeFields {
-    grid-template-columns: minmax(0, 1fr) 2.75rem minmax(0, 1fr) 9rem;
+    grid-template-columns: minmax(0, 1fr) 2.75rem minmax(0, 1fr) 10rem;
     column-gap: 0;
   }
 
@@ -284,4 +284,149 @@
 
 .modeNotice :global(.cluster) {
   margin-top: var(--s3);
+}
+
+/* ---------- The bridge node as the swap-topics button (Discover, Compare) ---------- */
+
+.swap {
+  padding: 0;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 160ms ease;
+}
+
+/* A 44px hit area around the 28px node. */
+.swap::after {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+  border-radius: 50%;
+}
+
+.swap:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: var(--glow-accent);
+}
+
+.swap:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--glow-accent);
+}
+
+.swap:disabled {
+  cursor: default;
+  color: var(--ink-3);
+}
+
+/* Stacked on phones, the topics swap up and down. */
+.swap svg {
+  transform: rotate(90deg);
+}
+
+@media (min-width: 44rem) {
+  .swap svg {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .swap:active:not(:disabled) svg {
+    transition: transform 200ms ease;
+    transform: rotate(270deg);
+  }
+
+  @media (min-width: 44rem) {
+    .swap:active:not(:disabled) svg {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+/* A notice inside the query panel (filled from a link, Recorded-mode tips). */
+.formNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+
+.formNote > svg {
+  flex: none;
+  margin-top: 0.2em;
+  color: var(--accent);
+}
+
+/* Keyboard hints mean nothing on a touch screen. */
+@media (pointer: coarse) {
+  .kbdHint {
+    display: none;
+  }
+}
+
+/* Ask: the visitor's recent questions under the field. */
+.recent {
+  min-width: 0;
+}
+
+.recentList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+.recentButton {
+  max-width: 100%;
+  min-height: 2rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.recentButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+@media (pointer: coarse) {
+  .recentButton {
+    min-height: 2.75rem;
+  }
+}
+
+.recent > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-height: 2rem;
+  font-weight: 650;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.recent > summary:hover {
+  color: var(--ink);
+}
+
+/* While a field in the panel has focus, its suggestion list must float above the results below. */
+.queryBar:focus-within {
+  z-index: 2;
 }

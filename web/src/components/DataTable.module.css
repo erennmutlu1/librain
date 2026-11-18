@@ -1,0 +1,298 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  min-width: 0;
+}
+
+/* ---------- Toolbar: search, filters, live count, exports ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2) var(--s3);
+}
+
+.search {
+  position: relative;
+  flex: 1 1 14rem;
+  max-width: 24rem;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--s3);
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.searchInput {
+  padding-left: 2.25rem;
+}
+
+.search:focus-within .searchIcon {
+  color: var(--accent);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.count {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  font-weight: 550;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+/* ---------- The table ---------- */
+
+/*
+ * Phones: the box scrolls sideways if the table is still too wide after its
+ * narrow-screen columns drop out. Wider: no box, so the header can stick to
+ * the top of the window while the page scrolls.
+ */
+.scroller {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: var(--r-sm);
+}
+
+@media (min-width: 40rem) {
+  .scroller {
+    overflow: visible;
+  }
+}
+
+.scroller:focus-visible {
+  outline-offset: 2px;
+}
+
+/* `separate` so the sticky header keeps its bottom rule while it sticks. */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0;
+  text-align: left;
+  vertical-align: bottom;
+  background: var(--bg);
+  border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap;
+}
+
+.table [data-numeric] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 2.5rem;
+  padding: var(--s2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  cursor: pointer;
+  text-align: inherit;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+/* Right-aligned columns put the arrow on the left, so the label lines up with the numbers. */
+th[data-numeric] .sortButton {
+  flex-direction: row-reverse;
+}
+
+.sortButton:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  box-shadow: var(--glow-accent);
+}
+
+th[aria-sort='ascending'] .sortButton,
+th[aria-sort='descending'] .sortButton {
+  color: var(--ink);
+}
+
+.sortIcon {
+  flex: none;
+  opacity: 0.45;
+}
+
+th[aria-sort='ascending'] .sortIcon,
+th[aria-sort='descending'] .sortIcon {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.headerText {
+  display: block;
+  padding: var(--s2);
+  min-height: 2.5rem;
+  line-height: calc(2.5rem - 2 * var(--s2));
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.table tbody > tr > th,
+.table tbody > tr > td {
+  padding: var(--s3) var(--s2);
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  text-align: left;
+  font-weight: inherit;
+  color: var(--ink);
+  transition: background-color 120ms ease;
+}
+
+.table tbody > tr > [data-numeric] {
+  text-align: right;
+}
+
+/* Hover is a faint wash; a focused link or button inside the row lights its edge. */
+.table tbody > tr:hover > * {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.table tbody > tr:focus-within > * {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.table tbody > tr:focus-within > :first-child {
+  box-shadow:
+    inset 2px 0 0 var(--focus-ring),
+    inset 10px 0 12px -10px var(--focus-ring);
+}
+
+.table tbody > tr[data-clickable] {
+  cursor: pointer;
+}
+
+.rowLink {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.rowLink:hover,
+tr:hover .rowLink {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.rowLink:focus-visible {
+  border-radius: 2px;
+}
+
+/* ---------- No matches ---------- */
+
+.table tbody > tr.emptyRow:hover > * {
+  background: transparent;
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--s2);
+  margin: var(--s3) 0;
+  padding: var(--s6) var(--s4);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--grad-brand-soft, transparent);
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.emptyHint {
+  max-width: 44ch;
+  font-size: var(--fs-xs);
+}
+
+/* ---------- Columns that drop out on narrow screens ---------- */
+
+@media (max-width: 39.99rem) {
+  .hideSm {
+    display: none;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .hideMd {
+    display: none;
+  }
+}
+
+@media (max-width: 79.99rem) {
+  .hideLg {
+    display: none;
+  }
+}
+
+/* ---------- Touch ---------- */
+
+@media (pointer: coarse) {
+  .sortButton,
+  .headerText {
+    min-height: 2.75rem;
+  }
+
+  .headerText {
+    line-height: calc(2.75rem - 2 * var(--s2));
+  }
+
+  .actions :global(.btn) {
+    min-height: 2.75rem;
+  }
+}

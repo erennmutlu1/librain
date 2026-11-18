@@ -15,9 +15,11 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { App } from '../App';
 import { hasBothProviderKeys, requestProviderKeys } from '../api/providerKeys';
 import type { LibrainApi } from '../api/types';
+import { useT } from '../i18n/lang';
 import { resetAllRequests } from '../lib/useRequest';
-import { LIVE_NEEDS_KEYS, pendingClient, type PublicClients } from './clients';
+import { pendingClient, type PublicClients } from './clients';
 import { PublicDemoContext, type DemoMode, type PublicDemo } from './context';
+import { text } from './public.i18n';
 
 const never = () => () => undefined;
 
@@ -35,6 +37,7 @@ export function PublicApp({
     clients.recorded instanceof Promise ? pendingClient(clients.recorded) : clients.recorded,
   );
   const [mode, setMode] = useState<DemoMode>(initialMode);
+  const t = useT(text);
   const wake = clients.wake;
   const waking = useSyncExternalStore(wake ? wake.subscribe : never, () => wake?.waking() ?? false);
 
@@ -55,16 +58,20 @@ export function PublicApp({
     (next: DemoMode) => {
       if (next === mode) return;
       if (next === 'live' && !hasBothProviderKeys()) {
-        requestProviderKeys({ reason: LIVE_NEEDS_KEYS, goLive: true });
+        requestProviderKeys({ reason: t.liveNeedsKeys, goLive: true });
         return;
       }
       resetAllRequests();
       setMode(next);
     },
-    [mode],
+    [mode, t],
   );
 
-  const demo = useMemo<PublicDemo>(() => ({ mode, switchTo, waking: mode === 'live' && waking }), [mode, switchTo, waking]);
+  const checkKeys = clients.checkKeys;
+  const demo = useMemo<PublicDemo>(
+    () => ({ mode, switchTo, waking: mode === 'live' && waking, serverWaking: waking, ...(checkKeys ? { checkKeys } : {}) }),
+    [mode, switchTo, waking, checkKeys],
+  );
 
   return (
     <PublicDemoContext.Provider value={demo}>

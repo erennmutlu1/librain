@@ -1,0 +1,140 @@
+.wrap {
+  position: relative;
+  min-width: 0;
+}
+
+/* Room for the chevron at the end of the field. */
+.input {
+  padding-right: 2.5rem;
+}
+
+.toggle {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0 calc(var(--r-sm) - 1px) calc(var(--r-sm) - 1px) 0;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.toggle:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---------- The popup ---------- */
+
+.list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + var(--s1));
+  left: 0;
+  right: 0;
+  max-height: min(20rem, 55vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--s1);
+  margin: 0;
+  list-style: none;
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--rule-glow, var(--rule-strong));
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-panel), var(--glow-accent);
+}
+
+.list[hidden] {
+  display: none;
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group + .group,
+li + li > .group {
+  margin-top: var(--s1);
+  padding-top: var(--s1);
+  border-top: 1px solid var(--rule);
+}
+
+.groupLabel {
+  padding: var(--s1) var(--s2);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+.option {
+  position: relative;
+  display: grid;
+  gap: 0.1rem;
+  min-height: 2.5rem;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+/* The highlighted option: a wash and the lit edge, the same marks as a focused row. */
+.option[aria-selected='true'] {
+  background: var(--accent-wash);
+  box-shadow: inset 2px 0 0 var(--focus-ring);
+}
+
+.optionHint {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.mark {
+  padding: 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--brand-cyan) 24%, transparent);
+  color: inherit;
+  font-weight: 650;
+}
+
+@media (pointer: coarse) {
+  .option {
+    min-height: 2.75rem;
+  }
+
+  .toggle {
+    width: 2.75rem;
+  }
+
+  .input {
+    padding-right: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .toggle svg {
+    transition: transform 160ms ease;
+  }
+}

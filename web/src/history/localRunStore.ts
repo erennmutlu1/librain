@@ -1,6 +1,12 @@
 import { normalizeRunDetail } from '../api/normalize';
+import { pick, strings } from '../i18n/lang';
 import type { RunStore, RunStoreStatus } from './runStore';
 import { toListItem, type RunDetail } from './types';
+
+const text = strings({
+  en: { full: 'Browser storage is full.', unavailable: 'Browser storage is unavailable (private mode or blocked site data).' },
+  tr: { full: 'Tarayıcı depolama alanı dolu.', unavailable: 'Tarayıcı depolaması kullanılamıyor (gizli mod ya da engellenmiş site verisi).' },
+});
 
 export const STORAGE_KEY = 'librain.runs.v1';
 export const MAX_RUNS = 100;
@@ -52,8 +58,8 @@ export function createLocalRunStore(options: LocalRunStoreOptions = {}): RunStor
   const notify = () => listeners.forEach((l) => l());
 
   function describe(error: unknown): string {
-    if (isQuotaError(error)) return 'Browser storage is full.';
-    return 'Browser storage is unavailable (private mode or blocked site data).';
+    if (isQuotaError(error)) return pick(text).full;
+    return pick(text).unavailable;
   }
 
   function storage(): Storage | null {
@@ -102,7 +108,7 @@ export function createLocalRunStore(options: LocalRunStoreOptions = {}): RunStor
         return;
       }
     }
-    status = { persistent: false, problem: 'Browser storage is full.' };
+    status = { persistent: false, problem: pick(text).full };
   }
 
   const sorted = (runs: RunDetail[]) => [...runs].sort((a, b) => b.createdAt.localeCompare(a.createdAt));

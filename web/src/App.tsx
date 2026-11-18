@@ -6,7 +6,9 @@ import { AppShell } from './components/AppShell';
 import { SkeletonLines } from './components/States';
 import { RunStoreProvider } from './history/context';
 import type { RunStore } from './history/runStore';
+import { useT } from './i18n/lang';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { text } from './App.i18n';
 
 // Each screen is its own chunk, loaded on first visit.
 const LibraryPage = lazy(() => import('./pages/LibraryPage'));
@@ -21,32 +23,21 @@ const ExploreDetailPage = lazy(() => import('./pages/ExploreDetailPage'));
 const ExploreStatsPage = lazy(() => import('./pages/ExploreStatsPage'));
 const ExploreQuizPage = lazy(() => import('./pages/ExploreQuizPage'));
 
-const TITLES: Record<string, string> = {
-  '/library': 'Library',
-  '/ask': 'Ask',
-  '/discover': 'Discover',
-  '/discover/featured': 'Featured discoveries',
-  '/explore': 'Explore',
-  '/explore/stats': 'Explore statistics',
-  '/explore/quiz': 'Spot the risk',
-  '/compare': 'Compare',
-  '/history': 'History',
-};
-
 function DocumentTitle() {
   const { pathname } = useLocation();
+  const t = useT(text);
   useEffect(() => {
     const section =
-      TITLES[pathname] ??
+      t.titles[pathname] ??
       (pathname.startsWith('/history/')
-        ? 'Run'
+        ? t.run
         : pathname.startsWith('/discover/featured/')
-          ? 'Featured discovery'
+          ? t.featured
           : pathname.startsWith('/explore/')
-            ? `Discovery ${decodeURIComponent(pathname.split('/')[2] ?? '').toUpperCase()}`
+            ? t.discovery(decodeURIComponent(pathname.split('/')[2] ?? '').toUpperCase())
             : null);
     document.title = section ? `${section} · LIBRAIN` : 'LIBRAIN';
-  }, [pathname]);
+  }, [pathname, t]);
   return null;
 }
 
@@ -60,10 +51,11 @@ function Shell() {
 }
 
 function Screen({ children }: { children: ReactNode }) {
+  const t = useT(text);
   return (
     <Suspense
       fallback={
-        <div className="page" aria-busy="true" aria-label="Loading">
+        <div className="page" aria-busy="true" aria-label={t.loading}>
           <SkeletonLines lines={5} />
         </div>
       }

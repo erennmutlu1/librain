@@ -6,8 +6,11 @@
  */
 import { normalizeDiscoverRequest, normalizeDiscoverResponse } from '../api/normalize';
 import type { ClaimStatus, ClaimValidationEntry, DiscoverRequest, DiscoverResponse } from '../api/types';
+import { currentLang, type Lang } from '../i18n/lang';
 import { chunkKey } from '../lib/citations';
 import { categoryOf, type Category } from './categories';
+import { fmtNum, fmtPercent } from './fmt';
+import { modelText } from './model.i18n';
 import type { ExploreManifest, ExplorePick } from './manifests';
 import { normalizeNovelty, noveltyRange, rating, ratingExact, type NoveltyRange } from './rating';
 
@@ -45,6 +48,8 @@ export interface Discovery {
   /** Sentence verdicts (empty when validation failed). */
   verdicts: ClaimValidationEntry[];
   riskyCount: number;
+  /** The prose is a Turkish translation of the recorded run (src/i18n/discoveries). */
+  translated: boolean;
 }
 
 type Rec = Record<string, unknown>;
@@ -58,7 +63,7 @@ const ABBREVIATIONS = /(?:\b(?:e\.g|i\.e|et al|etc|vs|cf|Fig|Eq|approx|ca)\.)$/i
 /** The first sentence of a paragraph (keeps "e.g." and "et al." inside the sentence). */
 export function firstSentence(text: string): string {
   const t = text.trim();
-  const boundary = /[.!?](?=\s+["“(]?[A-Z0-9])/g;
+  const boundary = /[.!?](?=\s+["“(]?[\p{Lu}0-9])/gu;
   let m: RegExpExecArray | null;
   while ((m = boundary.exec(t)) !== null) {
     const end = m.index + 1;
@@ -87,6 +92,8 @@ export interface RawRun {
   /** Path of the copy, relative to the data folder, e.g. "new-areas-discoveries/runs/F4.json". */
   file: string;
   raw: unknown;
+  /** The raw run has a translation laid over it (see i18n/discoveries/localize.ts). */
+  translated?: boolean;
 }
 
 export interface ExploreData {
@@ -96,6 +103,8 @@ export interface ExploreData {
   noveltyRange: NoveltyRange;
   /** Editor's picks in manifest order. */
   picks: Discovery[];
+  /** Areas the experiments considered and left out, with the reason (translated with the runs). */
+  droppedAreas: { area: string; reason: string }[];
 }
 
 function idOrder(a: string, b: string): number {
@@ -106,7 +115,7 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
   const picks = new Map(manifests.flatMap((m) => m.picks.map((p) => [p.id, p] as const)));
   const bySourceFolder = new Map(manifests.map((m) => [m.sourceDir.split('/').pop()!, m]));
 
-  const parsed = runs.map(({ file, raw }) => {
+  const parsed = runs.map(({ file, raw, translated = false }) => {
     const r = isRecord(raw) ? raw : {};
     const id = typeof r.id === 'string' ? r.id : '';
     const [folder = ''] = file.split('/');
@@ -115,13 +124,13 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
     if (!file.endsWith(`/runs/${id}.json`)) throw new Error(`${file} records run ${id || '(no id)'}.`);
     const response = normalizeDiscoverResponse(r.response);
     const request: DiscoverRequest = { provider: 'anthropic', ...normalizeDiscoverRequest(r.request) };
-    return { id, file, manifest, raw: r, request, response };
+    return { id, file, manifest, raw: r, request, response, translated };
   });
 
   const novelties = parsed.map((p) => p.response.evaluation?.noveltyScore ?? 0);
   const range = noveltyRange(novelties);
 
-  const discoveries = parsed.map(({ id, file, manifest, raw, request, response }): Discovery => {
+  const discoveries = parsed.map(({ id, file, manifest, raw, request, response, translated }): Discovery => {
     const e = response.evaluation;
     const cv = response.claimValidation;
     const failed = !cv || cv.validationFailed === true;
@@ -154,6 +163,7 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
       paperIds: [...new Set(response.supportingEvidence.map((s) => s.paperId))],
       verdicts,
       riskyCount: verdicts.filter((c) => c.status === 'risky').length,
+      translated,
     };
   });
 
@@ -167,6 +177,7 @@ export function buildExploreData(runs: readonly RawRun[], manifests: readonly Ex
     byId,
     noveltyRange: range,
     picks: manifests.flatMap((m) => m.picks.map((p) => byId.get(p.id)!)),
+    droppedAreas: manifests.flatMap((m) => m.droppedAreas),
   };
 }
 
@@ -230,26 +241,34 @@ export interface PromisingPoint {
 
 function scorePoint(
   key: 'plausibility' | 'novelty' | 'coherence',
-  label: string,
   value: number,
   all: readonly number[],
+  lang: Lang,
 ): PromisingPoint {
+  const t = modelText[lang];
   const n = all.length;
   const top = topPercent(all, value);
   const below = percentBelow(all, value);
   const mid = median(all);
-  const term = { key, label, value: value.toFixed(2) };
-  if (top <= 10) return { key, tone: 'strong', term, text: `top ${top}% of all ${n} ideas` };
-  if (value > mid) return { key, tone: 'strong', term, text: `higher than ${below}% of all ${n} ideas` };
-  if (value === mid) return { key, tone: 'neutral', term, text: `the median of all ${n} ideas` };
-  return { key, tone: 'caution', term, text: `below the median of all ${n} ideas (${mid.toFixed(2)})` };
+  const term = { key, label: t[key], value: fmtNum(value, 2, lang) };
+  const pct = (v: number) => fmtPercent(v / 100, lang);
+  if (top <= 10) return { key, tone: 'strong', term, text: t.top(pct(top), n) };
+  if (value > mid) return { key, tone: 'strong', term, text: t.higher(pct(below), n) };
+  if (value === mid) return { key, tone: 'neutral', term, text: t.median(n) };
+  return { key, tone: 'caution', term, text: t.belowMedian(n, fmtNum(mid, 2, lang)) };
 }
 
 /**
  * Evidence bullets derived from the run and its rank among all the runs.
  * `paperName` maps a corpus id to a display name.
  */
-export function promisingPoints(d: Discovery, data: ExploreData, paperName: (id: string) => string): PromisingPoint[] {
+export function promisingPoints(
+  d: Discovery,
+  data: ExploreData,
+  paperName: (id: string) => string,
+  lang: Lang = currentLang(),
+): PromisingPoint[] {
+  const t = modelText[lang];
   const all = data.discoveries;
   const passages = d.response.supportingEvidence.length;
   const papers = d.paperIds.length;
@@ -257,41 +276,38 @@ export function promisingPoints(d: Discovery, data: ExploreData, paperName: (id:
     {
       key: 'evidence',
       tone: passages > 0 ? 'strong' : 'caution',
-      text:
-        passages > 0
-          ? `Backed by ${passages} ${passages === 1 ? 'passage' : 'passages'} from ${papers} ${papers === 1 ? 'paper' : 'papers'}:`
-          : 'No supporting passage survived the citation contract.',
+      text: passages > 0 ? t.evidence(passages, papers) : t.noEvidence,
       ...(passages > 0 ? { papers: d.paperIds.map(paperName) } : {}),
     },
-    scorePoint('plausibility', 'Plausibility', d.scores.plausibility, all.map((x) => x.scores.plausibility)),
-    scorePoint('novelty', 'Novelty', d.scores.novelty, all.map((x) => x.scores.novelty)),
-    scorePoint('coherence', 'Coherence', d.scores.coherence, all.map((x) => x.scores.coherence)),
+    scorePoint('plausibility', d.scores.plausibility, all.map((x) => x.scores.plausibility), lang),
+    scorePoint('novelty', d.scores.novelty, all.map((x) => x.scores.novelty), lang),
+    scorePoint('coherence', d.scores.coherence, all.map((x) => x.scores.coherence), lang),
   ];
 
   const risks = all.map((x) => x.scores.risk);
-  const riskTerm = { key: 'risk' as const, label: 'Claim risk', value: d.scores.risk.toFixed(2) };
+  const riskTerm = { key: 'risk' as const, label: t.claimRisk, value: fmtNum(d.scores.risk, 2, lang) };
   const lowest = bottomPercent(risks, d.scores.risk);
   const fewerThan = percentAbove(risks, d.scores.risk);
   if (d.scores.risk === Math.min(...risks)) {
-    points.push({ key: 'risk', tone: 'strong', term: riskTerm, text: `the lowest of all ${all.length} ideas` });
+    points.push({ key: 'risk', tone: 'strong', term: riskTerm, text: t.lowest(all.length) });
   } else if (lowest <= 25) {
-    points.push({ key: 'risk', tone: 'strong', term: riskTerm, text: `lower than ${fewerThan}% of all ${all.length} ideas` });
+    points.push({ key: 'risk', tone: 'strong', term: riskTerm, text: t.lower(fmtPercent(fewerThan / 100, lang), all.length) });
   }
 
   const checked = d.verdicts.length;
   if (d.response.claimValidation?.validationFailed === true || !d.response.claimValidation) {
-    points.push({ key: 'sentences', tone: 'caution', text: 'The claim check failed, so no sentence has a verdict.', href: '#unproven' });
+    points.push({ key: 'sentences', tone: 'caution', text: t.checkFailed, href: '#unproven' });
   } else if (d.riskyCount === 0) {
     points.push({
       key: 'sentences',
       tone: 'strong',
-      text: `No sentence stated as unsupported fact (${checked} checked).`,
+      text: t.noRisky(checked),
     });
   } else {
     points.push({
       key: 'sentences',
       tone: 'caution',
-      text: `${d.riskyCount} ${d.riskyCount === 1 ? 'sentence' : 'sentences'} flagged risky — see below.`,
+      text: t.someRisky(d.riskyCount),
       href: '#unproven',
     });
   }
@@ -347,13 +363,18 @@ export function relatedTo(d: Discovery, data: ExploreData, max = 3): Related[] {
 
 // ---------- Explore list ----------
 
+/** The sort keys; sortLabel() names them in the interface language. */
 export const SORTS = {
-  rating: { label: 'Highest rating' },
-  novelty: { label: 'Most novel' },
-  plausibility: { label: 'Most plausible' },
-  risk: { label: 'Lowest claim risk' },
+  rating: { label: modelText.en.sorts.rating },
+  novelty: { label: modelText.en.sorts.novelty },
+  plausibility: { label: modelText.en.sorts.plausibility },
+  risk: { label: modelText.en.sorts.risk },
 } as const;
 export type SortKey = keyof typeof SORTS;
+
+export function sortLabel(key: SortKey, lang: Lang = currentLang()): string {
+  return modelText[lang].sorts[key];
+}
 
 export function isSortKey(v: string | null): v is SortKey {
   return v !== null && Object.hasOwn(SORTS, v);
@@ -368,21 +389,34 @@ export interface ExploreQuery {
   saved?: ReadonlySet<string>;
 }
 
-/** Every word of the query must appear in the id, category, topics, takeaway, hypothesis or novel claim. */
+/** Lower-case, and fold Turkish letters (ı, ç, ğ, ö, ş, ü, İ) to their plain form so "guven" finds "güven". */
+function fold(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/ı/g, 'i')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '');
+}
+
+/**
+ * Every word of the query must appear in the id, category (either language),
+ * topics, takeaway, hypothesis or novel claim, in whichever language the data is in.
+ */
 export function matchesQuery(d: Discovery, q: string): boolean {
-  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const words = fold(q).split(/\s+/).filter(Boolean);
   if (words.length === 0) return true;
-  const hay = [
-    d.id,
-    d.category.name,
-    d.request.topicA,
-    d.request.topicB ?? '',
-    d.takeaway,
-    d.response.hypothesis,
-    d.response.novelClaim,
-  ]
-    .join(' \n ')
-    .toLowerCase();
+  const hay = fold(
+    [
+      d.id,
+      d.category.name,
+      d.category.tr.name,
+      d.request.topicA,
+      d.request.topicB ?? '',
+      d.takeaway,
+      d.response.hypothesis,
+      d.response.novelClaim,
+    ].join(' \n '),
+  );
   return words.every((w) => hay.includes(w));
 }
 

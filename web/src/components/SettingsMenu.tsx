@@ -2,7 +2,9 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { getApiKey, onApiKeyRequest, setApiKey } from '../api/apiKey';
 import { API_BASE_URL } from '../api/config';
 import { useApi } from '../api/context';
+import { useT } from '../i18n/lang';
 import { Icon } from './Icon';
+import { text } from './SettingsMenu.i18n';
 import styles from './SettingsMenu.module.css';
 
 /**
@@ -12,6 +14,7 @@ import styles from './SettingsMenu.module.css';
  * button.
  */
 export function SettingsMenu() {
+  const t = useT(text);
   const api = useApi();
   const uid = useId();
   const [open, setOpen] = useState(false);
@@ -59,19 +62,13 @@ export function SettingsMenu() {
     event.preventDefault();
     const persisted = setApiKey(value);
     setReason(null);
-    setSaved(
-      value.trim()
-        ? persisted
-          ? 'Saved. Every request now sends it as X-Api-Key.'
-          : 'Saved for this tab only: browser storage is unavailable.'
-        : 'Cleared. Requests are sent without a key.',
-    );
+    setSaved(value.trim() ? (persisted ? t.saved : t.savedTabOnly) : t.cleared);
   };
 
   const clear = () => {
     setValue('');
     setApiKey(null);
-    setSaved('Cleared. Requests are sent without a key.');
+    setSaved(t.cleared);
     input.current?.focus();
   };
 
@@ -89,17 +86,20 @@ export function SettingsMenu() {
           setOpen((o) => !o);
           setSaved(null);
         }}
-        title="Connection settings"
+        title={t.trigger}
       >
         <Icon name="key" />
-        <span className="visually-hidden">Connection settings{hasKey ? ' (API key set)' : ''}</span>
+        <span className="visually-hidden">
+          {t.trigger}
+          {hasKey ? t.keySet : ''}
+        </span>
         {hasKey ? <span className={styles.dot} aria-hidden="true" /> : null}
       </button>
 
       {open ? (
         <div ref={panel} id={`${uid}-panel`} className={styles.panel} role="dialog" aria-modal="false" aria-labelledby={`${uid}-title`}>
           <h2 id={`${uid}-title`} className={styles.title}>
-            Connection
+            {t.title}
           </h2>
           {reason ? (
             <p className={styles.reason} role="alert">
@@ -109,7 +109,7 @@ export function SettingsMenu() {
           <form className={styles.form} onSubmit={save}>
             <div className="field">
               <label className="field-label" htmlFor={`${uid}-key`}>
-                API key
+                {t.keyLabel}
               </label>
               <input
                 ref={input}
@@ -123,18 +123,18 @@ export function SettingsMenu() {
                 aria-describedby={`${uid}-hint`}
               />
               <span id={`${uid}-hint`} className="field-hint">
-                Only needed when the server sets Security:ApiKey. Stored in this browser and sent as X-Api-Key.
+                {t.keyHint}
               </span>
             </div>
             <label className={styles.check}>
-              <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Show key
+              <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> {t.showKey}
             </label>
             <div className="cluster">
               <button type="submit" className="btn btn-primary btn-sm">
-                Save key
+                {t.save}
               </button>
               <button type="button" className="btn btn-sm" onClick={clear} disabled={!value && !hasKey}>
-                Clear
+                {t.clear}
               </button>
             </div>
             <p className={styles.saved} role="status">
@@ -143,13 +143,13 @@ export function SettingsMenu() {
           </form>
           <dl className={styles.facts}>
             <div>
-              <dt>Data</dt>
-              <dd>{api.mode === 'mock' ? 'Mock mode: recorded runs, the API is never called' : 'Live API'}</dd>
+              <dt>{t.data}</dt>
+              <dd>{api.mode === 'mock' ? t.mock : t.live}</dd>
             </div>
             <div>
-              <dt>API address</dt>
+              <dt>{t.address}</dt>
               <dd>
-                <code className="mono">{API_BASE_URL || 'same origin (dev proxy)'}</code>
+                <code className="mono">{API_BASE_URL || t.sameOrigin}</code>
               </dd>
             </div>
           </dl>

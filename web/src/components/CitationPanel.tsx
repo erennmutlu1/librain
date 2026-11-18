@@ -2,6 +2,8 @@ import { useEffect, useId, useRef } from 'react';
 import type { PaperSummary, SynthesisCitation } from '../api/types';
 import { chunkKey } from '../lib/citations';
 import { displayTitle } from '../lib/papers';
+import { useT } from '../i18n/lang';
+import { text } from './CitationPanel.i18n';
 import { Icon } from './Icon';
 import styles from './CitationPanel.module.css';
 
@@ -18,6 +20,7 @@ export function CitationPanel({
   paper: PaperSummary | undefined;
   onClose: () => void;
 }) {
+  const t = useT(text);
   const uid = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const title = displayTitle(paper);
@@ -41,9 +44,9 @@ export function CitationPanel({
           {citation.index}
         </span>
         <h2 id={`${uid}-title`} ref={headingRef} tabIndex={-1} className={styles.title}>
-          Source {citation.index}
+          {t.source(citation.index)}
         </h2>
-        <button type="button" className={styles.close} onClick={onClose} aria-label="Close source panel">
+        <button type="button" className={styles.close} onClick={onClose} aria-label={t.close}>
           <Icon name="close" />
         </button>
       </div>
@@ -56,15 +59,15 @@ export function CitationPanel({
 
         <dl className={styles.facts}>
           <div>
-            <dt>Section</dt>
-            <dd>{citation.section ?? 'Not recorded'}</dd>
+            <dt>{t.section}</dt>
+            <dd>{citation.section ?? t.notRecorded}</dd>
           </div>
           <div>
-            <dt>Page</dt>
-            <dd className="num">{citation.pageNumber ?? 'Not recorded'}</dd>
+            <dt>{t.page}</dt>
+            <dd className="num">{citation.pageNumber ?? t.notRecorded}</dd>
           </div>
           <div>
-            <dt>Chunk</dt>
+            <dt>{t.chunk}</dt>
             <dd>
               <code className="mono">{chunkKey(citation.paperId, citation.chunkIndex)}</code>
             </dd>
@@ -72,13 +75,11 @@ export function CitationPanel({
         </dl>
 
         <div>
-          <p className={styles.excerptLabel}>Passage</p>
+          <p className={styles.excerptLabel}>{t.passage}</p>
           {citation.content ? (
             <blockquote className={styles.excerpt}>{citation.content}</blockquote>
           ) : (
-            <p className={styles.noExcerpt}>
-              No passage text came back for this citation (runs recorded before the API returned passages have none).
-            </p>
+            <p className={styles.noExcerpt}>{t.noPassage}</p>
           )}
         </div>
       </div>

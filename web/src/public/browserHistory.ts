@@ -10,7 +10,9 @@ import { ApiError } from '../api/errors';
 import type { CompareRequest, DiscoverRequest, LibrainApi, QueryRequest, RunDetail, RunSummary } from '../api/types';
 import { createLocalRunStore, type LocalRunStoreOptions } from '../history/localRunStore';
 import type { RunStore } from '../history/runStore';
+import { pick } from '../i18n/lang';
 import { topicLabel } from '../lib/format';
+import { text } from './public.i18n';
 
 export const PUBLIC_HISTORY_KEY = 'librain.public.runs.v1';
 export const PUBLIC_HISTORY_LIMIT = 50;
@@ -109,7 +111,7 @@ export function withBrowserHistory(api: LibrainApi, history: RunStore, options: 
     },
     async getRun(id) {
       const run = await history.get(id);
-      if (!run) throw new ApiError({ kind: 'http', status: 404, title: 'run not found', detail: `No run with id ${id} in this browser.` });
+      if (!run) throw new ApiError({ kind: 'http', status: 404, title: 'run not found', detail: pick(text).noRun(id) });
       return run;
     },
     async deleteRun(id) {

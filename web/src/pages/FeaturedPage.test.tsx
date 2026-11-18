@@ -164,7 +164,7 @@ describe('Featured discoveries', () => {
   it('keeps the gallery under a failed discovery, so recorded runs stay one click away', async () => {
     const { api } = offlineApi('live');
     const { user } = setup('/discover', api);
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'drug discovery');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'drug discovery');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
     expect(await screen.findByText(/Failed to fetch|could not reach|unreachable/i, { selector: 'strong, p' })).toBeInTheDocument();
     expect(await gallery()).toBeInTheDocument();

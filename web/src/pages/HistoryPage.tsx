@@ -1,35 +1,113 @@
-import { useId, useState } from 'react';
-import { Link } from 'react-router';
+import { useId, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { useApi } from '../api/context';
 import { RUN_KINDS, type RunKind } from '../api/types';
+import { DataTable, RowLink, type DataColumn } from '../components/DataTable';
 import { Icon } from '../components/Icon';
 import { EmptyState, ErrorNotice, SkeletonLines } from '../components/States';
 import { useRunStore, useRuns } from '../history/context';
-import { runsToJson, runsToMarkdown } from '../history/exporters';
-import { RUN_KIND_LABEL, type RunDetail } from '../history/types';
-import { downloadText } from '../lib/download';
-import { formatDateTime, formatRelative, formatScore } from '../lib/format';
+import { runsToCsv, runsToJson, runsToMarkdown } from '../history/exporters';
+import { kindText } from '../history/kinds.i18n';
+import type { RunDetail, RunListItem } from '../history/types';
+import { useLang, useT, type Lang } from '../i18n/lang';
+import { downloadText, fileStamp } from '../lib/download';
+import { formatCount, formatDateTime, formatRelative, formatScore } from '../lib/format';
 import { PUBLIC_HISTORY_LIMIT } from '../public/browserHistory';
 import { usePublicDemo } from '../public/context';
+import { text } from './HistoryPage.i18n';
 import pageStyles from './pages.module.css';
 import styles from './HistoryPage.module.css';
 
 type Filter = 'all' | RunKind;
+type ExportFormat = 'csv' | 'json' | 'md';
+type Text = (typeof text)['en'];
 
-function stamp(): string {
-  return new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+const runPath = (run: RunListItem) => `/history/${encodeURIComponent(run.id)}`;
+
+/** What the search box matches: the title (topics or question), the kind and the id. */
+function runSearchText(run: RunListItem): string {
+  return `${run.title} ${run.kind} ${run.id}`;
+}
+
+function runColumns(t: Text, kinds: Record<RunKind, string>, lang: Lang): DataColumn<RunListItem>[] {
+  return [
+    {
+      id: 'kind',
+      header: t.columns.kind,
+      hideBelow: 'sm',
+      width: '8.5rem',
+      sortValue: (r) => kinds[r.kind],
+      cell: (r) => (
+        <span className={styles.kind} data-kind={r.kind}>
+          {kinds[r.kind]}
+        </span>
+      ),
+    },
+    {
+      id: 'run',
+      header: t.columns.run,
+      rowHeader: true,
+      sortValue: (r) => r.title.toLowerCase(),
+      cell: (r) => (
+        <>
+          <RowLink to={runPath(r)} className={styles.label}>
+            {/* The kind leads the link's name, so a list of links still says what each run was. */}
+            <span className="visually-hidden">{kinds[r.kind]}:</span> {r.title || t.untitled}
+          </RowLink>
+          {r.mock ? <span className={`tag ${styles.mockTag}`}>{t.mock}</span> : null}
+          <span className={styles.narrowMeta}>
+            <span className={styles.kind} data-kind={r.kind}>
+              {kinds[r.kind]}
+            </span>
+            <time dateTime={r.createdAt}>{formatRelative(r.createdAt)}</time>
+          </span>
+        </>
+      ),
+    },
+    {
+      id: 'when',
+      header: t.columns.when,
+      hideBelow: 'sm',
+      width: '9rem',
+      firstDir: 'desc',
+      className: styles.when,
+      sortValue: (r) => Date.parse(r.createdAt),
+      cell: (r) => (
+        <time dateTime={r.createdAt} title={formatDateTime(r.createdAt)}>
+          {formatRelative(r.createdAt)}
+        </time>
+      ),
+    },
+    {
+      id: 'quality',
+      header: t.columns.quality,
+      numeric: true,
+      width: '6rem',
+      firstDir: 'desc',
+      className: styles.quality,
+      sortValue: (r) => r.quality,
+      cell: (r) => formatScore(r.quality, 2, lang),
+    },
+  ];
 }
 
 export default function HistoryPage() {
   const api = useApi();
   const uid = useId();
+  const t = useT(text);
+  const kinds = useT(kindText);
+  const { lang } = useLang();
+  const navigate = useNavigate();
   const store = useRunStore();
   const demo = usePublicDemo();
   const [filter, setFilter] = useState<Filter>('all');
   const { runs, error, loading, status, refresh } = useRuns(filter === 'all' ? undefined : filter);
   const [confirming, setConfirming] = useState(false);
-  const [busy, setBusy] = useState<null | 'seed' | 'json' | 'md'>(null);
+  const [busy, setBusy] = useState<null | 'seed' | ExportFormat>(null);
   const [exportError, setExportError] = useState<unknown>(null);
+
+  const columns = useMemo(() => runColumns(t, kinds, lang), [t, kinds, lang]);
+  const formatN = (n: number) => formatCount(n, lang);
 
   const seed = async () => {
     setBusy('seed');
@@ -41,15 +119,18 @@ export default function HistoryPage() {
     }
   };
 
-  /** Exports need full records; the list only has summaries. */
-  const exportAs = async (format: 'json' | 'md') => {
-    if (!runs) return;
+  /** Every saved run, whatever the kind filter shows. The list has summaries only, so this loads each full record. */
+  const exportAll = async (format: ExportFormat) => {
     setBusy(format);
     setExportError(null);
     try {
-      const details = (await Promise.all(runs.map((r) => store.get(r.id)))).filter((r): r is RunDetail => r !== undefined);
-      if (format === 'json') downloadText(`librain-runs-${stamp()}.json`, runsToJson(details), 'application/json');
-      else downloadText(`librain-runs-${stamp()}.md`, runsToMarkdown(details), 'text/markdown');
+      const all = await store.list();
+      const details = (await Promise.all(all.map((r) => store.get(r.id)))).filter((r): r is RunDetail => r !== undefined);
+      const name = `librain-runs-${fileStamp()}`;
+      if (format === 'json') downloadText(`${name}.json`, runsToJson(details), 'application/json');
+      else if (format === 'md') downloadText(`${name}.md`, runsToMarkdown(details, lang), 'text/markdown');
+      // The byte-order mark makes Excel read the file as UTF-8 (Turkish letters, ×, curly quotes).
+      else downloadText(`${name}.csv`, `\uFEFF${runsToCsv(details, lang)}`, 'text/csv');
     } catch (e) {
       setExportError(e);
     } finally {
@@ -59,21 +140,81 @@ export default function HistoryPage() {
 
   const server = store.location === 'server';
 
+  const kindSelect = (
+    <div className={styles.kindFilter}>
+      <label className="visually-hidden" htmlFor={`${uid}-kind`}>
+        {t.show}
+      </label>
+      <select id={`${uid}-kind`} className={`input ${styles.select}`} value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+        <option value="all">{t.allRuns}</option>
+        {RUN_KINDS.map((k) => (
+          <option key={k} value={k}>
+            {kinds[k]}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const exportButtons = (
+    <>
+      <div role="group" aria-label={t.exportAll} className={styles.exportGroup}>
+        <span className={styles.exportLabel} aria-hidden="true">
+          <Icon name="download" size={14} />
+        </span>
+        {(
+          [
+            ['csv', 'CSV'],
+            ['json', 'JSON'],
+            ['md', 'Markdown'],
+          ] as const
+        ).map(([format, label]) => (
+          <button
+            key={format}
+            type="button"
+            className="btn btn-sm"
+            onClick={() => void exportAll(format)}
+            disabled={busy !== null}
+            title={t.exportAll}
+          >
+            {busy === format ? t.exporting : label}
+          </button>
+        ))}
+      </div>
+      {store.clear ? (
+        confirming ? (
+          <>
+            <button
+              type="button"
+              className="btn btn-sm btn-danger-solid"
+              onClick={() => {
+                void store.clear?.();
+                setConfirming(false);
+              }}
+            >
+              {t.deleteAll(formatN(runs?.length ?? 0))}
+            </button>
+            <button type="button" className="btn btn-sm" onClick={() => setConfirming(false)}>
+              {t.keep}
+            </button>
+          </>
+        ) : (
+          <button type="button" className="btn btn-sm btn-quiet btn-danger" onClick={() => setConfirming(true)}>
+            <Icon name="trash" size={14} /> {t.clear}
+          </button>
+        )
+      ) : null}
+    </>
+  );
+
   return (
     <div className="page">
       <header className={`page-header ${pageStyles.hero}`}>
-        <h1 className="page-title">History</h1>
-        <p className="page-lede">
-          {demo
-            ? `Your Live runs, newest first (the last ${PUBLIC_HISTORY_LIMIT}). Open one to see it again, or export them as JSON or Markdown.`
-            : server
-              ? 'Every successful run the API has made, newest first, from its run database. That includes runs started outside this page, such as the experiments CLI. A run’s id is its correlation ID.'
-              : 'Mock mode keeps runs in this browser, newest first (the last 100). Open one to see it again, or export them as JSON or Markdown.'}
-        </p>
+        <h1 className="page-title">{t.title}</h1>
+        <p className="page-lede">{demo ? t.ledeDemo(PUBLIC_HISTORY_LIMIT) : server ? t.ledeServer : t.ledeBrowser}</p>
         {demo ? (
           <p className={styles.browserOnly}>
-            <Icon name="info" size={14} /> History is kept only in this browser. The server stores no runs for this site, so
-            another browser or device will not see them, and clearing site data removes them.
+            <Icon name="info" size={14} /> {t.browserOnly}
           </p>
         ) : null}
       </header>
@@ -82,60 +223,10 @@ export default function HistoryPage() {
         <div className={`notice notice-warning ${styles.banner}`} role="status">
           <Icon name="warning" />
           <div>
-            <strong>Runs are not being saved.</strong> {status.problem ?? 'Browser storage is unavailable.'} History
-            works for this tab only and is lost when it closes. Export anything you want to keep.
+            <strong>{t.notSaved}</strong> {status.problem ?? t.storageUnavailable} {t.notSavedBody}
           </div>
         </div>
       ) : null}
-
-      <div className={styles.toolbar}>
-        <div className="field">
-          <label className="field-label" htmlFor={`${uid}-kind`}>
-            Show
-          </label>
-          <select id={`${uid}-kind`} className={`input ${styles.select}`} value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
-            <option value="all">All runs</option>
-            {RUN_KINDS.map((k) => (
-              <option key={k} value={k}>
-                {RUN_KIND_LABEL[k]}
-              </option>
-            ))}
-          </select>
-        </div>
-        {runs && runs.length > 0 ? (
-          <div className={styles.toolbarActions}>
-            <button type="button" className="btn btn-sm" onClick={() => void exportAs('json')} disabled={busy !== null}>
-              <Icon name="download" size={14} /> {busy === 'json' ? 'Exporting…' : 'JSON'}
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => void exportAs('md')} disabled={busy !== null}>
-              <Icon name="download" size={14} /> {busy === 'md' ? 'Exporting…' : 'Markdown'}
-            </button>
-            {store.clear ? (
-              confirming ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-danger-solid"
-                    onClick={() => {
-                      void store.clear?.();
-                      setConfirming(false);
-                    }}
-                  >
-                    Delete all {runs.length}
-                  </button>
-                  <button type="button" className="btn btn-sm" onClick={() => setConfirming(false)}>
-                    Keep
-                  </button>
-                </>
-              ) : (
-                <button type="button" className="btn btn-sm btn-quiet btn-danger" onClick={() => setConfirming(true)}>
-                  <Icon name="trash" size={14} /> Clear history
-                </button>
-              )
-            ) : null}
-          </div>
-        ) : null}
-      </div>
 
       {exportError ? <ErrorNotice error={exportError} /> : null}
       {error ? <ErrorNotice error={error} onRetry={refresh} /> : null}
@@ -143,61 +234,49 @@ export default function HistoryPage() {
 
       {runs !== null && runs.length === 0 ? (
         <div className={styles.emptyWrap}>
+          {filter !== 'all' ? <div className={styles.toolbar}>{kindSelect}</div> : null}
           <EmptyState
-            title={filter === 'all' ? 'No runs yet' : `No ${RUN_KIND_LABEL[filter]} runs yet`}
+            title={filter === 'all' ? t.emptyAll : t.emptyKind(kinds[filter])}
             action={
               <>
                 <Link className="btn btn-primary" to="/discover">
-                  Run a discovery
+                  {t.runDiscovery}
                 </Link>
                 <Link className="btn" to="/ask">
-                  Ask a question
+                  {t.askQuestion}
                 </Link>
                 <Link className="btn" to="/explore">
-                  Explore recorded discoveries
+                  {t.exploreRecorded}
                 </Link>
                 {api.mode === 'mock' && !demo && filter === 'all' ? (
                   <button type="button" className="btn" onClick={() => void seed()} disabled={busy === 'seed'}>
-                    {busy === 'seed' ? 'Loading…' : 'Load the recorded runs'}
+                    {busy === 'seed' ? t.loading : t.loadRecorded}
                   </button>
                 ) : null}
               </>
             }
           >
-            <p>
-              {demo
-                ? 'Each Ask, Discover and Compare run you make in Live mode is saved here, with its full result. Recorded runs are not saved: they are always one click away in Recorded mode.'
-                : server
-                  ? 'The API saves each successful Ask, Discover and Compare run automatically, with its full result.'
-                  : 'Each Ask, Discover and Compare run is saved here automatically, with its full result.'}
-            </p>
+            <p>{demo ? t.emptyDemo : server ? t.emptyServer : t.emptyBrowser}</p>
           </EmptyState>
         </div>
       ) : null}
 
       {runs !== null && runs.length > 0 ? (
-        <ol role="list" className={styles.list} aria-busy={loading || undefined}>
-          {runs.map((run) => (
-            <li key={run.id}>
-              <Link to={`/history/${encodeURIComponent(run.id)}`} className={styles.row}>
-                <span className={styles.kind} data-kind={run.kind}>
-                  {RUN_KIND_LABEL[run.kind]}
-                </span>
-                <span className={styles.label}>{run.title || 'Untitled run'}</span>
-                <span className={styles.meta}>
-                  <time dateTime={run.createdAt} title={formatDateTime(run.createdAt)}>
-                    {formatRelative(run.createdAt)}
-                  </time>
-                  {run.mock ? <span className="tag">mock</span> : null}
-                </span>
-                <span className={styles.quality}>
-                  <span className={styles.qualityLabel}>Quality</span>
-                  <span className="num">{formatScore(run.quality)}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        <DataTable
+          rows={runs}
+          columns={columns}
+          rowKey={(r) => r.id}
+          caption={t.caption}
+          searchLabel={t.searchLabel}
+          searchPlaceholder={t.searchPlaceholder}
+          searchText={runSearchText}
+          initialSort={{ column: 'when', dir: 'desc' }}
+          countLabel={(shown, total) => t.count(shown, total, formatN)}
+          filters={kindSelect}
+          actions={exportButtons}
+          onRowClick={(r) => void navigate(runPath(r))}
+          busy={loading}
+        />
       ) : null}
     </div>
   );

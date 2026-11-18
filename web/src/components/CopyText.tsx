@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useT } from '../i18n/lang';
+import { text } from './CopyText.i18n';
 import { Icon } from './Icon';
 import styles from './CopyText.module.css';
 
@@ -29,6 +31,7 @@ async function copy(text: string): Promise<boolean> {
 
 /** A small, copyable identifier such as a correlation ID. */
 export function CopyText({ value, label }: { value: string; label: string }) {
+  const t = useT(text);
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -46,11 +49,11 @@ export function CopyText({ value, label }: { value: string; label: string }) {
     <span className={styles.root}>
       <span className={styles.label}>{label}</span>
       <code className={styles.value}>{value}</code>
-      <button type="button" className={styles.button} onClick={onCopy} aria-label={`Copy ${label.toLowerCase()}`}>
+      <button type="button" className={styles.button} onClick={onCopy} aria-label={t.copy(label)}>
         <Icon name={state === 'copied' ? 'check' : 'copy'} size={14} />
       </button>
       <span role="status" className="visually-hidden">
-        {state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : ''}
+        {state === 'copied' ? t.copied : state === 'failed' ? t.failed : ''}
       </span>
     </span>
   );

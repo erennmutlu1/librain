@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { GLOSSARY } from '../../explore/glossary';
+import { glossary } from '../../explore/glossary';
 import type { GlossaryKey } from '../../explore/model';
+import { useLang } from '../../i18n/lang';
 import styles from './Term.module.css';
 
 /**
@@ -11,7 +12,8 @@ import styles from './Term.module.css';
 export function Term({ k, children }: { k: GlossaryKey; children?: ReactNode }) {
   const uid = useId();
   const tipId = `${uid}-tip`;
-  const entry = GLOSSARY[k];
+  const { lang } = useLang();
+  const entry = glossary(lang)[k];
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
   const [pinned, setPinned] = useState(false);

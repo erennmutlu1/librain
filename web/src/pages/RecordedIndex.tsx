@@ -1,7 +1,9 @@
 import { useId, useMemo } from 'react';
 import type { DiscoverRequest, MockScenario } from '../api/types';
 import { CategoryGlyph } from '../components/explore/ExploreParts';
-import { CATEGORIES, categoryByPrefix, catStyle, type Category } from '../explore/categories';
+import { CATEGORIES, categoryByPrefix, categoryName, catStyle, type Category } from '../explore/categories';
+import { useLang, useT, type Lang } from '../i18n/lang';
+import { recordedText } from './RecordedIndex.i18n';
 import styles from './RecordedIndex.module.css';
 
 /*
@@ -26,25 +28,26 @@ interface Group {
 
 const ID_LABEL = /^([A-Z]\d+) · (.+)$/;
 
-function sourceGroup(source: string): { key: string; title: string } {
-  if (source.startsWith('experiments/baseline-comparison')) return { key: 'baseline', title: 'Baseline comparison' };
-  if (source.startsWith('experiments/discovery-openai')) return { key: 'openai', title: 'OpenAI runs' };
-  if (source.startsWith('web/src/mocks/contract')) return { key: 'snapshot', title: 'API snapshots' };
-  return { key: 'other', title: 'Other recordings' };
+function sourceGroup(source: string, lang: Lang): { key: string; title: string } {
+  const t = recordedText[lang];
+  if (source.startsWith('experiments/baseline-comparison')) return { key: 'baseline', title: t.baseline };
+  if (source.startsWith('experiments/discovery-openai')) return { key: 'openai', title: t.openai };
+  if (source.startsWith('web/src/mocks/contract')) return { key: 'snapshot', title: t.snapshot };
+  return { key: 'other', title: t.other };
 }
 
-function groupRecordings(scenarios: readonly Scenario[]): Group[] {
+function groupRecordings(scenarios: readonly Scenario[], lang: Lang): Group[] {
   const byCategory = new Map<string, Group>();
   const others = new Map<string, Group>();
   for (const s of scenarios) {
     const m = /^explore-([A-Z])\d+$/i.exec(s.id);
     const category = m ? categoryByPrefix(m[1]!) : undefined;
     if (category) {
-      const g = byCategory.get(category.prefix) ?? { key: category.prefix, title: category.name, category, runs: [] };
+      const g = byCategory.get(category.prefix) ?? { key: category.prefix, title: categoryName(category, false, lang), category, runs: [] };
       g.runs.push(s);
       byCategory.set(category.prefix, g);
     } else {
-      const { key, title } = sourceGroup(s.source);
+      const { key, title } = sourceGroup(s.source, lang);
       const g = others.get(key) ?? { key, title, runs: [] };
       g.runs.push(s);
       others.set(key, g);
@@ -91,8 +94,10 @@ export function RecordedIndex({
   disabled?: boolean;
   collapsed?: boolean;
 }) {
+  const t = useT(recordedText);
+  const { lang } = useLang();
   const uid = useId();
-  const groups = useMemo(() => groupRecordings(scenarios ?? []), [scenarios]);
+  const groups = useMemo(() => groupRecordings(scenarios ?? [], lang), [scenarios, lang]);
   if (!scenarios || scenarios.length === 0) return null;
   const long = scenarios.length > 12;
 
@@ -100,10 +105,10 @@ export function RecordedIndex({
     <details key={collapsed ? 'closed' : 'open'} className={styles.root} open={!collapsed}>
       <summary className={styles.summary}>
         <span className={styles.summaryLabel}>
-          Recorded runs <span className="num">({scenarios.length})</span>
+          {t.recordedRuns} <span className="num">({scenarios.length})</span>
         </span>
         <span className={styles.summaryHint}>
-          {groups.length > 1 ? `${groups.length} groups. ` : ''}Pick one to replay it.
+          {groups.length > 1 ? t.groups(groups.length) : ''}{t.pickOne}
         </span>
       </summary>
       <div className={styles.well} data-long={long || undefined}>

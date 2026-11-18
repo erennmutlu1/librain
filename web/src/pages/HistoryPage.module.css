@@ -1,21 +1,17 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--s3);
-  padding-bottom: var(--s4);
-  border-bottom: 1px solid var(--rule-strong);
-}
-
-.toolbarActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s2);
+  margin-bottom: var(--s4);
 }
 
 .banner {
   margin-bottom: var(--s5);
+}
+
+.kindFilter {
+  min-width: 0;
 }
 
 .select {
@@ -23,60 +19,39 @@
   min-width: 11rem;
 }
 
+/* CSV · JSON · Markdown read as one control. */
+.exportGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
+.exportLabel {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  color: var(--ink-3);
+}
+
 .emptyWrap {
   margin-top: var(--s5);
 }
 
-.kind[data-kind='naive-rag']::before {
-  background: var(--sys-naive);
-}
-
-.kind[data-kind='single-llm']::before {
-  background: var(--sys-single);
-}
-
-.list {
-  display: grid;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr) auto auto;
-  grid-template-areas: 'kind label meta quality';
-  align-items: baseline;
-  gap: var(--s2) var(--s4);
-  padding: var(--s4) var(--s3);
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  text-decoration: none;
-  transition: background-color 120ms ease;
-}
-
-.row:hover {
-  background: var(--surface);
-  color: var(--ink);
-}
-
-.row:focus-visible {
-  outline-offset: -2px;
-}
-
-.row:hover .label {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
+/* ---------- Table cells ---------- */
 
 .kind {
-  grid-area: kind;
+  display: inline-flex;
+  align-items: center;
   font-size: var(--fs-xs);
   font-weight: 650;
   color: var(--ink-2);
+  white-space: nowrap;
 }
 
 .kind::before {
   content: '';
   display: inline-block;
+  flex: none;
   width: 8px;
   height: 8px;
   margin-right: 0.5em;
@@ -93,50 +68,48 @@
   background: conic-gradient(var(--sys-librain) 0 33%, var(--sys-naive) 0 66%, var(--sys-single) 0);
 }
 
-.label {
-  grid-area: label;
-  font-weight: 600;
-  font-size: var(--fs-md);
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+.kind[data-kind='naive-rag']::before {
+  background: var(--sys-naive);
 }
 
-.meta {
-  grid-area: meta;
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  font-size: var(--fs-xs);
-  color: var(--ink-3);
+.kind[data-kind='single-llm']::before {
+  background: var(--sys-single);
+}
+
+.label {
+  font-size: var(--fs-md);
+  line-height: 1.4;
+}
+
+.mockTag {
+  margin-left: var(--s2);
+  vertical-align: 0.1em;
+}
+
+.when {
   white-space: nowrap;
+  color: var(--ink-2) !important;
 }
 
 .quality {
-  grid-area: quality;
-  display: grid;
-  justify-items: end;
   font-family: var(--font-display, var(--font-ui));
   font-weight: 600;
-  font-size: var(--fs-lg);
-  line-height: 1.1;
-  min-width: 3.5rem;
+  font-size: var(--fs-md);
 }
 
-.qualityLabel {
-  font-family: var(--font-ui);
-  font-size: 0.6875rem;
-  font-weight: 500;
+/* Phones: the kind and the time move under the title when their columns drop out. */
+.narrowMeta {
+  display: none;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: var(--s1);
+  font-size: var(--fs-xs);
   color: var(--ink-3);
 }
 
-@media (max-width: 40rem) {
-  .row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'kind quality'
-      'label quality'
-      'meta quality';
-    row-gap: var(--s1);
+@media (max-width: 39.99rem) {
+  .narrowMeta {
+    display: flex;
   }
 }
 
@@ -154,4 +127,10 @@
 .browserOnly > svg {
   flex: none;
   align-self: center;
+}
+
+@media (pointer: coarse) {
+  .exportGroup :global(.btn) {
+    min-height: 2.75rem;
+  }
 }

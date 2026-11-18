@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { buildSteps, type StageDef, type TimedProgress } from '../lib/stages';
+import { useLang, useT } from '../i18n/lang';
+import { formatScore } from '../lib/format';
+import { buildSteps, progressMessage, type StageDef, type TimedProgress } from '../lib/stages';
 import { Icon } from './Icon';
+import { text } from './ProgressStepper.i18n';
 import styles from './ProgressStepper.module.css';
 
 function useNow(intervalMs = 250): number {
@@ -12,9 +15,6 @@ function useNow(intervalMs = 250): number {
   return now;
 }
 
-function seconds(ms: number): string {
-  return ms < 10_000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms / 1000)} s`;
-}
 
 /**
  * Live view of a streaming run: each pipeline stage with the server's own
@@ -37,8 +37,11 @@ export function ProgressStepper({
   onCancel?: () => void;
   expectation?: string;
 }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const now = useNow();
-  const steps = buildSteps(stages, events, now);
+  const steps = buildSteps(stages, events, now, false, lang);
+  const seconds = (ms: number) => `${ms < 10_000 ? formatScore(ms / 1000, 1, lang) : Math.round(ms / 1000)} ${t.sec}`;
   const latest = events.at(-1);
   const elapsed = Math.max(0, now - startedAt);
 
@@ -48,12 +51,12 @@ export function ProgressStepper({
         <div>
           <p className={styles.title}>{title}</p>
           <p className={styles.meta}>
-            <span className="num">{seconds(elapsed)}</span> elapsed{expectation ? `. ${expectation}` : ''}
+            <span className="num">{seconds(elapsed)}</span> {t.elapsed}{expectation ? `. ${expectation}` : ''}
           </p>
         </div>
         {onCancel ? (
           <button type="button" className="btn btn-sm" onClick={onCancel}>
-            Cancel
+            {t.cancel}
           </button>
         ) : null}
       </div>
@@ -68,10 +71,10 @@ export function ProgressStepper({
               <p className={styles.label}>
                 {step.label}
                 <span className="visually-hidden">
-                  {step.status === 'done' ? ' (done)' : step.status === 'active' ? ' (in progress)' : ' (waiting)'}
+                  {step.status === 'done' ? t.done : step.status === 'active' ? t.active : t.waiting}
                 </span>
               </p>
-              {step.message ? <p className={styles.message}>{step.message}</p> : null}
+              {step.message ? <p className={styles.message}>{progressMessage(step.message, lang)}</p> : null}
             </div>
             {step.durationMs !== null && step.status !== 'pending' ? (
               <span className={`${styles.time} num`}>{seconds(step.durationMs)}</span>
@@ -81,7 +84,7 @@ export function ProgressStepper({
       </ol>
 
       <p className="visually-hidden" role="status" aria-live="polite">
-        {latest ? latest.message : 'Starting'}
+        {latest ? progressMessage(latest.message, lang) : t.starting}
       </p>
     </section>
   );

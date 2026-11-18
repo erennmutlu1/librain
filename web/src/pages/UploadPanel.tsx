@@ -5,8 +5,10 @@ import type { IngestResult, PaperSummary } from '../api/types';
 import { CopyText } from '../components/CopyText';
 import { Icon } from '../components/Icon';
 import { ErrorNotice } from '../components/States';
-import { formatBytes } from '../lib/format';
+import { useLang, useT } from '../i18n/lang';
+import { formatBytes, formatCount, formatPercent } from '../lib/format';
 import { ArxivPanel } from './ArxivPanel';
+import { text } from './UploadPanel.i18n';
 import styles from './LibraryPage.module.css';
 
 const MAX_BYTES = 50_000_000; // matches the API's 50 MB upload cap
@@ -31,6 +33,8 @@ function isPdf(file: File): boolean {
 export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | null; onIngested: () => void }) {
   const api = useApi();
   const uid = useId();
+  const t = useT(text);
+  const { lang } = useLang();
   const inputRef = useRef<HTMLInputElement>(null);
   const controller = useRef<AbortController | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -39,13 +43,13 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
 
   const problem = file
     ? !isPdf(file)
-      ? 'This is not a PDF. LIBRAIN can only ingest PDF files.'
+      ? t.notPdf
       : file.size === 0
-        ? 'This file is empty.'
+        ? t.emptyFile
         : file.size > MAX_BYTES
-          ? `This file is ${formatBytes(file.size)}; the API accepts up to 50 MB.`
+          ? t.tooBig(formatBytes(file.size))
           : !SAFE_PAPER_ID.test(stem(file.name))
-            ? "The file name (without .pdf) becomes the paper ID, so it may only use letters, digits, '.', '_' or '-' (up to 128)."
+            ? t.badName
             : null
     : null;
   const existing = file && papers?.some((p) => p.paperId === stem(file.name));
@@ -84,9 +88,9 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
   return (
     <section className={styles.upload} aria-labelledby={`${uid}-h`}>
       <h2 id={`${uid}-h`} className={styles.panelTitle}>
-        Add a paper
+        {t.addPaper}
       </h2>
-      <h3 className={styles.subTitle}>Upload a PDF</h3>
+      <h3 className={styles.subTitle}>{t.uploadPdf}</h3>
 
       <label
         className={styles.dropzone}
@@ -109,11 +113,9 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
           aria-describedby={`${uid}-hint`}
         />
         <Icon name="upload" size={20} />
-        <span className={styles.dropTitle}>{file ? file.name : 'Drop a PDF here or choose a file'}</span>
+        <span className={styles.dropTitle}>{file ? file.name : t.dropTitle}</span>
         <span id={`${uid}-hint`} className={styles.dropHint}>
-          {file
-            ? `${formatBytes(file.size)}. It will be stored as paper “${stem(file.name)}”.`
-            : 'The file name, without .pdf, becomes the paper ID. Up to 50 MB.'}
+          {file ? t.willStore(formatBytes(file.size), stem(file.name)) : t.dropHint}
         </span>
       </label>
 
@@ -123,21 +125,17 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
         </p>
       ) : null}
       {existing && !problem ? (
-        <p className={styles.warn}>
-          A paper with the ID “{stem(file.name)}” is already in the library. Ingesting it again re-processes that ID.
-        </p>
+        <p className={styles.warn}>{t.existing(stem(file.name))}</p>
       ) : null}
 
       {state.phase === 'uploading' || state.phase === 'processing' ? (
         <div className={styles.progress} role="status" aria-live="polite">
           <div className={styles.progressHead}>
             <span>
-              {state.phase === 'uploading'
-                ? `Uploading ${Math.round(state.progress * 100)}%`
-                : 'Extracting text, chunking and embedding…'}
+              {state.phase === 'uploading' ? t.uploading(formatPercent(state.progress, lang)) : t.processing}
             </span>
             <button type="button" className="btn btn-quiet btn-sm" onClick={() => controller.current?.abort()}>
-              Cancel
+              {t.cancel}
             </button>
           </div>
           <span
@@ -155,11 +153,11 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
           <Icon name="check" />
           <div className={styles.doneBody}>
             <p>
-              <strong>Ingested “{state.result.paperId}”</strong>
-              {state.result.title && state.result.title !== state.result.paperId ? <> ({state.result.title})</> : null} as{' '}
-              {state.result.chunkCount} chunks. It is searchable now.
+              <strong>{t.ingested(state.result.paperId)}</strong>
+              {state.result.title && state.result.title !== state.result.paperId ? <> ({state.result.title})</> : null}
+              {t.asChunks(formatCount(state.result.chunkCount, lang))}
             </p>
-            <CopyText value={state.result.correlationId} label="Correlation ID" />
+            <CopyText value={state.result.correlationId} label={t.correlationId} />
           </div>
         </div>
       ) : null}
@@ -167,7 +165,7 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
 
       <div className={styles.uploadActions}>
         <button type="button" className="btn btn-primary" onClick={ingest} disabled={!file || !!problem || busy}>
-          {busy ? 'Ingesting…' : 'Ingest PDF'}
+          {busy ? t.ingesting : t.ingest}
         </button>
         {file && !busy ? (
           <button
@@ -178,7 +176,7 @@ export function UploadPanel({ papers, onIngested }: { papers: PaperSummary[] | n
               if (inputRef.current) inputRef.current.value = '';
             }}
           >
-            Clear
+            {t.clear}
           </button>
         ) : null}
       </div>

@@ -591,3 +591,24 @@
   display: grid;
   gap: var(--s2);
 }
+
+/* ---------- Translated-data note (Turkish UI) ---------- */
+
+.translatedNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2, 0.5rem);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.translatedNote svg {
+  flex: none;
+  margin-top: 0.15em;
+}
+
+.translatedMark {
+  font-weight: 600;
+  color: var(--ink-2);
+}

@@ -1,5 +1,6 @@
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import type { QueryRequest, QueryResponse, SynthesisCitation } from '../api/types';
+import { useLang, useT } from '../i18n/lang';
 import { chunkKey, groupForWrapping, parseCitationMarkers } from '../lib/citations';
 import { formatScore } from '../lib/format';
 import { displayTitle, usePaperIndex } from '../lib/papers';
@@ -7,9 +8,12 @@ import { askScoreItems } from '../lib/scoreItems';
 import { CitationPanel } from './CitationPanel';
 import { CopyText } from './CopyText';
 import { ScoreBars } from './ScoreBars';
+import { text } from './AskResult.i18n';
 import styles from './AskResult.module.css';
 
 export function AskResult({ request, result }: { request: QueryRequest; result: QueryResponse }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const uid = useId();
   const papers = usePaperIndex();
   const [open, setOpen] = useState<number | null>(null);
@@ -30,7 +34,7 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
 
   const chipLabel = (c: SynthesisCitation) => {
     const title = displayTitle(papers.get(c.paperId)) ?? c.paperId;
-    return `Source ${c.index}: ${title}${c.section ? `, ${c.section}` : ''}`;
+    return t.source(c.index, title, c.section);
   };
 
   const evaluation = result.evaluation;
@@ -43,13 +47,13 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
           {request.query}
         </h2>
         <div className={styles.meta}>
-          <span className="tag">top {request.topK ?? 5} chunks</span>
+          <span className="tag">{t.topChunks(request.topK ?? 5)}</span>
           {result.synthesisConfidence !== null ? (
             <span className="tag">
-              Model confidence <span className="num">{formatScore(result.synthesisConfidence)}</span>
+              {t.confidence} <span className="num">{formatScore(result.synthesisConfidence, 2, lang)}</span>
             </span>
           ) : null}
-          <CopyText value={result.correlationId} label="Correlation ID" />
+          <CopyText value={result.correlationId} label={t.correlationId} />
         </div>
       </header>
 
@@ -57,7 +61,7 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
         <div className={styles.main}>
           <section aria-labelledby={`${uid}-answer`}>
             <h3 id={`${uid}-answer`} className={styles.sectionTitle}>
-              Answer
+              {t.answer}
             </h3>
             <p className={styles.answer}>
               {groupForWrapping(parts).map((run, i) =>
@@ -83,9 +87,9 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
                           {n}
                         </button>
                       ) : (
-                        <span key={n} className={styles.chipDropped} title="Cited in the text, but dropped by citation validation">
+                        <span key={n} className={styles.chipDropped} title={t.droppedTitle}>
                           <span aria-hidden="true">{n}</span>
-                          <span className="visually-hidden">Source {n} was cited in the text but dropped by citation validation</span>
+                          <span className="visually-hidden">{t.droppedSr(n)}</span>
                         </span>
                       );
                     })}
@@ -97,16 +101,16 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
               )}
             </p>
             {!hasMarkers && result.citations.length > 0 ? (
-              <p className={styles.noMarkers}>The answer has no inline source numbers; its sources are listed below.</p>
+              <p className={styles.noMarkers}>{t.noMarkers}</p>
             ) : null}
           </section>
 
           <section aria-labelledby={`${uid}-sources`}>
             <h3 id={`${uid}-sources`} className={styles.sectionTitle}>
-              Sources <span className="muted num">({result.citations.length})</span>
+              {t.sources} <span className="muted num">({result.citations.length})</span>
             </h3>
             {result.citations.length === 0 ? (
-              <p className="muted small">No citation survived validation. Treat the answer as unsupported.</p>
+              <p className="muted small">{t.noCitations}</p>
             ) : (
               <ul role="list" className={styles.sources}>
                 {result.citations.map((c) => {
@@ -126,12 +130,12 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
                         <span className={styles.sourceBody}>
                           <span className={styles.sourceTitle}>{title ?? c.paperId}</span>
                           <span className={styles.sourceWhere}>
-                            {[c.section, c.pageNumber !== null ? `page ${c.pageNumber}` : null, chunkKey(c.paperId, c.chunkIndex)]
+                            {[c.section, c.pageNumber !== null ? t.page(c.pageNumber) : null, chunkKey(c.paperId, c.chunkIndex)]
                               .filter(Boolean)
                               .join(', ')}
                           </span>
                         </span>
-                        <span className="visually-hidden">Open source {c.index}</span>
+                        <span className="visually-hidden">{t.openSource(c.index)}</span>
                       </button>
                     </li>
                   );
@@ -143,19 +147,19 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
 
         <aside className={styles.side} aria-labelledby={`${uid}-eval`}>
           <h3 id={`${uid}-eval`} className={styles.sectionTitle}>
-            Evaluator
+            {t.evaluator}
           </h3>
           {evaluation ? (
             <div className={styles.evaluation}>
-              <ScoreBars label="Answer evaluation" items={askScoreItems(evaluation)} />
+              <ScoreBars label={t.evaluation} items={askScoreItems(evaluation, lang)} />
               {evaluation.critique ? (
                 <div>
-                  <p className={styles.subTitle}>Critique</p>
+                  <p className={styles.subTitle}>{t.critique}</p>
                   <p className={styles.critique}>{evaluation.critique}</p>
                 </div>
               ) : null}
               <div>
-                <p className={styles.subTitle}>Unsupported claims</p>
+                <p className={styles.subTitle}>{t.unsupported}</p>
                 {evaluation.unsupportedClaims.length ? (
                   <ul className={styles.flags}>
                     {evaluation.unsupportedClaims.map((c, i) => (
@@ -163,11 +167,11 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
                     ))}
                   </ul>
                 ) : (
-                  <p className="muted small">None found.</p>
+                  <p className="muted small">{t.none}</p>
                 )}
               </div>
               <div>
-                <p className={styles.subTitle}>Missing evidence</p>
+                <p className={styles.subTitle}>{t.missing}</p>
                 {evaluation.missingEvidence.length ? (
                   <ul className={styles.gaps}>
                     {evaluation.missingEvidence.map((c, i) => (
@@ -175,12 +179,12 @@ export function AskResult({ request, result }: { request: QueryRequest; result: 
                     ))}
                   </ul>
                 ) : (
-                  <p className="muted small">None noted.</p>
+                  <p className="muted small">{t.noneNoted}</p>
                 )}
               </div>
             </div>
           ) : (
-            <p className="muted small">This answer was not evaluated.</p>
+            <p className="muted small">{t.notEvaluated}</p>
           )}
         </aside>
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { AnnotatedClaim } from '../components/AnnotatedClaim';
 import { DiscoverResultView } from '../components/DiscoverResult';
+import { ExportButtons } from '../components/ExportButtons';
 import {
   BookmarkButton,
   CategoryGlyph,
@@ -20,14 +21,20 @@ import { Term } from '../components/explore/Term';
 import { Icon } from '../components/Icon';
 import { Passage } from '../components/Passage';
 import { EmptyState } from '../components/States';
-import { catStyle } from '../explore/categories';
+import { catStyle, categoryName } from '../explore/categories';
+import { dateText, fmtUsd } from '../explore/fmt';
 import { EXPLORE_MANIFESTS, explorePath, paperName } from '../explore/manifests';
 import { promisingPoints, relatedTo, topPassages, type Discovery, type ExploreData } from '../explore/model';
 import { useExploreData } from '../explore/useDiscoveries';
+import { useLang, useT } from '../i18n/lang';
 import { chunkKey } from '../lib/citations';
-import { formatUsd, topicLabel } from '../lib/format';
+import { downloadDiscovery, type DiscoveryExport } from '../lib/exportDiscovery';
+import { topicLabel } from '../lib/format';
 import { useLoadedPaperIndex } from '../lib/papers';
-import { basisMeta, STATUS_META } from '../lib/vocabulary';
+import { discoverPath } from '../lib/remix';
+import { useSessionState } from '../lib/sessionStore';
+import { basisMeta } from '../lib/vocabulary';
+import { text } from './ExploreDetailPage.i18n';
 import styles from './ExploreDetailPage.module.css';
 
 /*
@@ -37,12 +44,22 @@ import styles from './ExploreDetailPage.module.css';
  * Neither calls the API. Paper titles come from the experiment manifests
  * (arXiv titles for the papers batch 2 added) or, for the full view, from a
  * library list this tab already loaded.
+ *
+ * In Turkish the run's prose is a translation; "Show original" swaps in the
+ * recorded English for every discovery until it is turned off again. Remix
+ * and the JSON download always use the recorded English run: the corpus and
+ * the recorded-run matching are English.
  */
 
-async function copyText(text: string): Promise<boolean> {
+type Text = (typeof text)['en'];
+
+/** Kept for the tab, so the choice holds while moving between discoveries. */
+const SHOW_ORIGINAL_KEY = 'explore.showOriginal';
+
+async function copyText(value: string): Promise<boolean> {
   try {
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(value);
       return true;
     }
   } catch {
@@ -52,6 +69,7 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 function CopyLinkButton({ path }: { path: string }) {
+  const t = useT(text);
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -68,33 +86,62 @@ function CopyLinkButton({ path }: { path: string }) {
         }}
       >
         <Icon name={state === 'copied' ? 'check' : 'link'} size={14} />
-        {state === 'copied' ? 'Link copied' : 'Copy link'}
+        {state === 'copied' ? t.linkCopied : t.copyLink}
       </button>
       <span role="status" className="visually-hidden">
-        {state === 'copied' ? 'Link copied' : state === 'failed' ? 'Could not copy the link; copy it from the address bar.' : ''}
+        {state === 'copied' ? t.linkCopied : state === 'failed' ? t.copyFailed : ''}
       </span>
     </>
   );
 }
 
+function manifestOf(d: Discovery) {
+  return EXPLORE_MANIFESTS.find((m) => m.batch === d.batch)!;
+}
+
 function Provenance({ d }: { d: Discovery }) {
-  const manifest = EXPLORE_MANIFESTS.find((m) => m.batch === d.batch)!;
-  const cost = formatUsd(d.costUsd);
+  const t = useT(text);
+  const { lang } = useLang();
+  const manifest = manifestOf(d);
   return (
     <p className={styles.provenance}>
-      Recorded run · <time dateTime={manifest.date}>{manifest.date}</time>
-      {cost ? ` · ${cost}` : ''}
+      {t.recordedRun} · <time dateTime={manifest.date}>{dateText(manifest.date, lang)}</time>
+      {d.costUsd !== null ? ` · ${fmtUsd(d.costUsd, 2, lang)}` : ''}
     </p>
   );
 }
 
-function Header({ d, data }: { d: Discovery; data: ExploreData }) {
+/** What the header's actions need beyond the shown discovery. */
+interface Actions {
+  /** The recorded English run (Remix and JSON); undefined while it loads. */
+  original: Discovery | undefined;
+  /** The shown text is a translation. */
+  translated: boolean;
+}
+
+function exportInput(d: Discovery, translated: boolean): DiscoveryExport {
+  return {
+    request: d.request,
+    response: d.response,
+    id: d.id,
+    source: d.source,
+    url: `${window.location.origin}${explorePath(d.id)}`,
+    recordedOn: manifestOf(d).date,
+    translated,
+    paperTitle: paperName,
+  };
+}
+
+function Header({ d, data, actions }: { d: Discovery; data: ExploreData; actions: Actions }) {
+  const t = useT(text);
+  const { lang } = useLang();
+  const { original } = actions;
   return (
     <header className={styles.header} style={catStyle(d.category)}>
       <div className={styles.headMeta}>
         <CategoryTag category={d.category} />
         {d.pick ? <PickBadge /> : null}
-        <span className={styles.runId}>Run {d.id}</span>
+        <span className={styles.runId}>{t.run(d.id)}</span>
       </div>
       <div className={styles.headGrid}>
         <div className={styles.headMain}>
@@ -103,12 +150,25 @@ function Header({ d, data }: { d: Discovery; data: ExploreData }) {
           </h1>
           <Provenance d={d} />
           <div className={styles.actions}>
+            {original ? (
+              <Link to={discoverPath(original.request)} className={`btn btn-primary ${styles.remix}`} aria-describedby={`remix-hint-${d.id}`}>
+                <Icon name="shuffle" size={14} /> {t.remix}
+              </Link>
+            ) : null}
+            <Link to={explorePath(d.id, 'full')} className="btn">
+              <Icon name="doc" size={14} /> {t.openFull}
+            </Link>
             <CopyLinkButton path={explorePath(d.id)} />
             <BookmarkButton id={d.id} label={d.request.topicA} />
-            <Link to={explorePath(d.id, 'full')} className="btn">
-              <Icon name="doc" size={14} /> Open full result
-            </Link>
           </div>
+          <span id={`remix-hint-${d.id}`} hidden>
+            {t.remixHint}
+          </span>
+          <ExportButtons
+            className={styles.export}
+            onMarkdown={() => downloadDiscovery(exportInput(d, actions.translated), 'markdown', lang)}
+            onJson={() => downloadDiscovery(exportInput(original ?? d, false), 'json', lang)}
+          />
         </div>
         <div className={styles.headRating}>
           <Rating value={d.rating} size="lg" />
@@ -123,15 +183,16 @@ function Header({ d, data }: { d: Discovery; data: ExploreData }) {
 }
 
 function Promising({ d, data }: { d: Discovery; data: ExploreData }) {
-  const points = promisingPoints(d, data, paperName);
+  const t = useT(text);
+  const { lang } = useLang();
+  const points = promisingPoints(d, data, paperName, lang);
   return (
     <Section
       id="promising"
-      title="Why it’s promising"
+      title={t.promising}
       note={
         <p className={styles.candidate}>
-          <strong>Candidate hypothesis:</strong> the evidence supports its starting points; the novel part still needs a
-          real test.
+          <strong>{t.candidateLabel}</strong> {t.candidate}
         </p>
       }
     >
@@ -168,7 +229,7 @@ function Promising({ d, data }: { d: Discovery; data: ExploreData }) {
               <Icon name="star" size={14} filled />
             </span>
             <span>
-              <span className={styles.editor}>Editor’s note:</span> {d.pick.whyFeatured}
+              <span className={styles.editor}>{t.editorsNote}</span> {d.pick.whyFeatured}
             </span>
           </li>
         ) : null}
@@ -178,26 +239,18 @@ function Promising({ d, data }: { d: Discovery; data: ExploreData }) {
 }
 
 function Evidence({ d }: { d: Discovery }) {
+  const t = useT(text);
   const passages = topPassages(d);
   const total = d.response.supportingEvidence.length;
   return (
-    <Section
-      id="evidence"
-      title="The evidence"
-      note={
-        <p>
-          {passages.length} of the {total} supporting passages, quoted from the papers: the ones the generator says it
-          built on come first.
-        </p>
-      }
-    >
+    <Section id="evidence" title={t.evidence} note={<p>{t.evidenceNote(passages.length, total)}</p>}>
       <ol role="list" className={styles.passages}>
         {passages.map((e) => (
           <li key={chunkKey(e.paperId, e.chunkIndex)} className={styles.passage}>
             <p className={styles.passageSource}>
               <cite className={styles.paper}>{paperName(e.paperId)}</cite>
               <span className={styles.passageWhere}>
-                {[e.section, e.pageNumber !== null ? `page ${e.pageNumber}` : null].filter(Boolean).join(', ') || 'Section not recorded'}
+                {[e.section, e.pageNumber !== null ? t.page(e.pageNumber) : null].filter(Boolean).join(', ') || t.noSection}
                 {' · '}
                 <code className="mono">{chunkKey(e.paperId, e.chunkIndex)}</code>
               </span>
@@ -211,25 +264,27 @@ function Evidence({ d }: { d: Discovery }) {
 }
 
 function Reasoning({ d }: { d: Discovery }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const basis = d.response.extrapolationBasis;
   if (basis.length === 0) return null;
   return (
-    <Section id="reasoning" title="How the generator reasoned" note={<p>The generator’s own note on where each novel sentence comes from.</p>}>
+    <Section id="reasoning" title={t.reasoning} note={<p>{t.reasoningNote}</p>}>
       <ol className={styles.basis}>
         {basis.map((b, i) => (
           <li key={i} className={styles.basisItem}>
             <p className={styles.basisSentence}>{b.claimSentence}</p>
             <p className={styles.basisMeta}>
-              <span className="tag" title={basisMeta(b.basisType).description}>
-                {basisMeta(b.basisType).label}
+              <span className="tag" title={basisMeta(b.basisType, lang).description}>
+                {basisMeta(b.basisType, lang).label}
               </span>
               {b.groundedInChunkId ? (
                 <span>
-                  from <cite className={styles.paper}>{paperName(b.groundedInChunkId.split(':')[0] ?? '')}</cite>{' '}
+                  {t.from} <cite className={styles.paper}>{paperName(b.groundedInChunkId.split(':')[0] ?? '')}</cite>{' '}
                   <code className="mono">{b.groundedInChunkId}</code>
                 </span>
               ) : (
-                <span className="muted">no source passage</span>
+                <span className="muted">{t.noSourcePassage}</span>
               )}
             </p>
             {b.rationale ? <p className={styles.basisRationale}>{b.rationale}</p> : null}
@@ -241,6 +296,7 @@ function Reasoning({ d }: { d: Discovery }) {
 }
 
 function Unproven({ d }: { d: Discovery }) {
+  const t = useT(text);
   const papers = useLoadedPaperIndex();
   const counts = { grounded: 0, extrapolated: 0, risky: 0 };
   for (const v of d.verdicts) counts[v.status]++;
@@ -248,25 +304,24 @@ function Unproven({ d }: { d: Discovery }) {
     .filter((s) => counts[s] > 0)
     .map((s) => (
       <span key={s}>
-        {counts[s]} <Term k={s}>{STATUS_META[s].label.toLowerCase()}</Term>
+        {counts[s]} <Term k={s}>{t.statusWord[s]}</Term>
       </span>
     ));
   return (
     <Section
       id="unproven"
-      title="What’s still unproven"
+      title={t.unproven}
       note={
         d.verdicts.length > 0 ? (
           <p>
-            The novel claim, checked sentence by sentence by a validator model: {d.verdicts.length}{' '}
-            {d.verdicts.length === 1 ? 'sentence' : 'sentences'},{' '}
+            {t.unprovenLead(d.verdicts.length)}
             {parts.map((p, i) => (
               <span key={i}>
                 {p}
                 {i < parts.length - 1 ? ', ' : '.'}
               </span>
             ))}{' '}
-            Select a sentence to read the validator’s rationale.
+            {t.unprovenTail}
           </p>
         ) : null
       }
@@ -283,10 +338,12 @@ function Unproven({ d }: { d: Discovery }) {
 }
 
 function RelatedIdeas({ d, data }: { d: Discovery; data: ExploreData }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const related = relatedTo(d, data);
   if (related.length === 0) return null;
   return (
-    <Section id="related" title="Related ideas">
+    <Section id="related" title={t.related}>
       <ul role="list" className={styles.related}>
         {related.map((r) => (
           <li key={r.discovery.id} className={styles.relatedItem} style={catStyle(r.discovery.category)}>
@@ -297,8 +354,8 @@ function RelatedIdeas({ d, data }: { d: Discovery; data: ExploreData }) {
               </Link>
               <p className={styles.relatedWhy}>
                 {r.sharedPapers.length > 0
-                  ? `Also draws on ${r.sharedPapers.map(paperName).join(', ')}`
-                  : `Also in ${r.discovery.category.name}`}
+                  ? t.alsoDrawsOn(r.sharedPapers.map(paperName).join(', '))
+                  : t.alsoIn(categoryName(r.discovery.category, false, lang))}
               </p>
             </div>
             <Rating value={r.discovery.rating} size="sm" />
@@ -309,13 +366,14 @@ function RelatedIdeas({ d, data }: { d: Discovery; data: ExploreData }) {
   );
 }
 
-function DetailView({ d, data }: { d: Discovery; data: ExploreData }) {
+function DetailView({ d, data, actions }: { d: Discovery; data: ExploreData; actions: Actions }) {
+  const t = useT(text);
   return (
     <article className={styles.article}>
-      <Header d={d} data={data} />
+      <Header d={d} data={data} actions={actions} />
       <section className={styles.oneLine} aria-labelledby="one-line-title">
         <h2 id="one-line-title" className={styles.oneLineTitle}>
-          The idea in one line
+          {t.oneLine}
         </h2>
         <p className={styles.oneLineText}>{d.takeaway}</p>
       </section>
@@ -329,25 +387,27 @@ function DetailView({ d, data }: { d: Discovery; data: ExploreData }) {
 }
 
 function FullView({ d }: { d: Discovery }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const papers = useLoadedPaperIndex();
-  const manifest = EXPLORE_MANIFESTS.find((m) => m.batch === d.batch)!;
-  const cost = formatUsd(d.costUsd);
+  const manifest = manifestOf(d);
+  const cost = d.costUsd !== null ? fmtUsd(d.costUsd, 2, lang) : null;
   return (
     <>
-      <h1 className="visually-hidden">Full result: {topicLabel(d.request.topicA, d.request.topicB)}</h1>
+      <h1 className="visually-hidden">{t.fullTitle(topicLabel(d.request.topicA, d.request.topicB))}</h1>
       <div className={`notice notice-info ${styles.banner}`}>
         <Icon name="doc" />
         <div className={styles.bannerBody}>
           <p>
-            <strong>Recorded run, not generated now.</strong>
+            <strong>{t.notNow}</strong>
           </p>
           <p>
-            {manifest.generator} wrote it on <time dateTime={manifest.date}>{manifest.date}</time>
-            {manifest.judge ? `; ${manifest.judge} scored it and checked each sentence` : ''}.{cost ? ` It cost ${cost} then.` : ''}{' '}
-            Showing it calls no API.
+            {t.wroteBefore(manifest.generator)}
+            <time dateTime={manifest.date}>{dateText(manifest.date, lang)}</time>
+            {t.wroteAfter(manifest.judge, cost)}
           </p>
           <p className={styles.source}>
-            Recorded output: <code className="mono">{d.source}</code>
+            {t.recordedOutput} <code className="mono">{d.source}</code>
           </p>
         </div>
       </div>
@@ -356,50 +416,90 @@ function FullView({ d }: { d: Discovery }) {
   );
 }
 
+/**
+ * Turkish interface only: says the text is a translation (or has none yet)
+ * and offers the recorded English instead.
+ */
+function TranslationNotice({ translated, showOriginal, onToggle, t }: { translated: boolean; showOriginal: boolean; onToggle: () => void; t: Text }) {
+  if (!translated) {
+    return (
+      <p className={`notice ${styles.translation}`}>
+        <Icon name="globe" />
+        <span>{t.translation.untranslated}</span>
+      </p>
+    );
+  }
+  return (
+    <div className={`notice notice-info ${styles.translation}`}>
+      <Icon name="globe" />
+      <div className={styles.translationBody}>
+        <p>{showOriginal ? t.translation.original : t.translation.translated}</p>
+        <button type="button" className="btn btn-sm" aria-pressed={showOriginal} onClick={onToggle}>
+          {t.translation.toggle}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ExploreDetailPage({ full = false }: { full?: boolean }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const { id = '' } = useParams();
-  const { state, retry } = useExploreData();
+  const [showOriginal, setShowOriginal] = useSessionState(SHOW_ORIGINAL_KEY, false);
+  const original = lang === 'tr' && showOriginal;
+  // The interface language's runs, and the recorded English (Remix, JSON, "Show original").
+  const inUi = useExploreData();
+  const inEnglish = useExploreData('en');
+  const { state, retry } = original ? inEnglish : inUi;
 
   if (state.status === 'error') {
     return (
       <div className="page">
-        <ExploreLoadError title={`Discovery ${id}`} onRetry={retry} />
+        <ExploreLoadError title={t.discovery(id)} onRetry={retry} />
       </div>
     );
   }
 
   const data = state.status === 'ready' ? state.data : undefined;
   const d = data?.byId.get(id.toUpperCase());
+  const uiData = inUi.state.status === 'ready' ? inUi.state.data : undefined;
+  const english = inEnglish.state.status === 'ready' ? inEnglish.state.data.byId.get(id.toUpperCase()) : undefined;
+  const translated = Boolean(uiData?.byId.get(id.toUpperCase())?.translated);
+  const actions: Actions = { original: english, translated: translated && !original };
 
   return (
     <div className="page">
-      <ExploreTabs data={data} currentId={d?.id} />
+      <ExploreTabs data={uiData ?? data} currentId={d?.id} />
       <Link to={full && d ? explorePath(d.id) : explorePath()} className={styles.back}>
-        <Icon name="back" size={14} /> {full && d ? `Back to the summary of ${d.id}` : 'All discoveries'}
+        <Icon name="back" size={14} /> {full && d ? t.backToSummary(d.id) : t.all}
       </Link>
       {!data ? (
         <>
-          <h1 className="visually-hidden">Discovery {id}</h1>
-          <ExploreLoading label={`Loading discovery ${id}`} />
+          <h1 className="visually-hidden">{t.discovery(id)}</h1>
+          <ExploreLoading label={t.loading(id)} />
         </>
       ) : !d ? (
         <>
-          <h1 className="visually-hidden">Discovery not found</h1>
+          <h1 className="visually-hidden">{t.notFound}</h1>
           <EmptyState
-            title={`There is no recorded discovery called “${id}”`}
+            title={t.noSuch(id)}
             action={
               <Link to={explorePath()} className="btn btn-primary">
-                Explore all {data.discoveries.length}
+                {t.exploreAll(data.discoveries.length)}
               </Link>
             }
           >
-            <p>Run ids are a letter and a number, such as D1, F4 or J5.</p>
+            <p>{t.idHelp}</p>
           </EmptyState>
         </>
-      ) : full ? (
-        <FullView d={d} />
       ) : (
-        <DetailView d={d} data={data} />
+        <>
+          {lang === 'tr' && uiData ? (
+            <TranslationNotice translated={translated} showOriginal={showOriginal} onToggle={() => setShowOriginal((v) => !v)} t={t} />
+          ) : null}
+          {full ? <FullView d={d} /> : <DetailView d={d} data={data} actions={actions} />}
+        </>
       )}
     </div>
   );

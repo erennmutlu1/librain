@@ -1,3 +1,5 @@
+import { useLang, useT } from '../i18n/lang';
+import { text } from './ScoreBars.i18n';
 import { formatScore } from '../lib/format';
 import { riskBand } from '../lib/scoreItems';
 import styles from './ScoreBars.module.css';
@@ -15,6 +17,8 @@ export interface ScoreItem {
  * assistive tech. Works at any container width.
  */
 export function ScoreBars({ items, label, columns = 1 }: { items: ScoreItem[]; label: string; columns?: 1 | 2 }) {
+  const t = useT(text);
+  const { lang } = useLang();
   return (
     <ul role="list" className={styles.list} aria-label={label} data-columns={columns}>
       {items.map((item) => {
@@ -25,7 +29,7 @@ export function ScoreBars({ items, label, columns = 1 }: { items: ScoreItem[]; l
               {item.label}
               {item.hint ? <span className={styles.hint}>{item.hint}</span> : null}
             </span>
-            <span className={`${styles.number} num`}>{value !== null ? formatScore(value) : 'Not scored'}</span>
+            <span className={`${styles.number} num`}>{value !== null ? formatScore(value, 2, lang) : t.notScored}</span>
             <span className={styles.track} aria-hidden="true">
               {value !== null ? <span className={styles.fill} style={{ width: `${value * 100}%` }} /> : null}
             </span>
@@ -38,21 +42,23 @@ export function ScoreBars({ items, label, columns = 1 }: { items: ScoreItem[]; l
 
 /** Aggregate hallucination risk: the maximum per-sentence probability. Higher is worse. */
 export function RiskMeter({ value, failed }: { value: number; failed?: boolean }) {
-  const band = riskBand(value);
+  const t = useT(text);
+  const { lang } = useLang();
+  const band = riskBand(value, lang);
   return (
     <div className={styles.risk} data-tone={failed ? 'high' : band.tone}>
       <div className={styles.riskHead}>
-        <span className={styles.riskTitle}>Aggregate risk</span>
-        <span className={`${styles.riskValue} num`}>{formatScore(value)}</span>
-        <span className={styles.riskBand}>{failed ? 'Unverified' : band.label}</span>
+        <span className={styles.riskTitle}>{t.aggregateRisk}</span>
+        <span className={`${styles.riskValue} num`}>{formatScore(value, 2, lang)}</span>
+        <span className={styles.riskBand}>{failed ? t.unverified : band.label}</span>
       </div>
       <span className={styles.riskTrack} aria-hidden="true">
         <span className={styles.riskFill} style={{ width: `${Math.min(1, Math.max(0, value)) * 100}%` }} />
       </span>
       <p className={styles.riskHint}>
         {failed
-          ? 'The validator returned no usable verdicts, so treat the whole claim as unverified.'
-          : 'Highest hallucination probability among the novel-claim sentences.'}
+          ? t.failedHint
+          : t.hint}
       </p>
     </div>
   );

@@ -119,12 +119,13 @@ export function onProviderKeysChange(listener: () => void): () => void {
 }
 
 export interface ProviderKeysRequest {
-  reason: string;
+  /** Why the panel opened (shown as an alert); absent when the visitor simply asked for it (command palette). */
+  reason?: string;
   /** Switch to Live mode once both keys are saved (the visitor asked for Live). */
   goLive?: boolean;
 }
 
-/** Asks the UI to open the keys panel (a 401 "provider keys required", or Live without keys). */
+/** Asks the UI to open the keys panel (a 401 "provider keys required", Live without keys, or the command palette). */
 export function requestProviderKeys(request: ProviderKeysRequest): void {
   requestListeners.forEach((l) => l(request));
 }

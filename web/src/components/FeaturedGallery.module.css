@@ -238,3 +238,13 @@
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }
+
+.translatedNote {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.translatedNote b {
+  color: var(--ink-2);
+}

@@ -11,11 +11,13 @@ import {
   Rating,
   RatingExplainer,
   TopicPair,
+  TranslatedNote,
 } from '../components/explore/ExploreParts';
 import { Icon } from '../components/Icon';
 import { EmptyState } from '../components/States';
 import { useBookmarks } from '../explore/bookmarks';
-import { CATEGORIES, catStyle } from '../explore/categories';
+import { CATEGORIES, catStyle, categoryName } from '../explore/categories';
+import { fmtDate } from '../explore/fmt';
 import { explorePath, RECORDED_DATE } from '../explore/manifests';
 import {
   categoryCounts,
@@ -23,13 +25,15 @@ import {
   exploreList,
   isSortKey,
   SORTS,
+  sortLabel,
   type Discovery,
   type ExploreData,
   type SortKey,
 } from '../explore/model';
 import { useExploreData } from '../explore/useDiscoveries';
 import { featuredPath } from '../featured/manifest';
-import { formatDate } from '../lib/format';
+import { useLang, useT } from '../i18n/lang';
+import { exploreText } from './ExplorePage.i18n';
 import styles from './ExplorePage.module.css';
 
 /*
@@ -40,15 +44,17 @@ import styles from './ExplorePage.module.css';
  */
 
 function DayHero({ discovery, today }: { discovery: Discovery; today: Date }) {
+  const t = useT(exploreText);
+  const { lang } = useLang();
   const uid = useId();
   return (
     <section className={styles.hero} aria-labelledby={`${uid}-h`} style={catStyle(discovery.category)}>
       <div className={styles.heroHead}>
         <h2 id={`${uid}-h`} className={styles.heroLabel}>
-          Discovery of the day
+          {t.dayTitle}
         </h2>
         <span className={styles.heroDate}>
-          <time dateTime={today.toISOString().slice(0, 10)}>{formatDate(today.toISOString())}</time> · a new editor’s pick each day
+          <time dateTime={today.toISOString().slice(0, 10)}>{fmtDate(today.toISOString(), lang)}</time> · {t.dayAside}
         </span>
       </div>
       <div className={styles.heroBody}>
@@ -67,12 +73,12 @@ function DayHero({ discovery, today }: { discovery: Discovery; today: Date }) {
         <p className={styles.heroTakeaway}>{discovery.takeaway}</p>
         {discovery.pick?.whyFeatured ? (
           <p className={styles.heroWhy}>
-            <span className={styles.heroWhyLabel}>Why it was picked:</span> {discovery.pick.whyFeatured}
+            <span className={styles.heroWhyLabel}>{t.whyPicked}</span> {discovery.pick.whyFeatured}
           </p>
         ) : null}
         <div className={`cluster ${styles.heroActions}`}>
           <Link to={explorePath(discovery.id)} className="btn btn-primary">
-            See the evidence <Icon name="arrow" size={14} />
+            {t.seeEvidence} <Icon name="arrow" size={14} />
           </Link>
           <BookmarkButton id={discovery.id} label={discovery.request.topicA} />
         </div>
@@ -92,12 +98,14 @@ function Toolbar({
   view: 'grid' | 'list';
   onChange: (patch: Record<string, string | null>) => void;
 }) {
+  const t = useT(exploreText);
+  const { lang } = useLang();
   const uid = useId();
   return (
-    <div className={styles.toolbar} role="search" aria-label="Filter discoveries">
+    <div className={styles.toolbar} role="search" aria-label={t.filterLabel}>
       <div className={`field ${styles.search}`}>
         <label className="field-label" htmlFor={`${uid}-q`}>
-          Search topics and claims
+          {t.searchLabel}
         </label>
         <div className={styles.searchBox}>
           <Icon name="search" size={16} />
@@ -106,7 +114,7 @@ function Toolbar({
             type="search"
             className="input"
             value={q}
-            placeholder="e.g. injury, PharmAgents, graph"
+            placeholder={t.searchPlaceholder}
             autoComplete="off"
             onChange={(e) => onChange({ q: e.target.value || null })}
           />
@@ -114,22 +122,22 @@ function Toolbar({
       </div>
       <div className={`field ${styles.sort}`}>
         <label className="field-label" htmlFor={`${uid}-sort`}>
-          Sort by
+          {t.sortBy}
         </label>
         <select id={`${uid}-sort`} className="input" value={sort} onChange={(e) => onChange({ sort: e.target.value === 'rating' ? null : e.target.value })}>
           {(Object.keys(SORTS) as SortKey[]).map((k) => (
             <option key={k} value={k}>
-              {SORTS[k].label}
+              {sortLabel(k, lang)}
             </option>
           ))}
         </select>
       </div>
-      <div className={styles.view} role="group" aria-label="Layout">
+      <div className={styles.view} role="group" aria-label={t.layout}>
         <button type="button" className={styles.viewButton} aria-pressed={view === 'grid'} onClick={() => onChange({ view: null })}>
-          <Icon name="grid" size={14} /> Grid
+          <Icon name="grid" size={14} /> {t.grid}
         </button>
         <button type="button" className={styles.viewButton} aria-pressed={view === 'list'} onClick={() => onChange({ view: 'list' })}>
-          <Icon name="list" size={14} /> List
+          <Icon name="list" size={14} /> {t.list}
         </button>
       </div>
     </div>
@@ -137,6 +145,8 @@ function Toolbar({
 }
 
 function ExploreBody({ data }: { data: ExploreData }) {
+  const t = useT(exploreText);
+  const { lang } = useLang();
   const [params, setParams] = useSearchParams();
   const { saved, persistent } = useBookmarks();
   const [today] = useState(() => new Date());
@@ -178,9 +188,9 @@ function ExploreBody({ data }: { data: ExploreData }) {
 
       <Toolbar q={q} sort={sort} view={view} onChange={update} />
 
-      <div className={styles.chips} role="group" aria-label="Category">
+      <div className={styles.chips} role="group" aria-label={t.categoryGroup}>
         <button type="button" className={styles.chip} aria-pressed={category === undefined} onClick={() => update({ cat: null })}>
-          All <span className={styles.count}>{allCount}</span>
+          {t.all} <span className={styles.count}>{allCount}</span>
         </button>
         {CATEGORIES.map((c) => {
           const n = counts.get(c.prefix) ?? 0;
@@ -191,14 +201,14 @@ function ExploreBody({ data }: { data: ExploreData }) {
               className={styles.chip}
               style={catStyle(c)}
               aria-pressed={category === c.prefix}
-              title={c.name}
+              title={categoryName(c, false, lang)}
               onClick={() => update({ cat: category === c.prefix ? null : c.prefix })}
             >
               <span className={styles.chipGlyph} aria-hidden="true">
                 <Icon name={c.icon} size={12} />
               </span>
-              {c.short} <span className={styles.count}>{n}</span>{' '}
-              <span className="visually-hidden">{n === 1 ? 'idea' : 'ideas'}</span>
+              {categoryName(c, true, lang)} <span className={styles.count}>{n}</span>{' '}
+              <span className="visually-hidden">{t.ideaSr(n)}</span>
             </button>
           );
         })}
@@ -208,36 +218,34 @@ function ExploreBody({ data }: { data: ExploreData }) {
           aria-pressed={savedOnly}
           onClick={() => update({ saved: savedOnly ? null : '1' })}
         >
-          <Icon name="bookmark" size={12} filled={savedOnly} /> Saved <span className={styles.count}>{saved.size}</span>
+          <Icon name="bookmark" size={12} filled={savedOnly} /> {t.saved} <span className={styles.count}>{saved.size}</span>
         </button>
       </div>
 
       <h2 id="explore-results" className="visually-hidden">
-        Discoveries
+        {t.resultsHeading}
       </h2>
       <div className={styles.summary}>
         <p role="status" className={styles.status}>
           {list.length === data.discoveries.length
-            ? `All ${list.length} ideas, ${SORTS[sort].label.toLowerCase()} first.`
-            : `Showing ${list.length} of ${data.discoveries.length} ideas.`}
-          {savedOnly && !persistent ? ' Saved ideas are kept for this visit only: this browser is not allowing storage.' : ''}
+            ? t.statusAll(list.length, sortLabel(sort, lang))
+            : t.statusSome(list.length, data.discoveries.length)}
+          {savedOnly && !persistent ? t.noStorage : ''}
         </p>
         <RatingExplainer range={data.noveltyRange} />
       </div>
 
       {list.length === 0 ? (
         <EmptyState
-          title={savedOnly && saved.size === 0 ? 'Nothing saved yet' : 'No ideas match these filters'}
+          title={savedOnly && saved.size === 0 ? t.nothingSaved : t.noMatch}
           action={
             <button type="button" className="btn" onClick={() => update({ q: null, cat: null, saved: null })}>
-              Show all {data.discoveries.length}
+              {t.showAll(data.discoveries.length)}
             </button>
           }
         >
           <p>
-            {savedOnly && saved.size === 0
-              ? 'Use the bookmark on any idea to keep it here.'
-              : 'Try fewer words, another category, or clear the filters.'}
+            {savedOnly && saved.size === 0 ? t.useBookmark : t.tryFewer}
           </p>
         </EmptyState>
       ) : (
@@ -248,10 +256,13 @@ function ExploreBody({ data }: { data: ExploreData }) {
         </ul>
       )}
 
-      <aside className={styles.more} aria-label="More recorded runs">
+      <aside className={styles.more} aria-label={t.moreLabel}>
         <p>
-          Six of these ideas also open from <Link to={featuredPath()}>Featured discoveries</Link> on Discover. Runs you make
-          yourself are saved in <Link to="/history">History</Link>.
+          {t.moreBefore}
+          <Link to={featuredPath()}>{t.featuredLink}</Link>
+          {t.moreMiddle}
+          <Link to="/history">{t.historyLink}</Link>
+          {t.moreAfter}
         </p>
       </aside>
     </>
@@ -259,23 +270,27 @@ function ExploreBody({ data }: { data: ExploreData }) {
 }
 
 export default function ExplorePage() {
+  const t = useT(exploreText);
+  const { lang } = useLang();
   const { state, retry } = useExploreData();
-  const date = formatDate(RECORDED_DATE);
+  const date = fmtDate(RECORDED_DATE, lang);
   return (
     <div className="page">
       {state.status === 'error' ? (
-        <ExploreLoadError title="Explore discoveries" onRetry={retry} />
+        <ExploreLoadError title={t.title} onRetry={retry} />
       ) : (
         <>
           <header className="page-header">
-            <h1 className="page-title">Explore discoveries</h1>
+            <h1 className="page-title">{t.title}</h1>
             <p className="page-lede">
-              Every Discovery run recorded on <time dateTime={RECORDED_DATE}>{date}</time>, across nine areas. Each is a
-              candidate hypothesis: rated out of 10, checked sentence by sentence, and linked to the passages behind it.
+              {t.ledeBefore}
+              <time dateTime={RECORDED_DATE}>{date}</time>
+              {t.ledeAfter}
             </p>
           </header>
           <ExploreTabs data={state.status === 'ready' ? state.data : undefined} />
-          {state.status === 'ready' ? <ExploreBody data={state.data} /> : <ExploreLoading label="Loading discoveries" />}
+          <TranslatedNote data={state.status === 'ready' ? state.data : undefined} />
+          {state.status === 'ready' ? <ExploreBody data={state.data} /> : <ExploreLoading label={t.loading} />}
         </>
       )}
     </div>

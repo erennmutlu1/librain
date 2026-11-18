@@ -1,16 +1,18 @@
 import { useId, type ReactNode } from 'react';
 import type { DiscoveryEvaluation } from '../api/types';
+import { useLang, useT } from '../i18n/lang';
 import { auditClaimedCitations } from '../lib/citations';
 import type { CompareStates, SystemState } from '../lib/compare';
 import { formatScore } from '../lib/format';
 import { usePaperIndex } from '../lib/papers';
-import { DISCOVERY_AXES } from '../lib/scoreItems';
-import { SYSTEMS, type SystemKey } from '../lib/vocabulary';
+import { discoveryAxes } from '../lib/scoreItems';
+import { SYSTEMS, systemMeta, type SystemKey } from '../lib/vocabulary';
 import { AnnotatedClaim } from './AnnotatedClaim';
 import { NaiveCitations, RunStats } from './BaselineParts';
 import { CopyText } from './CopyText';
 import { FencedHypothesis } from './FencedHypothesis';
 import { ErrorNotice, SkeletonLines } from './States';
+import { text } from './CompareView.i18n';
 import styles from './CompareView.module.css';
 
 type Props = CompareStates;
@@ -21,15 +23,16 @@ export function SystemKeySwatch({ system }: { system: SystemKey }) {
 
 /** The three systems in one plain sentence each. */
 export function SystemsExplainer() {
+  const { lang } = useLang();
   return (
     <dl className={styles.explainer}>
       {(Object.keys(SYSTEMS) as SystemKey[]).map((key) => (
         <div key={key} className={styles.explainerItem} data-system={key}>
           <dt>
             <SystemKeySwatch system={key} />
-            {SYSTEMS[key].name}
+            {systemMeta(key, lang).name}
           </dt>
-          <dd>{SYSTEMS[key].summary}</dd>
+          <dd>{systemMeta(key, lang).summary}</dd>
         </div>
       ))}
     </dl>
@@ -42,22 +45,24 @@ function evaluationOf(state: SystemState<{ evaluation: DiscoveryEvaluation | nul
 }
 
 function ScoreCell({ system, state, value, best }: { system: SystemKey; state: SystemState<unknown>; value: number | null | undefined; best: boolean }) {
+  const t = useT(text);
+  const { lang } = useLang();
   if (state.status === 'loading') {
     return (
       <td className={styles.cell}>
         <span className={styles.cellSkeleton} aria-hidden="true" />
-        <span className="visually-hidden">Loading</span>
+        <span className="visually-hidden">{t.loading}</span>
       </td>
     );
   }
-  if (state.status === 'error') return <td className={`${styles.cell} muted`}>Failed</td>;
-  if (typeof value !== 'number') return <td className={`${styles.cell} muted`}>Not scored</td>;
+  if (state.status === 'error') return <td className={`${styles.cell} muted`}>{t.failed}</td>;
+  if (typeof value !== 'number') return <td className={`${styles.cell} muted`}>{t.notScored}</td>;
   return (
     <td className={styles.cell}>
       <span className={styles.cellInner} data-system={system}>
         <span className={`${styles.cellValue} num`} data-best={best || undefined}>
-          {formatScore(value)}
-          {best ? <span className="visually-hidden"> (highest)</span> : null}
+          {formatScore(value, 2, lang)}
+          {best ? <span className="visually-hidden">{t.highest}</span> : null}
         </span>
         <span className={styles.bar} aria-hidden="true">
           <span className={styles.barFill} data-system={system} style={{ width: `${Math.min(1, Math.max(0, value)) * 100}%` }} />
@@ -68,6 +73,8 @@ function ScoreCell({ system, state, value, best }: { system: SystemKey; state: S
 }
 
 function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
+  const t = useT(text);
+  const { lang } = useLang();
   const evals: Record<SystemKey, DiscoveryEvaluation | null | undefined> = {
     librain: evaluationOf(librain),
     naiveRag: evaluationOf(naiveRag),
@@ -79,48 +86,49 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
   const citations = (key: SystemKey): ReactNode => {
     const s = states[key];
     if (s.status === 'loading') return <span className={styles.cellSkeleton} aria-hidden="true" />;
-    if (s.status === 'error') return <span className="muted">Failed</span>;
+    if (s.status === 'error') return <span className="muted">{t.failed}</span>;
     if (key === 'librain' && librain.status === 'success') {
       const d = librain.data;
       return d.claimedEvidenceCount !== undefined ? (
         <span>
-          {d.supportingEvidence.length} kept, <strong>{d.droppedEvidenceCount ?? 0} dropped</strong>
+          {t.keptDropped(d.supportingEvidence.length, d.droppedEvidenceCount ?? 0).kept}
+          <strong>{t.keptDropped(d.supportingEvidence.length, d.droppedEvidenceCount ?? 0).dropped}</strong>
         </span>
       ) : (
-        <span>{d.supportingEvidence.length} kept</span>
+        <span>{t.kept(d.supportingEvidence.length)}</span>
       );
     }
     if (key === 'naiveRag' && naiveRag.status === 'success') {
       const audit = auditClaimedCitations(naiveRag.data.claimedCitations, naiveRag.data.fabricatedCitationCount);
       return (
         <span>
-          {audit.total} claimed,{' '}
-          <strong className={audit.fabricated.length > 0 ? styles.fabCount : undefined}>{audit.fabricated.length} fabricated</strong>
+          {t.claimed(audit.total)}{' '}
+          <strong className={audit.fabricated.length > 0 ? styles.fabCount : undefined}>{t.fabricated(audit.fabricated.length)}</strong>
         </span>
       );
     }
-    return <span className="muted">None (no retrieval)</span>;
+    return <span className="muted">{t.noRetrieval}</span>;
   };
 
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
-        <caption className="visually-hidden">Scores by system, 0 to 1, higher is better</caption>
+        <caption className="visually-hidden">{t.caption}</caption>
         <thead>
           <tr>
             <th scope="col" className={styles.axisHead}>
-              <span className="visually-hidden">Axis</span>
+              <span className="visually-hidden">{t.axis}</span>
             </th>
             {systems.map((key) => (
               <th key={key} scope="col" className={styles.sysHead}>
                 <SystemKeySwatch system={key} />
-                {SYSTEMS[key].name}
+                {systemMeta(key, lang).name}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {DISCOVERY_AXES.map((axis) => {
+          {discoveryAxes(lang).map((axis) => {
             const values = systems.map((key) => evals[key]?.[axis.key]);
             const numeric = values.filter((v): v is number => typeof v === 'number');
             // Only a unique maximum is marked; a tie is not a win.
@@ -140,14 +148,14 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
           })}
           <tr>
             <th scope="row" className={styles.axis}>
-              Hallucination risk
-              <span className={styles.axisHint}>Max per-sentence probability; lower is better</span>
+              {t.risk}
+              <span className={styles.axisHint}>{t.riskHint}</span>
             </th>
             <td className={styles.cell}>
               {librain.status === 'success' && librain.data.claimValidation ? (
                 <span className="num">
-                  {formatScore(librain.data.claimValidation.aggregateRisk)}
-                  {librain.data.claimValidation.validationFailed ? ' (validation failed)' : ''}
+                  {formatScore(librain.data.claimValidation.aggregateRisk, 2, lang)}
+                  {librain.data.claimValidation.validationFailed ? t.validationFailed : ''}
                 </span>
               ) : librain.status === 'loading' ? (
                 <span className={styles.cellSkeleton} aria-hidden="true" />
@@ -155,12 +163,12 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
                 <span className="muted">—</span>
               )}
             </td>
-            <td className={`${styles.cell} muted`}>Not measured</td>
-            <td className={`${styles.cell} muted`}>Not measured</td>
+            <td className={`${styles.cell} muted`}>{t.notMeasured}</td>
+            <td className={`${styles.cell} muted`}>{t.notMeasured}</td>
           </tr>
           <tr>
             <th scope="row" className={styles.axis}>
-              Citations
+              {t.citations}
             </th>
             {systems.map((key) => (
               <td key={key} className={`${styles.cell} ${styles.textCell}`}>
@@ -175,19 +183,21 @@ function ScoreTable({ librain, naiveRag, singleLlm }: Props) {
 }
 
 function Column({ system, state, children }: { system: SystemKey; state: SystemState<{ correlationId: string }>; children: ReactNode }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const uid = useId();
   return (
     <section className={styles.column} data-system={system} aria-labelledby={`${uid}-h`} aria-busy={state.status === 'loading'}>
       <h2 id={`${uid}-h`} className={styles.columnTitle}>
         <SystemKeySwatch system={system} />
-        {SYSTEMS[system].name}
+        {systemMeta(system, lang).name}
       </h2>
       {state.status === 'loading' ? <SkeletonLines lines={6} /> : null}
       {state.status === 'error' ? <ErrorNotice error={state.error} correlationId={state.correlationId ?? null} /> : null}
       {state.status === 'success' ? (
         <>
           {children}
-          <CopyText value={state.data.correlationId} label="Correlation ID" />
+          <CopyText value={state.data.correlationId} label={t.correlationId} />
         </>
       ) : null}
     </section>
@@ -195,6 +205,7 @@ function Column({ system, state, children }: { system: SystemKey; state: SystemS
 }
 
 export function CompareView({ librain, naiveRag, singleLlm }: Props) {
+  const t = useT(text);
   const papers = usePaperIndex();
   return (
     <div className={styles.root}>
@@ -206,7 +217,7 @@ export function CompareView({ librain, naiveRag, singleLlm }: Props) {
               <>
                 <FencedHypothesis className={styles.hypothesis} hypothesis={librain.data.hypothesis} novelClaim={librain.data.novelClaim} />
                 <div className={styles.block}>
-                  <p className={styles.blockTitle}>Novel claim, checked</p>
+                  <p className={styles.blockTitle}>{t.claimChecked}</p>
                   <AnnotatedClaim
                     compact
                     novelClaim={librain.data.novelClaim}
@@ -216,7 +227,7 @@ export function CompareView({ librain, naiveRag, singleLlm }: Props) {
                     papers={papers}
                   />
                 </div>
-                <p className={styles.stats}>{librain.data.supportingEvidence.length} supporting chunks kept</p>
+                <p className={styles.stats}>{t.supportingKept(librain.data.supportingEvidence.length)}</p>
               </>
             ) : null}
         </Column>
@@ -226,7 +237,7 @@ export function CompareView({ librain, naiveRag, singleLlm }: Props) {
               <>
                 <p className={styles.hypothesis}>{naiveRag.data.hypothesis}</p>
                 <div className={styles.block}>
-                  <p className={styles.blockTitle}>Claimed citations</p>
+                  <p className={styles.blockTitle}>{t.claimedCitations}</p>
                   <NaiveCitations data={naiveRag.data} />
                 </div>
                 <RunStats
@@ -243,7 +254,7 @@ export function CompareView({ librain, naiveRag, singleLlm }: Props) {
           {singleLlm.status === 'success' ? (
               <>
                 <p className={styles.hypothesis}>{singleLlm.data.hypothesis}</p>
-                <p className={styles.note}>No retrieval, so there is nothing to cite and nothing to check against.</p>
+                <p className={styles.note}>{t.noRetrievalNote}</p>
                 <RunStats ms={singleLlm.data.totalElapsedMs} input={singleLlm.data.inputTokens} output={singleLlm.data.outputTokens} />
               </>
             ) : null}

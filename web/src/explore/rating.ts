@@ -10,6 +10,8 @@
  * corpus chunk) only spans about 0.28 to 0.54 across these runs, so it would
  * barely move the total. The rating is rounded to one decimal.
  */
+import type { Lang } from '../i18n/lang';
+import { fmtNum } from './fmt';
 
 export const RATING_WEIGHTS = {
   plausibility: 0.35,
@@ -65,7 +67,7 @@ export function rating(inputs: RatingInputs, range: NoveltyRange): number {
   return Math.round(ratingExact(inputs, range) * 10) / 10;
 }
 
-/** "7.4" */
-export function formatRating(value: number): string {
-  return value.toFixed(1);
+/** "7.4" ("7,4" in Turkish) */
+export function formatRating(value: number, lang?: Lang): string {
+  return fmtNum(value, 1, lang);
 }

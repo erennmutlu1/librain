@@ -79,8 +79,8 @@ describe('App (mock mode, no network)', () => {
     const { user, runStore } = setup('/discover');
     await user.click(await screen.findByRole('button', { name: 'Discover' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Enter at least Topic A.');
-    await user.type(screen.getByRole('textbox', { name: 'Topic A' }), 'same');
-    await user.type(screen.getByRole('textbox', { name: /Topic B/ }), 'same');
+    await user.type(screen.getByRole('combobox', { name: 'Topic A' }), 'same');
+    await user.type(screen.getByRole('combobox', { name: /Topic B/ }), 'same');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Topic B must differ from Topic A.');
     expect(await runStore.list()).toHaveLength(0);
@@ -193,7 +193,7 @@ describe('App (live client against a fake server)', () => {
       });
     });
     const { user } = setup('/compare', createHttpApi({ fetchImpl, apiKey: () => null }));
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'drug discovery');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'drug discovery');
     await user.click(screen.getByRole('button', { name: 'Compare' }));
     expect(await screen.findByText('Rate limit reached.')).toBeInTheDocument();
     expect(screen.getByText(/try again in about 10 min/)).toBeInTheDocument();

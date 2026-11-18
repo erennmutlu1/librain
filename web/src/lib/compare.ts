@@ -1,3 +1,4 @@
+import { pick, strings } from '../i18n/lang';
 import type { CompareOutcome, CompareResponse, DiscoverResponse, NaiveRagResponse, SingleLlmResponse } from '../api/types';
 
 /** One system's column on the Compare screen. */
@@ -18,9 +19,14 @@ export const ALL_LOADING: CompareStates = {
   singleLlm: { status: 'loading' },
 };
 
+const text = strings({
+  en: { noResult: 'No result was returned.' },
+  tr: { noResult: 'Sonuç döndürülmedi.' },
+});
+
 export function outcomeState<T>(outcome: CompareOutcome<T>): SystemState<T> {
   if (outcome.result) return { status: 'success', data: outcome.result };
-  return { status: 'error', error: new Error(outcome.error ?? 'No result was returned.'), correlationId: outcome.correlationId };
+  return { status: 'error', error: new Error(outcome.error ?? pick(text).noResult), correlationId: outcome.correlationId };
 }
 
 export function compareStates(response: CompareResponse): CompareStates {

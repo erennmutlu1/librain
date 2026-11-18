@@ -1,0 +1,281 @@
+/*
+ * The command palette: one raised panel over a dimmed page, the input on top,
+ * grouped results below. Options are 44 px tall for touch; the active one gets
+ * the accent wash and a lit left edge (a shape, not only a colour).
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh var(--s4) var(--s4);
+  background: color-mix(in srgb, var(--bg-deep) 72%, transparent);
+}
+
+.dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, 100%);
+  max-height: min(34rem, 76vh);
+  background: var(--surface-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panel), var(--glow-accent);
+  overflow: hidden;
+}
+
+/* The brand's lit top edge, as on the header panels. */
+.dialog::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--s5);
+  right: var(--s5);
+  height: 1px;
+  background: var(--grad-brand);
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .backdrop {
+    animation: fade 120ms ease-out;
+  }
+
+  .dialog {
+    animation: rise 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+}
+
+.search {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3) var(--s2) var(--s4);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-3);
+}
+
+.search > svg {
+  flex: none;
+}
+
+/* 16 px text: iOS zooms into smaller inputs. */
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-md);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+.close {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--ink);
+  background: var(--surface-sunken);
+}
+
+.dialog kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5em;
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--s2);
+}
+
+.group + .group {
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--rule);
+}
+
+.groupLabel {
+  padding: var(--s1) var(--s3);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 2.75rem;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.option[aria-selected='true'] {
+  background: var(--accent-wash);
+}
+
+.option[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--s2);
+  bottom: var(--s2);
+  width: 3px;
+  border-radius: 3px;
+  background: var(--grad-brand);
+  box-shadow: var(--glow-line);
+}
+
+.optionIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-2);
+}
+
+.option[aria-selected='true'] .optionIcon {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
+}
+
+/* Discoveries wear their category hue on the icon. */
+.option[data-group='discoveries'] .optionIcon {
+  color: var(--cat, var(--ink-2));
+}
+
+.optionText {
+  display: grid;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optionHint {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enter {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  visibility: hidden;
+}
+
+.option[aria-selected='true'] .enter {
+  visibility: visible;
+}
+
+.empty,
+.note {
+  flex: none;
+  padding: var(--s3) var(--s5);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+.note {
+  padding-top: 0;
+  font-size: var(--fs-xs);
+}
+
+.footer {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s4);
+  padding: var(--s2) var(--s4);
+  border-top: 1px solid var(--rule);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+/* Phones: near the top, so the on-screen keyboard leaves room for results; no keyboard hints. */
+@media (max-width: 40rem) {
+  .backdrop {
+    padding: var(--s3) var(--s3) 0;
+  }
+
+  .dialog {
+    max-height: calc(100dvh - 2 * var(--s3));
+  }
+
+  .footer {
+    display: none;
+  }
+}

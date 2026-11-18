@@ -1,23 +1,26 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { useBookmarks } from '../../explore/bookmarks';
-import { catStyle, type Category } from '../../explore/categories';
+import { catStyle, categoryName, type Category } from '../../explore/categories';
+import { fmtNum } from '../../explore/fmt';
 import { explorePath } from '../../explore/manifests';
 import { pickSurprise, type Discovery, type ExploreData } from '../../explore/model';
 import { formatRating, RATING_WEIGHTS, type NoveltyRange } from '../../explore/rating';
-import { formatScore } from '../../lib/format';
+import { useLang, useT } from '../../i18n/lang';
 import { riskBand } from '../../lib/scoreItems';
 import { Icon, StatusIcon } from '../Icon';
 import { SkeletonLines } from '../States';
 import { Term } from './Term';
+import { partsText } from './ExploreParts.i18n';
 import styles from './ExploreParts.module.css';
 
 /** The category's icon on a tile of its hue, then its name. */
 export function CategoryTag({ category, short = false }: { category: Category; short?: boolean }) {
+  const { lang } = useLang();
   return (
     <span className={styles.category} style={catStyle(category)}>
       <CategoryGlyph category={category} />
-      <span>{short ? category.short : category.name}</span>
+      <span>{categoryName(category, short, lang)}</span>
     </span>
   );
 }
@@ -31,10 +34,11 @@ export function CategoryGlyph({ category, size = 14 }: { category: Category; siz
 }
 
 export function PickBadge() {
+  const t = useT(partsText);
   return (
     <span className={styles.pick}>
       <Icon name="star" size={12} filled />
-      Editor’s pick
+      {t.editorsPick}
     </span>
   );
 }
@@ -44,6 +48,8 @@ export function PickBadge() {
  * "Rated 7.4 out of 10".
  */
 export function Rating({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' | 'lg' }) {
+  const t = useT(partsText);
+  const { lang } = useLang();
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const stars = Math.min(5, Math.max(0, value / 2));
   const full = Math.floor(stars);
@@ -52,9 +58,9 @@ export function Rating({ value, size = 'md' }: { value: number; size?: 'sm' | 'm
     <path key={i} transform={`translate(${i * 17} 0)`} d="M8 .9l2.15 4.4 4.85.7-3.5 3.42.83 4.83L8 11.97l-4.33 2.28.83-4.83L1 6l4.85-.7z" />
   );
   return (
-    <span className={styles.rating} data-size={size} role="img" aria-label={`Rated ${formatRating(value)} out of 10`}>
+    <span className={styles.rating} data-size={size} role="img" aria-label={t.rated(formatRating(value, lang))}>
       <span className={styles.ratingNumber} aria-hidden="true">
-        {formatRating(value)}
+        {formatRating(value, lang)}
         <span className={styles.ratingOutOf}> / 10</span>
       </span>
       <svg className={styles.stars} viewBox="0 0 84 16" aria-hidden="true" focusable="false">
@@ -73,13 +79,15 @@ export function Rating({ value, size = 'md' }: { value: number; size?: 'sm' | 'm
 }
 
 export function RiskChip({ discovery }: { discovery: Discovery }) {
+  const t = useT(partsText);
+  const { lang } = useLang();
   const failed = discovery.response.claimValidation?.validationFailed === true;
   const band = riskBand(discovery.scores.risk);
   return (
     <span className={styles.chip} data-tone={failed ? 'high' : band.tone}>
       {band.tone === 'high' ? <StatusIcon status="risky" size={12} /> : null}
-      Claim risk <b>{failed ? 'unverified' : formatScore(discovery.scores.risk)}</b>
-      <span className="visually-hidden">({failed ? 'not checked' : band.label.toLowerCase()})</span>
+      {t.claimRisk} <b>{failed ? t.unverified : fmtNum(discovery.scores.risk, 2, lang)}</b>
+      <span className="visually-hidden">({failed ? t.notChecked : t.riskBand[band.tone]})</span>
     </span>
   );
 }
@@ -99,6 +107,7 @@ export function TopicPair({ discovery }: { discovery: Discovery }) {
 }
 
 export function BookmarkButton({ id, label, compact = false }: { id: string; label: string; compact?: boolean }) {
+  const t = useT(partsText);
   const { saved, toggle } = useBookmarks();
   const on = saved.has(id);
   return (
@@ -106,12 +115,12 @@ export function BookmarkButton({ id, label, compact = false }: { id: string; lab
       type="button"
       className={compact ? styles.bookmarkIcon : `btn ${styles.bookmark}`}
       aria-pressed={on}
-      aria-label={compact ? `Save ${label}` : undefined}
-      title={compact ? (on ? 'Saved' : 'Save') : undefined}
+      aria-label={compact ? t.saveItem(label) : undefined}
+      title={compact ? (on ? t.saved : t.save) : undefined}
       onClick={() => toggle(id)}
     >
       <Icon name="bookmark" size={compact ? 16 : 14} filled={on} />
-      {compact ? null : on ? 'Saved' : 'Save'}
+      {compact ? null : on ? t.saved : t.save}
     </button>
   );
 }
@@ -126,6 +135,7 @@ export function DiscoveryCard({
   level?: 2 | 3;
   view?: 'grid' | 'list';
 }) {
+  const t = useT(partsText);
   const Heading = level === 2 ? 'h2' : 'h3';
   return (
     <li className={styles.card} data-view={view} style={catStyle(discovery.category)}>
@@ -145,7 +155,7 @@ export function DiscoveryCard({
           <RiskChip discovery={discovery} />
           {discovery.riskyCount > 0 ? (
             <span className={`${styles.chip} ${styles.risky}`}>
-              {discovery.riskyCount} risky {discovery.riskyCount === 1 ? 'sentence' : 'sentences'}
+              {t.riskySentences(discovery.riskyCount)}
             </span>
           ) : null}
         </span>
@@ -159,25 +169,26 @@ export function DiscoveryCard({
 
 /** Explore's sections, and a way into a random high-rated idea from any of them. */
 export function ExploreTabs({ data, currentId }: { data?: ExploreData; currentId?: string }) {
+  const t = useT(partsText);
   const navigate = useNavigate();
   const tab = ({ isActive }: { isActive: boolean }) => (isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab);
   return (
     <div className={styles.tabsRow}>
-      <nav aria-label="Explore">
+      <nav aria-label={t.tabsLabel}>
         <ul role="list" className={styles.tabs}>
           <li>
             <NavLink to="/explore" end className={tab}>
-              <Icon name="grid" size={14} /> Discoveries
+              <Icon name="grid" size={14} /> {t.tabDiscoveries}
             </NavLink>
           </li>
           <li>
             <NavLink to="/explore/stats" className={tab}>
-              <Icon name="chart" size={14} /> Statistics
+              <Icon name="chart" size={14} /> {t.tabStatistics}
             </NavLink>
           </li>
           <li>
             <NavLink to="/explore/quiz" className={tab}>
-              <Icon name="question" size={14} /> Spot the risk
+              <Icon name="question" size={14} /> {t.tabQuiz}
             </NavLink>
           </li>
         </ul>
@@ -191,7 +202,7 @@ export function ExploreTabs({ data, currentId }: { data?: ExploreData; currentId
           if (d) void navigate(explorePath(d.id));
         }}
       >
-        <Icon name="shuffle" size={14} /> Surprise me
+        <Icon name="shuffle" size={14} /> {t.surprise}
       </button>
     </div>
   );
@@ -208,6 +219,8 @@ export function RatingExplainer({
   /** Which edge the button and panel line up with. */
   align?: 'start' | 'end';
 }) {
+  const t = useT(partsText);
+  const { lang } = useLang();
   const uid = useId();
   const [open, setOpen] = useState(false);
   const w = RATING_WEIGHTS;
@@ -221,20 +234,23 @@ export function RatingExplainer({
         aria-controls={`${uid}-panel`}
         onClick={() => setOpen((o) => !o)}
       >
-        <Icon name="question" size={14} /> How ratings work
+        <Icon name="question" size={14} /> {t.howRatingsWork}
       </button>
       <div id={`${uid}-panel`} className={styles.explainerPanel} hidden={!open}>
         <p className={styles.formula}>
-          rating = 10 × ({w.plausibility}·plausibility + {w.coherence}·coherence + {w.novelty}·novelty<sub>norm</sub> + {w.safety}·(1 − claim risk))
+          {t.formulaRating} = 10 × ({fmtNum(w.plausibility, 2, lang)}·{t.formulaPlausibility} + {fmtNum(w.coherence, 2, lang)}·
+          {t.formulaCoherence} + {fmtNum(w.novelty, 2, lang)}·{t.formulaNovelty}
+          <sub>norm</sub> + {fmtNum(w.safety, 2, lang)}·(1 − {t.formulaRisk}))
         </p>
         <p>
-          novelty<sub>norm</sub> = (novelty − {range.min.toFixed(3)}) ÷ ({range.max.toFixed(3)} − {range.min.toFixed(3)}), so the least
-          novel of the 46 ideas counts 0 and the most novel 1. Rounded to one decimal.
+          {t.formulaNovelty}
+          <sub>norm</sub> {t.normExplain(fmtNum(range.min, 3, lang), fmtNum(range.max, 3, lang))}
         </p>
         {s && discovery ? (
           <p className={styles.formulaExample}>
-            This idea: 10 × ({w.plausibility}·{s.plausibility.toFixed(2)} + {w.coherence}·{s.coherence.toFixed(2)} + {w.novelty}·
-            {s.noveltyNorm.toFixed(2)} + {w.safety}·{(1 - s.risk).toFixed(2)}) = <b>{formatRating(discovery.rating)}</b>
+            {t.thisIdea} 10 × ({fmtNum(w.plausibility, 2, lang)}·{fmtNum(s.plausibility, 2, lang)} + {fmtNum(w.coherence, 2, lang)}·
+            {fmtNum(s.coherence, 2, lang)} + {fmtNum(w.novelty, 2, lang)}·{fmtNum(s.noveltyNorm, 2, lang)} +{' '}
+            {fmtNum(w.safety, 2, lang)}·{fmtNum(1 - s.risk, 2, lang)}) = <b>{formatRating(discovery.rating, lang)}</b>
           </p>
         ) : null}
         <dl className={styles.inputs}>
@@ -242,33 +258,42 @@ export function RatingExplainer({
             <dt>
               <Term k="plausibility" />
             </dt>
-            <dd>weighs most: a strong idea has to be believable.</dd>
+            <dd>{t.plausibilityNote}</dd>
           </div>
           <div>
             <dt>
               <Term k="coherence" />
             </dt>
-            <dd>rewards an argument whose steps fit together.</dd>
+            <dd>{t.coherenceNote}</dd>
           </div>
           <div>
             <dt>
               <Term k="novelty" />
             </dt>
-            <dd>rewards distance from what the corpus already says.</dd>
+            <dd>{t.noveltyNote}</dd>
           </div>
           <div>
             <dt>
               <Term k="risk" />
             </dt>
-            <dd>docks ideas that state unsupported facts.</dd>
+            <dd>{t.riskNote}</dd>
           </div>
         </dl>
-        <p className={styles.explainerNote}>
-          The weights rank these 46 recorded runs against each other. They are this page’s reading aid, not a score
-          from the paper, and a high rating is still a candidate to test.
-        </p>
+        <p className={styles.explainerNote}>{t.weightsNote}</p>
       </div>
     </div>
+  );
+}
+
+/** Shown once on a page of translated discoveries; renders nothing in English. */
+export function TranslatedNote({ data }: { data?: ExploreData }) {
+  const t = useT(partsText);
+  const { lang } = useLang();
+  if (lang !== 'tr' || !data?.discoveries.some((d) => d.translated)) return null;
+  return (
+    <p className={styles.translatedNote}>
+      <Icon name="doc" size={14} /> <span className={styles.translatedMark}>{t.translatedMark}</span> {t.translatedNote}
+    </p>
   );
 }
 
@@ -284,17 +309,18 @@ export function ExploreLoading({ label }: { label: string }) {
 }
 
 export function ExploreLoadError({ onRetry, title }: { onRetry: () => void; title: string }) {
+  const t = useT(partsText);
   return (
     <>
       <h1 className="page-title">{title}</h1>
       <div className={`notice notice-error ${styles.loadError}`} role="alert">
         <Icon name="error" />
         <div className={styles.loadErrorBody}>
-          <strong>The recorded discoveries did not load.</strong>
-          <p>They ship with the app, so this usually means the page is out of date after an update. Reload the page, or try again.</p>
+          <strong>{t.loadErrorTitle}</strong>
+          <p>{t.loadErrorBody}</p>
           <div className="cluster">
             <button type="button" className="btn btn-sm" onClick={onRetry}>
-              Try again
+              {t.tryAgain}
             </button>
           </div>
         </div>

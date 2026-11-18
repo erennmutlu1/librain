@@ -1,5 +1,7 @@
 import type { MockMatch, MockScenario } from '../api/types';
+import { useT } from '../i18n/lang';
 import { Icon } from './Icon';
+import { text } from './FormBits.i18n';
 import styles from './FormBits.module.css';
 
 export function Segmented<T extends string>({
@@ -46,11 +48,12 @@ export function RecordedRuns<Req>({
   disabled?: boolean;
   collapsed?: boolean;
 }) {
+  const t = useT(text);
   if (!scenarios || scenarios.length === 0) return null;
   return (
     <details key={collapsed ? 'closed' : 'open'} className={styles.recorded} open={!collapsed}>
       <summary className={styles.recordedLabel}>
-        Recorded runs <span className="num">({scenarios.length})</span>
+        {t.recordedRuns} <span className="num">({scenarios.length})</span>
       </summary>
       {/* The public Discover list has 50 runs: past a dozen it scrolls instead of pushing the page down. */}
       <ul role="list" className={styles.recordedList} data-long={scenarios.length > 12 || undefined}>
@@ -68,6 +71,7 @@ export function RecordedRuns<Req>({
 
 /** Mock mode only: which recording answered, and anything altered in it. */
 export function MockProvenance({ match }: { match: MockMatch | undefined }) {
+  const t = useT(text);
   if (!match) return null;
   return (
     <div className={`notice ${match.matched ? '' : 'notice-info'} ${styles.provenance}`}>
@@ -75,12 +79,11 @@ export function MockProvenance({ match }: { match: MockMatch | undefined }) {
       <div>
         {match.matched ? null : (
           <p>
-            <strong>No recording matches these inputs.</strong> Mock mode is showing the recorded run for “{match.label}”
-            instead.
+            <strong>{t.noMatch}</strong> {t.showingInstead(match.label)}
           </p>
         )}
         <p>
-          Recorded output: <code className="mono">{match.source}</code>
+          {t.recordedOutput} <code className="mono">{match.source}</code>
         </p>
         {match.note ? <p className="muted">{match.note}</p> : null}
       </div>

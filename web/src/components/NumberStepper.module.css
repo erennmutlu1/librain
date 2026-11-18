@@ -1,0 +1,95 @@
+/* − [ 5 ] +  as one control: the buttons share the field's border. */
+.stepper {
+  display: inline-grid;
+  grid-template-columns: 2.5rem minmax(2.75rem, 3.5rem) 2.5rem;
+  align-items: stretch;
+  width: max-content;
+  max-width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-input, var(--surface-sunken));
+  transition:
+    border-color 120ms ease,
+    box-shadow 160ms ease;
+}
+
+.stepper:hover:not([data-disabled]) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--rule-strong));
+}
+
+.stepper:focus-within {
+  border-color: var(--focus-ring);
+  box-shadow: var(--glow-accent);
+}
+
+.input {
+  min-width: 0;
+  width: 100%;
+  padding: 0 var(--s1);
+  border: 0;
+  border-inline: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-ui));
+  font-size: var(--fs-md);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* The ring is on the whole control (focus-within above). */
+.input:focus-visible {
+  outline: none;
+}
+
+.input:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.button:first-child {
+  border-radius: calc(var(--r-sm) - 1px) 0 0 calc(var(--r-sm) - 1px);
+}
+
+.button:last-child {
+  border-radius: 0 calc(var(--r-sm) - 1px) calc(var(--r-sm) - 1px) 0;
+}
+
+.button:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  color: var(--ink-3);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stepper[data-disabled] {
+  opacity: 0.75;
+}
+
+@media (pointer: coarse) {
+  .stepper {
+    grid-template-columns: 2.75rem minmax(2.75rem, 3.5rem) 2.75rem;
+    min-height: 2.75rem;
+  }
+}

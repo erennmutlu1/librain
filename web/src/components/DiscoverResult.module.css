@@ -44,6 +44,12 @@
   gap: var(--s2) var(--s3);
 }
 
+/* Downloads sit at the end of the facts row, and wrap under them on phones. */
+.export {
+  gap: var(--s2);
+  margin-inline-start: auto;
+}
+
 .sectionTitle {
   display: flex;
   align-items: baseline;

@@ -1,0 +1,36 @@
+import { strings } from '../i18n/lang';
+
+export const text = strings({
+  en: {
+    topK: (k: number) => `top ${k} per topic`,
+    correlationId: 'Correlation ID',
+    hypothesis: 'Hypothesis',
+    scores: 'Scores',
+    discoveryScores: 'Discovery scores',
+    notScored: 'This run was not scored.',
+    claim: 'Novel claim, checked sentence by sentence',
+    evidence: 'Supporting evidence',
+    basis: 'Extrapolation basis',
+    basisNote: 'How the generator says it arrived at each novel-claim sentence.',
+    noBasis: 'The generator did not annotate its sentences.',
+    from: 'from',
+    noSource: 'no source chunk',
+    reasoning: 'Model’s reasoning',
+  },
+  tr: {
+    topK: (k: number) => `konu başına en iyi ${k}`,
+    correlationId: 'Korelasyon kimliği',
+    hypothesis: 'Hipotez',
+    scores: 'Puanlar',
+    discoveryScores: 'Keşif puanları',
+    notScored: 'Bu çalıştırma puanlanmadı.',
+    claim: 'Cümle cümle denetlenen özgün iddia',
+    evidence: 'Destekleyen kanıt',
+    basis: 'Çıkarım dayanağı',
+    basisNote: 'Üreticinin, özgün iddianın her cümlesine nasıl vardığını söylediği yer.',
+    noBasis: 'Üretici cümlelerini açıklamadı.',
+    from: 'kaynak:',
+    noSource: 'kaynak parça yok',
+    reasoning: 'Modelin akıl yürütmesi',
+  },
+});

@@ -105,8 +105,8 @@ describe('public build: Recorded mode', () => {
 
   it('never substitutes a recording for inputs that match none, and says why', async () => {
     const { user } = await setup();
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'weather forecasting');
-    await user.type(screen.getByRole('textbox', { name: /Topic B/ }), 'protein folding');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'weather forecasting');
+    await user.type(screen.getByRole('combobox', { name: /Topic B/ }), 'protein folding');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
 
     const notice = await screen.findByText('This is the recorded demo, and no recorded run matches these inputs.');
@@ -216,7 +216,7 @@ describe('public build: keys and the mode switch', () => {
     expect(modeButton('Live')).toHaveAttribute('aria-pressed', 'true');
     // The recorded result is gone, the typed topics are not.
     expect(screen.queryByRole('heading', { name: F4_TITLE })).not.toBeInTheDocument();
-    expect(await screen.findByRole('textbox', { name: 'Topic A' })).toHaveValue('corner kick tactic generation and player positioning');
+    expect(await screen.findByRole('combobox', { name: 'Topic A' })).toHaveValue('corner kick tactic generation and player positioning');
 
     await user.click(screen.getByRole('button', { name: 'Discover' }));
     expect(await screen.findByRole('heading', { name: F4_TITLE })).toBeInTheDocument();
@@ -246,7 +246,7 @@ describe('public build: keys and the mode switch', () => {
       'POST /api/discover/stream': () => problem(401, 'provider keys required', 'Send X-Anthropic-Key and X-OpenAI-Key.'),
     });
     const { user } = await setup({ mode: 'live', fetchImpl });
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'graph neural networks');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'graph neural networks');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
 
     const panel = await screen.findByRole('dialog', { name: 'Your API keys' });
@@ -261,7 +261,7 @@ describe('public build: keys and the mode switch', () => {
       'POST /api/discover/stream': () => problem(502, 'Upstream API error', 'Anthropic returned 401: invalid x-api-key'),
     });
     const { user } = await setup({ mode: 'live', fetchImpl });
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'graph neural networks');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'graph neural networks');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
     expect(await screen.findByText('Anthropic rejected your key: Anthropic returned 401: invalid x-api-key')).toBeInTheDocument();
   });
@@ -291,8 +291,8 @@ describe('public build: Library and History', () => {
   it('History lists live runs from this browser only, in both modes, and never calls /api/runs', async () => {
     setProviderKeys(KEYS, false);
     const { user, calls } = await setup({ mode: 'live' });
-    await user.type(await screen.findByRole('textbox', { name: 'Topic A' }), 'weather forecasting');
-    await user.type(screen.getByRole('textbox', { name: /Topic B/ }), 'protein folding');
+    await user.type(await screen.findByRole('combobox', { name: 'Topic A' }), 'weather forecasting');
+    await user.type(screen.getByRole('combobox', { name: /Topic B/ }), 'protein folding');
     await user.click(screen.getByRole('button', { name: 'Discover' }));
     await screen.findByRole('heading', { name: 'weather forecasting × protein folding' });
 

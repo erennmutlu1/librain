@@ -1,0 +1,53 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+import { App } from '../App';
+import { createMockApi } from '../api/mockClient';
+import { createLocalRunStore } from '../history/localRunStore';
+import { LangProvider } from '../i18n/lang';
+import trD1 from '../i18n/discoveries/tr/D1.json';
+
+function setup(path: string) {
+  window.localStorage.setItem('librain.lang', 'tr');
+  const runStore = createLocalRunStore({ getStorage: () => window.localStorage });
+  const user = userEvent.setup();
+  render(
+    <LangProvider initial="tr">
+      <App api={createMockApi({ latency: 0 })} runStore={runStore} initialPath={path} />
+    </LangProvider>,
+  );
+  return { user };
+}
+
+describe('Explore in Turkish', () => {
+  it('shows the Turkish heading, filters, translated notice and Turkish discovery text', async () => {
+    const { user } = setup('/explore');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Keşifleri incele' })).toBeInTheDocument();
+    const list = await screen.findByRole('list', { name: 'Keşifler' });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(46);
+    expect(screen.getByText(/Keşifler İngilizceden çevrildi; makale pasajları özgün dilinde/)).toBeInTheDocument();
+    expect(screen.getByRole('search', { name: 'Keşifleri filtrele' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Sırala' })).toHaveDisplayValue('En yüksek puan');
+    expect(screen.getByRole('status')).toHaveTextContent('Tüm 46 fikir');
+
+    // Search works on the translated text.
+    await user.type(screen.getByRole('searchbox', { name: 'Konularda ve iddialarda ara' }), 'PharmAgents');
+    const titles = within(await screen.findByRole('list', { name: 'Keşifler' }))
+      .getAllByRole('heading')
+      .map((h) => h.textContent?.replace(/\s+/g, ' ').trim());
+    expect(titles).toContain(`${trD1.topicA} × ${trD1.topicB}`);
+  });
+
+  it('translates the statistics page', async () => {
+    setup('/explore/stats');
+    expect(await screen.findByRole('heading', { level: 1, name: 'İnceleme istatistikleri' })).toBeInTheDocument();
+    expect(await screen.findByText('Ortalama puan')).toBeInTheDocument();
+    expect(screen.getByText('Puan dağılımı')).toBeInTheDocument();
+  });
+
+  it('translates the quiz', async () => {
+    setup('/explore/quiz');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Riski bul' })).toBeInTheDocument();
+    expect(await screen.findByText('Doğrulayıcı ne dedi?')).toBeInTheDocument();
+  });
+});

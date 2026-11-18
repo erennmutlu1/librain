@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { useLang, useT } from '../i18n/lang';
 import { requestApiKey } from '../api/apiKey';
 import { describeError } from '../api/errors';
 import { requestProviderKeys } from '../api/providerKeys';
 import { usePublicDemo } from '../public/context';
 import { CopyText } from './CopyText';
 import { Icon } from './Icon';
+import { text } from './States.i18n';
 import styles from './States.module.css';
 
 /**
@@ -18,7 +20,7 @@ import styles from './States.module.css';
 export function ErrorNotice({
   error,
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel,
   correlationId: correlationOverride,
 }: {
   error: unknown;
@@ -26,9 +28,12 @@ export function ErrorNotice({
   retryLabel?: string;
   correlationId?: string | null;
 }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const demo = usePublicDemo();
   const { title, detail, correlationId, action, tone = 'error', retryable = true } = describeError(error, undefined, {
     publicDemo: demo !== null,
+    lang,
   });
   const id = correlationOverride ?? correlationId;
   const retryAt = action?.kind === 'retry-at' ? action.at.getTime() : null;
@@ -48,27 +53,27 @@ export function ErrorNotice({
       <div className={styles.body}>
         <strong>{title}</strong>
         {detail ? <p>{detail}</p> : null}
-        {id ? <CopyText value={id} label="Correlation ID" /> : null}
+        {id ? <CopyText value={id} label={t.correlationId} /> : null}
         {action?.kind === 'api-key' || action?.kind === 'provider-keys' || goLive || canRetry ? (
           <div className="cluster">
             {action?.kind === 'api-key' ? (
               <button type="button" className="btn btn-sm btn-primary" onClick={() => requestApiKey(detail ?? title)}>
-                Enter API key
+                {t.enterApiKey}
               </button>
             ) : null}
             {action?.kind === 'provider-keys' ? (
               <button type="button" className="btn btn-sm btn-primary" onClick={() => requestProviderKeys({ reason: title })}>
-                Enter your keys
+                {t.enterKeys}
               </button>
             ) : null}
             {goLive ? (
               <button type="button" className="btn btn-sm btn-primary" onClick={() => goLive.switchTo('live')}>
-                Switch to Live
+                {t.switchLive}
               </button>
             ) : null}
             {canRetry ? (
               <button type="button" className="btn btn-sm" onClick={onRetry} disabled={waiting}>
-                {retryLabel}
+                {retryLabel ?? t.retry}
               </button>
             ) : null}
           </div>
@@ -114,6 +119,7 @@ export function RunningState({
   onCancel?: () => void;
   children?: ReactNode;
 }) {
+  const t = useT(text);
   const elapsed = useElapsed(startedAt);
   return (
     <div className={styles.running} aria-busy="true">
@@ -122,12 +128,12 @@ export function RunningState({
         <div>
           <p className={styles.runningTitle}>{title}</p>
           <p className={styles.runningMeta}>
-            <span className="num">{(elapsed / 1000).toFixed(0)} s</span> elapsed. {expectation}
+            <span className="num">{(elapsed / 1000).toFixed(0)} {t.sec}</span> {t.elapsed}. {expectation}
           </p>
         </div>
         {onCancel ? (
           <button type="button" className="btn btn-sm" onClick={onCancel}>
-            Cancel
+            {t.cancel}
           </button>
         ) : null}
       </div>

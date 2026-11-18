@@ -1,54 +1,55 @@
 import type { ClaimStatus } from '../api/types';
+import { currentLang, pick, type Lang } from '../i18n/lang';
+import { text } from './vocabulary.i18n';
 
-/** Plain-language names for the backend's claim and basis vocabulary. */
+/**
+ * Plain-language names for the backend's claim and basis vocabulary.
+ * Components pass the language they render in; the exported tables follow
+ * the current language for code that has no hook.
+ */
 
 export const STATUS_ORDER: ClaimStatus[] = ['grounded', 'extrapolated', 'risky'];
 
-export const STATUS_META: Record<ClaimStatus, { label: string; description: string }> = {
-  grounded: {
-    label: 'Grounded',
-    description: 'Directly supported by at least one retrieved chunk.',
-  },
-  extrapolated: {
-    label: 'Extrapolated',
-    description: 'Goes beyond the evidence, but is framed as a hypothesis.',
-  },
-  risky: {
-    label: 'Risky',
-    description: 'States a specific fact (mechanism, number, name, attribution) the evidence does not support.',
-  },
-};
+export function statusMeta(status: ClaimStatus, lang: Lang = currentLang()): { label: string; description: string } {
+  return pick(text, lang).status[status];
+}
 
-const BASIS_META: Record<string, { label: string; description: string }> = {
-  generalization: { label: 'Generalization', description: 'Extends retrieved evidence to a new case.' },
-  analogy: { label: 'Analogy', description: 'Transfers a mechanism from a related domain.' },
-  pure_speculation: { label: 'Speculation', description: 'Not derivable from the retrieved chunks.' },
-};
+export const STATUS_META = {
+  get grounded() {
+    return statusMeta('grounded');
+  },
+  get extrapolated() {
+    return statusMeta('extrapolated');
+  },
+  get risky() {
+    return statusMeta('risky');
+  },
+} as Record<ClaimStatus, { label: string; description: string }>;
 
-export function basisMeta(type: string): { label: string; description: string } {
+export function basisMeta(type: string, lang: Lang = currentLang()): { label: string; description: string } {
+  const t = pick(text, lang);
   return (
-    BASIS_META[type] ?? {
-      label: type.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase()) || 'Unknown',
-      description: 'Basis type reported by the model.',
+    t.basis[type] ?? {
+      label: type.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase()) || t.unknownBasis,
+      description: t.basisFallback,
     }
   );
 }
 
-export const SYSTEMS = {
-  librain: {
-    name: 'LIBRAIN',
-    summary:
-      'Retrieves evidence for each topic, makes the model cite only retrieved chunks (anything else is dropped), fences speculation into a separate novel claim, then checks that claim sentence by sentence.',
-  },
-  naiveRag: {
-    name: 'Naive-RAG',
-    summary:
-      'Retrieves the same evidence and asks for cited output in one call, but keeps every citation the model claims, so citations that point outside the retrieved set survive as fabrications.',
-  },
-  singleLlm: {
-    name: 'Single-LLM',
-    summary: 'One model call with only the topic names: no retrieval, no citations, no checks. The lower bound.',
-  },
-} as const;
+export type SystemKey = 'librain' | 'naiveRag' | 'singleLlm';
 
-export type SystemKey = keyof typeof SYSTEMS;
+export function systemMeta(key: SystemKey, lang: Lang = currentLang()): { name: string; summary: string } {
+  return pick(text, lang).systems[key];
+}
+
+export const SYSTEMS = {
+  get librain() {
+    return systemMeta('librain');
+  },
+  get naiveRag() {
+    return systemMeta('naiveRag');
+  },
+  get singleLlm() {
+    return systemMeta('singleLlm');
+  },
+} as Record<SystemKey, { name: string; summary: string }>;

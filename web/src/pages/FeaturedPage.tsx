@@ -6,8 +6,11 @@ import { EmptyState, SkeletonLines } from '../components/States';
 import { featuredManifest, featuredPath } from '../featured/manifest';
 import type { FeaturedRun } from '../featured/runs';
 import { useFeaturedRuns } from '../featured/useFeatured';
-import { formatUsd, topicLabel } from '../lib/format';
+import { dateText, fmtUsd } from '../explore/fmt';
+import { useLang, useT } from '../i18n/lang';
+import { topicLabel } from '../lib/format';
 import { useLoadedPaperIndex } from '../lib/papers';
+import { featuredPageText } from './FeaturedPage.i18n';
 import styles from './FeaturedPage.module.css';
 
 /*
@@ -19,27 +22,35 @@ import styles from './FeaturedPage.module.css';
  */
 
 function RecordedBanner({ run }: { run: FeaturedRun }) {
+  const t = useT(featuredPageText);
+  const { lang } = useLang();
   const { date, generator, judge } = featuredManifest;
-  const cost = formatUsd(run.costUsd);
+  const cost = run.costUsd === null ? null : fmtUsd(run.costUsd, 2, lang);
   return (
     <div className={`notice notice-info ${styles.banner}`}>
       <Icon name="doc" />
       <div className={styles.bannerBody}>
         <p className={styles.bannerTitle}>
-          <strong>Recorded run, not generated now.</strong>
+          <strong>{t.recordedTitle}</strong>
         </p>
         <p>
-          {generator} wrote it on <time dateTime={date}>{date}</time>
-          {judge ? `; ${judge} scored it and checked each sentence` : ''}.{cost ? ` It cost ${cost} then.` : ''} Showing
-          it calls no API.
+          {t.wrote(generator)}
+          <time dateTime={date}>{dateText(date, lang)}</time>
+          {t.judged(judge)}.{cost ? t.cost(cost) : ''}
+          {t.noApi}
         </p>
         {run.whyFeatured ? (
           <p>
-            <span className={styles.why}>Why it is featured:</span> {run.whyFeatured}
+            <span className={styles.why}>{t.why}</span> {run.whyFeatured}
+          </p>
+        ) : null}
+        {run.translated ? (
+          <p>
+            <span className={styles.why}>{t.translated}:</span> {t.translatedNote}
           </p>
         ) : null}
         <p className={styles.source}>
-          Recorded output: <code className="mono">{run.source}</code>
+          {t.source} <code className="mono">{run.source}</code>
         </p>
       </div>
     </div>
@@ -47,12 +58,13 @@ function RecordedBanner({ run }: { run: FeaturedRun }) {
 }
 
 function FeaturedRunView({ id }: { id: string }) {
+  const t = useT(featuredPageText);
   const { state, retry } = useFeaturedRuns();
   const papers = useLoadedPaperIndex();
 
   const back = (
     <Link to={featuredPath()} className={styles.back}>
-      <Icon name="back" size={14} /> Back to featured
+      <Icon name="back" size={14} /> {t.back}
     </Link>
   );
 
@@ -60,7 +72,7 @@ function FeaturedRunView({ id }: { id: string }) {
     return (
       <div className="page" aria-busy="true">
         {back}
-        <h1 className="visually-hidden">Loading featured discovery {id}</h1>
+        <h1 className="visually-hidden">{t.loadingHeading(id)}</h1>
         <SkeletonLines lines={6} />
       </div>
     );
@@ -70,7 +82,7 @@ function FeaturedRunView({ id }: { id: string }) {
     return (
       <div className="page">
         {back}
-        <h1 className="page-title">Featured discovery {id}</h1>
+        <h1 className="page-title">{t.errorHeading(id)}</h1>
         <div className={styles.spaced}>
           <FeaturedLoadError onRetry={retry} />
         </div>
@@ -83,19 +95,16 @@ function FeaturedRunView({ id }: { id: string }) {
     return (
       <div className="page">
         {back}
-        <h1 className="visually-hidden">Featured discovery not found</h1>
+        <h1 className="visually-hidden">{t.notFoundHeading}</h1>
         <EmptyState
-          title={`There is no featured discovery called “${id}”`}
+          title={t.notFoundTitle(id)}
           action={
             <Link to={featuredPath()} className="btn btn-primary">
-              See the featured discoveries
+              {t.seeFeatured}
             </Link>
           }
         >
-          <p>
-            The featured runs are {state.runs.map((r) => r.id).join(', ')}. The link may have a typo, or the run may
-            have left the selection.
-          </p>
+          <p>{t.notFoundBody(state.runs.map((r) => r.id).join(', '))}</p>
         </EmptyState>
       </div>
     );
@@ -104,7 +113,7 @@ function FeaturedRunView({ id }: { id: string }) {
   return (
     <div className="page">
       {back}
-      <h1 className="visually-hidden">Featured discovery: {topicLabel(run.request.topicA, run.request.topicB)}</h1>
+      <h1 className="visually-hidden">{t.pageHeading(topicLabel(run.request.topicA, run.request.topicB))}</h1>
       <RecordedBanner run={run} />
       <div className={styles.framing}>
         <FeaturedFraming />
@@ -115,12 +124,13 @@ function FeaturedRunView({ id }: { id: string }) {
 }
 
 export default function FeaturedPage() {
+  const t = useT(featuredPageText);
   const { id } = useParams();
   if (id !== undefined) return <FeaturedRunView id={id} />;
   return (
     <div className="page">
       <Link to="/discover" className={styles.back}>
-        <Icon name="back" size={14} /> Discover
+        <Icon name="back" size={14} /> {t.discover}
       </Link>
       <FeaturedGallery headingLevel={1} />
     </div>

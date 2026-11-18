@@ -1,3 +1,6 @@
+import { currentLang, locale, pick, type Lang } from '../i18n/lang';
+import { text } from './errors.i18n';
+
 export type ApiErrorKind = 'http' | 'network' | 'parse' | 'aborted' | 'stream';
 
 /** Problem titles the public API answers with (fixed by the backend contract). */
@@ -64,7 +67,7 @@ export function errorFromBody(status: number, statusText: string, body: unknown,
     (typeof record.title === 'string' && record.title) ||
     (typeof record.error === 'string' && record.error) ||
     statusText ||
-    `Request failed with status ${status}`;
+    pick(text).requestFailed(status);
   const detail = typeof record.detail === 'string' ? record.detail : undefined;
   const correlationId = typeof record.correlationId === 'string' ? record.correlationId : undefined;
   return new ApiError({
@@ -84,7 +87,7 @@ export function errorFromStreamEvent(data: unknown): ApiError {
   return new ApiError({
     kind: 'stream',
     status: 0,
-    title: typeof record.title === 'string' ? record.title : 'The pipeline failed',
+    title: typeof record.title === 'string' ? record.title : pick(text).streamFailed,
     detail: typeof record.detail === 'string' ? record.detail : undefined,
     correlationId: typeof record.correlationId === 'string' ? record.correlationId : undefined,
     provider: typeof record.provider === 'string' ? record.provider : undefined,
@@ -109,6 +112,20 @@ export interface ErrorDescription {
 export interface DescribeOptions {
   /** The public build: the visitor's own provider keys, no X-Api-Key, a hosted API. */
   publicDemo?: boolean;
+  /** The interface language; defaults to the current one. */
+  lang?: Lang;
+}
+
+/** Translates the backend's own English wording when it is a sentence we know; otherwise leaves it. */
+export function localizeServerText(value: string, lang?: Lang): string;
+export function localizeServerText(value: string | undefined, lang?: Lang): string | undefined;
+export function localizeServerText(value: string | undefined, lang: Lang = currentLang()): string | undefined {
+  if (value === undefined || lang === 'en') return value;
+  for (const { pattern, render } of pick(text, lang).server) {
+    const m = pattern.exec(value);
+    if (m) return render(m);
+  }
+  return value;
 }
 
 const PROVIDERS = [
@@ -132,18 +149,19 @@ function rejectingProvider(error: ApiError): (typeof PROVIDERS)[number] | undefi
   return PROVIDERS.find((p) => new RegExp(p.name, 'i').test(text));
 }
 
-function clock(date: Date): string {
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+function clock(date: Date, lang: Lang): string {
+  return date.toLocaleTimeString(locale(lang), { hour: '2-digit', minute: '2-digit' });
 }
 
 /** One plain-language description of what went wrong and what to do next. */
 export function describeError(error: unknown, now: number = Date.now(), options: DescribeOptions = {}): ErrorDescription {
+  const lang = options.lang ?? currentLang();
+  const t = pick(text, lang);
   if (error instanceof ApiError) {
     if (error.title === NO_RECORDING) {
       return {
-        title: 'This is the recorded demo, and no recorded run matches these inputs.',
-        detail:
-          'Recorded mode only replays real runs; it never swaps in a different one. Pick one of the recorded runs, or switch to Live to run your own inputs with your own Anthropic and OpenAI keys.',
+        title: t.noRecordingTitle,
+        detail: t.noRecordingDetail,
         action: { kind: 'go-live' },
         tone: 'info',
         retryable: false,
@@ -151,27 +169,23 @@ export function describeError(error: unknown, now: number = Date.now(), options:
     }
     if (error.kind === 'network') {
       return {
-        title: "Can't reach the LIBRAIN API.",
-        detail: options.publicDemo
-          ? 'The public API may be down or starting up. Try again in a moment, or switch back to Recorded mode.'
-          : 'Check that the API is running and reachable (see web/README.md), or use mock mode with VITE_USE_MOCKS=true.',
+        title: t.networkTitle,
+        detail: options.publicDemo ? t.networkDetailPublic : t.networkDetailLocal,
       };
     }
     if (error.kind === 'parse') {
-      return { title: 'The API returned a response this page could not read.', detail: error.detail };
+      return { title: t.parseTitle, detail: error.detail };
     }
     const keysRequired: ErrorDescription = {
-      title: 'Live mode needs your own API keys.',
-      detail: 'Live runs use your Anthropic and OpenAI keys, billed to your accounts. Add both keys, then try again.',
+      title: t.keysTitle,
+      detail: t.keysDetail,
       action: { kind: 'provider-keys' },
     };
     if (error.status === 401 && error.title === PROVIDER_KEYS_REQUIRED) return keysRequired;
     if (error.status === 403 && error.title === READ_ONLY_DEPLOYMENT) {
       return {
-        title: 'This public deployment is read-only.',
-        detail:
-          error.detail ??
-          'Uploading or deleting papers and the server run history are turned off here. Your own runs are kept in this browser, under History.',
+        title: t.readOnlyTitle,
+        detail: localizeServerText(error.detail, lang) ?? t.readOnlyDetail,
         retryable: false,
       };
     }
@@ -181,18 +195,18 @@ export function describeError(error: unknown, now: number = Date.now(), options:
     if (provider && error.provider) {
       const aboutTheKey = !/rate limit/i.test(error.title);
       return {
-        title: error.title,
+        title: localizeServerText(error.title, lang),
         detail: aboutTheKey
-          ? `${error.detail ?? ''} Check the key, its credit and its spending limit at ${provider.console}. Recorded mode needs no keys.`.trim()
-          : (error.detail ?? 'Wait a minute and try again.'),
+          ? `${localizeServerText(error.detail, lang) ?? ''} ${t.providerAdvice(provider.console)}`.trim()
+          : (localizeServerText(error.detail, lang) ?? t.waitAMinute),
         correlationId: error.correlationId,
         ...(aboutTheKey ? { action: { kind: 'provider-keys' as const } } : {}),
       };
     }
     if (provider) {
       return {
-        title: `${provider.name} rejected your key: ${error.detail ?? error.title}`,
-        detail: `Check the key, its credit and its spending limit at ${provider.console}, then try again. Recorded mode needs no keys.`,
+        title: t.rejectedYourKey(provider.name, localizeServerText(error.detail ?? error.title, lang)),
+        detail: t.providerAdviceShort(provider.console),
         correlationId: error.correlationId,
         action: { kind: 'provider-keys' },
       };
@@ -201,8 +215,8 @@ export function describeError(error: unknown, now: number = Date.now(), options:
     if (error.status === 401 && options.publicDemo) return keysRequired;
     if (error.status === 401) {
       return {
-        title: 'The API needs a key.',
-        detail: 'This server requires an X-Api-Key header. Enter the key in Settings and try again.',
+        title: t.apiKeyTitle,
+        detail: t.apiKeyDetail,
         action: { kind: 'api-key' },
       };
     }
@@ -211,25 +225,25 @@ export function describeError(error: unknown, now: number = Date.now(), options:
         const at = new Date(now + error.retryAfterSeconds * 1000);
         const minutes = Math.max(1, Math.ceil(error.retryAfterSeconds / 60));
         return {
-          title: 'Rate limit reached.',
-          detail: `${error.detail ?? 'This client has used its hourly allowance of paid requests.'} You can try again in about ${minutes} min (around ${clock(at)}).`,
+          title: t.rateTitle,
+          detail: t.rateRetry(localizeServerText(error.detail, lang) ?? t.rateDefault, minutes, clock(at, lang)),
           action: { kind: 'retry-at', at },
         };
       }
       return {
-        title: 'Rate limit reached.',
-        detail: `${error.detail ?? 'This client has used its hourly allowance of paid requests.'} The limit resets within the hour.`,
+        title: t.rateTitle,
+        detail: t.rateWithin(localizeServerText(error.detail, lang) ?? t.rateDefault),
       };
     }
     if (error.status === 502 || error.kind === 'stream') {
       return {
-        title: error.title === 'Upstream API error' ? 'An upstream model call failed.' : error.title,
-        detail: error.detail ?? 'The API could not complete the pipeline. Try again in a moment.',
+        title: error.title === 'Upstream API error' ? t.upstreamTitle : (localizeServerText(error.title, lang) ?? error.title),
+        detail: localizeServerText(error.detail, lang) ?? t.upstreamDetail,
         correlationId: error.correlationId,
       };
     }
-    return { title: error.title, detail: error.detail, correlationId: error.correlationId };
+    return { title: localizeServerText(error.title, lang), detail: localizeServerText(error.detail, lang), correlationId: error.correlationId };
   }
-  if (error instanceof Error) return { title: error.message };
-  return { title: 'Something went wrong.' };
+  if (error instanceof Error) return { title: localizeServerText(error.message, lang) };
+  return { title: t.generic };
 }

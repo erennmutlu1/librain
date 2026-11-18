@@ -64,12 +64,12 @@
   margin-inline: auto;
   padding: var(--s3) var(--gutter) 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   grid-template-areas:
-    'brand tools'
-    'nav nav';
+    'brand . search tools'
+    'nav nav nav nav';
   align-items: center;
-  column-gap: var(--s5);
+  column-gap: var(--s2);
   row-gap: var(--s2);
 }
 
@@ -168,6 +168,83 @@
   border-color: color-mix(in srgb, var(--accent) 55%, var(--rule-strong));
 }
 
+/*
+ * The command palette's button. Phones: an icon. Two-row header (tablets and
+ * small laptops): "Search ⌘K". One-row header: the icon and the shortcut,
+ * which is all the bar has room for beside six sections.
+ */
+.paletteButton {
+  grid-area: search;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  flex: none;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.paletteButton:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--rule-strong));
+}
+
+.paletteButton > svg {
+  flex: none;
+}
+
+.paletteKbd {
+  padding: 0.05em 0.4em;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--surface-sunken);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.paletteLabel {
+  min-width: 4ch;
+  text-align: start;
+}
+
+@media (max-width: 47.99rem) {
+  .paletteButton {
+    padding: 0;
+  }
+
+  .paletteLabel,
+  .paletteKbd {
+    display: none;
+  }
+}
+
+@media (min-width: 72rem) {
+  .paletteButton {
+    padding: 0 var(--s2);
+  }
+
+  .paletteLabel {
+    display: none;
+  }
+}
+
 .nav {
   grid-area: nav;
   min-width: 0;
@@ -234,17 +311,21 @@
   outline: none;
 }
 
-/* One row on wide screens: brand, sections, tools. The bar's links run its full height. */
-@media (min-width: 64rem) {
+/*
+ * One row on wide screens: brand, sections, tools. The bar's links run its
+ * full height. 72rem leaves room for the longer Turkish section names and the
+ * palette button beside the public build's tools.
+ */
+@media (min-width: 72rem) {
   .headerInner {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'brand nav tools';
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: 'brand nav search tools';
     padding-top: 0;
-    column-gap: var(--s6);
   }
 
   .nav {
     align-self: stretch;
+    margin-inline: var(--s5);
   }
 
   .nav ul {
@@ -360,35 +441,23 @@
 }
 
 /*
- * Too narrow for logo and tools side by side: the tools get their own row.
- * The public mode switch needs it below ~30rem, the owner's status badge
- * ("API unreachable" is the widest) below ~24rem.
+ * Too narrow for logo and tools side by side: the tools get their own row and
+ * the palette button stays beside the logo. The widest rows are the public
+ * build's (mode switch, keys, language, theme) and the owner's Turkish
+ * "API unreachable" badge.
  */
-@media (max-width: 30rem) {
-  .headerInner[data-public] {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'brand'
-      'tools'
-      'nav';
-  }
-
-  .headerInner[data-public] .tools {
-    justify-self: start;
-  }
-}
-
-@media (max-width: 24rem) {
+@media (max-width: 35rem) {
   .headerInner {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      'brand'
-      'tools'
-      'nav';
+      'brand search'
+      'tools tools'
+      'nav nav';
   }
 
+  /* Full width, so the keys panel (anchored to this row) meets both gutters. */
   .tools {
-    justify-self: start;
+    justify-self: stretch;
   }
 }
 

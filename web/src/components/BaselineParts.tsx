@@ -1,13 +1,16 @@
 import type { NaiveRagResponse } from '../api/types';
 import { auditClaimedCitations, chunkKey } from '../lib/citations';
 import { formatCount, formatDuration } from '../lib/format';
+import { useLang, useT } from '../i18n/lang';
+import { text } from './BaselineParts.i18n';
 import { Icon } from './Icon';
 import styles from './CompareView.module.css';
 
 /** Naive-RAG's claimed citations, with fabricated ones (not in the retrieved set) marked. */
 export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
+  const t = useT(text);
   const audit = auditClaimedCitations(data.claimedCitations, data.fabricatedCitationCount);
-  if (audit.total === 0) return <p className="muted small">The model claimed no citations.</p>;
+  if (audit.total === 0) return <p className="muted small">{t.noCitations}</p>;
   return (
     <div className={styles.citations}>
       <p className={styles.citeSummary}>
@@ -15,20 +18,19 @@ export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
           <>
             <Icon name="warning" size={14} />
             <strong className={styles.fabCount}>
-              {audit.fabricated.length} of {audit.total} citations fabricated
+              {t.fabricated(audit.fabricated.length, audit.total)}
             </strong>
           </>
         ) : (
           <>
             <Icon name="check" size={14} />
-            All {audit.total} citations are in the retrieved set
+            {t.allIn(audit.total)}
           </>
         )}
       </p>
       {!audit.consistent ? (
         <p className={styles.inconsistent}>
-          The API reported {audit.reportedFabricated} fabricated, but {audit.fabricated.length} citations are marked
-          unresolved.
+          {t.inconsistent(audit.reportedFabricated, audit.fabricated.length)}
         </p>
       ) : null}
       <ul role="list" className={styles.citeList}>
@@ -36,7 +38,7 @@ export function NaiveCitations({ data }: { data: NaiveRagResponse }) {
           <li key={i} className={styles.cite} data-fabricated={!c.isResolved || undefined}>
             <code className={styles.citeKey}>{chunkKey(c.paperId, c.chunkIndex)}</code>
             <span className={styles.citeStatus}>
-              {c.isResolved ? 'In retrieved set' : 'Fabricated: not in the retrieved set'}
+              {c.isResolved ? t.resolved : t.unresolved}
             </span>
           </li>
         ))}
@@ -56,10 +58,12 @@ export function RunStats({
   output?: number | undefined;
   retrieved?: number | undefined;
 }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const parts: string[] = [];
-  if (retrieved !== undefined) parts.push(`${formatCount(retrieved)} chunks retrieved`);
+  if (retrieved !== undefined) parts.push(t.retrieved(formatCount(retrieved, lang)));
   if (ms !== undefined) parts.push(formatDuration(ms));
-  if (input !== undefined && output !== undefined) parts.push(`${formatCount(input)} in / ${formatCount(output)} out tokens`);
+  if (input !== undefined && output !== undefined) parts.push(t.tokens(formatCount(input, lang), formatCount(output, lang)));
   if (parts.length === 0) return null;
   return <p className={styles.stats}>{parts.join(', ')}</p>;
 }

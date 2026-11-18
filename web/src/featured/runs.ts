@@ -20,6 +20,8 @@ export interface FeaturedRun extends FeaturedEntry {
   riskyCount: number;
   /** Sentences the validator returned a verdict for. */
   sentenceCount: number;
+  /** The prose is a Turkish translation of the recorded run (src/i18n/discoveries). */
+  translated: boolean;
 }
 
 type Rec = Record<string, unknown>;
@@ -29,7 +31,7 @@ function isRecord(value: unknown): value is Rec {
 }
 
 /** One recorded file ({id, request, status, costUsd, response}) into a featured run. */
-export function buildFeaturedRun(entry: FeaturedEntry, raw: unknown): FeaturedRun {
+export function buildFeaturedRun(entry: FeaturedEntry, raw: unknown, translated = false): FeaturedRun {
   const r = isRecord(raw) ? raw : {};
   if (r.id !== entry.id) throw new Error(`${entry.file} records run ${String(r.id)}, but the manifest lists ${entry.id}.`);
   const response = normalizeDiscoverResponse(r.response);
@@ -46,6 +48,7 @@ export function buildFeaturedRun(entry: FeaturedEntry, raw: unknown): FeaturedRu
     paperIds: [...new Set(response.supportingEvidence.map((e) => e.paperId))],
     riskyCount: verdicts.filter((c) => c.status === 'risky').length,
     sentenceCount: verdicts.length,
+    translated,
   };
 }
 

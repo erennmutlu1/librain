@@ -1,11 +1,14 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { CATEGORIES, catStyle } from '../../explore/categories';
+import { CATEGORIES, catStyle, categoryName } from '../../explore/categories';
+import { fmtNum } from '../../explore/fmt';
 import { explorePath } from '../../explore/manifests';
 import type { Bin, CategoryStat, Discovery } from '../../explore/model';
 import { formatRating } from '../../explore/rating';
-import { formatScore, topicLabel } from '../../lib/format';
+import { useLang, useT } from '../../i18n/lang';
+import { topicLabel } from '../../lib/format';
 import { Icon } from '../Icon';
+import { chartText } from './ExploreCharts.i18n';
 import styles from './ExploreCharts.module.css';
 
 /*
@@ -44,6 +47,7 @@ function ChartFigure({
   children: ReactNode;
   id: string;
 }) {
+  const t = useT(chartText);
   const [open, setOpen] = useState(false);
   return (
     <figure className={styles.figure} aria-labelledby={`${id}-cap`}>
@@ -54,7 +58,7 @@ function ChartFigure({
       {children}
       <div className={styles.tableToggle}>
         <button type="button" className="btn btn-quiet btn-sm" aria-expanded={open} aria-controls={`${id}-table`} onClick={() => setOpen((o) => !o)}>
-          <Icon name="list" size={14} /> {open ? 'Hide the table' : 'Show as a table'}
+          <Icon name="list" size={14} /> {open ? t.hideTable : t.showTable}
         </button>
       </div>
       <div id={`${id}-table`} className={styles.tableWrap} hidden={!open}>
@@ -67,6 +71,9 @@ function ChartFigure({
 // ---------- Rating histogram ----------
 
 export function RatingHistogram({ bins }: { bins: Bin[] }) {
+  const t = useT(chartText);
+  const { lang } = useLang();
+  const n1 = (v: number) => fmtNum(v, 1, lang);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const [ref, width] = useWidth<HTMLDivElement>();
   const height = 200;
@@ -87,22 +94,22 @@ export function RatingHistogram({ bins }: { bins: Bin[] }) {
   return (
     <ChartFigure
       id={`hist-${uid}`}
-      title="Rating distribution"
-      caption={`${total} ideas in half-point bins. Every rating falls between ${lo} and ${hi}; the most common bin is ${peak.from.toFixed(1)}–${peak.to.toFixed(1)} (${peak.count} ideas).`}
+      title={t.histTitle}
+      caption={t.histCaption(total, fmtNum(lo, 0, lang), fmtNum(hi, 0, lang), n1(peak.from), n1(peak.to), peak.count)}
       table={
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">Rating</th>
-              <th scope="col">Ideas</th>
-              <th scope="col">Runs</th>
+              <th scope="col">{t.colRating}</th>
+              <th scope="col">{t.colIdeas}</th>
+              <th scope="col">{t.colRuns}</th>
             </tr>
           </thead>
           <tbody>
             {bins.map((b) => (
               <tr key={b.from}>
                 <th scope="row" className="num">
-                  {b.from.toFixed(1)} to {b.to.toFixed(1)}
+                  {t.binRange(n1(b.from), n1(b.to))}
                 </th>
                 <td className="num">{b.count}</td>
                 <td>{b.ids.join(', ') || '—'}</td>
@@ -113,7 +120,7 @@ export function RatingHistogram({ bins }: { bins: Bin[] }) {
       }
     >
       <div ref={ref} className={styles.plot}>
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Histogram of ratings: ${bins.map((b) => `${b.count} between ${b.from.toFixed(1)} and ${b.to.toFixed(1)}`).join('; ')}.`}>
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t.histAria(bins.map((b) => t.histAriaPart(b.count, n1(b.from), n1(b.to))).join('; '))}>
           {ticks.map((t) => (
             <g key={t}>
               <line x1={m.left} x2={m.left + plotW} y1={y(t)} y2={y(t)} className={t === 0 ? styles.baseline : styles.grid} />
@@ -130,7 +137,7 @@ export function RatingHistogram({ bins }: { bins: Bin[] }) {
               <g key={b.from}>
                 {b.count > 0 ? (
                   <path d={roundedTop(x, top, barW, h, Math.min(4, h))} className={styles.bar}>
-                    <title>{`${b.from.toFixed(1)}–${b.to.toFixed(1)}: ${b.count} ${b.count === 1 ? 'idea' : 'ideas'} (${b.ids.join(', ')})`}</title>
+                    <title>{t.barTitle(n1(b.from), n1(b.to), b.count, b.ids.join(', '))}</title>
                   </path>
                 ) : null}
                 {b.count > 0 ? (
@@ -143,7 +150,7 @@ export function RatingHistogram({ bins }: { bins: Bin[] }) {
           })}
           {[...bins.map((b) => b.from), hi].map((edge, i) => (
             <text key={edge} x={m.left + i * binW} y={height - 10} className={styles.tick} textAnchor="middle">
-              {width < 420 && i % 2 === 1 ? '' : edge % 1 === 0 ? edge.toFixed(0) : edge.toFixed(1)}
+              {width < 420 && i % 2 === 1 ? '' : edge % 1 === 0 ? fmtNum(edge, 0, lang) : n1(edge)}
             </text>
           ))}
         </svg>
@@ -166,6 +173,9 @@ function roundedEnd(x: number, y: number, w: number, h: number, r: number): stri
 // ---------- Average rating per category ----------
 
 export function CategoryBars({ stats }: { stats: CategoryStat[] }) {
+  const t = useT(chartText);
+  const { lang } = useLang();
+  const n1 = (v: number) => fmtNum(v, 1, lang);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const [ref, width] = useWidth<HTMLDivElement>();
   const rowH = 46;
@@ -180,26 +190,26 @@ export function CategoryBars({ stats }: { stats: CategoryStat[] }) {
   return (
     <ChartFigure
       id={`cat-${uid}`}
-      title="Average rating by category"
-      caption={`Bars run from 0 to 10. ${best.category.name} has the highest average (${best.average.toFixed(1)}).`}
+      title={t.catTitle}
+      caption={t.catCaption(categoryName(best.category, false, lang), n1(best.average))}
       table={
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">Category</th>
-              <th scope="col">Ideas</th>
-              <th scope="col">Average</th>
-              <th scope="col">Best</th>
+              <th scope="col">{t.colCategory}</th>
+              <th scope="col">{t.colIdeas}</th>
+              <th scope="col">{t.colAverage}</th>
+              <th scope="col">{t.colBest}</th>
             </tr>
           </thead>
           <tbody>
             {stats.map((s) => (
               <tr key={s.category.prefix}>
-                <th scope="row">{s.category.name}</th>
+                <th scope="row">{categoryName(s.category, false, lang)}</th>
                 <td className="num">{s.count}</td>
-                <td className="num">{s.average.toFixed(1)}</td>
+                <td className="num">{n1(s.average)}</td>
                 <td>
-                  <Link to={explorePath(s.best.id)}>{s.best.id}</Link> ({formatRating(s.best.rating)})
+                  <Link to={explorePath(s.best.id)}>{s.best.id}</Link> ({formatRating(s.best.rating, lang)})
                 </td>
               </tr>
             ))}
@@ -213,7 +223,7 @@ export function CategoryBars({ stats }: { stats: CategoryStat[] }) {
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           role="img"
-          aria-label={`Average rating by category: ${stats.map((s) => `${s.category.name} ${s.average.toFixed(1)} from ${s.count} ideas`).join('; ')}.`}
+          aria-label={t.catAria(stats.map((s) => t.catAriaPart(categoryName(s.category, false, lang), n1(s.average), s.count)).join('; '))}
         >
           {[0, 2.5, 5, 7.5, 10].map((t) => (
             <g key={t}>
@@ -229,12 +239,12 @@ export function CategoryBars({ stats }: { stats: CategoryStat[] }) {
               <g key={s.category.prefix} style={catStyle(s.category)}>
                 <rect x={0} y={top + 2} width={9} height={9} rx={2} className={styles.swatch} />
                 <text x={15} y={top + 7} className={styles.label} dominantBaseline="middle">
-                  {width < 420 ? s.category.short : s.category.name}
+                  {categoryName(s.category, width < 420, lang)}
                 </text>
                 <path d={roundedEnd(0, top + 18, x(s.average), barH, 4)} className={styles.catBar} />
                 <text x={x(s.average) + 6} y={top + 18 + barH / 2} className={styles.value} dominantBaseline="middle">
-                  {s.average.toFixed(1)}
-                  <tspan className={styles.valueMuted}>{` · ${s.count} ${s.count === 1 ? 'idea' : 'ideas'}`}</tspan>
+                  {n1(s.average)}
+                  <tspan className={styles.valueMuted}>{` · ${t.ideas(s.count)}`}</tspan>
                 </text>
               </g>
             );
@@ -248,6 +258,9 @@ export function CategoryBars({ stats }: { stats: CategoryStat[] }) {
 // ---------- Novelty against plausibility ----------
 
 export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
+  const t = useT(chartText);
+  const { lang } = useLang();
+  const n2 = (v: number) => fmtNum(v, 2, lang);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const [ref, width] = useWidth<HTMLDivElement>();
   const [focus, setFocus] = useState<string | null>(null);
@@ -269,17 +282,17 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
   return (
     <ChartFigure
       id={`scatter-${uid}`}
-      title="Novelty against plausibility"
-      caption="One dot per idea, coloured by category. Up and to the right is more novel and more plausible. Select a dot to open its idea; pick a category below to pick it out."
+      title={t.scatterTitle}
+      caption={t.scatterCaption}
       table={
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">Idea</th>
-              <th scope="col">Category</th>
-              <th scope="col">Novelty</th>
-              <th scope="col">Plausibility</th>
-              <th scope="col">Rating</th>
+              <th scope="col">{t.colIdea}</th>
+              <th scope="col">{t.colCategory}</th>
+              <th scope="col">{t.colNovelty}</th>
+              <th scope="col">{t.colPlausibility}</th>
+              <th scope="col">{t.colRating}</th>
             </tr>
           </thead>
           <tbody>
@@ -288,10 +301,10 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
                 <th scope="row">
                   <Link to={explorePath(d.id)}>{d.id}</Link>
                 </th>
-                <td>{d.category.short}</td>
-                <td className="num">{formatScore(d.scores.novelty)}</td>
-                <td className="num">{formatScore(d.scores.plausibility)}</td>
-                <td className="num">{formatRating(d.rating)}</td>
+                <td>{categoryName(d.category, true, lang)}</td>
+                <td className="num">{n2(d.scores.novelty)}</td>
+                <td className="num">{n2(d.scores.plausibility)}</td>
+                <td className="num">{formatRating(d.rating, lang)}</td>
               </tr>
             ))}
           </tbody>
@@ -299,28 +312,28 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
       }
     >
       <div ref={ref} className={styles.plot} onMouseLeave={() => setActive(null)}>
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="group" aria-label="Scatter plot: one link per idea">
-          {xTicks.map((t) => (
-            <g key={`x${t}`} aria-hidden="true">
-              <line x1={x(t)} x2={x(t)} y1={m.top} y2={m.top + plotH} className={styles.grid} />
-              <text x={x(t)} y={m.top + plotH + 16} className={styles.tick} textAnchor="middle">
-                {width < 420 && Math.round(t * 100) % 10 !== 0 ? '' : t.toFixed(2)}
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={t.scatterAria}>
+          {xTicks.map((tick) => (
+            <g key={`x${tick}`} aria-hidden="true">
+              <line x1={x(tick)} x2={x(tick)} y1={m.top} y2={m.top + plotH} className={styles.grid} />
+              <text x={x(tick)} y={m.top + plotH + 16} className={styles.tick} textAnchor="middle">
+                {width < 420 && Math.round(tick * 100) % 10 !== 0 ? '' : n2(tick)}
               </text>
             </g>
           ))}
-          {yTicks.map((t) => (
-            <g key={`y${t}`} aria-hidden="true">
-              <line x1={m.left} x2={m.left + plotW} y1={y(t)} y2={y(t)} className={t === yDomain[0] ? styles.baseline : styles.grid} />
-              <text x={m.left - 6} y={y(t)} className={styles.tick} textAnchor="end" dominantBaseline="middle">
-                {t.toFixed(1)}
+          {yTicks.map((tick) => (
+            <g key={`y${tick}`} aria-hidden="true">
+              <line x1={m.left} x2={m.left + plotW} y1={y(tick)} y2={y(tick)} className={tick === yDomain[0] ? styles.baseline : styles.grid} />
+              <text x={m.left - 6} y={y(tick)} className={styles.tick} textAnchor="end" dominantBaseline="middle">
+                {fmtNum(tick, 1, lang)}
               </text>
             </g>
           ))}
           <text x={m.left + plotW} y={height - 4} className={styles.axisTitle} textAnchor="end" aria-hidden="true">
-            Novelty →
+            {t.axisNovelty}
           </text>
           <text transform={`translate(12 ${m.top}) rotate(-90)`} className={styles.axisTitle} textAnchor="end" aria-hidden="true">
-            Plausibility →
+            {t.axisPlausibility}
           </text>
           {ordered.map((d) => {
             const dim = focus !== null && d.category.prefix !== focus;
@@ -331,7 +344,7 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
                 className={styles.dotLink}
                 data-dim={dim || undefined}
                 style={catStyle(d.category)}
-                aria-label={`${d.id}, ${d.category.name}: ${topicLabel(d.request.topicA, d.request.topicB)}. Novelty ${formatScore(d.scores.novelty)}, plausibility ${formatScore(d.scores.plausibility)}, rated ${formatRating(d.rating)} out of 10.`}
+                aria-label={t.dotAria(d.id, categoryName(d.category, false, lang), topicLabel(d.request.topicA, d.request.topicB), n2(d.scores.novelty), n2(d.scores.plausibility), formatRating(d.rating, lang))}
                 onMouseEnter={() => setActive(d)}
                 onFocus={() => setActive(d)}
                 onBlur={() => setActive(null)}
@@ -353,16 +366,16 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
           >
             <span className={styles.tooltipHead}>
               <span className={styles.tooltipSwatch} style={catStyle(active.category)} />
-              {active.id} · {active.category.short}
+              {active.id} · {categoryName(active.category, true, lang)}
             </span>
             <span className={styles.tooltipTopic}>{topicLabel(active.request.topicA, active.request.topicB)}</span>
             <span className="num">
-              Novelty {formatScore(active.scores.novelty)} · plausibility {formatScore(active.scores.plausibility)} · {formatRating(active.rating)}/10
+              {t.tooltip(n2(active.scores.novelty), n2(active.scores.plausibility), formatRating(active.rating, lang))}
             </span>
           </div>
         ) : null}
       </div>
-      <div className={styles.legend} role="group" aria-label="Pick out a category">
+      <div className={styles.legend} role="group" aria-label={t.legend}>
         {present.map((c) => (
           <button
             key={c.prefix}
@@ -373,7 +386,7 @@ export function NoveltyScatter({ discoveries }: { discoveries: Discovery[] }) {
             onClick={() => setFocus((f) => (f === c.prefix ? null : c.prefix))}
           >
             <span className={styles.legendDot} aria-hidden="true" />
-            {c.short}
+            {categoryName(c, true, lang)}
           </button>
         ))}
       </div>

@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { StatusBadge } from '../components/AnnotatedClaim';
-import { CategoryTag, ExploreLoadError, ExploreLoading, ExploreTabs } from '../components/explore/ExploreParts';
+import { CategoryTag, ExploreLoadError, ExploreLoading, ExploreTabs, TranslatedNote } from '../components/explore/ExploreParts';
 import { Icon, StatusIcon } from '../components/Icon';
 import type { ClaimStatus } from '../api/types';
 import { explorePath } from '../explore/manifests';
 import { buildRound, quizQuestions, ROUND_EXTRAPOLATED, type ExploreData, type QuizQuestion } from '../explore/model';
 import { EMPTY_SCORE, loadScore, recordAnswer, saveScore, type QuizScore } from '../explore/quizScore';
 import { useExploreData } from '../explore/useDiscoveries';
+import { fmtInt } from '../explore/fmt';
+import { useLang, useT } from '../i18n/lang';
 import { formatPercent, topicLabel } from '../lib/format';
-import { STATUS_META, STATUS_ORDER } from '../lib/vocabulary';
+import { STATUS_ORDER, statusMeta } from '../lib/vocabulary';
+import { quizText } from './ExploreQuizPage.i18n';
 import styles from './ExploreQuizPage.module.css';
 
 /*
@@ -19,32 +22,34 @@ import styles from './ExploreQuizPage.module.css';
  */
 
 function Scoreboard({ score, persistent, onReset }: { score: QuizScore; persistent: boolean; onReset: () => void }) {
+  const t = useT(quizText);
+  const { lang } = useLang();
   return (
     <div className={styles.scoreboard}>
       <dl className={styles.scores}>
         <div>
-          <dt>Score</dt>
+          <dt>{t.score}</dt>
           <dd className="num">
-            {score.correct}
-            <span className={styles.of}>/{score.answered}</span>
+            {fmtInt(score.correct, lang)}
+            <span className={styles.of}>/{fmtInt(score.answered, lang)}</span>
           </dd>
         </div>
         <div>
-          <dt>Streak</dt>
-          <dd className="num">{score.streak}</dd>
+          <dt>{t.streak}</dt>
+          <dd className="num">{fmtInt(score.streak, lang)}</dd>
         </div>
         <div>
-          <dt>Best streak</dt>
-          <dd className="num">{score.best}</dd>
+          <dt>{t.bestStreak}</dt>
+          <dd className="num">{fmtInt(score.best, lang)}</dd>
         </div>
       </dl>
       <div className={styles.scoreActions}>
         {score.answered > 0 ? (
           <button type="button" className="btn btn-quiet btn-sm" onClick={onReset}>
-            Reset score
+            {t.reset}
           </button>
         ) : null}
-        {!persistent ? <p className={styles.memoryNote}>This browser is not allowing storage, so the score lasts for this visit.</p> : null}
+        {!persistent ? <p className={styles.memoryNote}>{t.noStorage}</p> : null}
       </div>
     </div>
   );
@@ -67,6 +72,8 @@ function Question({
   onNext: () => void;
   last: boolean;
 }) {
+  const t = useT(quizText);
+  const { lang } = useLang();
   const resultRef = useRef<HTMLHeadingElement>(null);
   const correct = answer === question.status;
   const d = question.discovery;
@@ -79,15 +86,15 @@ function Question({
     <section className={styles.card} aria-labelledby="quiz-q">
       <div className={styles.cardHead}>
         <h2 id="quiz-q" className={styles.qNumber}>
-          Sentence {number} of {total}
+          {t.sentenceOf(number, total)}
         </h2>
         <CategoryTag category={d.category} short />
       </div>
-      <p className={styles.from}>From the novel claim of “{topicLabel(d.request.topicA, d.request.topicB)}”</p>
+      <p className={styles.from}>{t.from(topicLabel(d.request.topicA, d.request.topicB))}</p>
       <blockquote className={styles.sentence}>{question.sentence}</blockquote>
 
       <fieldset className={styles.choices} disabled={answer !== null}>
-        <legend className={styles.legend}>What did the validator say?</legend>
+        <legend className={styles.legend}>{t.whatSaid}</legend>
         {STATUS_ORDER.map((s) => (
           <button
             key={s}
@@ -99,7 +106,7 @@ function Question({
             onClick={() => onAnswer(s)}
           >
             <StatusIcon status={s} size={16} />
-            <span className={styles.choiceLabel}>{STATUS_META[s].label}</span>
+            <span className={styles.choiceLabel}>{statusMeta(s, lang).label}</span>
           </button>
         ))}
       </fieldset>
@@ -108,20 +115,22 @@ function Question({
         <div className={styles.result} data-correct={correct || undefined}>
           <h3 ref={resultRef} tabIndex={-1} className={styles.resultTitle}>
             <Icon name={correct ? 'check' : 'close'} size={16} />
-            {correct ? 'Right.' : 'Not quite.'} The validator said <StatusBadge status={question.status} />
+            {correct ? t.right : t.notQuite}
+            {t.saidPrefix}
+            <StatusBadge status={question.status} />
           </h3>
           <p className={styles.prob}>
-            {formatPercent(question.probability)} chance this sentence states something the evidence does not support.
+            {t.chance(formatPercent(question.probability, lang))}
           </p>
           <p className={styles.rationale}>
-            <span className={styles.rationaleLabel}>Validator’s rationale:</span> {question.rationale || 'No rationale given.'}
+            <span className={styles.rationaleLabel}>{t.rationaleLabel}</span> {question.rationale || t.noRationale}
           </p>
           <div className={styles.resultActions}>
             <button type="button" className="btn btn-primary" onClick={onNext}>
-              {last ? 'See the round' : 'Next sentence'} <Icon name="arrow" size={14} />
+              {last ? t.seeRound : t.nextSentence} <Icon name="arrow" size={14} />
             </button>
             <Link to={explorePath(d.id)} className="btn">
-              Open {d.id}: the whole idea
+              {t.openIdea(d.id)}
             </Link>
           </div>
         </div>
@@ -131,6 +140,8 @@ function Question({
 }
 
 function QuizBody({ data }: { data: ExploreData }) {
+  const t = useT(quizText);
+  const { lang } = useLang();
   const [params, setParams] = useSearchParams();
   const questions = useMemo(() => quizQuestions(data.discoveries), [data]);
   const [initialQ] = useState(() => params.get('q') ?? undefined);
@@ -206,24 +217,24 @@ function QuizBody({ data }: { data: ExploreData }) {
         ) : (
           <section className={styles.card} aria-labelledby="quiz-done">
             <h2 id="quiz-done" ref={doneRef} tabIndex={-1} className={styles.doneTitle}>
-              Round complete: {roundCorrect} of {round.length} right
+              {t.roundComplete(roundCorrect, round.length)}
             </h2>
             <p>
-              The risky sentences in this round came from{' '}
+              {t.riskyCameFrom}
               {risky.map((q, i) => (
                 <span key={q.qid}>
                   <Link to={explorePath(q.discovery.id)}>{q.discovery.id}</Link>
-                  {i < risky.length - 2 ? ', ' : i === risky.length - 2 ? ' and ' : ''}
+                  {i < risky.length - 2 ? ', ' : i === risky.length - 2 ? t.and : ''}
                 </span>
               ))}
-              . Open one to see the sentence in context.
+              {t.openOne}
             </p>
             <div className="cluster">
               <button type="button" className="btn btn-primary" onClick={newRound}>
-                Play another round
+                {t.another}
               </button>
               <Link to={explorePath()} className="btn">
-                Explore the ideas
+                {t.exploreIdeas}
               </Link>
             </div>
           </section>
@@ -232,20 +243,18 @@ function QuizBody({ data }: { data: ExploreData }) {
 
       <aside className={styles.aside} aria-labelledby="quiz-how">
         <h2 id="quiz-how" className={styles.asideTitle}>
-          The three verdicts
+          {t.threeVerdicts}
         </h2>
         <ul role="list" className={styles.verdicts}>
           {STATUS_ORDER.map((s) => (
             <li key={s}>
-              <StatusIcon status={s} size={14} /> {STATUS_META[s].label}
-              <span className={styles.verdictDesc}>{STATUS_META[s].description}</span>
+              <StatusIcon status={s} size={14} /> {statusMeta(s, lang).label}
+              <span className={styles.verdictDesc}>{statusMeta(s, lang).description}</span>
             </li>
           ))}
         </ul>
         <p className={styles.asideNote}>
-          Across all {questions.length} checked sentences, {counts.extrapolated} are extrapolated, {counts.risky} risky and{' '}
-          {counts.grounded} grounded. Each round shows every risky and grounded sentence and {ROUND_EXTRAPOLATED} extrapolated
-          ones, so “extrapolated” is not a safe guess.
+          {t.across(questions.length, counts.extrapolated, counts.risky, counts.grounded, ROUND_EXTRAPOLATED)}
         </p>
       </aside>
     </div>
@@ -253,25 +262,25 @@ function QuizBody({ data }: { data: ExploreData }) {
 }
 
 export default function ExploreQuizPage() {
+  const t = useT(quizText);
+  const { lang } = useLang();
   const { state, retry } = useExploreData();
   if (state.status === 'error') {
     return (
       <div className="page">
-        <ExploreLoadError title="Spot the risk" onRetry={retry} />
+        <ExploreLoadError title={t.title} onRetry={retry} />
       </div>
     );
   }
   return (
     <div className="page">
       <header className="page-header">
-        <h1 className="page-title">Spot the risk</h1>
-        <p className="page-lede">
-          Each sentence comes from a real novel claim. Guess how the validator judged it: grounded in the evidence,
-          extrapolated beyond it, or risky.
-        </p>
+        <h1 className="page-title">{t.title}</h1>
+        <p className="page-lede">{t.lede}</p>
       </header>
       <ExploreTabs data={state.status === 'ready' ? state.data : undefined} />
-      {state.status === 'ready' ? <QuizBody data={state.data} /> : <ExploreLoading label="Loading the quiz" />}
+      <TranslatedNote data={state.status === 'ready' ? state.data : undefined} />
+      {state.status === 'ready' ? <QuizBody key={lang} data={state.data} /> : <ExploreLoading label={t.loading} />}
     </div>
   );
 }

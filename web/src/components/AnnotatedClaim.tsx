@@ -7,13 +7,15 @@ import type {
   PaperSummary,
   SupportingEvidence,
 } from '../api/types';
+import { useLang, useT } from '../i18n/lang';
 import { chunkKey, parseChunkKey } from '../lib/citations';
 import { formatPercent } from '../lib/format';
 import { displayTitle } from '../lib/papers';
 import { annotate } from '../lib/sentences';
-import { basisMeta, STATUS_META, STATUS_ORDER } from '../lib/vocabulary';
+import { basisMeta, STATUS_ORDER, statusMeta } from '../lib/vocabulary';
 import { Icon, StatusIcon } from './Icon';
 import { Passage } from './Passage';
+import { text } from './AnnotatedClaim.i18n';
 import styles from './AnnotatedClaim.module.css';
 
 interface Props {
@@ -36,8 +38,10 @@ function defaultIndex(claims: readonly ClaimValidationEntry[]): number | null {
 }
 
 export function StatusLegend({ counts, compact = false }: { counts?: Record<ClaimStatus, number>; compact?: boolean }) {
+  const t = useT(text);
+  const { lang } = useLang();
   return (
-    <ul className={styles.legend} role="list" aria-label="Sentence status legend" data-compact={compact || undefined}>
+    <ul className={styles.legend} role="list" aria-label={t.legend} data-compact={compact || undefined}>
       {STATUS_ORDER.map((status) => (
         <li key={status} className={styles.legendItem}>
           <StatusIcon status={status} />
@@ -45,9 +49,9 @@ export function StatusLegend({ counts, compact = false }: { counts?: Record<Clai
             Aa
           </span>
           <span>
-            <span className={styles.legendLabel}>{STATUS_META[status].label}</span>
+            <span className={styles.legendLabel}>{statusMeta(status, lang).label}</span>
             {counts ? <span className={`${styles.legendCount} num`}> {counts[status]}</span> : null}
-            {compact ? null : <span className={styles.legendDesc}>{STATUS_META[status].description}</span>}
+            {compact ? null : <span className={styles.legendDesc}>{statusMeta(status, lang).description}</span>}
           </span>
         </li>
       ))}
@@ -56,10 +60,11 @@ export function StatusLegend({ counts, compact = false }: { counts?: Record<Clai
 }
 
 export function StatusBadge({ status }: { status: ClaimStatus }) {
+  const { lang } = useLang();
   return (
     <span className={styles.badge} data-status={status}>
       <StatusIcon status={status} size={12} />
-      {STATUS_META[status].label}
+      {statusMeta(status, lang).label}
     </span>
   );
 }
@@ -70,6 +75,8 @@ export function StatusBadge({ status }: { status: ClaimStatus }) {
  * press Enter to pin it.
  */
 export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers, compact = false }: Props) {
+  const t = useT(text);
+  const { lang } = useLang();
   const uid = useId();
   const noteId = `${uid}-note`;
   const claims = useMemo(() => validation?.claims ?? [], [validation]);
@@ -109,7 +116,7 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
   };
 
   if (!novelClaim.trim()) {
-    return <p className="muted">The model did not separate out a novel claim for this run.</p>;
+    return <p className="muted">{t.noClaim}</p>;
   }
 
   const ordinal = new Map<number, number>();
@@ -125,16 +132,14 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
         <div className="notice notice-warning" role="alert">
           <Icon name="warning" />
           <div>
-            <strong>Claim validation failed.</strong> The validator produced no usable verdicts, so none of the
-            sentences below has been checked against the evidence. Aggregate risk is reported as 1.0. Treat the whole
-            claim as unverified.
+            <strong>{t.failedTitle}</strong> {t.failedBody}
           </div>
         </div>
       ) : null}
       {!failed && claims.length === 0 ? (
         <div className="notice notice-info">
           <Icon name="info" />
-          <div>No sentence-level verdicts were returned for this claim.</div>
+          <div>{t.noVerdicts}</div>
         </div>
       ) : null}
 
@@ -176,7 +181,7 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
                   </span>
                   {segment.text}
                   <span className="visually-hidden">
-                    {` (sentence ${n}: ${STATUS_META[claim.status].label}, ${formatPercent(claim.factualHallucinationProbability)} hallucination probability)`}
+                    {t.sentenceSr(n, statusMeta(claim.status, lang).label, formatPercent(claim.factualHallucinationProbability, lang))}
                   </span>
                 </span>
               );
@@ -186,12 +191,9 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
           {hasVerdicts && annotation.unmatched.length > 0 ? (
             <div className={styles.unmatched}>
               <p className={styles.unmatchedTitle}>
-                {annotation.unmatched.length === 1 ? 'One verdict' : `${annotation.unmatched.length} verdicts`} could not be
-                placed in the text
+                {t.unmatchedTitle(annotation.unmatched.length)}
               </p>
-              <p className={styles.unmatchedHint}>
-                The validator reworded these sentences too much to locate them in the novel claim.
-              </p>
+              <p className={styles.unmatchedHint}>{t.unmatchedHint}</p>
               <ul role="list" className={styles.unmatchedList}>
                 {annotation.unmatched.map((i) => {
                   const claim = claims[i]!;
@@ -221,7 +223,7 @@ export function AnnotatedClaim({ novelClaim, validation, basis, evidence, papers
         </div>
 
         {hasVerdicts && shown !== null && claims[shown] ? (
-          <aside id={noteId} className={styles.note} aria-label="Sentence verdict">
+          <aside id={noteId} className={styles.note} aria-label={t.verdictLabel}>
             <ClaimNote
               claim={claims[shown]}
               position={ordinal.get(shown) ?? null}
@@ -250,10 +252,11 @@ function ChunkRef({
   evidenceByKey: Map<string, SupportingEvidence>;
   papers: Map<string, PaperSummary>;
 }) {
+  const t = useT(text);
   const { paperId } = parseChunkKey(chunk);
   const ev = evidenceByKey.get(chunk);
   const title = displayTitle(papers.get(paperId));
-  const where = [ev?.section, ev?.pageNumber != null ? `p. ${ev.pageNumber}` : null].filter(Boolean).join(', ');
+  const where = [ev?.section, ev?.pageNumber != null ? t.page(ev.pageNumber) : null].filter(Boolean).join(', ');
   return (
     <li className={styles.chunk}>
       <code className={styles.chunkKey}>{chunk}</code>
@@ -287,17 +290,19 @@ function ClaimNote({
   evidenceByKey: Map<string, SupportingEvidence>;
   papers: Map<string, PaperSummary>;
 }) {
+  const t = useT(text);
+  const { lang } = useLang();
   const p = claim.factualHallucinationProbability;
   return (
     <div className={styles.noteInner} data-status={claim.status}>
       <div className={styles.noteHead}>
         <span className={styles.noteWhich}>
-          {position !== null ? `Sentence ${position} of ${total}` : 'Unplaced verdict'}
-          {isDefault && total > 1 ? <span className={styles.noteDefault}>highest risk</span> : null}
+          {position !== null ? t.sentenceOf(position, total) : t.unplaced}
+          {isDefault && total > 1 ? <span className={styles.noteDefault}>{t.highest}</span> : null}
         </span>
         {isPinned ? (
           <button type="button" className="btn btn-quiet btn-sm" onClick={onUnpin}>
-            Unpin
+            {t.unpin}
           </button>
         ) : null}
       </div>
@@ -305,20 +310,20 @@ function ClaimNote({
       <StatusBadge status={claim.status} />
 
       <div className={styles.prob}>
-        <span className={`${styles.probValue} num`}>{formatPercent(p)}</span>
-        <span className={styles.probLabel}>factual hallucination probability</span>
+        <span className={`${styles.probValue} num`}>{formatPercent(p, lang)}</span>
+        <span className={styles.probLabel}>{t.probLabel}</span>
         <span className={styles.probTrack} aria-hidden="true">
           <span className={styles.probFill} style={{ width: `${p * 100}%` }} />
         </span>
       </div>
 
       <section className={styles.noteSection}>
-        <p className={styles.noteTitle}>Validator</p>
-        <p>{claim.rationale || 'No rationale given.'}</p>
+        <p className={styles.noteTitle}>{t.validator}</p>
+        <p>{claim.rationale || t.noRationale}</p>
       </section>
 
       <section className={styles.noteSection}>
-        <p className={styles.noteTitle}>Supporting chunks</p>
+        <p className={styles.noteTitle}>{t.supportingChunks}</p>
         {claim.supportingChunks.length > 0 ? (
           <ul role="list" className={styles.chunks}>
             {claim.supportingChunks.map((c) => (
@@ -326,21 +331,21 @@ function ClaimNote({
             ))}
           </ul>
         ) : (
-          <p className="muted">No retrieved chunk supports this sentence.</p>
+          <p className="muted">{t.noChunks}</p>
         )}
       </section>
 
       {basis ? (
         <section className={styles.noteSection}>
-          <p className={styles.noteTitle}>Generator's own basis</p>
+          <p className={styles.noteTitle}>{t.ownBasis}</p>
           <p>
-            <span className="tag" title={basisMeta(basis.basisType).description}>
-              {basisMeta(basis.basisType).label}
+            <span className="tag" title={basisMeta(basis.basisType, lang).description}>
+              {basisMeta(basis.basisType, lang).label}
             </span>
             {basis.groundedInChunkId ? (
               <>
                 {' '}
-                from <code className={styles.chunkKey}>{basis.groundedInChunkId}</code>
+                {t.from} <code className={styles.chunkKey}>{basis.groundedInChunkId}</code>
               </>
             ) : null}
           </p>
@@ -349,7 +354,7 @@ function ClaimNote({
       ) : null}
 
       {fuzzy ? (
-        <p className={styles.fuzzy}>Matched approximately: the validator reworded this sentence.</p>
+        <p className={styles.fuzzy}>{t.fuzzy}</p>
       ) : null}
     </div>
   );

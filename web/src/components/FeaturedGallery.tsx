@@ -3,35 +3,42 @@ import { Link } from 'react-router';
 import { featuredManifest, featuredPath, type FeaturedManifest } from '../featured/manifest';
 import type { FeaturedRun } from '../featured/runs';
 import { useFeaturedRuns } from '../featured/useFeatured';
-import { formatScore, formatUsd } from '../lib/format';
+import { dateText, fmtNum, fmtUsd } from '../explore/fmt';
+import { useLang, useT, type Lang } from '../i18n/lang';
 import { riskBand } from '../lib/scoreItems';
 import { StatusLegend } from './AnnotatedClaim';
 import { Icon, StatusIcon } from './Icon';
 import { SkeletonLines } from './States';
+import { galleryText } from './FeaturedGallery.i18n';
 import styles from './FeaturedGallery.module.css';
+
+const score = (v: number | null | undefined, lang: Lang) => (typeof v === 'number' && Number.isFinite(v) ? fmtNum(v, 2, lang) : '—');
+
 
 /** The honest framing shown beside every view of the featured runs. */
 export function FeaturedFraming({ manifest = featuredManifest }: { manifest?: FeaturedManifest }) {
-  const corpus = manifest.corpusPapers ? `this ${manifest.corpusPapers}-paper corpus` : 'this corpus';
+  const t = useT(galleryText);
+  const corpus = manifest.corpusPapers ? t.corpusSized(manifest.corpusPapers) : t.corpusPlain;
   return (
     <p className={styles.framing}>
-      <strong>Candidate hypotheses:</strong> the highlighted novel claim is the part the retrieved papers do not
-      support, checked sentence by sentence. Novelty is measured against {corpus}.
+      <strong>{t.framingLead}</strong>
+      {t.framing(corpus)}
     </p>
   );
 }
 
 /** The runs are a static chunk of the app; this only shows if that chunk failed to load. */
 export function FeaturedLoadError({ onRetry }: { onRetry: () => void }) {
+  const t = useT(galleryText);
   return (
     <div className="notice notice-error" role="alert">
       <Icon name="error" />
       <div className={styles.errorBody}>
-        <strong>The featured runs did not load.</strong>
-        <p>They ship with the app, so this usually means the page is out of date after an update. Reload the page, or try again.</p>
+        <strong>{t.loadErrorTitle}</strong>
+        <p>{t.loadErrorBody}</p>
         <div className="cluster">
           <button type="button" className="btn btn-sm" onClick={onRetry}>
-            Try again
+            {t.tryAgain}
           </button>
         </div>
       </div>
@@ -53,10 +60,12 @@ function TopicPair({ topicA, topicB }: { topicA: string; topicB?: string | undef
 }
 
 function FeaturedCard({ run, level }: { run: FeaturedRun; level: 2 | 3 }) {
+  const t = useT(galleryText);
+  const { lang } = useLang();
   const Heading = level === 2 ? 'h2' : 'h3';
   const { evaluation, claimValidation: cv } = run.response;
   const failed = cv?.validationFailed === true;
-  const cost = formatUsd(run.costUsd);
+  const cost = run.costUsd === null ? null : fmtUsd(run.costUsd, 2, lang);
   const { date, generator } = featuredManifest;
 
   return (
@@ -67,35 +76,35 @@ function FeaturedCard({ run, level }: { run: FeaturedRun; level: 2 | 3 }) {
         </Link>
       </Heading>
       <p className={styles.takeaway}>{run.takeaway}</p>
-      <ul role="list" className={styles.chips} aria-label="Scores">
+      <ul role="list" className={styles.chips} aria-label={t.scores}>
         <li className={styles.chip}>
-          Quality <b>{formatScore(evaluation?.qualityScore)}</b>
+          {t.quality} <b>{score(evaluation?.qualityScore, lang)}</b>
         </li>
         <li className={styles.chip}>
-          Novelty <b>{formatScore(evaluation?.noveltyScore)}</b>
+          {t.novelty} <b>{score(evaluation?.noveltyScore, lang)}</b>
         </li>
         <li className={styles.chip}>
-          Plausibility <b>{formatScore(evaluation?.plausibilityScore)}</b>
+          {t.plausibility} <b>{score(evaluation?.plausibilityScore, lang)}</b>
         </li>
         {cv ? (
           <li className={styles.chip} data-tone={failed ? 'high' : riskBand(cv.aggregateRisk).tone}>
-            Claim risk <b>{failed ? 'unverified' : formatScore(cv.aggregateRisk)}</b>
+            {t.claimRisk} <b>{failed ? t.unverified : score(cv.aggregateRisk, lang)}</b>
           </li>
         ) : null}
         {run.riskyCount > 0 ? (
           <li className={`${styles.chip} ${styles.risky}`}>
             <StatusIcon status="risky" size={12} />
-            {run.riskyCount} risky {run.riskyCount === 1 ? 'sentence' : 'sentences'}
+            {t.risky(run.riskyCount)}
           </li>
         ) : null}
       </ul>
       {run.paperIds.length > 0 ? (
         <p className={styles.bridges}>
-          <span className={styles.bridgesLabel}>Bridges:</span> {run.paperIds.join(', ')}
+          <span className={styles.bridgesLabel}>{t.bridges}</span> {run.paperIds.join(', ')}
         </p>
       ) : null}
       <p className={styles.footer}>
-        Recorded run · <time dateTime={date}>{date}</time> · {generator}
+        {t.recordedRun} · <time dateTime={date}>{dateText(date, lang)}</time> · {generator}
         {cost ? ` · ${cost}` : null}
       </p>
     </li>
@@ -108,6 +117,8 @@ function FeaturedCard({ run, level }: { run: FeaturedRun; level: 2 | 3 }) {
  * `headingLevel` is the gallery title's level; cards sit one level below.
  */
 export function FeaturedGallery({ headingLevel = 2 }: { headingLevel?: 1 | 2 }) {
+  const t = useT(galleryText);
+  const { lang } = useLang();
   const uid = useId();
   const { state, retry } = useFeaturedRuns();
   const Title = headingLevel === 1 ? 'h1' : 'h2';
@@ -118,12 +129,15 @@ export function FeaturedGallery({ headingLevel = 2 }: { headingLevel?: 1 | 2 }) 
       <section className={styles.root} aria-labelledby={`${uid}-title`} aria-busy={state.status === 'loading' || undefined}>
         <header className={styles.intro}>
           <Title id={`${uid}-title`} className={headingLevel === 1 ? 'page-title' : styles.galleryTitle}>
-            Featured discoveries
+            {t.title}
           </Title>
-          <p className={styles.lede}>
-            Recorded runs, chosen by reading every result rather than by score alone. Open one to read its full audit.
-          </p>
+          <p className={styles.lede}>{t.lede}</p>
           <FeaturedFraming />
+          {lang === 'tr' && state.status === 'ready' && state.runs.some((r) => r.translated) ? (
+            <p className={styles.translatedNote}>
+              <b>{t.translated}</b> {t.translatedNote}
+            </p>
+          ) : null}
           <div className={styles.legend}>
             <StatusLegend />
           </div>
@@ -144,7 +158,8 @@ export function FeaturedGallery({ headingLevel = 2 }: { headingLevel?: 1 | 2 }) 
         )}
       </section>
       <p className={styles.exploreLink}>
-        <Link to="/explore">Explore every recorded discovery</Link>: all of them rated out of 10, with statistics and a quiz.
+        <Link to="/explore">{t.exploreBefore}</Link>
+        {t.exploreAfter}
       </p>
     </>
   );
