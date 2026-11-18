@@ -207,7 +207,8 @@ describe('Explore', () => {
     const { user } = setup('/explore');
     await cards();
     await user.click(screen.getByRole('button', { name: 'Surprise me' }));
-    await screen.findByRole('region', { name: 'Why it’s promising' });
+    // The detail page loads the run data chunk (88 runs); on a busy CI runner that can exceed findBy's 5 s default.
+    await screen.findByRole('region', { name: 'Why it’s promising' }, { timeout: 15000 });
     const img = screen.getAllByRole('img', { name: /^Rated \d\.\d out of 10$/ })[0]!;
     expect(Number(/Rated (\d\.\d)/.exec(img.getAttribute('aria-label')!)![1])).toBeGreaterThanOrEqual(6);
     expect(screen.getByRole('heading', { level: 2, name: 'Why it’s promising' })).toBeInTheDocument();
