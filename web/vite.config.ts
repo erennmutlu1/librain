@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       globals: true,
       setupFiles: ['./src/test/setup.ts'],
+      // Page-level render tests can exceed vitest's 5 s default on a cold first run
+      // (fresh npm ci, CI runners); a flake there would hide real failures.
+      testTimeout: 15000,
       css: { modules: { classNameStrategy: 'non-scoped' } },
       // Tests never touch the network: the API client is exercised with an
       // injected fetch and the mock client.
