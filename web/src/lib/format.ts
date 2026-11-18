@@ -2,6 +2,11 @@ export function formatScore(value: number | null | undefined, digits = 2): strin
   return typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '—';
 }
 
+/** "$0.07"; null when there is no amount. */
+export function formatUsd(value: number | null | undefined): string | null {
+  return typeof value === 'number' && Number.isFinite(value) ? `$${value.toFixed(2)}` : null;
+}
+
 export function formatPercent(value: number | null | undefined): string {
   return typeof value === 'number' && Number.isFinite(value) ? `${Math.round(value * 100)}%` : '—';
 }
