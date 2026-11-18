@@ -66,10 +66,7 @@ public static class QueryEndpoints
             logger.LogError(ex,
                 "Query pipeline failed (elapsed={ElapsedMs}ms, exceptionType={ExceptionType})",
                 sw.ElapsedMilliseconds, ex.GetType().Name);
-            return Results.Problem(
-                title: "Upstream API error",
-                detail: $"The query pipeline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway);
+            return UpstreamErrors.ToProblem(ex, "Upstream API error", $"The query pipeline failed: {ex.GetType().Name}");
         }
     }
 

@@ -97,11 +97,8 @@ public static class BaselineEndpoints
             logger.LogError(ex,
                 "Single-LLM pipeline failed (elapsed={ElapsedMs}ms, exceptionType={ExceptionType})",
                 sw.ElapsedMilliseconds, ex.GetType().Name);
-            return Results.Problem(
-                title: "Single-LLM baseline failed",
-                detail: $"The single-LLM baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway,
-                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
+            return UpstreamErrors.ToProblem(ex, "Single-LLM baseline failed",
+                $"The single-LLM baseline failed: {ex.GetType().Name}", correlationId);
         }
     }
 
@@ -159,11 +156,8 @@ public static class BaselineEndpoints
             logger.LogError(ex,
                 "Naive-RAG pipeline failed (elapsed={ElapsedMs}ms, exceptionType={ExceptionType})",
                 sw.ElapsedMilliseconds, ex.GetType().Name);
-            return Results.Problem(
-                title: "Naive-RAG baseline failed",
-                detail: $"The naive-RAG baseline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway,
-                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
+            return UpstreamErrors.ToProblem(ex, "Naive-RAG baseline failed",
+                $"The naive-RAG baseline failed: {ex.GetType().Name}", correlationId);
         }
     }
 }

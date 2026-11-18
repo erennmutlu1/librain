@@ -83,7 +83,7 @@ public static class DiscoveryEndpoints
 
     internal const int MaxTopicChars = 500;
 
-    internal static IResult? Validate(DiscoverRequest req, out int topK)
+    internal static IResult? Validate(DiscoverRequest req, out int topK, bool publicMode = false)
     {
         topK = req.TopK ?? DefaultTopK;
         if (string.IsNullOrWhiteSpace(req.TopicA))
@@ -103,6 +103,9 @@ public static class DiscoveryEndpoints
             && !req.Provider.Equals("openai", StringComparison.OrdinalIgnoreCase))
             return Results.Problem(title: "unknown provider",
                 detail: "provider must be 'anthropic' (default) or 'openai'.", statusCode: StatusCodes.Status400BadRequest);
+        if (publicMode && string.Equals(req.Provider, "openai", StringComparison.OrdinalIgnoreCase))
+            return Results.Problem(title: "provider not available",
+                detail: "This public deployment runs the Anthropic pipeline only.", statusCode: StatusCodes.Status400BadRequest);
         if (req.Model is not null && !AllowedOpenAiModels.Contains(req.Model))
             return Results.Problem(title: "model not allowed",
                 detail: $"model must be one of: {string.Join(", ", AllowedOpenAiModels)}.", statusCode: StatusCodes.Status400BadRequest);
@@ -119,10 +122,11 @@ public static class DiscoveryEndpoints
         DiscoveryAgent agent,
         LIBRAIN.Generation.OpenAiDiscoveryAgent openaiAgent,
         LIBRAIN.Runs.RunRecorder recorder,
+        LIBRAIN.Llm.IProviderKeys keys,
         ILogger<Program> logger,
         CancellationToken ct)
     {
-        if (Validate(req, out var topK) is { } invalid) return invalid;
+        if (Validate(req, out var topK, keys.PublicMode) is { } invalid) return invalid;
 
         var sw = Stopwatch.StartNew();
         var correlationId = Guid.NewGuid();
@@ -154,11 +158,8 @@ public static class DiscoveryEndpoints
                 "Discovery pipeline failed (elapsed={ElapsedMs}ms, exceptionType={ExceptionType})",
                 sw.ElapsedMilliseconds,
                 ex.GetType().Name);
-            return Results.Problem(
-                title: "Upstream API error",
-                detail: $"The discovery pipeline failed: {ex.GetType().Name}",
-                statusCode: StatusCodes.Status502BadGateway,
-                extensions: new Dictionary<string, object?> { ["correlationId"] = correlationId });
+            return UpstreamErrors.ToProblem(ex, "Upstream API error",
+                $"The discovery pipeline failed: {ex.GetType().Name}", correlationId);
         }
     }
 }

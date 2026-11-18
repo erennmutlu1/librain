@@ -148,11 +148,14 @@ public sealed class SqliteRunStore : IRunStore
 
 // Records completed runs. A storage failure is logged and reported to the caller as
 // false, never turned into a failed API response: the user already paid for the run.
-public sealed class RunRecorder(IRunStore store, ILogger<RunRecorder> logger)
+// Public mode records nothing: a visitor's topics and results stay in their own browser.
+public sealed class RunRecorder(IRunStore store, ILogger<RunRecorder> logger,
+    Microsoft.Extensions.Options.IOptions<LIBRAIN.Models.PublicModeOptions> publicMode)
 {
     public async Task<bool> TryRecordAsync<TRequest, TResponse>(
         Guid id, string kind, string title, float? quality, TRequest request, TResponse response, CancellationToken ct = default)
     {
+        if (publicMode.Value.Enabled) return false;
         try
         {
             await store.SaveAsync(new RunRecord(

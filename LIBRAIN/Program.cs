@@ -4,6 +4,7 @@ using LIBRAIN.Endpoints;
 using LIBRAIN.Models;
 using LIBRAIN.Reading;
 using LIBRAIN.Storage;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
@@ -31,15 +32,23 @@ if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
 
 builder.Services.AddOpenApi();
 
+// Public deployment (librain.erenmutlu.me): visitors' own keys only, read-only corpus,
+// nothing stored. See PublicModeOptions and LIBRAIN.Llm.ProviderKeys.
+builder.Services.Configure<PublicModeOptions>(builder.Configuration.GetSection(PublicModeOptions.SectionName));
+var publicMode = builder.Configuration.GetSection(PublicModeOptions.SectionName).Get<PublicModeOptions>()?.Enabled == true;
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<LIBRAIN.Llm.IProviderKeys, LIBRAIN.Llm.ProviderKeys>();
+
 builder.Services.Configure<AnthropicOptions>(
     builder.Configuration.GetSection(AnthropicOptions.SectionName));
 // Fail fast with an actionable message instead of a 502 on the first request.
 // Anthropic:ApiKey is deliberately not required here: the OpenAI-only experiments
 // (fabrication-delta, provider=openai) run without it; AnthropicChatClient reports
 // a missing key when it is first used.
+// In public mode there is deliberately no server key: every visitor brings their own.
 builder.Services.AddOptions<OpenAIOptions>()
     .Bind(builder.Configuration.GetSection(OpenAIOptions.SectionName))
-    .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey),
+    .Validate(o => publicMode || !string.IsNullOrWhiteSpace(o.ApiKey),
         "OpenAI:ApiKey is not configured (needed for embeddings). Set it with: dotnet user-secrets set \"OpenAI:ApiKey\" \"sk-...\" --project LIBRAIN")
     .ValidateOnStart();
 builder.Services.AddOptions<QdrantOptions>()
@@ -93,7 +102,9 @@ builder.Services.AddLibrainGuards(builder.Configuration);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()
         // Lets a separately hosted UI read when to retry after a 429.
-        .WithExposedHeaders("Retry-After")));
+        .WithExposedHeaders("Retry-After")
+        // The visitor-key headers make every call a preflighted request; cache the answer.
+        .SetPreflightMaxAge(TimeSpan.FromHours(1))));
 builder.Services.AddScoped<PdfTextExtractor>();
 builder.Services.AddScoped<RecursiveChunker>();
 builder.Services.AddScoped<ReaderAgent>();
@@ -115,8 +126,25 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+if (publicMode)
+{
+    // Behind the hosting proxy every request would otherwise come from the proxy's
+    // address, so the per-client rate limit would be one shared bucket. Take the client
+    // address the proxy appended (ForwardLimit = 1: the last hop only, which a client
+    // cannot forge).
+    var forwarded = new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        ForwardLimit = 1,
+    };
+    forwarded.KnownIPNetworks.Clear();
+    forwarded.KnownProxies.Clear();
+    app.UseForwardedHeaders(forwarded);
+}
+
 app.UseHttpsRedirection();
 app.UseCors();
+app.UsePublicMode();
 app.UseApiKeyGuard();
 app.UseRateLimiter();
 

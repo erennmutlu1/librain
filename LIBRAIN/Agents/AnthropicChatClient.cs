@@ -29,14 +29,43 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
     private readonly AnthropicClient _client;
     private readonly HttpClient _httpClient;
     private readonly SemaphoreSlim _concurrency;
-    private readonly bool _hasApiKey;
+    private readonly IProviderKeys _keys;
 
+    // The key for the call in flight. The SDK client is shared by every request, so the key
+    // cannot live on it: SendAsync sets this for its own async flow and ApiKeyHandler
+    // attaches it to each outgoing HTTP request (and each retry). Two visitors calling at
+    // the same moment each send their own key.
+    private static readonly AsyncLocal<string?> CallKey = new();
+
+    // The SDK insists on a key at construction; the real one is attached per request.
+    private const string PerRequestKeyPlaceholder = "set-per-request";
+
+    // Direct construction (tests, tools): the configured key, normal mode.
     public AnthropicChatClient(
         ILogger<AnthropicChatClient> logger,
         IOptions<AnthropicOptions> options)
+        : this(logger, options, new ConfiguredKey(options.Value.ApiKey), new SocketsHttpHandler())
+    {
+    }
+
+    // DI: the key comes from IProviderKeys (the visitor's key in public mode).
+    public AnthropicChatClient(
+        ILogger<AnthropicChatClient> logger,
+        IOptions<AnthropicOptions> options,
+        IProviderKeys keys)
+        : this(logger, options, keys, new SocketsHttpHandler())
+    {
+    }
+
+    // Tests swap the network handler to see exactly what would be sent.
+    internal AnthropicChatClient(
+        ILogger<AnthropicChatClient> logger,
+        IOptions<AnthropicOptions> options,
+        IProviderKeys keys,
+        HttpMessageHandler network)
     {
         _logger = logger;
-        _hasApiKey = !string.IsNullOrWhiteSpace(options.Value.ApiKey);
+        _keys = keys;
         _concurrency = new SemaphoreSlim(Math.Max(1, options.Value.MaxConcurrentRequests));
         // Anthropic.SDK 5.10's default HttpClient timeout is 100s, which Sonnet 4.6
         // can exceed on Discovery requests now that the tool schema includes
@@ -52,9 +81,29 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
         // The 5-minute HttpClient timeout covers the whole call including retries,
         // and a timeout is never retried (the first attempt may still be running
         // server-side, and retrying it could be billed twice).
-        var handler = CreateRetryingHandler(_logger, new SocketsHttpHandler());
+        var handler = CreateRetryingHandler(_logger, new ApiKeyHandler { InnerHandler = network });
         _httpClient = new HttpClient(handler) { Timeout = TimeSpan.FromMinutes(5) };
-        _client = new AnthropicClient(new APIAuthentication(options.Value.ApiKey), _httpClient);
+        _client = new AnthropicClient(new APIAuthentication(PerRequestKeyPlaceholder), _httpClient);
+    }
+
+    // Innermost handler, so every attempt (including retries) carries the current call's
+    // key and nothing else: whatever key header the SDK added is replaced.
+    private sealed class ApiKeyHandler : DelegatingHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            request.Headers.Remove("x-api-key");
+            if (CallKey.Value is { } key) request.Headers.TryAddWithoutValidation("x-api-key", key);
+            return base.SendAsync(request, ct);
+        }
+    }
+
+    // Normal mode without DI: just the configured key.
+    private sealed class ConfiguredKey(string? apiKey) : IProviderKeys
+    {
+        public bool PublicMode => false;
+        public string? Anthropic { get; } = string.IsNullOrWhiteSpace(apiKey) ? null : apiKey.Trim();
+        public string? OpenAI => null;
     }
 
     public const int MaxRetryAttempts = 3;
@@ -142,8 +191,11 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
         MessageParameters parameters,
         CancellationToken ct)
     {
-        if (!_hasApiKey)
+        var key = _keys.Anthropic;
+        if (key is null)
         {
+            // Public mode: the visitor sent no key, and the server's own key is never a fallback.
+            if (_keys.PublicMode) throw new ProviderKeyMissingException("Anthropic");
             // Not validated at startup: the OpenAI-only experiments run without it.
             throw new InvalidOperationException(
                 "Anthropic:ApiKey is not configured. Set it with: dotnet user-secrets set \"Anthropic:ApiKey\" \"sk-ant-...\" --project LIBRAIN");
@@ -153,6 +205,7 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
         await _concurrency.WaitAsync(ct).ConfigureAwait(false);
         try
         {
+            CallKey.Value = key;
             response = await _client.Messages.GetClaudeMessageAsync(parameters, ct).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -166,6 +219,7 @@ public sealed class AnthropicChatClient : ILlmClient, IDisposable
         }
         finally
         {
+            CallKey.Value = null;
             _concurrency.Release();
         }
 
