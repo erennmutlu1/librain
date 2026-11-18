@@ -1,0 +1,146 @@
+[
+  {
+    "id": "X01",
+    "topicA": "evaluating code generation by functional correctness with unit tests (HumanEval)",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "X02",
+    "topicA": "valuing player actions in soccer by their effect on scoring probability",
+    "topicB": "deep Q-learning of action-value functions from raw experience (DQN)",
+    "topK": 5
+  },
+  {
+    "id": "X03",
+    "topicA": "muscle fatigue detection from surface electromyography signals",
+    "topicB": "self-supervised contrastive pretraining on raw speech audio (wav2vec 2.0)",
+    "topK": 5
+  },
+  {
+    "id": "X04",
+    "topicA": "predicting football injuries from training load and GPS data",
+    "topicB": "series decomposition and auto-correlation for long-term forecasting (Autoformer)",
+    "topK": 5
+  },
+  {
+    "id": "X05",
+    "topicA": "occupational task exposure to large language models rated with a rubric",
+    "topicB": "semi-supervised node classification with graph convolutional networks",
+    "topK": 5
+  },
+  {
+    "id": "X06",
+    "topicA": "crop yield prediction with multi-modal satellite and meteorological data fusion",
+    "topicB": "probabilistic forecasting with autoregressive recurrent networks (DeepAR)",
+    "topK": 5
+  },
+  {
+    "id": "X07",
+    "topicA": "large-scale program sampling, filtering and clustering (AlphaCode)",
+    "topicB": "scientific hypothesis generation and validation with language models",
+    "topK": 5
+  },
+  {
+    "id": "X08",
+    "topicA": "controlled experiment on developer productivity with an AI pair programmer",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "X09",
+    "topicA": "COVID-19 case forecasting with mobility-based spatio-temporal graph neural networks",
+    "topicB": "probabilistic forecasting with autoregressive recurrent networks (DeepAR)",
+    "topK": 5
+  },
+  {
+    "id": "X10",
+    "topicA": "retrieving similar corner kicks to suggest tactical adjustments (TacticAI)",
+    "topicB": "retrieval-augmented generation with a non-parametric memory",
+    "topK": 5
+  },
+  {
+    "id": "X11",
+    "topicA": "predictive modelling of football injuries from player training data",
+    "topicB": "debiased machine learning for elasticities in high-dimensional panel data",
+    "topK": 5
+  },
+  {
+    "id": "X12",
+    "topicA": "valuing on-the-ball actions of soccer players",
+    "topicB": "advantage estimation and clipped surrogate objectives in policy gradient methods",
+    "topK": 5
+  },
+  {
+    "id": "X13",
+    "topicA": "benchmarking automated front-end engineering from webpage screenshots",
+    "topicB": "labor market exposure of occupations to large language models",
+    "topK": 5
+  },
+  {
+    "id": "X14",
+    "topicA": "generating text from EEG signals with an EEG encoder and LLM",
+    "topicB": "self-supervised learning of speech representations by masking latent features",
+    "topK": 5
+  },
+  {
+    "id": "X15",
+    "topicA": "spiking neural networks for wearable muscle fatigue monitoring",
+    "topicB": "time-to-injury forecasting with a DeepHit survival network",
+    "topK": 5
+  },
+  {
+    "id": "X16",
+    "topicA": "realistic web environment for evaluating autonomous agents on long-horizon tasks",
+    "topicB": "which economic tasks people perform with AI assistants",
+    "topK": 5
+  },
+  {
+    "id": "X17",
+    "topicA": "COVID-19 forecasting on a spatio-temporal graph of human mobility",
+    "topicB": "multi-mesh message passing for global weather forecasting (GraphCast)",
+    "topK": 5
+  },
+  {
+    "id": "X18",
+    "topicA": "estimating crop yields from NDVI time series with deep learning",
+    "topicB": "decomposition transformers with auto-correlation for long-term series forecasting",
+    "topK": 5
+  },
+  {
+    "id": "X19",
+    "topicA": "reward shaping and sparse scoring rewards in a football reinforcement learning environment",
+    "topicB": "valuing soccer actions by their change in scoring and conceding probability",
+    "topK": 5
+  },
+  {
+    "id": "X20",
+    "topicA": "pretraining photovoltaic forecasting models on synthetic data then fine-tuning",
+    "topicB": "estimating crop yields with remote sensing and deep learning",
+    "topK": 5
+  },
+  {
+    "id": "X21",
+    "topicA": "drug-target binding affinity prediction from protein sequences and SMILES",
+    "topicB": "contrastive pretraining of paired encoders for zero-shot transfer (CLIP)",
+    "topK": 5
+  },
+  {
+    "id": "X22",
+    "topicA": "robust multilingual speech recognition from large-scale weak supervision",
+    "topicB": "large language models for education",
+    "topK": 5
+  },
+  {
+    "id": "X23",
+    "topicA": "predicting forces and relaxed energies for catalyst adsorption (OC20)",
+    "topicB": "learned particle simulators with message passing and noise-robust rollouts",
+    "topK": 5
+  },
+  {
+    "id": "X25",
+    "topicA": "municipality-level crop yield estimation from satellite data",
+    "topicB": "semi-supervised learning on graphs with graph convolutional networks",
+    "topK": 5
+  }
+]

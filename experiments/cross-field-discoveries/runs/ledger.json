@@ -1,0 +1,125 @@
+{
+  "total": 1.5976370999999998,
+  "runs": {
+    "X01": {
+      "cost": 0.074,
+      "status": 200,
+      "seconds": 21.3
+    },
+    "X02": {
+      "cost": 0.06655,
+      "status": 200,
+      "seconds": 24.5
+    },
+    "X03": {
+      "cost": 0.07275,
+      "status": 200,
+      "seconds": 23.8
+    },
+    "X04": {
+      "cost": 0.05938,
+      "status": 200,
+      "seconds": 20.1
+    },
+    "X05": {
+      "cost": 0.06628,
+      "status": 200,
+      "seconds": 20.1
+    },
+    "X06": {
+      "cost": 0.07026,
+      "status": 200,
+      "seconds": 26.2
+    },
+    "X07": {
+      "cost": 0.06287,
+      "status": 200,
+      "seconds": 25.6
+    },
+    "X08": {
+      "cost": 0.06401,
+      "status": 200,
+      "seconds": 18.1
+    },
+    "X09": {
+      "cost": 0.06702,
+      "status": 200,
+      "seconds": 21.5
+    },
+    "X10": {
+      "cost": 0.06645,
+      "status": 200,
+      "seconds": 24.9
+    },
+    "X11": {
+      "cost": 0.06225,
+      "status": 200,
+      "seconds": 19.6
+    },
+    "X12": {
+      "cost": 0.06802,
+      "status": 200,
+      "seconds": 27.3
+    },
+    "X13": {
+      "cost": 0.06287,
+      "status": 200,
+      "seconds": 18.2
+    },
+    "X14": {
+      "cost": 0.06867,
+      "status": 200,
+      "seconds": 25.6
+    },
+    "X15": {
+      "cost": 0.06895,
+      "status": 200,
+      "seconds": 24.4
+    },
+    "X16": {
+      "cost": 0.05807,
+      "status": 200,
+      "seconds": 18.8
+    },
+    "X17": {
+      "cost": 0.06702,
+      "status": 200,
+      "seconds": 19.3
+    },
+    "X18": {
+      "cost": 0.06156,
+      "status": 200,
+      "seconds": 20.1
+    },
+    "X19": {
+      "cost": 0.06732,
+      "status": 200,
+      "seconds": 22.9
+    },
+    "X20": {
+      "cost": 0.06615,
+      "status": 200,
+      "seconds": 25.8
+    },
+    "X21": {
+      "cost": 0.063,
+      "status": 200,
+      "seconds": 24.0
+    },
+    "X22": {
+      "cost": 0.07582,
+      "status": 200,
+      "seconds": 23.0
+    },
+    "X23": {
+      "cost": 0.06984,
+      "status": 200,
+      "seconds": 21.4
+    },
+    "X25": {
+      "cost": 0.06852,
+      "status": 200,
+      "seconds": 22.9
+    }
+  }
+}
