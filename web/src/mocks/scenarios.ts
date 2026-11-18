@@ -30,6 +30,7 @@ import contractArxiv from './contract/arxiv-ingest-result.json';
 import contractCompare from './contract/compare-response.json';
 import contractDiscover from './contract/discover-response.json';
 import discoverStreamText from './contract/discover-stream.txt?raw';
+import queryStreamText from './contract/query-stream.txt?raw';
 import contractIngest from './contract/ingest-result.json';
 import contractNaive from './contract/naive-rag-response.json';
 import contractPapers from './contract/papers.json';
@@ -56,6 +57,7 @@ export const contract = {
   compare: contractCompare as unknown,
   discover: contractDiscover as unknown,
   discoverStream: discoverStreamText,
+  queryStream: queryStreamText,
   ingest: contractIngest as unknown,
   naiveRag: contractNaive as unknown,
   papers: contractPapers as unknown,
@@ -78,14 +80,20 @@ export interface Recorded<Req> extends MockScenario<Req> {
 
 // ---------- Ask ----------
 
-export const askScenarios: Recorded<QueryRequest>[] = [
+export interface AskRecording extends Recorded<QueryRequest> {
+  /** A captured text/event-stream, replayed verbatim when present. */
+  stream?: string;
+}
+
+export const askScenarios: AskRecording[] = [
   {
     id: 'contract-query',
     label: 'Why does GraphCast forecast well?',
     request: { query: 'Why does GraphCast forecast well?', topK: 2 },
-    source: 'web/src/mocks/contract/query-response.json',
-    note: `${SNAPSHOT_NOTE} Progress events are synthesised from the documented query stages.`,
+    source: 'web/src/mocks/contract/query-stream.txt',
+    note: `${SNAPSHOT_NOTE} The captured event stream is replayed event by event.`,
     response: contractQuery,
+    stream: queryStreamText,
   },
 ];
 
@@ -339,7 +347,7 @@ export function findCompare(request: CompareRequest): { scenario: CompareRecordi
   return scenario ? { scenario, matched: true } : { scenario: DEFAULT_COMPARE, matched: false };
 }
 
-export function findAsk(request: QueryRequest): { scenario: Recorded<QueryRequest>; matched: boolean } {
+export function findAsk(request: QueryRequest): { scenario: AskRecording; matched: boolean } {
   const q = normalizeTopic(request.query).replace(/[?.!]+$/, '');
   const scenario = askScenarios.find((s) => normalizeTopic(s.request.query).replace(/[?.!]+$/, '') === q);
   return scenario ? { scenario, matched: true } : { scenario: askScenarios[0]!, matched: false };

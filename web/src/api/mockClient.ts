@@ -244,7 +244,7 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
   return {
     mode: 'mock',
     mock: {
-      ask: askScenarios.map(({ response: _r, ...s }) => s),
+      ask: askScenarios.map(({ response: _r, stream: _s, ...s }) => s),
       discover: discoverScenarios.map(({ response: _r, stream: _s, ...s }) => s),
       compare: compareScenarios.map(({ response: _r, naiveRag: _n, singleLlm: _s, ...s }) => s),
       matchAsk: (request) => toMatch(findAsk(request)),
@@ -280,6 +280,7 @@ export function createMockApi(options: MockApiOptions = {}): LibrainApi {
     async queryStream(request, onProgress, signal) {
       checkQuery(request);
       const { scenario } = findAsk(request);
+      if (scenario.stream) return replayStream(scenario.stream, normalizeQueryResponse, onProgress, signal);
       const result = normalizeQueryResponse(scenario.response);
       return emitSynthetic(synthesiseQueryProgress(scenario.request, result), result, onProgress, signal);
     },

@@ -31,11 +31,36 @@ function streamEvents(): SseMessage[] {
   return events;
 }
 
+function queryStreamEvents(): SseMessage[] {
+  const events: SseMessage[] = [];
+  const parser = new SseParser((m) => events.push(m));
+  parser.push(contract.queryStream);
+  parser.end();
+  return events;
+}
+
 describe('API contract snapshots', () => {
-  it('papers.json -> PaperSummary[] (authors and year nullable)', () => {
+  it('query-stream.txt -> the five query stages in order, then one result with cited passages', () => {
+    const events = queryStreamEvents();
+    const stages = events.filter((e) => e.event === 'progress').map((e) => (JSON.parse(e.data) as { stage: string }).stage);
+    expect(stages).toEqual(['retrieving', 'retrieved', 'generating', 'validated', 'evaluating']);
+    const last = events.at(-1)!;
+    expect(last.event).toBe('result');
+    const r = normalizeQueryResponse(JSON.parse(last.data));
+    expect(r.citations.length).toBeGreaterThan(0);
+    expect(r.citations.every((c) => (c.content ?? '').length > 0)).toBe(true);
+  });
+
+  it('papers.json -> PaperSummary[] with arXiv metadata (re-ingest by arXiv id replaced the upload)', () => {
     const papers = normalizePapers(contract.papers);
     expect(papers).toHaveLength(1);
-    expect(papers[0]).toMatchObject({ paperId: '2005.11401', title: '2005.11401', chunkCount: 2, authors: null, year: null });
+    expect(papers[0]).toMatchObject({
+      paperId: '2005.11401',
+      title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks',
+      chunkCount: 1,
+      year: 2020,
+    });
+    expect(papers[0]?.authors?.[0]).toBe('Patrick Lewis');
     expect(papers[0]?.firstIngestedAt).toMatch(/^\d{4}-\d\d-\d\dT/);
   });
 

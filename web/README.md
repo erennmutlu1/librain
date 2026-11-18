@@ -224,7 +224,7 @@ replaced with a failure). The snapshot files are never edited.
 | `fixtures/discover-anthropic-pair-{01,02,08,10}.json` | Discover recorded runs; LIBRAIN column of Compare | None. Copies of `experiments/baseline-comparison/results/librain/`. pair-10 has a RISKY sentence; pair-02 a GROUNDED one. |
 | `fixtures/discover-openai-pair-{01,03,21}.json` | Discover recorded runs (OpenAI) | None. Copies of `experiments/discovery-openai/`. pair-03 has one dropped citation; pair-01's validator split one sentence in two. |
 | `fixtures/{naive-rag,single-llm}-pair-{01,10}.json` | Compare recorded runs | None. In mock mode they are wrapped in the `/api/compare` envelope; the envelope id reads `assembled-pair-NN` and has no total time. |
-| Progress for recordings without a captured stream | Ask, and Discover for experiment recordings | Synthesised from the stage names and wording in `QueryPipeline.cs` / `DiscoveryAgent.cs`, with counts taken from the recorded result (`synthesise*Progress` in `scenarios.ts`). The OpenAI path emits only `generating`, as the real endpoint does. |
+| Progress for recordings without a captured stream | Discover for experiment recordings (Ask and the API-snapshot Discover replay captured streams) | Synthesised from the stage names and wording in `QueryPipeline.cs` / `DiscoveryAgent.cs`, with counts taken from the recorded result (`synthesise*Progress` in `scenarios.ts`). The OpenAI path emits only `generating`, as the real endpoint does. |
 | Mock library | Library in mock mode | Derived: the snapshot's paper plus every paper id the recordings cite. No titles, authors, years or dates are invented; chunk counts are lower bounds (highest cited chunk index plus one). The page says so. |
 
 The fabricated Naive-RAG citation shown in Compare is the real one in
@@ -232,18 +232,15 @@ The fabricated Naive-RAG citation shown in Compare is the real one in
 
 ## Backend changes this UI would use
 
-1. **Expose `Retry-After` to cross-origin clients**:
-   `WithExposedHeaders("Retry-After")` in the CORS policy. Without it a
-   separately hosted UI cannot say when a 429 ends.
-2. **Capture a query stream snapshot** (`query-stream.txt`) alongside
-   `discover-stream.txt`, so mock mode can replay it instead of synthesising
-   one.
-3. **Progress for `/api/compare`**, either a stream or per-system events.
+Done since: `Retry-After` is exposed to cross-origin clients, and a captured
+`query-stream.txt` is replayed for Ask in mock mode.
+
+1. **Progress for `/api/compare`**, either a stream or per-system events.
    The call takes as long as the slowest system, and today the UI can only
    show elapsed time.
-4. **Paging for `/api/runs`**: an offset or cursor alongside `limit`. History
+2. **Paging for `/api/runs`**: an offset or cursor alongside `limit`. History
    shows the latest 100.
-5. **Ingest progress**: the processing phase after upload, or arXiv
+3. **Ingest progress**: the processing phase after upload, or arXiv
    download plus embedding, is opaque.
-6. **`JsonStringEnumConverter`** (optional): readable enums on the wire.
+4. **`JsonStringEnumConverter`** (optional): readable enums on the wire.
    The UI already accepts both forms.

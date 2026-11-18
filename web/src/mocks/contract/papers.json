@@ -1,10 +1,23 @@
 [
   {
     "paperId": "2005.11401",
-    "title": "2005.11401",
-    "chunkCount": 2,
-    "firstIngestedAt": "2026-11-17T23:47:10.625725Z",
-    "authors": null,
-    "year": null
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "chunkCount": 1,
+    "firstIngestedAt": "2026-11-18T00:23:33.87251Z",
+    "authors": [
+      "Patrick Lewis",
+      "Ethan Perez",
+      "Aleksandra Piktus",
+      "Fabio Petroni",
+      "Vladimir Karpukhin",
+      "Naman Goyal",
+      "Heinrich K\u00FCttler",
+      "Mike Lewis",
+      "Wen-tau Yih",
+      "Tim Rockt\u00E4schel",
+      "Sebastian Riedel",
+      "Douwe Kiela"
+    ],
+    "year": 2020
   }
 ]

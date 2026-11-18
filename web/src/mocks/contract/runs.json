@@ -1,37 +1,37 @@
 [
   {
-    "id": "a9fadc21-e0ac-4891-bfd7-deac0437fed7",
+    "id": "bcaf8cd4-2517-4b4a-87b1-42326cd275df",
     "kind": "compare",
     "title": "weather forecasting \u00D7 protein folding",
-    "createdAt": "2026-11-17T23:47:10.894933Z",
+    "createdAt": "2026-11-18T00:23:33.894499Z",
     "quality": 0.6666666
   },
   {
-    "id": "541a719d-702d-4b4f-b7c0-3d7616f747b3",
+    "id": "fd74400e-aefe-4009-a17c-cb04882270b6",
     "kind": "single-llm",
     "title": "weather forecasting \u00D7 protein folding",
-    "createdAt": "2026-11-17T23:47:10.887676Z",
+    "createdAt": "2026-11-18T00:23:33.892175Z",
     "quality": 0.6666666
   },
   {
-    "id": "12661d0d-0df7-4dd3-9e4d-46d472aa731c",
+    "id": "52c6b7b7-a121-49b1-9ba8-0c20c93d7e55",
     "kind": "naive-rag",
     "title": "weather forecasting \u00D7 protein folding",
-    "createdAt": "2026-11-17T23:47:10.879256Z",
+    "createdAt": "2026-11-18T00:23:33.888211Z",
     "quality": 0.6666666
   },
   {
-    "id": "6dd7da78-a1c5-4083-ab59-a04e1ca5e166",
+    "id": "6cda403c-13e8-4cc4-8785-ecf1ed76e1aa",
     "kind": "discover",
     "title": "weather forecasting \u00D7 protein folding",
-    "createdAt": "2026-11-17T23:47:10.854666Z",
+    "createdAt": "2026-11-18T00:23:33.881643Z",
     "quality": 0.6666666
   },
   {
-    "id": "f5dc037c-66bd-4bff-aa46-0f32dd7234a4",
+    "id": "b37c1997-3e8c-4497-b6ea-bfb646b59276",
     "kind": "query",
     "title": "Why does GraphCast forecast well?",
-    "createdAt": "2026-11-17T23:47:10.790025Z",
+    "createdAt": "2026-11-18T00:23:33.877378Z",
     "quality": 0.7833333
   }
 ]
