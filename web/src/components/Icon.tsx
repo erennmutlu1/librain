@@ -32,6 +32,7 @@ export type IconName =
   | 'arrow'
   | 'globe'
   | 'more'
+  | 'menu'
   | CategoryIcon;
 
 const PATHS: Record<IconName, string> = {
@@ -62,8 +63,10 @@ const PATHS: Record<IconName, string> = {
   search: 'M7 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM10.6 10.6l3.4 3.4',
   arrow: 'M3 8h10M9 4l4 4-4 4',
   globe: 'M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM1.5 8h13M8 1.5C6.2 3.3 5.3 5.5 5.3 8s.9 4.7 2.7 6.5M8 1.5c1.8 1.8 2.7 4 2.7 6.5s-.9 4.7-2.7 6.5',
-  // Three dots: the phone header's menu for language and theme.
+  // Three dots.
   more: 'M2.5 8a1 1 0 1 0 2 0 1 1 0 1 0-2 0M7 8a1 1 0 1 0 2 0 1 1 0 1 0-2 0M11.5 8a1 1 0 1 0 2 0 1 1 0 1 0-2 0',
+  // Three bars: the phone header's menu (sections, search, language, theme).
+  menu: 'M2 4h12M2 8h12M2 12h12',
   // Explore categories
   pill: 'M3.2 12.8a2.9 2.9 0 0 1 0-4.1l5.5-5.5a2.9 2.9 0 0 1 4.1 4.1l-5.5 5.5a2.9 2.9 0 0 1-4.1 0zM6 6l4 4',
   leaf: 'M2.5 13.5C2.5 7 6.5 3 13.5 2.5 13 9.5 9 13.5 2.5 13.5zM2.5 13.5l6-6',

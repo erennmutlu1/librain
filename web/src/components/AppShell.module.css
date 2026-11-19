@@ -509,25 +509,68 @@
   min-height: 2.75rem;
 }
 
+/* The sections in the phone menu: two columns of finger-sized links, the current one marked by its border and weight. */
+.menuLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s2);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--rule);
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.menuLink:hover {
+  color: var(--ink);
+}
+
+.menuLinkActive {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--surface-sunken);
+}
+
+.menuSearch {
+  justify-content: flex-start;
+  width: 100%;
+}
+
 .morePanel button[aria-pressed] {
   min-width: 2.75rem;
 }
 
 /*
- * Phones: two rows, about 100 px in all (it was 157 px at 360 px wide). The
- * logo and the data-source tools share the first; the sections (scrolling
- * sideways) and search the second. The last column is exactly the search
- * button, so the tools above it borrow the middle column and the sections
- * keep all the width search leaves them.
+ * Phones: one row, about 57 px (two rows took 100 px and the six sections
+ * scrolled sideways). The logo and the data-source tools stay; the sections
+ * and search move into the Menu, beside language and theme.
  */
 @media (max-width: 35rem) {
   .headerInner {
-    padding-top: var(--s2);
-    row-gap: var(--s1);
-    grid-template-columns: minmax(0, 1fr) auto 2.5rem;
-    grid-template-areas:
-      'brand tools tools'
-      'nav nav search';
+    padding-block: var(--s2);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'brand tools';
+  }
+
+  .nav,
+  .paletteButton {
+    display: none;
+  }
+
+  /* As wide as the screen allows, lined up with the page gutter. */
+  .morePanel {
+    width: min(22rem, calc(100vw - 2 * var(--gutter)));
   }
 
   .home {

@@ -47,11 +47,12 @@ function ThemeToggle() {
 }
 
 /**
- * Phones only (the stylesheet hides it elsewhere): language and theme behind
- * one button, so the header keeps to two rows. A disclosure, not a modal:
- * Tab walks into it, Escape or a tap outside closes it.
+ * Phones only (the stylesheet hides it elsewhere): the six sections, search,
+ * language and theme behind one Menu button, so the header is a single row
+ * and nothing scrolls sideways. A disclosure, not a modal: Tab walks into it;
+ * Escape, a tap outside, a section or search closes it.
  */
-function MoreMenu() {
+function MoreMenu({ onSearch }: { onSearch: () => void }) {
   const t = useT(text);
   const theme = useTheme();
   const uid = useId();
@@ -91,10 +92,37 @@ function MoreMenu() {
         title={t.more.button}
         onClick={() => setOpen((o) => !o)}
       >
-        <Icon name="more" />
+        <Icon name={open ? 'close' : 'menu'} />
       </button>
       {open ? (
         <div ref={panel} id={`${uid}-panel`} className={styles.morePanel} role="group" aria-label={t.more.button}>
+          <nav aria-label={t.sections}>
+            <ul role="list" className={styles.menuLinks}>
+              {NAV.map((item) => (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    className={({ isActive }) => (isActive ? `${styles.menuLink} ${styles.menuLinkActive}` : styles.menuLink)}
+                    onClick={() => setOpen(false)}
+                  >
+                    {t.nav[item.key]}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <button
+            type="button"
+            className={`btn btn-sm ${styles.menuSearch}`}
+            aria-haspopup="dialog"
+            onClick={() => {
+              setOpen(false);
+              onSearch();
+            }}
+          >
+            <Icon name="search" />
+            {t.palette.button}
+          </button>
           <div className={styles.moreRow}>
             <span className={styles.moreLabel} aria-hidden="true">
               {t.more.language}
@@ -410,7 +438,7 @@ export function AppShell() {
               <LanguageSwitch />
               <ThemeToggle />
             </div>
-            <MoreMenu />
+            <MoreMenu onSearch={palette.show} />
           </div>
         </div>
       </header>

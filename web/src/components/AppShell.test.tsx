@@ -35,7 +35,7 @@ describe('app shell', () => {
     expect(screen.getByText('Örnek veri')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Açık tema. Koyu temaya geç' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Hızlı arama/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Dil ve tema' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Menü' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Bağlantı ayarları/ })).toBeInTheDocument();
 
     const links = screen.getByRole('list', { name: 'Proje bağlantıları' });
@@ -55,14 +55,19 @@ describe('app shell', () => {
     await waitFor(() => expect(document.title).toBe('Idea F4 · LIBRAIN'));
   });
 
-  it('puts language and theme behind one button for phones, as a disclosure', async () => {
+  it('puts the sections, search, language and theme behind one Menu button for phones, as a disclosure', async () => {
     const { user } = renderApp('/explore/stats', 'en');
-    const more = screen.getByRole('button', { name: 'Language and theme' });
-    expect(more).toHaveAttribute('aria-expanded', 'false');
-    await user.click(more);
-    expect(more).toHaveAttribute('aria-expanded', 'true');
-    const panel = screen.getByRole('group', { name: 'Language and theme' });
-    expect(more).toHaveAttribute('aria-controls', panel.id);
+    const menu = screen.getByRole('button', { name: 'Menu' });
+    expect(menu).toHaveAttribute('aria-expanded', 'false');
+    await user.click(menu);
+    expect(menu).toHaveAttribute('aria-expanded', 'true');
+    const panel = screen.getByRole('group', { name: 'Menu' });
+    expect(menu).toHaveAttribute('aria-controls', panel.id);
+
+    // The six sections, so the phone header needs no second row that scrolls sideways.
+    const sections = within(panel).getByRole('navigation', { name: 'Sections' });
+    expect(within(sections).getAllByRole('link').map((a) => a.textContent)).toEqual(['Ideas', 'New idea', 'Ask', 'Compare', 'Papers', 'History']);
+    expect(within(sections).getByRole('link', { name: 'Ideas' })).toHaveAttribute('aria-current', 'page');
 
     await user.click(within(panel).getByRole('button', { name: 'Switch to dark theme' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
@@ -70,17 +75,29 @@ describe('app shell', () => {
 
     await user.click(within(within(panel).getByRole('group', { name: 'Language' })).getByRole('button', { name: 'Türkçe' }));
     expect(document.documentElement.lang).toBe('tr');
-    expect(screen.getByRole('group', { name: 'Dil ve tema' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Menü' })).toBeInTheDocument();
 
     // Escape closes it and gives focus back to its button.
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('group', { name: 'Dil ve tema' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Dil ve tema' })).toHaveFocus();
+    expect(screen.queryByRole('group', { name: 'Menü' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Menü' })).toHaveFocus();
 
     // A tap outside closes it too.
-    await user.click(screen.getByRole('button', { name: 'Dil ve tema' }));
+    await user.click(screen.getByRole('button', { name: 'Menü' }));
     await user.click(document.body);
-    expect(screen.queryByRole('group', { name: 'Dil ve tema' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Menü' })).not.toBeInTheDocument();
+
+    // Choosing a section closes it and goes there.
+    await user.click(screen.getByRole('button', { name: 'Menü' }));
+    await user.click(within(screen.getByRole('group', { name: 'Menü' })).getByRole('link', { name: 'Makaleler' }));
+    expect(screen.queryByRole('group', { name: 'Menü' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Makale/ })).toBeInTheDocument();
+
+    // Search closes it and opens the palette.
+    await user.click(screen.getByRole('button', { name: 'Menü' }));
+    await user.click(within(screen.getByRole('group', { name: 'Menü' })).getByRole('button', { name: 'Ara' }));
+    expect(screen.queryByRole('group', { name: 'Menü' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('combobox')).toBeInTheDocument();
   });
 
   it('cycles the theme from the header, in step with the palette', async () => {

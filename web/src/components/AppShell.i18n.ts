@@ -27,7 +27,7 @@ export const text = strings({
       label: (shortcut: string) => `Quick search (${shortcut})`,
     },
     more: {
-      button: 'Language and theme',
+      button: 'Menu',
       language: 'Language',
       theme: 'Theme',
     },
@@ -83,7 +83,7 @@ export const text = strings({
       label: (shortcut: string) => `Hızlı arama (${shortcut})`,
     },
     more: {
-      button: 'Dil ve tema',
+      button: 'Menü',
       language: 'Dil',
       theme: 'Tema',
     },
