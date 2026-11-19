@@ -594,3 +594,73 @@
   font-size: var(--fs-xs);
   color: var(--ink-3);
 }
+
+/* ---------- First screen: how it works, beside the hero ---------- */
+
+.how {
+  display: grid;
+  gap: var(--s4);
+  min-width: 0;
+  padding: var(--s5);
+  background: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+}
+
+@media (max-width: 30rem) {
+  .how {
+    padding: var(--s4);
+  }
+}
+
+.howTitle {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* Beside the hero the column is narrow, so the steps stack. */
+.how .steps {
+  margin-top: 0;
+}
+
+@media (min-width: 64rem) {
+  .how .steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+  }
+}
+
+/* ---------- The example, after the marks it uses ---------- */
+
+.exampleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+  margin-top: var(--s5);
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .exampleGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    gap: var(--s7);
+  }
+}
+
+.legendBox .legendTitle {
+  margin-top: 0;
+}
+
+@media (min-width: 64rem) {
+  .legendBox .legend {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The key stays beside the example while it is read (the header is about 4.25rem tall). */
+  .legendBox {
+    position: sticky;
+    top: 6rem;
+  }
+}

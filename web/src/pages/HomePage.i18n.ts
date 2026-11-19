@@ -20,8 +20,8 @@ export const text = strings({
   en: {
     hero: {
       eyebrow: 'Open-source research demo',
-      title: `Research ideas from ${en.papers} papers, with every sentence checked`,
-      lede: 'LIBRAIN answers questions with the exact passages it used, and suggests ideas that link two topics. A second AI then marks each sentence: backed by the papers, a reasoned guess, or risky.',
+      title: 'An AI that suggests research ideas, and shows where it’s guessing',
+      lede: `LIBRAIN reads ${en.papers} scientific papers. Give it two topics and it suggests a research idea that links them, or ask it a question and it answers with the passages it used. A second AI then checks every sentence: backed by the papers, a reasoned guess, or risky.`,
       primary: `See ${RECORDED_IDEA_COUNT} checked ideas`,
       secondary: 'Try your own topics',
       free: 'Free to browse. No account, no key.',
@@ -98,8 +98,8 @@ export const text = strings({
   tr: {
     hero: {
       eyebrow: 'Açık kaynaklı araştırma demosu',
-      title: `${tr.papers} makaleden araştırma fikirleri, her cümlesi kontrol edilmiş`,
-      lede: 'LIBRAIN sorularınızı dayandığı parçaları göstererek yanıtlar ve iki konuyu birbirine bağlayan fikirler önerir. Ardından ikinci bir yapay zekâ her cümleyi işaretler: makalelerde dayanağı var, makul bir tahmin ya da riskli.',
+      title: 'Araştırma fikirleri öneren ve nerede tahmin yürüttüğünü gösteren bir yapay zekâ',
+      lede: `LIBRAIN ${tr.papers} bilimsel makaleyi okur. İki konu verin, onları birbirine bağlayan bir araştırma fikri önersin; ya da bir soru sorun, dayandığı parçaları göstererek yanıtlasın. Ardından ikinci bir yapay zekâ her cümleyi kontrol eder: makalelerde dayanağı var, makul bir tahmin ya da riskli.`,
       primary: `Kontrol edilmiş ${RECORDED_IDEA_COUNT} fikri görün`,
       secondary: 'Kendi konularınızı deneyin',
       free: 'Göz atmak ücretsiz. Hesap ya da API key gerekmez.',

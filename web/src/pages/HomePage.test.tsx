@@ -30,23 +30,28 @@ const riskyIndex = claims.findIndex((c) => c.status === 2);
 describe('home page', () => {
   it('says what LIBRAIN is and routes to the ideas and to a new idea', () => {
     renderHome();
-    expect(screen.getByRole('heading', { level: 1, name: `Research ideas from ${LIBRARY.papers} papers, with every sentence checked` })).toBeInTheDocument();
-    expect(screen.getByText(/^LIBRAIN answers questions with the exact passages it used/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'An AI that suggests research ideas, and shows where it’s guessing' })).toBeInTheDocument();
+    expect(screen.getByText(`LIBRAIN reads ${LIBRARY.papers} scientific papers.`, { exact: false })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: `See ${RECORDED_IDEA_COUNT} checked ideas` })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Try your own topics' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Free to browse. No account, no key.')).toBeInTheDocument();
     // Plain HTML structure: one h1, then sections with h2 headings.
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    for (const name of ['Example: the checker catches a bold number', 'How it works', 'Ready-made or live', 'What’s inside', 'About the project']) {
-      expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
-    }
+    // How it works comes before the example, so the first screen explains rather than shows.
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+      'How it works',
+      'Example: the checker catches a bold number',
+      'Ready-made or live',
+      'What’s inside',
+      'About the project',
+    ]);
   });
 
   it('shows the recorded idea D1 with its verdicts and the reason for the risky sentence, without the network', () => {
     renderHome();
     const example = screen.getByRole('region', { name: 'Example: the checker catches a bold number' });
     expect(example).toHaveTextContent('Topics: Self-RAG (an AI that critiques its own answers) + PharmAgents (AI agents for drug discovery)');
-    const sentences = within(example).getAllByRole('listitem');
+    const sentences = within(within(example).getByRole('list', { name: 'The idea’s new claim, as the checker marked it' })).getAllByRole('listitem');
     expect(sentences).toHaveLength(claims.length);
     // Read from the recorded run: an extrapolated sentence at 25% and a risky one at 72%.
     expect(sentences[0]).toHaveTextContent(claims[0]!.sentence);
@@ -68,9 +73,12 @@ describe('home page', () => {
       'Pick two topics, or ask a question',
       'LIBRAIN finds passages and suggests an idea',
       'A second AI checks every sentence',
-      'What the marks mean',
     ]);
-    const legend = within(how).getByRole('list', { name: 'What the marks mean' });
+    // The marks are explained beside the example that uses them, before it.
+    const example = screen.getByRole('region', { name: 'Example: the checker catches a bold number' });
+    const legend = within(example).getByRole('list', { name: 'What the marks mean' });
+    const claimList = within(example).getByRole('list', { name: 'The idea’s new claim, as the checker marked it' });
+    expect(legend.compareDocumentPosition(claimList) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(legend).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
       'GroundedBacked by a passage in the papers.',
       'ExtrapolatedA reasoned guess that goes beyond the papers, and says so.',
@@ -104,13 +112,13 @@ describe('home page', () => {
 
   it('speaks Turkish, with the translated example and its reason', () => {
     renderHome('tr');
-    expect(screen.getByRole('heading', { level: 1, name: `${LIBRARY.papers} makaleden araştırma fikirleri, her cümlesi kontrol edilmiş` })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Araştırma fikirleri öneren ve nerede tahmin yürüttüğünü gösteren bir yapay zekâ' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: `Kontrol edilmiş ${RECORDED_IDEA_COUNT} fikri görün` })).toHaveAttribute('href', '/explore');
     expect(screen.getByRole('link', { name: 'Kendi konularınızı deneyin' })).toHaveAttribute('href', '/discover');
     expect(screen.getByText('Göz atmak ücretsiz. Hesap ya da API key gerekmez.')).toBeInTheDocument();
 
     const example = screen.getByRole('region', { name: 'Örnek: denetleyici iddialı bir sayıyı yakalıyor' });
-    const sentences = within(example).getAllByRole('listitem');
+    const sentences = within(within(example).getByRole('list', { name: 'Fikrin yeni iddiası, denetleyicinin işaretleriyle' })).getAllByRole('listitem');
     expect(sentences[0]).toHaveTextContent('Cümle 1: Varsayımsal');
     expect(sentences[0]).toHaveTextContent('Uydurma olasılığı: %25');
     expect(sentences[riskyIndex]).toHaveTextContent(trD1.claims[riskyIndex]!.sentence);

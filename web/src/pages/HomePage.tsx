@@ -14,8 +14,9 @@ import { text } from './HomePage.i18n';
 import styles from './HomePage.module.css';
 
 /*
- * "/": what LIBRAIN is in the first five seconds, one real checked idea as
- * proof, then the ways in. The example is the recorded run D1 (with its
+ * "/": what LIBRAIN is and how it works, side by side in the first screen;
+ * then one real checked idea as proof, with what its marks mean; then the
+ * ways in. The example is the recorded run D1 (with its
  * Turkish translation laid over it in Turkish), imported on its own so this
  * page never loads the chunk of recorded runs.
  */
@@ -74,7 +75,11 @@ function Hero() {
   );
 }
 
-/** D1's two novel-claim sentences with the validator's verdicts, and its reason for the risky one. */
+/**
+ * After the explanation, the proof: what the marks mean, then D1's two
+ * novel-claim sentences with the validator's verdicts and its reason for the
+ * risky one.
+ */
 function Example() {
   const t = useT(text).example;
   const { lang } = useLang();
@@ -85,65 +90,71 @@ function Example() {
   const verdicts = useT(text).how.verdicts;
 
   return (
-    <section className={styles.example} aria-labelledby={`${uid}-title`}>
-      <h2 id={`${uid}-title`} className={styles.exampleTitle}>
+    <section className={styles.section} aria-labelledby={`${uid}-title`}>
+      <h2 id={`${uid}-title`} className={styles.sectionTitle}>
         {t.title}
       </h2>
-      <p className={styles.topics}>
-        <span className={styles.topicsLabel}>{t.topicsLabel}: </span>
-        {t.topics.map((topic, i) => (
-          <span key={topic.name}>
-            {i > 0 ? ' + ' : null}
-            <strong>{topic.name}</strong> ({topic.gloss})
-          </span>
-        ))}
-      </p>
-
-      <p className={styles.claimLabel} id={`${uid}-claim`}>
-        {t.claimLabel}
-      </p>
-      <ol role="list" className={styles.sentences} aria-labelledby={`${uid}-claim`}>
-        {claims.map((claim, i) => (
-          <li key={i} className={styles.sentenceItem} data-status={claim.status}>
-            <p className={styles.verdictRow}>
-              <span className={styles.badge} data-status={claim.status}>
-                <StatusIcon status={claim.status} size={12} />
-                <span className="visually-hidden">{t.sentence(i + 1)}: </span>
-                {verdicts[claim.status].label}
+      <div className={styles.exampleGrid}>
+        <Legend />
+        <div className={styles.example}>
+          <p className={styles.topics}>
+            <span className={styles.topicsLabel}>{t.topicsLabel}: </span>
+            {t.topics.map((topic, i) => (
+              <span key={topic.name}>
+                {i > 0 ? ' + ' : null}
+                <strong>{topic.name}</strong> ({topic.gloss})
               </span>
-              <span className={`${styles.probability} num`}>{t.probability(formatPercent(claim.factualHallucinationProbability, lang))}</span>
-            </p>
-            <p className={styles.sentence}>
-              <span className={styles.marked}>{claim.sentence}</span>
-            </p>
-          </li>
-        ))}
-      </ol>
+            ))}
+          </p>
 
-      {risky ? (
-        <div className={styles.reason}>
-          <p className={styles.reasonLabel}>{t.reasonFor(riskyIndex + 1)}</p>
-          <blockquote className={styles.reasonText}>
-            <p>{risky.rationale}</p>
-          </blockquote>
+          <p className={styles.claimLabel} id={`${uid}-claim`}>
+            {t.claimLabel}
+          </p>
+          <ol role="list" className={styles.sentences} aria-labelledby={`${uid}-claim`}>
+            {claims.map((claim, i) => (
+              <li key={i} className={styles.sentenceItem} data-status={claim.status}>
+                <p className={styles.verdictRow}>
+                  <span className={styles.badge} data-status={claim.status}>
+                    <StatusIcon status={claim.status} size={12} />
+                    <span className="visually-hidden">{t.sentence(i + 1)}: </span>
+                    {verdicts[claim.status].label}
+                  </span>
+                  <span className={`${styles.probability} num`}>{t.probability(formatPercent(claim.factualHallucinationProbability, lang))}</span>
+                </p>
+                <p className={styles.sentence}>
+                  <span className={styles.marked}>{claim.sentence}</span>
+                </p>
+              </li>
+            ))}
+          </ol>
+
+          {risky ? (
+            <div className={styles.reason}>
+              <p className={styles.reasonLabel}>{t.reasonFor(riskyIndex + 1)}</p>
+              <blockquote className={styles.reasonText}>
+                <p>{risky.rationale}</p>
+              </blockquote>
+            </div>
+          ) : null}
+
+          {t.translated ? <p className={styles.note}>{t.translated}</p> : null}
+          <p className={styles.note}>{t.credit}</p>
+          <Link to={`/explore/${EXAMPLE_ID}`} className={styles.exampleLink}>
+            {t.open}
+            <Icon name="arrow" size={14} />
+          </Link>
         </div>
-      ) : null}
-
-      {t.translated ? <p className={styles.note}>{t.translated}</p> : null}
-      <p className={styles.note}>{t.credit}</p>
-      <Link to={`/explore/${EXAMPLE_ID}`} className={styles.exampleLink}>
-        {t.open}
-        <Icon name="arrow" size={14} />
-      </Link>
+      </div>
     </section>
   );
 }
 
+/** Beside the hero: the three steps, so a first visit reads what happens before any example. */
 function HowItWorks() {
   const t = useT(text).how;
   return (
-    <section className={styles.section} aria-labelledby="home-how">
-      <h2 id="home-how" className={styles.sectionTitle}>
+    <section className={styles.how} aria-labelledby="home-how">
+      <h2 id="home-how" className={styles.howTitle}>
         {t.title}
       </h2>
       <ol role="list" className={styles.steps}>
@@ -157,7 +168,15 @@ function HowItWorks() {
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
 
+/** What the three marks mean, read just before the example that uses them. */
+function Legend() {
+  const t = useT(text).how;
+  return (
+    <div className={styles.legendBox}>
       <h3 id="home-legend" className={styles.legendTitle}>
         {t.legendTitle}
       </h3>
@@ -172,7 +191,7 @@ function HowItWorks() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   );
 }
 
@@ -295,9 +314,9 @@ export default function HomePage() {
     <div className={`page ${styles.home}`}>
       <section className={styles.hero} aria-labelledby="home-title">
         <Hero />
-        <Example />
+        <HowItWorks />
       </section>
-      <HowItWorks />
+      <Example />
       <Modes />
       <Inside />
       <About />
