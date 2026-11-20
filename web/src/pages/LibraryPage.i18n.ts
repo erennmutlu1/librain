@@ -6,8 +6,8 @@ const tr = libraryCounts('tr');
 
 export const text = strings({
   en: {
-    title: 'Papers',
-    ledeIdle: 'The papers LIBRAIN can search. Ask, New idea and Compare all take their evidence from here.',
+    title: 'Library',
+    ledeIdle: 'The papers LIBRAIN can search. Ask, Discover and Compare all take their evidence from here.',
     ledeEmpty: 'No papers yet.',
     /**
      * Recorded mode lists the ids the recorded runs cite. `older` of them come
@@ -16,7 +16,7 @@ export const text = strings({
     ledeRecorded: (today: string, cited: string, current: string, older: string) =>
       `Today’s library has ${today} papers; the recorded runs cite ${cited} paper IDs: ${current} from today’s library and ${older} from an earlier, smaller library (13 papers) used to compare LIBRAIN with simpler systems.`,
     ledeLive: (papers: string, passages: string) =>
-      `${papers} papers, split into ${passages} passages. Ask, New idea and Compare all search this library.`,
+      `${papers} papers, split into ${passages} passages. Ask, Discover and Compare all search this library.`,
     /** PUBLIC_CORPUS_NOTE below is this English text; the numbers come from src/lib/library.ts. */
     corpusNote: `The public paper library is read-only: ${en.papers} papers, ${en.passages} passages.`,
     papers: 'Paper list',
@@ -34,7 +34,7 @@ export const text = strings({
     earlierTitle: 'Not in today’s library: an earlier, 13-paper library had this ID.',
     loading: 'Loading papers…',
     emptyTitle: 'The library is empty',
-    emptyBody: 'Upload a PDF or add an arXiv paper to start. Every paper you add can be searched from Ask, New idea and Compare.',
+    emptyBody: 'Upload a PDF or add an arXiv paper to start. Every paper you add can be searched from Ask, Discover and Compare.',
     deleted: (id: string) => `Deleted ${id}.`,
     columns: { paper: 'Paper', authors: 'Authors', year: 'Year', chunks: 'Passages', added: 'Added', actions: 'Actions' },
     csv: {
@@ -55,13 +55,13 @@ export const text = strings({
     keep: 'Keep',
   },
   tr: {
-    title: 'Makaleler',
-    ledeIdle: 'LIBRAIN’in arayabildiği makaleler. Sor, Yeni fikir ve Karşılaştır kanıtlarını buradan alır.',
+    title: 'Kütüphane',
+    ledeIdle: 'LIBRAIN’in arayabildiği makaleler. Sor, Keşfet ve Karşılaştır kanıtlarını buradan alır.',
     ledeEmpty: 'Henüz makale yok.',
     ledeRecorded: (today: string, cited: string, current: string, older: string) =>
       `Bugünkü makale kütüphanesinde ${today} makale var; hazır çalıştırmalar ${cited} makale kimliğine atıf yapıyor: bugünkü kütüphaneden ${current} makale ve LIBRAIN’i daha basit sistemlerle karşılaştırmak için kullanılan daha eski, küçük bir kütüphaneden (13 makale) ${older} kimlik.`,
     ledeLive: (papers: string, passages: string) =>
-      `${papers} makale, ${passages} parçaya bölünmüş durumda. Sor, Yeni fikir ve Karşılaştır bu kütüphanede arar.`,
+      `${papers} makale, ${passages} parçaya bölünmüş durumda. Sor, Keşfet ve Karşılaştır bu kütüphanede arar.`,
     corpusNote: `Herkese açık makale kütüphanesi salt okunurdur: ${tr.papers} makale, ${tr.passages} parça.`,
     papers: 'Makale listesi',
     caption: 'Kütüphanedeki makaleler',
@@ -78,7 +78,7 @@ export const text = strings({
     earlierTitle: 'Bugünkü kütüphanede yok: bu kimlik, 13 makalelik önceki bir kütüphanedeydi.',
     loading: 'Makaleler yükleniyor…',
     emptyTitle: 'Kütüphane boş',
-    emptyBody: 'Başlamak için bir PDF yükleyin ya da arXiv’den bir makale ekleyin. Eklediğiniz her makale Sor, Yeni fikir ve Karşılaştır’da aranabilir.',
+    emptyBody: 'Başlamak için bir PDF yükleyin ya da arXiv’den bir makale ekleyin. Eklediğiniz her makale Sor, Keşfet ve Karşılaştır’da aranabilir.',
     deleted: (id: string) => `${id} silindi.`,
     columns: { paper: 'Makale', authors: 'Yazarlar', year: 'Yıl', chunks: 'Parça', added: 'Eklenme', actions: 'İşlemler' },
     csv: {

@@ -54,7 +54,7 @@ describe('Explore detail: new flows', () => {
     const remix = await screen.findByRole('link', { name: 'Use these topics' });
     const { topicA, topicB, topK } = raw('F4').request;
     expect(remix).toHaveAttribute('href', `/discover?a=${encodeURIComponent(topicA)}&b=${encodeURIComponent(topicB)}&k=${topK ?? 5}`);
-    expect(remix).toHaveAccessibleDescription(/Fills the New idea form with this idea’s topics/);
+    expect(remix).toHaveAccessibleDescription(/Fills the Discover form with this idea’s topics/);
   });
 
   it('exports the discovery as Markdown and the recorded run as JSON', async () => {

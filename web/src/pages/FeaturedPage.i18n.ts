@@ -19,7 +19,7 @@ export const featuredPageText = strings({
     seeFeatured: 'See the featured ideas',
     notFoundBody: (ids: string) => `The featured runs are ${ids}. The link may have a typo, or the run may have left the selection.`,
     pageHeading: (topic: string) => `Featured idea: ${topic}`,
-    discover: 'New idea',
+    discover: 'Discover',
   },
   tr: {
     recordedTitle: 'Kayıtlı çalıştırma, şimdi üretilmedi.',
@@ -39,6 +39,6 @@ export const featuredPageText = strings({
     seeFeatured: 'Öne çıkan fikirleri gör',
     notFoundBody: (ids: string) => `Öne çıkan çalıştırmalar: ${ids}. Bağlantıda yazım hatası olabilir ya da çalıştırma seçkiden çıkarılmış olabilir.`,
     pageHeading: (topic: string) => `Öne çıkan fikir: ${topic}`,
-    discover: 'Yeni fikir',
+    discover: 'Keşfet',
   },
 });

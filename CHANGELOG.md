@@ -20,6 +20,11 @@
 - Concurrent first requests could race to create the Qdrant collection.
 - Unused Microsoft.SemanticKernel package removed, which also removed the vulnerable transitive Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc).
 
+### Changed
+
+- The web UI's sections are named Explore, Discover, Ask, Compare, Library and History again (Turkish: Fikirler, Keşfet, Sor, Karşılaştır, Kütüphane, Geçmiş). The routes are unchanged, so existing links keep working.
+- The public deployment's read-only message no longer states a paper count that goes stale.
+
 ### Added
 
 - Public demo at https://librain.erenmutlu.me (GitHub Pages) with the API at https://librain.onrender.com (Render, free). Recorded runs replay without keys; live runs use the visitor's own Anthropic and OpenAI keys. Public mode (`Public__Enabled=true`) never reads configured keys, keeps the corpus read-only, stores no runs, and turns provider failures (rejected key, no credit, rate limit) into clear messages. Setup and checks: `deploy/README.md`.

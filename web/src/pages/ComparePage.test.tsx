@@ -34,7 +34,7 @@ describe('Compare: no recording for the topics', () => {
     expect(form).toContainElement(wrapper);
     expect(submit.compareDocumentPosition(wrapper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getAllByText('This is the recorded demo, and no recorded run matches these inputs.')).toHaveLength(1);
-    expect(within(wrapper).getByText(/pick a suggested topic or question, open Ideas/)).toBeInTheDocument();
+    expect(within(wrapper).getByText(/pick a suggested topic or question, open Explore/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 });

@@ -2,7 +2,7 @@ import { strings } from '../i18n/lang';
 
 export const text = strings({
   en: {
-    title: 'New idea',
+    title: 'Discover',
     lede: 'Give LIBRAIN one or two topics. It retrieves evidence for each, proposes a hypothesis that goes beyond the papers, and has a second model check every sentence of the speculative part.',
     hintA: 'For example: weather foundation models',
     hintB: 'For example: renewable energy planning',
@@ -20,15 +20,15 @@ export const text = strings({
     prefilled: 'Filled in from the link. Nothing runs until you press Discover.',
     recordedTip: 'Recorded mode replays a run only for its exact topics. Pick a topic from the suggestions and its recorded partner fills in.',
     /** While typing in Recorded mode, when the topics match no recording. */
-    noRecordingHint: 'No recording for these topics — pick a suggestion, open Ideas, or switch to Live.',
+    noRecordingHint: 'No recording for these topics — pick a suggestion, open Explore, or switch to Live.',
     noRecordingTitle: 'No recording matches these topics.',
     noRecordingBody:
-      'Recorded mode only replays real runs and never swaps in another one. Pick a topic from the suggestions, open Ideas to browse the recorded ones, or switch to Live to run your own topics with your own API keys (about US$0.07 per new idea).',
+      'Recorded mode only replays real runs and never swaps in another one. Pick a topic from the suggestions, open Explore to browse the recorded ones, or switch to Live to run your own topics with your own API keys (about US$0.07 per new idea).',
     switchLive: 'Switch to Live',
-    openIdeas: 'Open Ideas',
+    openIdeas: 'Open Explore',
   },
   tr: {
-    title: 'Yeni fikir',
+    title: 'Keşfet',
     lede: 'LIBRAIN’e bir ya da iki konu verin. Her biri için kanıt getirir, makalelerin ötesine geçen bir hipotez önerir ve bu hipotezin yeni iddiasındaki her cümleyi ikinci bir modele denetletir.',
     hintA: 'Örneğin: hava durumu temel modelleri',
     hintB: 'Örneğin: yenilenebilir enerji planlaması',

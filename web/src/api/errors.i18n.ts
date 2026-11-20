@@ -7,7 +7,7 @@ export const text = strings({
     requestFailed: (status: number) => `Request failed with status ${status}`,
     noRecordingTitle: 'This is the recorded demo, and no recorded run matches these inputs.',
     noRecordingDetail:
-      `Recorded mode only replays real runs and never swaps in a different one. To see a result, pick a suggested topic or question, open Ideas to browse the ${RECORDED_IDEA_COUNT} recorded ideas, or switch to Live to run your own inputs with your own Anthropic and OpenAI API keys (billed to you).`,
+      `Recorded mode only replays real runs and never swaps in a different one. To see a result, pick a suggested topic or question, open Explore to browse the ${RECORDED_IDEA_COUNT} recorded ideas, or switch to Live to run your own inputs with your own Anthropic and OpenAI API keys (billed to you).`,
     networkTitle: "Can't reach the LIBRAIN API.",
     networkDetailPublic: 'The public API may be down or starting up. Try again in a moment, or switch back to Recorded mode.',
     networkDetailLocal: 'Check that the API is running and reachable (see web/README.md), or use mock mode with VITE_USE_MOCKS=true.',

@@ -30,7 +30,7 @@ describe('app shell', () => {
     expect(screen.getByRole('link', { name: 'İçeriğe geç' })).toHaveAttribute('href', '#main');
     expect(screen.getByRole('link', { name: 'LIBRAIN ana sayfa' })).toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Bölümler' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Fikirler', 'Yeni fikir', 'Sor', 'Karşılaştır', 'Makaleler', 'Geçmiş']);
+    expect(within(nav).getAllByRole('link').map((a) => a.textContent)).toEqual(['Fikirler', 'Keşfet', 'Sor', 'Karşılaştır', 'Kütüphane', 'Geçmiş']);
     expect(within(nav).getByRole('link', { name: 'Fikirler' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('Örnek veri')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Açık tema. Koyu temaya geç' })).toBeInTheDocument();
@@ -66,8 +66,8 @@ describe('app shell', () => {
 
     // The six sections, so the phone header needs no second row that scrolls sideways.
     const sections = within(panel).getByRole('navigation', { name: 'Sections' });
-    expect(within(sections).getAllByRole('link').map((a) => a.textContent)).toEqual(['Ideas', 'New idea', 'Ask', 'Compare', 'Papers', 'History']);
-    expect(within(sections).getByRole('link', { name: 'Ideas' })).toHaveAttribute('aria-current', 'page');
+    expect(within(sections).getAllByRole('link').map((a) => a.textContent)).toEqual(['Explore', 'Discover', 'Ask', 'Compare', 'Library', 'History']);
+    expect(within(sections).getByRole('link', { name: 'Explore' })).toHaveAttribute('aria-current', 'page');
 
     await user.click(within(panel).getByRole('button', { name: 'Switch to dark theme' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
@@ -89,9 +89,9 @@ describe('app shell', () => {
 
     // Choosing a section closes it and goes there.
     await user.click(screen.getByRole('button', { name: 'Menü' }));
-    await user.click(within(screen.getByRole('group', { name: 'Menü' })).getByRole('link', { name: 'Makaleler' }));
+    await user.click(within(screen.getByRole('group', { name: 'Menü' })).getByRole('link', { name: 'Kütüphane' }));
     expect(screen.queryByRole('group', { name: 'Menü' })).not.toBeInTheDocument();
-    expect(await screen.findByRole('heading', { level: 1, name: /Makale/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Kütüphane/ })).toBeInTheDocument();
 
     // Search closes it and opens the palette.
     await user.click(screen.getByRole('button', { name: 'Menü' }));

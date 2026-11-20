@@ -22,14 +22,14 @@ describe('App (mock mode, no network)', () => {
     setup('/library');
     const nav = screen.getByRole('navigation', { name: 'Sections' });
     expect(within(nav).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-      ['Ideas', '/explore'],
-      ['New idea', '/discover'],
+      ['Explore', '/explore'],
+      ['Discover', '/discover'],
       ['Ask', '/ask'],
       ['Compare', '/compare'],
-      ['Papers', '/library'],
+      ['Library', '/library'],
       ['History', '/history'],
     ]);
-    expect(within(nav).getByRole('link', { name: 'Papers' })).toHaveAttribute('aria-current', 'page');
+    expect(within(nav).getByRole('link', { name: 'Library' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByText('Mock data')).toBeInTheDocument();
     // The captured papers list plus ids cited by the recordings (never invented titles).
     expect(await screen.findByRole('table')).toBeInTheDocument();
@@ -179,18 +179,18 @@ describe('App routes and titles', () => {
   });
 
   it.each([
-    ['/explore', 'Ideas · LIBRAIN'],
+    ['/explore', 'Explore · LIBRAIN'],
     ['/explore/stats', 'Idea statistics · LIBRAIN'],
     ['/explore/quiz', 'Spot the risk · LIBRAIN'],
     ['/explore/d1', 'Idea D1 · LIBRAIN'],
     ['/explore/D1/full', 'Idea D1 · LIBRAIN'],
-    ['/discover', 'New idea · LIBRAIN'],
-    ['/discover/', 'New idea · LIBRAIN'],
+    ['/discover', 'Discover · LIBRAIN'],
+    ['/discover/', 'Discover · LIBRAIN'],
     ['/discover/featured', 'Featured ideas · LIBRAIN'],
     ['/discover/featured/pair-10', 'Featured idea · LIBRAIN'],
     ['/ask', 'Ask · LIBRAIN'],
     ['/compare', 'Compare · LIBRAIN'],
-    ['/library', 'Papers · LIBRAIN'],
+    ['/library', 'Library · LIBRAIN'],
     ['/history', 'History · LIBRAIN'],
     ['/history/abc', 'Run · LIBRAIN'],
     ['/no/such/page', 'Page not found · LIBRAIN'],

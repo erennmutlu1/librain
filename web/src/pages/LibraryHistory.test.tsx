@@ -61,7 +61,7 @@ describe('Library table', () => {
 
   it('speaks Turkish', async () => {
     setup('/library', 'tr');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Makaleler' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Kütüphane' })).toBeInTheDocument();
     const table = await screen.findByRole('table', { name: /^Kütüphanedeki makaleler/ });
     expect(within(table).getByRole('columnheader', { name: 'Parça' })).toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toBeInTheDocument();

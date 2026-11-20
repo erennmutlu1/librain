@@ -184,7 +184,7 @@ describe('exporters', () => {
 
   it('exports Markdown with the sentence verdicts', () => {
     const md = runToMarkdown(run);
-    expect(md).toMatch(/^# New idea: Drug discovery × climate adaptation/);
+    expect(md).toMatch(/^# Discover: Drug discovery × climate adaptation/);
     expect(md).toContain('| 2 | Risky | 75% |');
     expect(md).toContain('were not recorded for this run');
   });

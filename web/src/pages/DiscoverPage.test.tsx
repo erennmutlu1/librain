@@ -227,8 +227,8 @@ afterEach(() => clearProviderKeys());
 describe('New idea: no recording in Recorded mode', () => {
   it('says so quietly while typing, and right under the submit row (focused) on submit', async () => {
     const { user, fetchImpl } = await setupPublic('/discover');
-    expect(await screen.findByRole('heading', { level: 1, name: 'New idea' })).toBeInTheDocument();
-    const hint = 'No recording for these topics — pick a suggestion, open Ideas, or switch to Live.';
+    expect(await screen.findByRole('heading', { level: 1, name: 'Discover' })).toBeInTheDocument();
+    const hint = 'No recording for these topics — pick a suggestion, open Explore, or switch to Live.';
     expect(screen.queryByText(hint)).not.toBeInTheDocument();
 
     await user.type(await topicA(), 'weather forecasting');
@@ -244,7 +244,7 @@ describe('New idea: no recording in Recorded mode', () => {
     // Directly under the submit row, not below the list of recorded runs.
     expect(notice.previousElementSibling).toContainElement(submit);
     expect(within(notice).getByRole('button', { name: 'Switch to Live' })).toBeInTheDocument();
-    expect(within(notice).getByRole('link', { name: 'Open Ideas' })).toHaveAttribute('href', '/explore');
+    expect(within(notice).getByRole('link', { name: 'Open Explore' })).toHaveAttribute('href', '/explore');
     // The quiet hint steps back while the notice says it.
     expect(screen.queryByText(hint)).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'weather forecasting × protein folding' })).not.toBeInTheDocument();
@@ -271,7 +271,7 @@ describe('New idea: no recording in Recorded mode', () => {
 
   it('says it in Turkish', async () => {
     const { user } = await setupPublic('/discover', { lang: 'tr' });
-    expect(await screen.findByRole('heading', { level: 1, name: 'Yeni fikir' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Keşfet' })).toBeInTheDocument();
     await user.type(await screen.findByRole('combobox', { name: 'Konu A' }), 'hava tahmini');
     expect(screen.getByText('Bu konular için hazır çalıştırma yok. Bir öneri seçin, Fikirler’i açın ya da Canlı moda geçin.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Keşfet' }));

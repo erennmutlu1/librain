@@ -5,11 +5,11 @@ export const text = strings({
   en: {
     home: 'LIBRAIN · Research ideas, every sentence checked',
     sections: {
-      library: 'Papers',
+      library: 'Library',
       ask: 'Ask',
-      discover: 'New idea',
+      discover: 'Discover',
       featured: 'Featured ideas',
-      explore: 'Ideas',
+      explore: 'Explore',
       stats: 'Idea statistics',
       quiz: 'Spot the risk',
       compare: 'Compare',
@@ -24,9 +24,9 @@ export const text = strings({
   tr: {
     home: 'LIBRAIN · Her cümlesi kontrol edilmiş araştırma fikirleri',
     sections: {
-      library: 'Makaleler',
+      library: 'Kütüphane',
       ask: 'Sor',
-      discover: 'Yeni fikir',
+      discover: 'Keşfet',
       featured: 'Öne çıkan fikirler',
       explore: 'Fikirler',
       stats: 'Fikir istatistikleri',

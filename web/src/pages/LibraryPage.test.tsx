@@ -46,7 +46,7 @@ describe('Library table', () => {
 describe('Library loading', () => {
   it('announces loading in a status region, then clears it', async () => {
     setup({ latency: 1 });
-    await screen.findByRole('heading', { level: 1, name: 'Papers' });
+    await screen.findByRole('heading', { level: 1, name: 'Library' });
     const status = screen.getAllByRole('status').find((el) => el.textContent === 'Loading papers…');
     expect(status).toBeDefined();
     expect(status).toHaveClass('visually-hidden');
@@ -56,7 +56,7 @@ describe('Library loading', () => {
 
   it('announces it in Turkish', async () => {
     setup({ lang: 'tr', latency: 1 });
-    await screen.findByRole('heading', { level: 1, name: 'Makaleler' });
+    await screen.findByRole('heading', { level: 1, name: 'Kütüphane' });
     expect(screen.getAllByRole('status').some((el) => el.textContent === 'Makaleler yükleniyor…')).toBe(true);
   });
 });
@@ -82,7 +82,7 @@ const olderIds = citedIds.filter(fromEarlierLibrary);
 describe('Papers in Recorded mode (public build)', () => {
   it('shows titles, authors, years and arXiv links from the catalogue, not bare ids', async () => {
     const { fetchImpl } = await setupRecorded('/library');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Papers' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Library' })).toBeInTheDocument();
     const table = await screen.findByRole('table', { name: /^Papers in the library/ });
     const selfRag = within(table).getByRole('rowheader', { name: /self-rag/ });
     expect(selfRag).toHaveTextContent('Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection');
@@ -126,7 +126,7 @@ describe('Papers in Recorded mode (public build)', () => {
 
   it('says it in Turkish', async () => {
     await setupRecorded('/library?q=gat', 'tr');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Makaleler' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Kütüphane' })).toBeInTheDocument();
     await screen.findByRole('table', { name: /^Kütüphanedeki makaleler/ });
     expect(screen.getByRole('searchbox', { name: 'Makaleleri kimlik, başlık ya da yazara göre arayın' })).toHaveValue('gat');
     const tr = libraryCounts('tr');

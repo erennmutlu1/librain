@@ -61,14 +61,14 @@ describe('command palette', () => {
     const go = within(listbox).getByRole('group', { name: 'Go to' });
     expect(within(go).getAllByRole('option').map((o) => o.querySelector('span > span')?.textContent)).toEqual([
       'Home',
-      'Ideas',
+      'Explore',
       'Featured ideas',
       'Idea statistics',
       'Spot the risk',
-      'New idea',
+      'Discover',
       'Ask',
       'Compare',
-      'Papers',
+      'Library',
       'History',
     ]);
     expect(activeOption(input)).toHaveAttribute('aria-selected', 'true');
@@ -130,8 +130,8 @@ describe('command palette', () => {
   it('offers any typed text as a new idea, with the topic encoded in the link', async () => {
     const { user, input, where } = renderPalette();
     await user.type(input, 'tidal energy & coral reefs');
-    const option = screen.getByRole('option', { name: /^New idea: tidal energy & coral reefs/ });
-    expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'New idea' })).toContainElement(option);
+    const option = screen.getByRole('option', { name: /^Discover: tidal energy & coral reefs/ });
+    expect(within(screen.getByRole('listbox')).getByRole('group', { name: 'Discover' })).toContainElement(option);
     // The last option: ArrowUp from the first wraps to it.
     await user.keyboard('{ArrowUp}');
     expect(activeOption(input)).toBe(option);
@@ -173,12 +173,12 @@ describe('command palette', () => {
     const { user, input } = renderPalette('tr');
     expect(input).toHaveAttribute('placeholder', 'Arayın ya da yeni fikir için bir konu yazın…');
     expect(screen.getByRole('group', { name: 'Git' })).toBeInTheDocument();
-    await user.type(input, 'makaleler');
-    expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Makaleler/);
+    await user.type(input, 'kutuphane');
+    expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Kütüphane/);
     await user.clear(input);
     await user.type(input, 'karsilastir');
     expect(within(screen.getByRole('listbox')).getAllByRole('option')[0]).toHaveAccessibleName(/^Karşılaştır/);
-    expect(screen.getByRole('option', { name: /^Yeni fikir: karsilastir/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^Keşfet: karsilastir/ })).toBeInTheDocument();
   });
 });
 

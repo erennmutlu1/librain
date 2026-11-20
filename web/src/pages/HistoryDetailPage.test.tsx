@@ -46,11 +46,11 @@ afterEach(() => {
 });
 
 describe('History detail', () => {
-  it('offers the run’s topics for a new idea: the New idea form prefilled, nothing run', async () => {
+  it('offers the run’s topics for a new idea: the Discover form prefilled, nothing run', async () => {
     await setup();
     const remix = await screen.findByRole('link', { name: 'Use these topics' });
     expect(remix).toHaveAttribute('href', '/discover?a=tidal%20energy&b=coral%20reefs&k=7');
-    expect(remix).toHaveAttribute('title', 'Fills the New idea form with these topics. Nothing runs until you press Discover.');
+    expect(remix).toHaveAttribute('title', 'Fills the Discover form with these topics. Nothing runs until you press Discover.');
   });
 
   it('keeps the request ID inside a closed Technical details disclosure', async () => {

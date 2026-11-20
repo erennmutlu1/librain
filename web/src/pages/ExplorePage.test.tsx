@@ -98,7 +98,7 @@ describe('Explore', () => {
     setup('/explore');
     const items = await cards();
     expect(items).toHaveLength(RUNS);
-    expect(within(screen.getByRole('navigation', { name: 'Sections' })).getByRole('link', { name: 'Ideas' })).toHaveAttribute(
+    expect(within(screen.getByRole('navigation', { name: 'Sections' })).getByRole('link', { name: 'Explore' })).toHaveAttribute(
       'aria-current',
       'page',
     );

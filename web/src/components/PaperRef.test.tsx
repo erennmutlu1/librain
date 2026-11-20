@@ -23,7 +23,7 @@ describe('PaperRef', () => {
         <PaperRef chunk="not-in-the-catalogue:1" />
       </MemoryRouter>,
     );
-    const link = screen.getByRole('link', { name: 'not-in-the-catalogue:1 (show this paper in Papers)' });
+    const link = screen.getByRole('link', { name: 'not-in-the-catalogue:1 (show this paper in the Library)' });
     expect(link).toHaveAttribute('href', '/library?q=not-in-the-catalogue');
     expect(screen.getByText('not-in-the-catalogue:1').tagName).toBe('CODE');
     // Unknown to the catalogue: no external link.
@@ -50,7 +50,7 @@ describe('PaperRef', () => {
       </LangProvider>,
     );
     expect(screen.getByRole('link', { name: 'arXiv (yeni sekmede açılır)' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Makaleler sayfasında göster/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Kütüphane sayfasında göster/ })).toBeInTheDocument();
   });
 
   it('links a catalogued paper with a corpus id (self-rag) to arXiv too', () => {

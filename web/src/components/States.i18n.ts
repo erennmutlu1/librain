@@ -6,7 +6,7 @@ export const text = strings({
     enterApiKey: 'Enter API key',
     enterKeys: 'Enter your keys',
     switchLive: 'Switch to Live',
-    openIdeas: 'Browse Ideas',
+    openIdeas: 'Browse the ideas',
     elapsed: 'elapsed',
     sec: 's',
     cancel: 'Cancel',

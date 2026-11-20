@@ -126,7 +126,7 @@ The full ingest, synthesis, and discovery pipeline needs an Anthropic key, an Op
 # 2. Build (no keys needed)
 dotnet build LIBRAIN.sln
 
-# 3. Run the test suite (230 tests, fully offline, no keys / network / Qdrant)
+# 3. Run the test suite (282 tests, fully offline, no keys / network / Qdrant)
 dotnet test LIBRAIN.Tests/LIBRAIN.Tests.csproj
 
 # 4. Reproduce the paper numbers from committed result data (offline)
@@ -279,7 +279,7 @@ See [`PROJECT_PLAN.md`](PROJECT_PLAN.md) for detailed scope.
 - Anthropic prompt caching: enabled for the static system prompt and tool schema on every agent. Measured over 46 Discovery runs on 2026-11-18, it took effect only for the Sonnet generation call (11% of its prompt tokens read from cache); the Haiku judge and validator prompts are shorter than the minimum length the API caches, so they are never cached. The audit log records `cacheRead` / `cacheCreate` per call.
 - Cost per Discovery run: **US$0.066 on average** (US$0.057–0.075), measured from logged token counts over 46 runs on 2026-11-18 (Sonnet 4.6 generation ≈ 70%, two Haiku 4.5 calls ≈ 30%). See [`experiments/featured-discoveries/`](experiments/featured-discoveries/) and [`experiments/new-areas-discoveries/`](experiments/new-areas-discoveries/).
 - RQ3 fabrication-delta (cross-family, OpenAI gpt-4o-mini + gpt-4o, 160 cells): under free-text citations, weaker models, and starved retrieval, the contract-free baseline surfaced **67** fabricated citations (14 clean, 53 starved) while the contracted pipeline leaked **0**, a *measured* benefit, not only a structural guarantee. Reproduce with `dotnet run --project LIBRAIN.Experiments -- fabrication-delta --provider openai`.
-- Tests: **237 backend** (pure logic, replay of all committed results, every HTTP endpoint in memory, Qdrant integration) and **173 web UI** tests, all passing in CI.
+- Tests: **282 backend** (pure logic, replay of the paper's committed results, every HTTP endpoint in memory, Qdrant integration) and **569 web UI** tests, all passing in CI.
 
 ---
 

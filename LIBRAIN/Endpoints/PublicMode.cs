@@ -43,7 +43,7 @@ public static class PublicMode
             if (!IsVisitorPipeline(request.Method, request.Path))
             {
                 await Results.Problem(title: ReadOnlyTitle,
-                        detail: "This public deployment only reads its 55-paper corpus. Adding or deleting papers, "
+                        detail: "This public deployment only reads its paper library. Adding or deleting papers, "
                             + "server-side run history and the research endpoints are switched off here; run LIBRAIN "
                             + "locally for those (see the README).",
                         statusCode: StatusCodes.Status403Forbidden)

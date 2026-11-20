@@ -69,7 +69,7 @@ describe('describeError in Turkish', () => {
     expect(isNoRecording(new Error(NO_RECORDING))).toBe(false);
     const en = describeError(none, 0, { publicDemo: true, lang: 'en' });
     expect(en).toMatchObject({ tone: 'info', retryable: false, action: { kind: 'go-live' } });
-    expect(en.detail).toMatch(/pick a suggested topic or question, open Ideas .*, or switch to Live .*API keys \(billed to you\)/);
+    expect(en.detail).toMatch(/pick a suggested topic or question, open Explore .*, or switch to Live .*API keys \(billed to you\)/);
     const tr = describeError(none, 0, { publicDemo: true, lang: 'tr' });
     expect(tr.title).toBe('Hazır modda bu girdilerle eşleşen bir çalıştırma yok.');
     expect(tr.detail).toMatch(/önerilen bir konu ya da soru seçin, .*Fikirler sayfasını açın ya da .*API key’lerinizle .*Canlı moda geçin \(ücret size yansır\)/);

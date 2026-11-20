@@ -94,11 +94,11 @@ describe('home page', () => {
 
     const inside = screen.getByRole('region', { name: 'What’s inside' });
     expect(within(inside).getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
-      ['Ideas', '/explore'],
-      ['New idea', '/discover'],
+      ['Explore', '/explore'],
+      ['Discover', '/discover'],
       ['Ask', '/ask'],
       ['Compare', '/compare'],
-      ['Papers', '/library'],
+      ['Library', '/library'],
       ['History', '/history'],
     ]);
 
